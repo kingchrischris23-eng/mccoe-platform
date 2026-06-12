@@ -6,7 +6,7 @@ from src.storage.repository import get_overview_stats, list_log_sessions, list_r
 
 def render() -> None:
     st.title("Training SOC Overview")
-    st.caption("Safe, educational dashboard for nonprofit cybersecurity training.")
+    st.caption("Safe, educational MCCoE cybersecurity training dashboard.")
 
     if st.button("Refresh Threat Feeds"):
         iocs = aggregate_feeds()

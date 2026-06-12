@@ -48,8 +48,37 @@ def save_iocs(iocs: list[IOC]) -> None:
 
 
 def list_iocs() -> list[dict]:
+    return list_iocs_filtered()
+
+
+def list_iocs_filtered(
+    severity: str | None = None,
+    ioc_type: str | None = None,
+    source: str | None = None,
+    search: str | None = None,
+    limit: int = 500,
+) -> list[dict]:
+    query = "SELECT * FROM iocs WHERE 1=1"
+    params: list = []
+
+    if severity:
+        query += " AND severity = ?"
+        params.append(severity.lower())
+    if ioc_type:
+        query += " AND ioc_type = ?"
+        params.append(ioc_type.lower())
+    if source:
+        query += " AND source LIKE ?"
+        params.append(f"%{source}%")
+    if search:
+        query += " AND (value LIKE ? OR tags LIKE ? OR description LIKE ?)"
+        params.extend([f"%{search}%"] * 3)
+
+    query += " ORDER BY severity DESC, value ASC LIMIT ?"
+    params.append(limit)
+
     with get_connection() as conn:
-        rows = conn.execute("SELECT * FROM iocs ORDER BY severity DESC, value ASC").fetchall()
+        rows = conn.execute(query, params).fetchall()
     return [dict(row) for row in rows]
 
 

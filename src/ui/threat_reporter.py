@@ -2,13 +2,26 @@ from pathlib import Path
 
 import streamlit as st
 
-from config import REPORTS_DIR
+from config import REPORTS_DIR, settings
+from src.api_client import DashboardAPIError
 from src.reports.generator import (
     generate_threat_report,
     generate_threat_report_markdown,
     generate_threat_reports,
 )
 from src.storage.repository import list_reports
+from src.ui.api_helpers import get_client
+
+
+def _handle_api_report(fmt: str) -> dict | None:
+    client = get_client()
+    if not client:
+        return None
+    try:
+        return client.generate_report(fmt=fmt, auto=False)
+    except DashboardAPIError as exc:
+        st.error(f"API error: {exc}")
+        return None
 
 
 def render() -> None:
@@ -21,22 +34,45 @@ def render() -> None:
     col1, col2, col3 = st.columns(3)
     with col1:
         if st.button("Generate PDF", type="primary"):
-            path = generate_threat_report(auto=False)
-            st.session_state["last_report_pdf"] = str(path)
-            st.success(f"PDF saved: `{path.name}`")
+            result = _handle_api_report("pdf")
+            if result:
+                path = Path(result["files"][0]["path"])
+                st.session_state["last_report_pdf"] = str(path)
+                st.success(f"PDF saved via API: `{path.name}`")
+            else:
+                path = generate_threat_report(auto=False)
+                st.session_state["last_report_pdf"] = str(path)
+                st.success(f"PDF saved: `{path.name}`")
     with col2:
         if st.button("Generate Markdown"):
-            path = generate_threat_report_markdown(auto=False)
-            st.session_state["last_report_md"] = str(path)
-            st.success(f"Markdown saved: `{path.name}`")
+            result = _handle_api_report("markdown")
+            if result:
+                path = Path(result["files"][0]["path"])
+                st.session_state["last_report_md"] = str(path)
+                st.success(f"Markdown saved via API: `{path.name}`")
+            else:
+                path = generate_threat_report_markdown(auto=False)
+                st.session_state["last_report_md"] = str(path)
+                st.success(f"Markdown saved: `{path.name}`")
     with col3:
         if st.button("Generate Both"):
-            paths = generate_threat_reports(auto=False)
-            st.session_state["last_report_pdf"] = str(paths["pdf"])
-            st.session_state["last_report_md"] = str(paths["markdown"])
-            st.success(f"Saved `{paths['pdf'].name}` and `{paths['markdown'].name}`")
+            result = _handle_api_report("both")
+            if result:
+                for item in result["files"]:
+                    if item["format"] == "pdf":
+                        st.session_state["last_report_pdf"] = item["path"]
+                    if item["format"] == "markdown":
+                        st.session_state["last_report_md"] = item["path"]
+                st.success(f"Saved: {result['summary']}")
+            else:
+                paths = generate_threat_reports(auto=False)
+                st.session_state["last_report_pdf"] = str(paths["pdf"])
+                st.session_state["last_report_md"] = str(paths["markdown"])
+                st.success(f"Saved `{paths['pdf'].name}` and `{paths['markdown'].name}`")
 
     st.caption(f"Reports directory: `{REPORTS_DIR}`")
+    if settings.use_api_backend:
+        st.caption(f"API endpoint: `{settings.api_base_url}/api/reports/generate`")
 
     dl_col1, dl_col2 = st.columns(2)
     pdf_path = st.session_state.get("last_report_pdf")

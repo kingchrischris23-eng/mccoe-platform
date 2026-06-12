@@ -1,7 +1,9 @@
 import streamlit as st
 
-from config import is_local_only
+from config import is_local_only, settings
+from src.api_client import DashboardAPIError
 from src.storage.repository import list_vuln_scans, save_vuln_scan
+from src.ui.api_helpers import get_client
 from src.vuln.checker import allowed_targets, run_vuln_check
 
 
@@ -35,7 +37,14 @@ def render() -> None:
         st.subheader("Latest Scan Results")
         st.json(result)
 
-    history = list_vuln_scans()[:5]
+    client = get_client()
+    if client:
+        try:
+            history = client.get_vulnerabilities(limit=5)["scans"]
+        except DashboardAPIError:
+            history = list_vuln_scans()[:5]
+    else:
+        history = list_vuln_scans()[:5]
     if history:
         st.subheader("Recent Scans")
         for scan in history:

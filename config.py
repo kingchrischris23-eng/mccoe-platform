@@ -24,6 +24,12 @@ class Settings(BaseSettings):
     max_upload_mb: int = 50
     auto_report_on_upload: bool = True
     local_only: bool = False
+    api_base_url: str = "http://127.0.0.1:8000"
+    use_api_backend: bool = False
+    api_auth_enabled: bool = True
+    api_key: str = "mccoe-training-key"
+    api_basic_user: str = "mccoe"
+    api_basic_password: str = "training"
 
 
 settings = Settings()

@@ -5,6 +5,7 @@ from src.reports.branding import (
     FOOTER_CONFIDENTIAL,
     FOOTER_TRAINING,
     IOC_TYPE_EXPLANATIONS,
+    ORG_EMAIL,
     ORG_NAME,
     REPORT_TITLE,
     REPORT_VERSION,
@@ -24,7 +25,8 @@ def render_markdown_content(data: ReportData) -> str:
         f"**Generated:** {timestamp.strftime('%Y-%m-%d %H:%M UTC')}  ",
         f"**Mode:** {data.mode_label}  ",
         f"**Version:** {REPORT_VERSION}  ",
-        f"**{FOOTER_TRAINING}** — {FOOTER_CONFIDENTIAL}",
+        f"**Contact:** {ORG_EMAIL}  ",
+        f"**{FOOTER_TRAINING}** - {FOOTER_CONFIDENTIAL}",
         "",
         "---",
         "",
@@ -102,7 +104,7 @@ def render_markdown_content(data: ReportData) -> str:
             "---",
             "",
             f"_{FOOTER_TRAINING} | {FOOTER_CONFIDENTIAL}_  ",
-            f"_Report generated {timestamp.strftime('%Y-%m-%d %H:%M UTC')} — Version {REPORT_VERSION}_",
+            f"_Report generated {timestamp.strftime('%Y-%m-%d %H:%M UTC')} - Version {REPORT_VERSION} - {ORG_EMAIL}_",
         ]
     )
 

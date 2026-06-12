@@ -9,6 +9,7 @@ from src.reports.branding import (
     FOOTER_CONFIDENTIAL,
     FOOTER_TRAINING,
     IOC_TYPE_EXPLANATIONS,
+    ORG_EMAIL,
     ORG_NAME,
     REPORT_TITLE,
     REPORT_VERSION,
@@ -59,7 +60,7 @@ class MCCoEReportPDF(FPDF):
         self.cell(
             0,
             4,
-            f"Generated {self.generated_at.strftime('%Y-%m-%d %H:%M UTC')} | v{REPORT_VERSION} | Page {self.page_no()}",
+            f"Generated {self.generated_at.strftime('%Y-%m-%d %H:%M UTC')} | v{REPORT_VERSION} | {ORG_EMAIL} | Page {self.page_no()}",
             align="C",
         )
 

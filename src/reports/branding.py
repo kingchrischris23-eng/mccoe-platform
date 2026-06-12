@@ -1,5 +1,6 @@
 REPORT_VERSION = "1.1"
 ORG_NAME = "Missouri Cybersecurity Center of Excellence"
+ORG_EMAIL = "support@mccoe.org"
 REPORT_TITLE = "Threat Intelligence Training Report"
 FOOTER_TRAINING = "FOR TRAINING PURPOSES ONLY"
 FOOTER_CONFIDENTIAL = "CONFIDENTIAL - MCCoE Internal Training Use Only"

@@ -2,8 +2,10 @@ import pandas as pd
 import streamlit as st
 
 from config import is_local_only
+from src.api_client import DashboardAPIError
 from src.feeds.aggregator import aggregate_feeds
 from src.storage.repository import list_iocs, save_iocs
+from src.ui.api_helpers import get_client
 
 
 def render() -> None:
@@ -13,22 +15,40 @@ def render() -> None:
     if is_local_only():
         st.info("Local-only mode: loading bundled sample IOCs only (no external API calls).")
 
+    client = get_client()
     col1, col2 = st.columns(2)
     with col1:
         if st.button("Fetch & Merge Feeds", type="primary"):
-            iocs = aggregate_feeds()
-            save_iocs(iocs)
-            st.session_state["feeds_loaded"] = len(iocs)
+            if client:
+                try:
+                    result = client.get_threats(refresh=True, limit=500)
+                    st.session_state["feeds_loaded"] = result["count"]
+                except DashboardAPIError as exc:
+                    st.error(f"API error: {exc}")
+            else:
+                iocs = aggregate_feeds()
+                save_iocs(iocs)
+                st.session_state["feeds_loaded"] = len(iocs)
     with col2:
         if is_local_only():
             st.caption("Uses `data/samples/sample_iocs.csv` for portable offline labs.")
+        elif client:
+            st.caption("Refreshing feeds via FastAPI backend.")
         else:
             st.caption("Without API keys, URLhaus + sample data are used automatically.")
 
     if st.session_state.get("feeds_loaded"):
         st.success(f"Loaded {st.session_state['feeds_loaded']} IOCs.")
 
-    rows = list_iocs()
+    if client:
+        try:
+            rows = client.get_threats(limit=500)["iocs"]
+        except DashboardAPIError as exc:
+            st.error(f"API error: {exc}")
+            return
+    else:
+        rows = list_iocs()
+
     if not rows:
         st.warning("No IOCs in database. Click 'Fetch & Merge Feeds'.")
         return

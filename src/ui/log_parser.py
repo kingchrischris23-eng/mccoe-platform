@@ -1,10 +1,12 @@
 import streamlit as st
 
 from config import settings
+from src.api_client import DashboardAPIError
 from src.logs.detectors import detect_alerts
 from src.logs.parser import load_sample_log, parse_log_file
 from src.reports.generator import generate_threat_report
 from src.storage.repository import create_log_session, get_alerts, get_latest_session_id, save_alerts, save_log_entries
+from src.ui.api_helpers import get_client
 
 
 def render() -> None:
@@ -28,13 +30,27 @@ def render() -> None:
         filename = uploaded.name
 
     if content and filename and st.button("Parse & Detect", type="primary"):
-        entries = parse_log_file(content)
-        alerts = detect_alerts(entries)
-        session_id = create_log_session(filename)
-        save_log_entries(session_id, entries)
-        save_alerts(session_id, alerts)
-        st.session_state["active_session_id"] = session_id
-        st.success(f"Parsed {len(entries)} entries and found {len(alerts)} alerts.")
+        client = get_client()
+        if client:
+            try:
+                result = client.analyze_logs(filename, content)
+                session_id = result["session_id"]
+                alerts = result["alerts"]
+                st.session_state["active_session_id"] = session_id
+                st.success(
+                    f"Parsed {result['entries_parsed']} entries and found {result['alerts_found']} alerts (via API)."
+                )
+            except DashboardAPIError as exc:
+                st.error(f"API error: {exc}")
+                return
+        else:
+            entries = parse_log_file(content)
+            alerts = detect_alerts(entries)
+            session_id = create_log_session(filename)
+            save_log_entries(session_id, entries)
+            save_alerts(session_id, alerts)
+            st.session_state["active_session_id"] = session_id
+            st.success(f"Parsed {len(entries)} entries and found {len(alerts)} alerts.")
 
         if settings.auto_report_on_upload and alerts:
             report_path = generate_threat_report(auto=True)
