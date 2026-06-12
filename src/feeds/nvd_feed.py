@@ -6,6 +6,7 @@ from config import settings
 from src.feeds.cache import read_cache, write_cache
 from src.feeds.common import cvss_to_severity, ioc_from_dict, ioc_to_dict, score_severity
 from src.feeds.models import FeedSourceResult, IOC
+from src.feeds.nvd_auth import nvd_request_headers
 from src.feeds.rate_limit import nvd_interval_seconds, request_with_backoff, seconds_until_retry
 
 CACHE_NAME = "nist_nvd"
@@ -86,12 +87,8 @@ def _fetch_recent_cves() -> list[dict]:
         "lastModEndDate": end.strftime("%Y-%m-%dT%H:%M:%S.000"),
         "resultsPerPage": 50,
     }
-    headers = {}
-    if settings.nvd_api_key:
-        headers["apiKey"] = settings.nvd_api_key
-
     def _do_request():
-        return httpx.get(NVD_URL, params=params, headers=headers, timeout=25.0)
+        return httpx.get(NVD_URL, params=params, headers=nvd_request_headers(), timeout=25.0)
 
     response = request_with_backoff("nvd", nvd_interval_seconds(), _do_request)
     return response.json().get("vulnerabilities", [])

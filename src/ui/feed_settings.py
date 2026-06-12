@@ -6,7 +6,7 @@ from src.feeds.aggregator import can_refresh_live, get_feed_status
 
 def render_feed_settings() -> None:
     with st.expander("Live Feed Settings", expanded=False):
-        st.caption("Toggle sources and provide an optional NVD API key for higher rate limits.")
+        st.caption("Toggle sources. Manage your NVD API key in **Settings** (saved to .env).")
 
         enable_live = st.toggle(
             "Enable live feed refresh",
@@ -25,17 +25,8 @@ def render_feed_settings() -> None:
             enable_otx = st.checkbox("AlienVault OTX", value=settings.enable_otx)
             enable_kev = st.checkbox("CISA KEV", value=settings.enable_cisa_kev)
 
-        nvd_key = st.text_input(
-            "NVD API Key (optional)",
-            value=settings.nvd_api_key,
-            type="password",
-            help="Free key from https://nvd.nist.gov/developers/request-an-api-key",
-        )
-        otx_key = st.text_input(
-            "OTX API Key (optional)",
-            value=settings.otx_api_key,
-            type="password",
-        )
+        if not settings.nvd_api_key:
+            st.caption("No NVD API key configured — using no-key mode. Add one in **Settings**.")
 
         if st.button("Apply Feed Settings"):
             settings.enable_live_feeds = enable_live
@@ -43,10 +34,6 @@ def render_feed_settings() -> None:
             settings.enable_otx = enable_otx
             settings.enable_nvd_feed = enable_nvd
             settings.enable_cisa_kev = enable_kev
-            if nvd_key:
-                settings.nvd_api_key = nvd_key
-            if otx_key:
-                settings.otx_api_key = otx_key
             st.success("Feed settings updated for this session.")
 
         _render_feed_status()

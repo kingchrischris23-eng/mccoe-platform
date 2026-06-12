@@ -1,8 +1,10 @@
 from pathlib import Path
 
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent
+load_dotenv(BASE_DIR / ".env")
 DATA_DIR = BASE_DIR / "data"
 DEMO_DATA_DIR = DATA_DIR / "demo"
 CACHE_DIR = DATA_DIR / "cache"
@@ -42,5 +44,17 @@ class Settings(BaseSettings):
 settings = Settings()
 
 
+def reload_settings() -> Settings:
+    """Reload settings from .env after a local update."""
+    load_dotenv(BASE_DIR / ".env", override=True)
+    global settings
+    settings = Settings()
+    return settings
+
+
 def is_local_only() -> bool:
     return settings.local_only
+
+
+def has_nvd_api_key() -> bool:
+    return bool(settings.nvd_api_key.strip())

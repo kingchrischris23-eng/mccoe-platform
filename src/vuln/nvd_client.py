@@ -5,6 +5,7 @@ from pathlib import Path
 import httpx
 
 from config import CACHE_DIR, settings
+from src.feeds.nvd_auth import nvd_request_headers
 from src.feeds.rate_limit import nvd_interval_seconds, request_with_backoff
 
 CACHE_FILE = CACHE_DIR / "nvd_lookup.json"
@@ -21,15 +22,11 @@ def lookup_cves(keyword: str, limit: int = 5) -> list[dict]:
         return []
 
     params = {"keywordSearch": keyword, "resultsPerPage": limit}
-    headers = {}
-    if settings.nvd_api_key:
-        headers["apiKey"] = settings.nvd_api_key
-
     try:
         response = request_with_backoff(
             "nvd",
             nvd_interval_seconds(),
-            lambda: httpx.get(NVD_URL, params=params, headers=headers, timeout=20.0),
+            lambda: httpx.get(NVD_URL, params=params, headers=nvd_request_headers(), timeout=20.0),
         )
         vulnerabilities = response.json().get("vulnerabilities", [])
     except httpx.HTTPError:

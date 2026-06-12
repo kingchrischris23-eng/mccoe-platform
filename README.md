@@ -137,6 +137,40 @@ LOCAL_ONLY=true
 AUTO_LOAD_DEMO=false
 ```
 
+### 3b. NIST NVD API key (optional)
+
+The NVD API key is **optional**. Without it, NVD requests use public rate limits (5 requests per 30 seconds). With a key, limits increase to 50 requests per 30 seconds.
+
+**Option A — Settings page (recommended)**
+
+1. Run the dashboard (step 4 below).
+2. Open **Settings** in the sidebar.
+3. Paste your NVD API key and click **Save to .env**.
+
+The key is written only to your local `.env` file (gitignored). It is never stored in source code or committed to git.
+
+**Option B — Edit `.env` manually**
+
+1. Copy `.env.example` to `.env` if you have not already.
+2. Replace the example placeholder with your own key:
+
+```env
+NVD_API_KEY=your-key-here
+```
+
+The value in `.env.example` is an **example placeholder only** — replace it with a key you request from NIST:
+
+[https://nvd.nist.gov/developers/request-an-api-key](https://nvd.nist.gov/developers/request-an-api-key)
+
+**Security notes**
+
+- Never commit `.env` — it is listed in `.gitignore`.
+- Do not paste production keys into issues, screenshots, or chat logs.
+- Leave `NVD_API_KEY` empty to use no-key mode (slower, but fully functional).
+- If `USE_API_BACKEND=true`, restart the FastAPI server after changing the key so the API process reloads `.env`.
+
+Configuration is loaded via `python-dotenv` at startup (`config.py`).
+
 ### 4. Run the dashboard
 
 ```bash
@@ -359,7 +393,7 @@ The sidebar shows a **Local-only mode** badge when active.
 | `ENABLE_CISA_KEV` | `true` | CISA Known Exploited Vulnerabilities catalog |
 | `FEED_STALE_FALLBACK` | `true` | Use expired cache when offline or rate-limited |
 | `OTX_API_KEY` | empty | AlienVault OTX pulses (online mode) |
-| `NVD_API_KEY` | empty | Free NVD API key — 50 req/30s vs 5 without ([request key](https://nvd.nist.gov/developers/request-an-api-key)) |
+| `NVD_API_KEY` | empty (see `.env.example` placeholder) | Optional NIST key — 50 req/30s vs 5 without; set via **Settings** or `.env` |
 | `INSTRUCTOR_MODE` | `false` | Expands scan allowlist when `true` |
 | `ALLOWED_TARGETS` | `127.0.0.1,localhost` | Comma-separated vuln scan targets |
 | `AUTO_REPORT_ON_UPLOAD` | `true` | Auto-generate PDF after log parsing |

@@ -3,7 +3,7 @@ import streamlit as st
 from config import is_local_only, settings
 from src.data_import.demo_loader import load_demo_data
 from src.storage.repository import get_overview_stats, init_db
-from src.ui import log_analyzer, log_parser, overview, threat_feeds, threat_reporter, vuln_checker
+from src.ui import log_analyzer, log_parser, overview, settings_page, threat_feeds, threat_reporter, vuln_checker
 from src.ui.api_helpers import api_status_badge
 from src.ui.demo_controls import render_demo_controls
 
@@ -14,6 +14,7 @@ PAGES = {
     "Log Analyzer": log_analyzer.render,
     "Vuln Checker": vuln_checker.render,
     "Threat Reporter": threat_reporter.render,
+    "Settings": settings_page.render,
 }
 
 
