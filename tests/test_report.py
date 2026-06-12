@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from src.data_import.ioc_importer import import_iocs_from_file
 from src.logs.detectors import detect_alerts
 from src.logs.parser import parse_log_file
@@ -7,6 +9,7 @@ from src.reports.generator import (
     generate_threat_report_markdown,
     generate_threat_reports,
 )
+from src.feeds.models import IOC
 from src.storage.repository import create_log_session, init_db, save_alerts, save_iocs, save_log_entries, save_vuln_scan
 
 
@@ -65,6 +68,26 @@ def test_generate_both_formats(fixtures_dir, tmp_path, monkeypatch):
     paths = generate_threat_reports(auto=True)
     assert paths["pdf"].exists()
     assert paths["markdown"].exists()
+
+
+def test_generate_pdf_with_unicode_descriptions(fixtures_dir, tmp_path, monkeypatch):
+    _seed_report_data(fixtures_dir, tmp_path, monkeypatch)
+    save_iocs(
+        [
+            IOC(
+                ioc_type="cve",
+                value="CVE-2024-9999",
+                severity="critical",
+                source="CISA KEV",
+                first_seen=datetime.now(timezone.utc),
+                tags=["kev"],
+                description="Actively exploited — patch required “urgent”",
+            )
+        ]
+    )
+    report_path = generate_threat_report(auto=True)
+    assert report_path.exists()
+    assert report_path.stat().st_size > 1500
 
 
 def test_chart_generation(tmp_path):

@@ -19,6 +19,7 @@ from src.reports.branding import (
 from src.reports.charts import alert_breakdown_pie, vulnerability_risk_bar
 from src.reports.data_collector import ReportData, collect_report_data, recommendations
 from src.reports.markdown import generate_markdown_report
+from src.reports.pdf_text import sanitize_pdf_text
 from src.storage.repository import save_report
 
 
@@ -26,6 +27,12 @@ class MCCoEReportPDF(FPDF):
     def __init__(self, generated_at: datetime):
         super().__init__()
         self.generated_at = generated_at
+
+    def cell(self, w, h=0, text="", *args, **kwargs):
+        return super().cell(w, h, sanitize_pdf_text(text), *args, **kwargs)
+
+    def multi_cell(self, w, h=0, text="", *args, **kwargs):
+        return super().multi_cell(w, h, sanitize_pdf_text(text), *args, **kwargs)
 
     def header(self) -> None:
         self.set_fill_color(31, 78, 121)
