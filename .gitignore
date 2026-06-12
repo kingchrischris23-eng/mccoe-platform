@@ -4,5 +4,6 @@ __pycache__/
 .env
 db/dashboard.db
 data/cache/
+data/scans/*.json
 data/reports/*.pdf
 .pytest_cache/

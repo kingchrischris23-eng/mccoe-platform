@@ -12,6 +12,7 @@ Starts **empty by default** — no sample IOCs, logs, or vulnerability findings 
 - **Log Parser** — Apache combined log parsing with brute-force, injection, and scan heuristics
 - **Log Analyzer** — Risk scoring, timelines, top IPs, and IOC correlation
 - **Vuln Checker** — Allowlist-only scanning with NVD CVE lookup (online mode) or manual entry
+- **Network Scanner** — Safe basic Nmap scans (allowlist + permission checkbox) with JSON export
 - **Threat Reporter** — MCCoE-branded PDF (with charts) and Markdown exports
 - **Local-only mode** — No external API calls; portable and air-gap friendly
 - **Optional demo data** — One-click **Load Demo Data** in the sidebar for training labs

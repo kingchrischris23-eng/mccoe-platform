@@ -246,9 +246,55 @@ def list_reports() -> list[dict]:
     return [dict(row) for row in rows]
 
 
+def save_network_scan(result: dict) -> int:
+    with get_connection() as conn:
+        cursor = conn.execute(
+            """
+            INSERT INTO network_scans
+            (target, port_range, scan_type, scanned_at, hosts_up, open_ports, results, json_path, summary)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                result["target"],
+                result["port_range"],
+                result["scan_type"],
+                result["scanned_at"],
+                result.get("hosts_up", 0),
+                result.get("open_port_count", 0),
+                json.dumps(result.get("results", [])),
+                result.get("json_path", ""),
+                result.get("summary", ""),
+            ),
+        )
+        return int(cursor.lastrowid)
+
+
+def list_network_scans(limit: int = 20) -> list[dict]:
+    with get_connection() as conn:
+        rows = conn.execute(
+            "SELECT * FROM network_scans ORDER BY id DESC LIMIT ?",
+            (limit,),
+        ).fetchall()
+    results = []
+    for row in rows:
+        item = dict(row)
+        item["results"] = json.loads(item["results"])
+        results.append(item)
+    return results
+
+
 def clear_all_data() -> None:
     with get_connection() as conn:
-        for table in ("alerts", "log_entries", "log_sessions", "iocs", "vuln_scans", "scan_audit", "reports"):
+        for table in (
+            "alerts",
+            "log_entries",
+            "log_sessions",
+            "iocs",
+            "vuln_scans",
+            "network_scans",
+            "scan_audit",
+            "reports",
+        ):
             conn.execute(f"DELETE FROM {table}")
 
 

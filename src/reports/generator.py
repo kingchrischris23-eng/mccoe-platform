@@ -158,6 +158,21 @@ def _build_pdf(data: ReportData, output_path: Path) -> None:
             pdf.compact_line(summary)
 
         pdf.ln(2)
+        pdf.section_title("Network Scan Results")
+        if data.network_scans:
+            for scan in data.network_scans[:2]:
+                pdf.compact_line(
+                    f"  {scan['target']} ({scan['scan_type']}, {scan['port_range']}): {scan.get('summary', '')}"
+                )
+                for row in scan.get("results", [])[:6]:
+                    svc = row.get("service") or "unknown"
+                    pdf.compact_line(
+                        f"    {row['host']}:{row['port']} {svc} {row.get('product', '')} {row.get('version', '')}"
+                    )
+        else:
+            pdf.body_text("No network scans recorded.")
+
+        pdf.ln(2)
         pdf.section_title("Vulnerability Findings")
         bar_path = vulnerability_risk_bar(data.vuln_scans, tmp / "vulns.png")
         if bar_path:

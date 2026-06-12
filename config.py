@@ -18,9 +18,10 @@ DATA_DIR = BASE_DIR / "data"
 DEMO_DATA_DIR = DATA_DIR / "demo"
 CACHE_DIR = DATA_DIR / "cache"
 REPORTS_DIR = DATA_DIR / "reports"
+SCANS_DIR = DATA_DIR / "scans"
 DB_PATH = BASE_DIR / "db" / "dashboard.db"
 
-for directory in (DEMO_DATA_DIR, CACHE_DIR, REPORTS_DIR, DB_PATH.parent):
+for directory in (DEMO_DATA_DIR, CACHE_DIR, REPORTS_DIR, SCANS_DIR, DB_PATH.parent):
     directory.mkdir(parents=True, exist_ok=True)
 
 

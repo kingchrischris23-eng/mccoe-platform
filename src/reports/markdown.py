@@ -98,6 +98,22 @@ def render_markdown_content(data: ReportData) -> str:
         if data.correlations:
             lines.append(f"- IOC correlations found: **{len(data.correlations)}**")
 
+    lines.extend(["", "## Network Scan Results", ""])
+    if data.network_scans:
+        for scan in data.network_scans[:3]:
+            lines.append(
+                f"### `{scan['target']}` — {scan['scan_type']} (ports {scan['port_range']}) — {scan.get('summary', '')}"
+            )
+            for row in scan.get("results", [])[:8]:
+                svc = row.get("service") or "unknown"
+                lines.append(
+                    f"- `{row['host']}`:{row['port']} **{svc}** "
+                    f"{row.get('product', '')} {row.get('version', '')}".strip()
+                )
+            lines.append("")
+    else:
+        lines.append("_No network scans recorded._")
+
     lines.extend(["", "## Vulnerability Findings", ""])
     if data.vuln_scans:
         for scan in data.vuln_scans[:4]:

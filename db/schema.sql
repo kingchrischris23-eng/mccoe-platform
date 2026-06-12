@@ -62,6 +62,19 @@ CREATE TABLE IF NOT EXISTS scan_audit (
     timestamp TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS network_scans (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    target TEXT NOT NULL,
+    port_range TEXT NOT NULL,
+    scan_type TEXT NOT NULL,
+    scanned_at TEXT NOT NULL,
+    hosts_up INTEGER DEFAULT 0,
+    open_ports INTEGER DEFAULT 0,
+    results TEXT DEFAULT '[]',
+    json_path TEXT DEFAULT '',
+    summary TEXT DEFAULT ''
+);
+
 CREATE TABLE IF NOT EXISTS reports (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     filename TEXT NOT NULL,
