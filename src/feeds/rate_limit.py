@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 
 import httpx
 
-from config import settings
+from config import get_nvd_api_key
 
 
 @dataclass
@@ -22,7 +22,7 @@ def _state(source: str) -> RateLimitState:
 
 
 def nvd_interval_seconds() -> float:
-    return 0.6 if settings.nvd_api_key else 6.5
+    return 0.6 if get_nvd_api_key() else 6.5
 
 
 def wait_for_slot(source: str, interval_seconds: float) -> None:

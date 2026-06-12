@@ -26,7 +26,7 @@ def read_env_value(key: str) -> str | None:
     for line in ENV_PATH.read_text(encoding="utf-8").splitlines():
         stripped = line.strip()
         if stripped.startswith(prefix):
-            return stripped[len(prefix) :]
+            return stripped[len(prefix) :].strip().strip('"').strip("'")
     return None
 
 

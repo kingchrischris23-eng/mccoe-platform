@@ -1,6 +1,6 @@
 import streamlit as st
 
-from config import is_local_only, settings
+from config import has_nvd_api_key, is_local_only, settings
 from src.feeds.aggregator import can_refresh_live, get_feed_status
 
 
@@ -25,7 +25,7 @@ def render_feed_settings() -> None:
             enable_otx = st.checkbox("AlienVault OTX", value=settings.enable_otx)
             enable_kev = st.checkbox("CISA KEV", value=settings.enable_cisa_kev)
 
-        if not settings.nvd_api_key:
+        if not has_nvd_api_key():
             st.caption("No NVD API key configured — using no-key mode. Add one in **Settings**.")
 
         if st.button("Apply Feed Settings"):

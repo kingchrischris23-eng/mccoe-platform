@@ -33,7 +33,7 @@ def _online_env(monkeypatch, tmp_path):
     monkeypatch.setattr("config.settings", settings)
     monkeypatch.setattr("src.feeds.nvd_feed.settings", settings)
     monkeypatch.setattr("src.feeds.cache.settings", settings)
-    monkeypatch.setattr("src.feeds.rate_limit.settings", settings)
+
 
 
 def test_nvd_feed_parses_cves(monkeypatch, tmp_path):
