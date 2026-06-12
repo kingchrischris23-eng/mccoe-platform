@@ -45,6 +45,17 @@ def render_markdown_content(data: ReportData) -> str:
     for score_range, level, action in RISK_LEGEND:
         lines.append(f"| {score_range} | {level} | {action} |")
 
+    lines.extend(["", "## Threat Intelligence Sources", ""])
+    if data.feed_summary:
+        lines.append("| Source | IOCs | Mode | Last Updated |")
+        lines.append("|--------|------|------|--------------|")
+        for feed in data.feed_summary:
+            mode = "live" if feed.get("live") else ("cached (stale)" if feed.get("stale") else "cached")
+            cached = (feed.get("cached_at") or "—")[:19]
+            lines.append(f"| {feed['name']} | {feed['count']} | {mode} | {cached} |")
+    else:
+        lines.append("_No feed cache metadata available._")
+
     lines.extend(["", "## Threat Intelligence", ""])
     if data.iocs:
         for row in data.iocs[:12]:
@@ -57,6 +68,16 @@ def render_markdown_content(data: ReportData) -> str:
             lines.append(f"  - *{explanation}*")
     else:
         lines.append("_No IOCs available. Import IOCs, refresh feeds, or load demo data._")
+
+    if data.kev_highlights:
+        lines.extend(["", "## CISA KEV Highlights", ""])
+        for row in data.kev_highlights[:8]:
+            lines.append(f"- **[{row['severity'].upper()}]** `{row['value']}` — {row.get('description', '')[:120]}")
+
+    if data.nvd_highlights:
+        lines.extend(["", "## NIST NVD Recent CVEs", ""])
+        for row in data.nvd_highlights[:8]:
+            lines.append(f"- **[{row['severity'].upper()}]** `{row['value']}` — {row.get('description', '')[:120]}")
 
     lines.extend(["", "## Log Alert Breakdown", ""])
     if data.alert_breakdown:

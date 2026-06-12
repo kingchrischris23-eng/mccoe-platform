@@ -8,6 +8,8 @@ services:
     environment:
       LOCAL_ONLY: "true"
       AUTO_LOAD_DEMO: "false"
+      ENABLE_LIVE_FEEDS: "false"
+      FEED_STALE_FALLBACK: "true"
       API_AUTH_ENABLED: "true"
       API_KEY: "mccoe-training-key"
       API_BASIC_USER: "mccoe"
@@ -36,6 +38,8 @@ services:
     environment:
       LOCAL_ONLY: "true"
       AUTO_LOAD_DEMO: "false"
+      ENABLE_LIVE_FEEDS: "false"
+      FEED_STALE_FALLBACK: "true"
       USE_API_BACKEND: "true"
       API_BASE_URL: "http://api:8000"
       API_KEY: "mccoe-training-key"

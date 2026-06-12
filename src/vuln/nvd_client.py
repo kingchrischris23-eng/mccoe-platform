@@ -5,18 +5,20 @@ from pathlib import Path
 import httpx
 
 from config import CACHE_DIR, settings
+from src.feeds.rate_limit import nvd_interval_seconds, request_with_backoff
 
-CACHE_FILE = CACHE_DIR / "nvd_cache.json"
+CACHE_FILE = CACHE_DIR / "nvd_lookup.json"
+NVD_URL = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 
 
 def lookup_cves(keyword: str, limit: int = 5) -> list[dict]:
-    if settings.local_only:
-        return []
-
-    cache = _load_cache()
+    cache = _load_lookup_cache()
     cache_key = keyword.lower()
     if cache_key in cache:
         return cache[cache_key][:limit]
+
+    if settings.local_only:
+        return []
 
     params = {"keywordSearch": keyword, "resultsPerPage": limit}
     headers = {}
@@ -24,15 +26,15 @@ def lookup_cves(keyword: str, limit: int = 5) -> list[dict]:
         headers["apiKey"] = settings.nvd_api_key
 
     try:
-        response = httpx.get(
-            "https://services.nvd.nist.gov/rest/json/cves/2.0",
-            params=params,
-            headers=headers,
-            timeout=20.0,
+        response = request_with_backoff(
+            "nvd",
+            nvd_interval_seconds(),
+            lambda: httpx.get(NVD_URL, params=params, headers=headers, timeout=20.0),
         )
-        response.raise_for_status()
         vulnerabilities = response.json().get("vulnerabilities", [])
     except httpx.HTTPError:
+        if cache_key in cache:
+            return cache[cache_key][:limit]
         return []
 
     findings: list[dict] = []
@@ -55,17 +57,17 @@ def lookup_cves(keyword: str, limit: int = 5) -> list[dict]:
         )
 
     cache[cache_key] = findings
-    _save_cache(cache)
+    _save_lookup_cache(cache)
     return findings
 
 
-def _load_cache() -> dict:
+def _load_lookup_cache() -> dict:
     if not CACHE_FILE.exists():
         return {}
     payload = json.loads(CACHE_FILE.read_text(encoding="utf-8"))
-    return payload.get("items", payload)
+    return payload.get("items", {})
 
 
-def _save_cache(cache: dict) -> None:
+def _save_lookup_cache(cache: dict) -> None:
     payload = {"cached_at": datetime.now(timezone.utc).isoformat(), "items": cache}
     CACHE_FILE.write_text(json.dumps(payload, indent=2), encoding="utf-8")

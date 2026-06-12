@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routes import data, health, logs, reports, threats, vulnerabilities
+from api.routes import data, feeds, health, logs, reports, threats, vulnerabilities
 from src.reports.branding import ORG_EMAIL, ORG_NAME, REPORT_VERSION
 from src.storage.repository import init_db
 
@@ -37,6 +37,7 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(threats.router)
+app.include_router(feeds.router)
 app.include_router(logs.router)
 app.include_router(vulnerabilities.router)
 app.include_router(reports.router)

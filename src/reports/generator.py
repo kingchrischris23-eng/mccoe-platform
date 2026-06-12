@@ -97,6 +97,15 @@ def _build_pdf(data: ReportData, output_path: Path) -> None:
     for score_range, level, action in RISK_LEGEND:
         pdf.compact_line(f"  {score_range} ({level}): {action}")
 
+    pdf.section_title("Threat Intelligence Sources")
+    if data.feed_summary:
+        for feed in data.feed_summary:
+            mode = "live" if feed.get("live") else ("cached (stale)" if feed.get("stale") else "cached")
+            cached = (feed.get("cached_at") or "n/a")[:19]
+            pdf.compact_line(f"  {feed['name']}: {feed['count']} IOCs - {mode} - {cached}")
+    else:
+        pdf.body_text("No feed cache metadata available.")
+
     pdf.section_title("Threat Intelligence")
     if data.iocs:
         for row in data.iocs[:8]:
@@ -108,6 +117,16 @@ def _build_pdf(data: ReportData, output_path: Path) -> None:
             )
     else:
         pdf.body_text("No IOCs available. Import IOCs, refresh feeds, or load demo data.")
+
+    if data.kev_highlights:
+        pdf.section_title("CISA KEV Highlights")
+        for row in data.kev_highlights[:6]:
+            pdf.compact_line(f"  [{row['severity'].upper()}] {row['value']}: {row.get('description', '')[:90]}")
+
+    if data.nvd_highlights:
+        pdf.section_title("NIST NVD Recent CVEs")
+        for row in data.nvd_highlights[:6]:
+            pdf.compact_line(f"  [{row['severity'].upper()}] {row['value']}: {row.get('description', '')[:90]}")
 
     pdf.add_page()
 

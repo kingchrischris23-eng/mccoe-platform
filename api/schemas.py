@@ -89,3 +89,23 @@ class DemoLoadResponse(BaseModel):
 
 class DataClearResponse(BaseModel):
     message: str
+
+
+class FeedSourceStatus(BaseModel):
+    name: str
+    count: int = 0
+    cached_at: str | None = None
+    stale: bool = False
+    live: bool = False
+    error: str | None = None
+    rate_limited: bool = False
+
+
+class FeedStatusResponse(BaseModel):
+    sources: list[FeedSourceStatus]
+
+
+class FeedRefreshResponse(BaseModel):
+    total: int
+    sources: list[FeedSourceStatus]
+    message: str

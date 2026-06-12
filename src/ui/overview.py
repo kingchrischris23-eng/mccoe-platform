@@ -1,6 +1,6 @@
 import streamlit as st
 
-from src.feeds.aggregator import aggregate_feeds
+from src.feeds.aggregator import can_refresh_live, refresh_feeds
 from src.storage.repository import get_overview_stats, list_log_sessions, list_reports, save_iocs
 
 
@@ -17,15 +17,18 @@ def render() -> None:
 
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("Fetch Live Feeds"):
-            iocs = aggregate_feeds()
-            save_iocs(iocs)
-            if iocs:
-                st.success(f"Fetched {len(iocs)} IOC(s) from live feeds.")
+        if st.button("Refresh Live Feeds", disabled=not can_refresh_live()):
+            result = refresh_feeds(force_refresh=True)
+            save_iocs(result.iocs)
+            if result.total:
+                st.success(f"Refreshed {result.total} IOC(s) from live feeds.")
             else:
-                st.warning("No live feed data returned. Import IOCs or enable API keys.")
+                st.warning("No feed data returned. Import IOCs or check feed settings.")
     with col2:
-        st.caption("Requires LOCAL_ONLY=false and network access.")
+        if can_refresh_live():
+            st.caption("Pulls URLhaus, OTX, NVD, and CISA KEV.")
+        else:
+            st.caption("Requires LOCAL_ONLY=false and Enable live feeds.")
 
     col1, col2, col3, col4, col5 = st.columns(5)
     col1.metric("IOCs", stats["ioc_count"])
@@ -58,7 +61,7 @@ def render() -> None:
     st.subheader("Getting Started")
     st.markdown(
         """
-        1. **Threat Feeds** — import CSV/JSON IOCs or fetch live feeds.
+        1. **Threat Feeds** — import CSV/JSON IOCs or refresh live feeds.
         2. **Log Parser** — upload your Apache/Nginx logs.
         3. **Log Analyzer** — review risk scores after parsing.
         4. **Vuln Checker** — scan localhost or add findings manually.

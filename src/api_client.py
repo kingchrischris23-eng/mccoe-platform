@@ -63,6 +63,12 @@ class DashboardAPI:
         except DashboardAPIError:
             return False
 
+    def get_feed_status(self) -> dict:
+        return self._request("GET", "/api/feeds/status")
+
+    def refresh_feeds(self) -> dict:
+        return self._request("POST", "/api/feeds/refresh")
+
     def get_threats(
         self,
         severity: str | None = None,

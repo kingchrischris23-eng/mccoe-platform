@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 from api.auth import verify_api_auth
 from api.schemas import IOCImportRequest, IOCImportResponse, IOCResponse, ThreatListResponse
 from src.data_import.ioc_importer import import_iocs_from_upload, parse_ioc_records
-from src.feeds.aggregator import aggregate_feeds
+from src.feeds.aggregator import refresh_feeds
 from src.storage.repository import list_iocs_filtered, save_iocs
 
 router = APIRouter(prefix="/api/threats", tags=["Threats"])
@@ -20,8 +20,8 @@ def list_threats(
     _auth: str = Depends(verify_api_auth),
 ) -> ThreatListResponse:
     if refresh:
-        iocs = aggregate_feeds()
-        save_iocs(iocs)
+        result = refresh_feeds(force_refresh=True)
+        save_iocs(result.iocs)
 
     rows = list_iocs_filtered(severity=severity, ioc_type=ioc_type, source=source, search=search, limit=limit)
     return ThreatListResponse(

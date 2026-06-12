@@ -8,6 +8,35 @@ def test_import_fixture_iocs(fixtures_dir):
     assert any(ioc.ioc_type == "ip" for ioc in iocs)
 
 
-def test_aggregate_empty_without_feeds():
+def test_aggregate_empty_without_feeds(monkeypatch, tmp_path):
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir()
+    monkeypatch.setattr("config.CACHE_DIR", cache_dir)
+    monkeypatch.setattr("src.feeds.cache.CACHE_DIR", cache_dir)
     iocs = aggregate_feeds()
     assert iocs == []
+
+
+def test_aggregator_dedupes_cve(monkeypatch, tmp_path):
+    from datetime import datetime, timezone
+
+    from src.feeds.aggregator import refresh_feeds
+    from src.feeds.cache import write_cache
+    from src.feeds.common import ioc_to_dict
+    from src.feeds.models import IOC
+
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir()
+    monkeypatch.setattr("config.CACHE_DIR", cache_dir)
+    monkeypatch.setattr("src.feeds.cache.CACHE_DIR", cache_dir)
+
+    now = datetime.now(timezone.utc)
+    nvd_ioc = IOC("cve", "CVE-2024-1111", "high", "NIST NVD", now, ["nvd"], "NVD desc")
+    kev_ioc = IOC("cve", "CVE-2024-1111", "critical", "CISA KEV", now, ["kev"], "KEV desc")
+    write_cache("nist_nvd", [ioc_to_dict(nvd_ioc)], source="NIST NVD")
+    write_cache("cisa_kev", [ioc_to_dict(kev_ioc)], source="CISA KEV")
+
+    result = refresh_feeds(force_refresh=False)
+    assert result.total == 1
+    assert result.iocs[0].severity == "critical"
+    assert "kev" in result.iocs[0].tags

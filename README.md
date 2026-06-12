@@ -8,7 +8,7 @@ Starts **empty by default** — no sample IOCs, logs, or vulnerability findings 
 
 ## Features
 
-- **Threat Feed Aggregator** — OTX, URLhaus (online mode), plus CSV/JSON import and manual IOC entry
+- **Threat Feed Aggregator** — URLhaus, OTX, NIST NVD, CISA KEV (online mode), plus CSV/JSON import and manual IOC entry
 - **Log Parser** — Apache combined log parsing with brute-force, injection, and scan heuristics
 - **Log Analyzer** — Risk scoring, timelines, top IPs, and IOC correlation
 - **Vuln Checker** — Allowlist-only scanning with NVD CVE lookup (online mode) or manual entry
@@ -184,7 +184,7 @@ The dashboard starts with zero IOCs, log alerts, and vulnerability findings. Pop
 | **Upload logs** | Log Parser | Apache combined log files |
 | **Vuln scan / manual entry** | Vuln Checker | Allowlist scan (online) or manual findings |
 | **Load Demo Data** | Sidebar | Bundled demo IOCs, attack log, and vuln scan from `data/demo/` |
-| **Live feeds** | Threat Feeds (online only) | URLhaus + OTX when `LOCAL_ONLY=false` |
+| **Refresh Live Feeds** | Threat Feeds (online only) | URLhaus, OTX, NVD, CISA KEV — cached to `data/cache/` for offline use |
 
 Use **Clear All Data** in the sidebar to reset the database to empty.
 
@@ -198,6 +198,8 @@ Use **Clear All Data** in the sidebar to reset the database to empty.
 | `/api/threats` | GET | List IOCs with filters (`severity`, `ioc_type`, `source`, `search`, `refresh`) |
 | `/api/threats/import` | POST | Import IOCs from JSON body |
 | `/api/threats/import/upload` | POST | Import IOCs from CSV/JSON file upload |
+| `/api/feeds/status` | GET | Feed cache status (timestamps, counts, stale/live) |
+| `/api/feeds/refresh` | POST | Refresh all enabled live feeds and save to cache |
 | `/api/logs/analyze` | POST | Analyze log content (JSON body) |
 | `/api/logs/analyze/upload` | POST | Analyze uploaded log file (multipart) |
 | `/api/vulnerabilities` | GET | List vulnerability scan findings |
@@ -240,11 +242,18 @@ curl -X POST http://localhost:8000/api/threats/import \
   -d "{\"iocs\":[{\"ioc_type\":\"ip\",\"value\":\"10.0.0.1\",\"severity\":\"medium\",\"source\":\"manual\"}]}"
 ```
 
-**Refresh feeds and list IOCs (online mode only):**
+**Refresh live feeds (online mode only):**
+
+```bash
+curl -X POST http://localhost:8000/api/feeds/refresh \
+  -H "X-API-Key: mccoe-training-key"
+```
+
+**Check feed cache status:**
 
 ```bash
 curl -H "X-API-Key: mccoe-training-key" \
-  "http://localhost:8000/api/threats?refresh=true"
+  http://localhost:8000/api/feeds/status
 ```
 
 **Analyze log data (JSON):**
@@ -315,8 +324,8 @@ Invoke-RestMethod -Uri "http://localhost:8000/api/threats?severity=critical" -He
 
 | Component | Online mode (`LOCAL_ONLY=false`) | Local-only mode (`LOCAL_ONLY=true`) |
 |-----------|----------------------------------|-------------------------------------|
-| Threat feeds | URLhaus + OTX (if keyed) | No auto-fetch; import IOCs or load demo data |
-| CVE lookup | NVD API | Returns empty; add findings manually |
+| Threat feeds | URLhaus, OTX, NVD, CISA KEV | Serves cached JSON from `data/cache/` after first pull |
+| CVE lookup | NVD API (keyword search) | Returns empty; add findings manually |
 | Vuln scan | Real port/header checks on allowlist | Real scan only; no fake bundled results |
 | Log parser | Upload logs | Upload logs |
 | PDF reports | Uses whatever data is in the database | Same |
@@ -329,7 +338,7 @@ The sidebar shows a **Local-only mode** badge when active.
 
 ## Training Lab Flow
 
-1. Click **Load Demo Data** in the sidebar (or import your own IOCs in **Threat Feeds**).
+1. In **Threat Feeds**, click **Refresh Live Feeds** (online) or **Load Demo Data** in the sidebar.
 2. In **Log Parser**, upload `data/demo/demo_attack.log` (or your own log), then **Parse & Detect**.
 3. Open **Log Analyzer** to review risk scores and IOC matches.
 4. In **Vuln Checker**, scan `127.0.0.1` (allowlist enforced) or review demo vuln findings.
@@ -341,10 +350,16 @@ The sidebar shows a **Local-only mode** badge when active.
 
 | Variable | Default | Purpose |
 |----------|---------|---------|
-| `LOCAL_ONLY` | `true` | Disable all external API calls |
+| `LOCAL_ONLY` | `true` | Disable live network calls; cached feeds still load |
 | `AUTO_LOAD_DEMO` | `false` | Auto-load demo data on startup (not recommended for production) |
+| `ENABLE_LIVE_FEEDS` | `false` | Master toggle for live feed refresh |
+| `ENABLE_URLHAUS` | `true` | URLhaus recent URLs feed |
+| `ENABLE_OTX` | `true` | AlienVault OTX pulses (requires API key) |
+| `ENABLE_NVD_FEED` | `true` | NIST NVD recent CVE feed |
+| `ENABLE_CISA_KEV` | `true` | CISA Known Exploited Vulnerabilities catalog |
+| `FEED_STALE_FALLBACK` | `true` | Use expired cache when offline or rate-limited |
 | `OTX_API_KEY` | empty | AlienVault OTX pulses (online mode) |
-| `NVD_API_KEY` | empty | Faster NVD API access (online mode) |
+| `NVD_API_KEY` | empty | Free NVD API key — 50 req/30s vs 5 without ([request key](https://nvd.nist.gov/developers/request-an-api-key)) |
 | `INSTRUCTOR_MODE` | `false` | Expands scan allowlist when `true` |
 | `ALLOWED_TARGETS` | `127.0.0.1,localhost` | Comma-separated vuln scan targets |
 | `AUTO_REPORT_ON_UPLOAD` | `true` | Auto-generate PDF after log parsing |
@@ -369,7 +384,7 @@ cyber-dashboard/
 ├── config.py               # Settings and paths
 ├── data/
 │   ├── demo/               # Optional demo IOCs, logs, vuln scan (Load Demo Data)
-│   ├── cache/              # API response cache (online mode)
+│   ├── cache/              # Live feed JSON cache (urlhaus, otx, nvd, kev)
 │   └── reports/            # Generated PDF reports
 ├── db/                     # SQLite database
 └── src/                    # Core modules and UI pages

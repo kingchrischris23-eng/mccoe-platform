@@ -12,6 +12,7 @@ IOC_TYPE_EXPLANATIONS: dict[str, str] = {
     "hash": "File fingerprint (MD5/SHA) matching a known malware sample in threat intel feeds.",
     "email": "Sender address or mailbox linked to phishing or business email compromise.",
     "filename": "Observed malicious file name dropped during an intrusion or download event.",
+    "cve": "Published vulnerability identifier from NVD or CISA KEV catalogs.",
 }
 
 RISK_LEGEND: list[tuple[str, str, str]] = [

@@ -18,6 +18,12 @@ class Settings(BaseSettings):
 
     otx_api_key: str = ""
     nvd_api_key: str = ""
+    enable_live_feeds: bool = False
+    enable_urlhaus: bool = True
+    enable_otx: bool = True
+    enable_nvd_feed: bool = True
+    enable_cisa_kev: bool = True
+    feed_stale_fallback: bool = True
     instructor_mode: bool = False
     allowed_targets: str = "127.0.0.1,localhost"
     feed_cache_ttl_minutes: int = 15
