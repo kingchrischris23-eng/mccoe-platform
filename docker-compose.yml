@@ -1,0 +1,20 @@
+services:
+  dashboard:
+    build: .
+    container_name: cyber-training-dashboard
+    ports:
+      - "8501:8501"
+    environment:
+      LOCAL_ONLY: "true"
+      INSTRUCTOR_MODE: "false"
+      ALLOWED_TARGETS: "127.0.0.1,localhost"
+      AUTO_REPORT_ON_UPLOAD: "true"
+      MAX_UPLOAD_MB: "50"
+    volumes:
+      - dashboard-data:/app/data
+      - dashboard-db:/app/db
+    restart: unless-stopped
+
+volumes:
+  dashboard-data:
+  dashboard-db:
