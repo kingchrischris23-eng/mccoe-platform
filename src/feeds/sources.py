@@ -4,7 +4,7 @@ import httpx
 
 from config import settings
 from src.feeds.cache import read_cache, write_cache
-from src.feeds.common import ioc_from_dict, ioc_to_dict, score_severity
+from src.feeds.common import ioc_from_dict, ioc_to_dict, normalize_tags, score_severity
 from src.feeds.models import FeedSourceResult, IOC
 
 
@@ -15,6 +15,21 @@ def can_fetch_live() -> bool:
 def fetch_urlhaus(*, force_refresh: bool = False) -> FeedSourceResult:
     if not settings.enable_urlhaus:
         return FeedSourceResult(name="urlhaus", error="disabled")
+
+    if not settings.abuse_ch_auth_key:
+        cached, meta = read_cache("urlhaus", allow_stale=True)
+        if cached is not None:
+            iocs = [ioc_from_dict(item) for item in cached]
+            return FeedSourceResult(
+                name="urlhaus",
+                iocs=iocs,
+                count=len(iocs),
+                cached_at=meta.cached_at,
+                stale=meta.stale,
+                live=False,
+                error="missing_api_key",
+            )
+        return FeedSourceResult(name="urlhaus", error="missing_api_key")
 
     if not force_refresh or not can_fetch_live():
         cached, meta = read_cache("urlhaus", allow_stale=True)
@@ -35,8 +50,9 @@ def fetch_urlhaus(*, force_refresh: bool = False) -> FeedSourceResult:
             )
 
     url = "https://urlhaus-api.abuse.ch/v1/urls/recent/limit/50/"
+    headers = {"Auth-Key": settings.abuse_ch_auth_key}
     try:
-        response = httpx.get(url, timeout=15.0)
+        response = httpx.get(url, headers=headers, timeout=15.0)
         response.raise_for_status()
         rows = response.json().get("urls", [])
     except httpx.HTTPError as exc:
@@ -45,7 +61,7 @@ def fetch_urlhaus(*, force_refresh: bool = False) -> FeedSourceResult:
     iocs: list[IOC] = []
     serialized: list[dict] = []
     for row in rows:
-        tags = [row.get("threat", "malware"), row.get("tags", "")]
+        tags = normalize_tags(row.get("threat", "malware"), row.get("tags", []))
         description = f"URLhaus entry: {row.get('url_status', 'unknown')}"
         ioc = IOC(
             ioc_type="url",
@@ -53,7 +69,7 @@ def fetch_urlhaus(*, force_refresh: bool = False) -> FeedSourceResult:
             severity=score_severity(tags, description),
             source="URLhaus",
             first_seen=datetime.now(timezone.utc),
-            tags=[tag for tag in tags if tag],
+            tags=tags,
             description=description,
         )
         iocs.append(ioc)

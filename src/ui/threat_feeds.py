@@ -8,6 +8,7 @@ from src.storage.repository import list_iocs, save_iocs
 from src.ui.api_helpers import get_client
 from src.ui.data_import import render_ioc_import_section
 from src.ui.feed_settings import render_feed_settings
+from src.ui.threat_feed_display import render_ioc_table
 
 
 def render() -> None:
@@ -38,9 +39,14 @@ def render() -> None:
                 result = refresh_feeds(force_refresh=True)
                 save_iocs(result.iocs)
                 st.session_state["feed_refresh"] = _result_to_dict(result)
+            st.session_state["threat_feed_page"] = 1
+            st.rerun()
     with col2:
         if refresh_disabled:
-            st.caption("Enable LOCAL_ONLY=false and Enable live feeds in settings.")
+            st.caption(
+                "Enable LOCAL_ONLY=false, add your abuse.ch Auth-Key in Live Feed Settings, "
+                "and enable live feeds."
+            )
         else:
             st.caption("Pulls URLhaus, OTX, NVD, and CISA KEV into local JSON cache.")
 
@@ -60,16 +66,7 @@ def render() -> None:
         return
 
     df = pd.DataFrame(rows)
-    severity = st.multiselect("Severity", sorted(df["severity"].unique()), default=list(df["severity"].unique()))
-    ioc_type = st.multiselect("IOC Type", sorted(df["ioc_type"].unique()), default=list(df["ioc_type"].unique()))
-    filtered = df[df["severity"].isin(severity) & df["ioc_type"].isin(ioc_type)]
-
-    st.metric("Visible IOCs", len(filtered))
-    st.dataframe(
-        filtered[["ioc_type", "value", "severity", "source", "tags", "description"]],
-        use_container_width=True,
-        hide_index=True,
-    )
+    render_ioc_table(df)
 
 
 def _show_refresh_summary() -> None:
@@ -115,5 +112,3 @@ def _result_to_dict(result) -> dict:
             for source in result.sources
         ],
     }
-
-

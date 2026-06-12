@@ -16,6 +16,7 @@ for directory in (DEMO_DATA_DIR, CACHE_DIR, REPORTS_DIR, DB_PATH.parent):
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
+    abuse_ch_auth_key: str = ""
     otx_api_key: str = ""
     nvd_api_key: str = ""
     enable_live_feeds: bool = False

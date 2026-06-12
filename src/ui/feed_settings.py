@@ -4,50 +4,39 @@ from config import is_local_only, settings
 from src.feeds.aggregator import can_refresh_live, get_feed_status
 
 
+def _key_status(label: str, value: str) -> None:
+    if value:
+        st.success(f"{label}: configured (loaded from .env)")
+    else:
+        st.warning(f"{label}: not set — add to `.env` and restart Docker")
+
+
 def render_feed_settings() -> None:
     with st.expander("Live Feed Settings", expanded=False):
-        st.caption("Toggle sources and provide an optional NVD API key for higher rate limits.")
-
-        enable_live = st.toggle(
-            "Enable live feed refresh",
-            value=settings.enable_live_feeds,
-            disabled=is_local_only(),
-            help="Requires LOCAL_ONLY=false in .env",
+        st.caption(
+            "API keys and feed toggles are loaded from `.env` in the project root. "
+            "Edit that file and run `docker compose up --build -d` to apply changes."
         )
+
         if is_local_only():
-            st.warning("LOCAL_ONLY=true — live refresh disabled. Cached feeds still load after first pull.")
+            st.warning("LOCAL_ONLY=true — live refresh disabled. Set LOCAL_ONLY=false in `.env` to enable.")
+        elif settings.enable_live_feeds:
+            st.info("Live feeds enabled via `.env`.")
+        else:
+            st.warning("ENABLE_LIVE_FEEDS=false in `.env` — live refresh is off.")
 
         col1, col2 = st.columns(2)
         with col1:
-            enable_urlhaus = st.checkbox("URLhaus", value=settings.enable_urlhaus)
-            enable_nvd = st.checkbox("NIST NVD", value=settings.enable_nvd_feed)
+            st.checkbox("URLhaus", value=settings.enable_urlhaus, disabled=True)
+            st.checkbox("NIST NVD", value=settings.enable_nvd_feed, disabled=True)
         with col2:
-            enable_otx = st.checkbox("AlienVault OTX", value=settings.enable_otx)
-            enable_kev = st.checkbox("CISA KEV", value=settings.enable_cisa_kev)
+            st.checkbox("AlienVault OTX", value=settings.enable_otx, disabled=True)
+            st.checkbox("CISA KEV", value=settings.enable_cisa_kev, disabled=True)
 
-        nvd_key = st.text_input(
-            "NVD API Key (optional)",
-            value=settings.nvd_api_key,
-            type="password",
-            help="Free key from https://nvd.nist.gov/developers/request-an-api-key",
-        )
-        otx_key = st.text_input(
-            "OTX API Key (optional)",
-            value=settings.otx_api_key,
-            type="password",
-        )
-
-        if st.button("Apply Feed Settings"):
-            settings.enable_live_feeds = enable_live
-            settings.enable_urlhaus = enable_urlhaus
-            settings.enable_otx = enable_otx
-            settings.enable_nvd_feed = enable_nvd
-            settings.enable_cisa_kev = enable_kev
-            if nvd_key:
-                settings.nvd_api_key = nvd_key
-            if otx_key:
-                settings.otx_api_key = otx_key
-            st.success("Feed settings updated for this session.")
+        st.markdown("**API keys (from `.env`)**")
+        _key_status("abuse.ch Auth-Key (URLhaus)", settings.abuse_ch_auth_key)
+        _key_status("NVD API Key", settings.nvd_api_key)
+        _key_status("OTX API Key", settings.otx_api_key)
 
         _render_feed_status()
 
