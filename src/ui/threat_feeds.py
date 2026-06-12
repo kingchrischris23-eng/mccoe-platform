@@ -6,20 +6,25 @@ from src.api_client import DashboardAPIError
 from src.feeds.aggregator import aggregate_feeds
 from src.storage.repository import list_iocs, save_iocs
 from src.ui.api_helpers import get_client
+from src.ui.data_import import render_ioc_import_section
 
 
 def render() -> None:
     st.title("Threat Feed Aggregator")
-    st.write("Aggregates OTX, URLhaus, and local sample IOCs with deduplication.")
+    st.write("Import your own IOCs or fetch live feeds when not in local-only mode.")
 
     if is_local_only():
-        st.info("Local-only mode: loading bundled sample IOCs only (no external API calls).")
+        st.info("Local-only mode: live feeds disabled. Import IOCs via CSV/JSON or use Load Demo Data in the sidebar.")
+
+    render_ioc_import_section()
 
     client = get_client()
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("Fetch & Merge Feeds", type="primary"):
-            if client:
+        if st.button("Fetch Live Feeds", type="primary"):
+            if is_local_only():
+                st.warning("Disable LOCAL_ONLY or import IOCs manually to populate threat data.")
+            elif client:
                 try:
                     result = client.get_threats(refresh=True, limit=500)
                     st.session_state["feeds_loaded"] = result["count"]
@@ -30,15 +35,10 @@ def render() -> None:
                 save_iocs(iocs)
                 st.session_state["feeds_loaded"] = len(iocs)
     with col2:
-        if is_local_only():
-            st.caption("Uses `data/samples/sample_iocs.csv` for portable offline labs.")
-        elif client:
-            st.caption("Refreshing feeds via FastAPI backend.")
-        else:
-            st.caption("Without API keys, URLhaus + sample data are used automatically.")
+        st.caption("Live feeds require LOCAL_ONLY=false and optional API keys.")
 
-    if st.session_state.get("feeds_loaded"):
-        st.success(f"Loaded {st.session_state['feeds_loaded']} IOCs.")
+    if st.session_state.get("feeds_loaded") is not None:
+        st.success(f"Loaded {st.session_state['feeds_loaded']} IOC(s) from live feeds.")
 
     if client:
         try:
@@ -50,7 +50,7 @@ def render() -> None:
         rows = list_iocs()
 
     if not rows:
-        st.warning("No IOCs in database. Click 'Fetch & Merge Feeds'.")
+        st.info("No IOCs yet. Import a CSV/JSON file, add one manually, fetch live feeds, or load demo data.")
         return
 
     df = pd.DataFrame(rows)
@@ -64,9 +64,3 @@ def render() -> None:
         use_container_width=True,
         hide_index=True,
     )
-
-    with st.expander("What is an IOC?"):
-        st.markdown(
-            "An **Indicator of Compromise (IOC)** is evidence that a system may have been breached — "
-            "such as a malicious IP, domain, URL, or file hash. Trainees practice comparing IOCs against logs."
-        )

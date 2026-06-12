@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, File, HTTPException, Query, UploadFile
 
 from api.auth import verify_api_auth
-from api.schemas import IOCResponse, ThreatListResponse
+from api.schemas import IOCImportRequest, IOCImportResponse, IOCResponse, ThreatListResponse
+from src.data_import.ioc_importer import import_iocs_from_upload, parse_ioc_records
 from src.feeds.aggregator import aggregate_feeds
 from src.storage.repository import list_iocs_filtered, save_iocs
 
@@ -27,3 +28,30 @@ def list_threats(
         count=len(rows),
         iocs=[IOCResponse(**row) for row in rows],
     )
+
+
+@router.post("/import", response_model=IOCImportResponse)
+def import_threats_json(
+    payload: IOCImportRequest,
+    _auth: str = Depends(verify_api_auth),
+) -> IOCImportResponse:
+    try:
+        iocs = parse_ioc_records(payload.iocs)
+        save_iocs(iocs)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return IOCImportResponse(imported=len(iocs), message=f"Imported {len(iocs)} IOC(s).")
+
+
+@router.post("/import/upload", response_model=IOCImportResponse)
+async def import_threats_upload(
+    file: UploadFile = File(...),
+    _auth: str = Depends(verify_api_auth),
+) -> IOCImportResponse:
+    content = (await file.read()).decode("utf-8", errors="replace")
+    try:
+        iocs = import_iocs_from_upload(file.filename or "upload.csv", content)
+        save_iocs(iocs)
+    except (ValueError, KeyError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return IOCImportResponse(imported=len(iocs), message=f"Imported {len(iocs)} IOC(s).")

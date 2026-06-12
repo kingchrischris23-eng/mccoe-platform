@@ -12,34 +12,29 @@ def local_only_env(monkeypatch):
     monkeypatch.setenv("OTX_API_KEY", "fake-key-should-not-be-used")
     from config import Settings
 
-    monkeypatch.setattr("config.settings", Settings())
-    monkeypatch.setattr("src.feeds.sources.settings", Settings())
-    monkeypatch.setattr("src.vuln.nvd_client.settings", Settings())
-    monkeypatch.setattr("src.vuln.checker.settings", Settings())
+    settings = Settings()
+    monkeypatch.setattr("config.settings", settings)
+    monkeypatch.setattr("src.feeds.sources.settings", settings)
+    monkeypatch.setattr("src.vuln.nvd_client.settings", settings)
+    monkeypatch.setattr("src.vuln.checker.settings", settings)
 
 
 def test_local_only_skips_external_feeds(local_only_env):
     assert fetch_urlhaus() == []
     assert fetch_otx() == []
-    iocs = aggregate_feeds()
-    assert len(iocs) >= 4
-    assert all(ioc.source != "URLhaus" for ioc in iocs)
+    assert aggregate_feeds() == []
 
 
-def test_local_only_uses_sample_cves(local_only_env):
-    findings = lookup_cves("nginx")
-    assert findings
-    assert findings[0]["cve_id"].startswith("CVE-")
+def test_local_only_returns_empty_cves(local_only_env):
+    assert lookup_cves("nginx") == []
 
 
-def test_local_only_uses_sample_vuln_scan(local_only_env, monkeypatch):
+def test_local_only_real_scan_no_fake_data(local_only_env, monkeypatch):
     from config import Settings
 
     settings = Settings()
     monkeypatch.setattr("src.vuln.checker.settings", settings)
-    monkeypatch.setattr("src.vuln.checker.is_local_only", lambda: True)
 
-    result = run_vuln_check("127.0.0.1")
-    assert result["mode"] == "local_only_sample"
-    assert result["open_ports"]
-    assert result["cve_findings"]
+    result = run_vuln_check("127.0.0.1", ports=[65534])
+    assert "mode" not in result
+    assert result["target"] == "127.0.0.1"

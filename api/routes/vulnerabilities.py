@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Query
 
 from api.auth import verify_api_auth
-from api.schemas import VulnerabilityListResponse, VulnerabilityScanResponse
-from src.storage.repository import list_vuln_scans
+from api.schemas import VulnerabilityCreateRequest, VulnerabilityListResponse, VulnerabilityScanResponse
+from src.storage.repository import list_vuln_scans, save_vuln_scan
 
 router = APIRouter(prefix="/api/vulnerabilities", tags=["Vulnerabilities"])
 
@@ -21,3 +21,14 @@ def list_vulnerabilities(
         count=len(scans),
         scans=[VulnerabilityScanResponse(**scan) for scan in scans],
     )
+
+
+@router.post("", response_model=VulnerabilityScanResponse)
+def create_vulnerability(
+    payload: VulnerabilityCreateRequest,
+    _auth: str = Depends(verify_api_auth),
+) -> VulnerabilityScanResponse:
+    scan_id = save_vuln_scan(payload.model_dump())
+    scans = list_vuln_scans()
+    created = next(scan for scan in scans if scan["id"] == scan_id)
+    return VulnerabilityScanResponse(**created)

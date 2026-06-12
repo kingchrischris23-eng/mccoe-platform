@@ -1,11 +1,10 @@
-import csv
 import json
 from datetime import datetime, timezone
 from pathlib import Path
 
 import httpx
 
-from config import CACHE_DIR, SAMPLES_DIR, settings
+from config import CACHE_DIR, settings
 from src.feeds.models import IOC
 
 SEVERITY_KEYWORDS = {
@@ -58,7 +57,7 @@ def fetch_urlhaus() -> list[IOC]:
         response.raise_for_status()
         rows = response.json().get("urls", [])
     except httpx.HTTPError:
-        return load_sample_iocs()
+        return []
 
     iocs: list[IOC] = []
     serialized: list[dict] = []
@@ -124,40 +123,6 @@ def fetch_otx() -> list[IOC]:
     if serialized:
         _write_cache("otx", serialized)
     return iocs
-
-
-def load_sample_iocs() -> list[IOC]:
-    sample_path = SAMPLES_DIR / "sample_iocs.csv"
-    if not sample_path.exists():
-        return _default_sample_iocs()
-
-    iocs: list[IOC] = []
-    with sample_path.open(encoding="utf-8") as handle:
-        reader = csv.DictReader(handle)
-        for row in reader:
-            tags = [tag.strip() for tag in row.get("tags", "").split(";") if tag.strip()]
-            iocs.append(
-                IOC(
-                    ioc_type=row["ioc_type"],
-                    value=row["value"],
-                    severity=row.get("severity", "medium"),
-                    source=row.get("source", "Sample"),
-                    first_seen=datetime.now(timezone.utc),
-                    tags=tags,
-                    description=row.get("description", ""),
-                )
-            )
-    return iocs
-
-
-def _default_sample_iocs() -> list[IOC]:
-    now = datetime.now(timezone.utc)
-    return [
-        IOC("ip", "198.51.100.42", "high", "Sample", now, ["bruteforce"], "Known brute-force source"),
-        IOC("domain", "evil-training.example", "critical", "Sample", now, ["phishing"], "Phishing domain"),
-        IOC("url", "http://malware-lab.example/payload.exe", "high", "Sample", now, ["malware"], "Malware URL"),
-        IOC("hash", "d41d8cd98f00b204e9800998ecf8427e", "medium", "Sample", now, ["sample"], "Example MD5 hash"),
-    ]
 
 
 def _ioc_to_dict(ioc: IOC) -> dict:

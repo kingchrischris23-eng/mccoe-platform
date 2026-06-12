@@ -56,7 +56,7 @@ def render_markdown_content(data: ReportData) -> str:
             lines.append(f"  - Source: {row['source']} | Tags: {row.get('tags', '')}")
             lines.append(f"  - *{explanation}*")
     else:
-        lines.append("_No IOCs available. Refresh feeds or load sample data._")
+        lines.append("_No IOCs available. Import IOCs, refresh feeds, or load demo data._")
 
     lines.extend(["", "## Log Alert Breakdown", ""])
     if data.alert_breakdown:

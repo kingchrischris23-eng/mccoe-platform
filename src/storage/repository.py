@@ -246,6 +246,12 @@ def list_reports() -> list[dict]:
     return [dict(row) for row in rows]
 
 
+def clear_all_data() -> None:
+    with get_connection() as conn:
+        for table in ("alerts", "log_entries", "log_sessions", "iocs", "vuln_scans", "scan_audit", "reports"):
+            conn.execute(f"DELETE FROM {table}")
+
+
 def get_overview_stats() -> dict:
     with get_connection() as conn:
         ioc_count = conn.execute("SELECT COUNT(*) AS c FROM iocs").fetchone()["c"]

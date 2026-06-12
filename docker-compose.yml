@@ -7,6 +7,7 @@ services:
       - "8000:8000"
     environment:
       LOCAL_ONLY: "true"
+      AUTO_LOAD_DEMO: "false"
       API_AUTH_ENABLED: "true"
       API_KEY: "mccoe-training-key"
       API_BASIC_USER: "mccoe"
@@ -34,6 +35,7 @@ services:
       - "8501:8501"
     environment:
       LOCAL_ONLY: "true"
+      AUTO_LOAD_DEMO: "false"
       USE_API_BACKEND: "true"
       API_BASE_URL: "http://api:8000"
       API_KEY: "mccoe-training-key"

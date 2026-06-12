@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from api.routes import health, logs, reports, threats, vulnerabilities
+from api.routes import data, health, logs, reports, threats, vulnerabilities
 from src.reports.branding import ORG_EMAIL, ORG_NAME, REPORT_VERSION
 from src.storage.repository import init_db
 
@@ -40,3 +40,4 @@ app.include_router(threats.router)
 app.include_router(logs.router)
 app.include_router(vulnerabilities.router)
 app.include_router(reports.router)
+app.include_router(data.router)

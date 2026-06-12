@@ -110,6 +110,18 @@ class DashboardAPI:
             json={"format": fmt, "auto": auto},
         )
 
+    def import_iocs(self, iocs: list[dict]) -> dict:
+        return self._request("POST", "/api/threats/import", json={"iocs": iocs})
+
+    def add_vulnerability(self, payload: dict) -> dict:
+        return self._request("POST", "/api/vulnerabilities", json=payload)
+
+    def load_demo_data(self) -> dict:
+        return self._request("POST", "/api/demo/load")
+
+    def clear_data(self) -> dict:
+        return self._request("DELETE", "/api/data")
+
 
 def get_api_client() -> DashboardAPI | None:
     if not settings.use_api_backend:

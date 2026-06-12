@@ -107,7 +107,7 @@ def _build_pdf(data: ReportData, output_path: Path) -> None:
                 f"({row['source']}) - {hint}"
             )
     else:
-        pdf.body_text("No IOCs available. Refresh feeds or load sample data.")
+        pdf.body_text("No IOCs available. Import IOCs, refresh feeds, or load demo data.")
 
     pdf.add_page()
 

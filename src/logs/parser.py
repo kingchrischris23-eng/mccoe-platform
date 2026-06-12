@@ -1,9 +1,6 @@
-from pathlib import Path
-
-from src.logs.patterns import APACHE_PATTERN
-
-
 def parse_apache_line(line: str) -> dict | None:
+    from src.logs.patterns import APACHE_PATTERN
+
     match = APACHE_PATTERN.match(line.strip())
     if not match:
         return None
@@ -28,8 +25,3 @@ def parse_log_file(content: str) -> list[dict]:
         if parsed:
             entries.append(parsed)
     return entries
-
-
-def load_sample_log() -> str:
-    sample_path = Path(__file__).resolve().parents[2] / "data" / "samples" / "apache_attack.log"
-    return sample_path.read_text(encoding="utf-8")

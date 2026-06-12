@@ -1,21 +1,24 @@
 import streamlit as st
 
-from config import is_local_only, settings
+from config import is_local_only
 from src.api_client import DashboardAPIError
 from src.storage.repository import list_vuln_scans, save_vuln_scan
 from src.ui.api_helpers import get_client
+from src.ui.data_import import render_vuln_manual_entry
 from src.vuln.checker import allowed_targets, run_vuln_check
 
 
 def render() -> None:
-    st.title("Basic Vulnerability Checker")
+    st.title("Vulnerability Checker")
     st.warning(
-        "Training use only. Scan only approved targets. Unauthorized scanning may be illegal. "
+        "Scan only approved targets. Unauthorized scanning may be illegal. "
         "Default allowlist: localhost and 127.0.0.1."
     )
 
     if is_local_only():
-        st.info("Local-only mode: scans return bundled sample results from `data/samples/sample_vuln_scan.json`.")
+        st.info("Local-only mode: NVD CVE lookup disabled. Add findings manually or run a local port scan.")
+
+    render_vuln_manual_entry()
 
     st.caption(f"Allowed targets: {', '.join(allowed_targets())}")
     target = st.text_input("Target host", value="127.0.0.1")
@@ -45,10 +48,13 @@ def render() -> None:
             history = list_vuln_scans()[:5]
     else:
         history = list_vuln_scans()[:5]
+
     if history:
-        st.subheader("Recent Scans")
+        st.subheader("Recent Findings")
         for scan in history:
             st.write(
                 f"- `{scan['target']}` — risk {scan['risk_score']}, "
                 f"{len(scan['open_ports'])} open port(s) ({scan['scanned_at'][:19]})"
             )
+    else:
+        st.info("No vulnerability findings yet. Run a scan, add one manually, or load demo data.")

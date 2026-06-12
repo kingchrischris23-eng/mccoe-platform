@@ -63,3 +63,29 @@ class ReportGenerateResponse(BaseModel):
     format: str
     files: list[dict]
     summary: str
+
+
+class IOCImportRequest(BaseModel):
+    iocs: list[dict] = Field(..., min_length=1)
+
+
+class IOCImportResponse(BaseModel):
+    imported: int
+    message: str
+
+
+class VulnerabilityCreateRequest(BaseModel):
+    target: str
+    open_ports: list[dict] = Field(default_factory=list)
+    header_issues: list[dict] = Field(default_factory=list)
+    cve_findings: list[dict] = Field(default_factory=list)
+    risk_score: float = 0.0
+
+
+class DemoLoadResponse(BaseModel):
+    loaded: dict
+    message: str
+
+
+class DataClearResponse(BaseModel):
+    message: str

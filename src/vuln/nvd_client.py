@@ -11,7 +11,7 @@ CACHE_FILE = CACHE_DIR / "nvd_cache.json"
 
 def lookup_cves(keyword: str, limit: int = 5) -> list[dict]:
     if settings.local_only:
-        return _sample_cves(keyword)[:limit]
+        return []
 
     cache = _load_cache()
     cache_key = keyword.lower()
@@ -33,7 +33,7 @@ def lookup_cves(keyword: str, limit: int = 5) -> list[dict]:
         response.raise_for_status()
         vulnerabilities = response.json().get("vulnerabilities", [])
     except httpx.HTTPError:
-        return _sample_cves(keyword)
+        return []
 
     findings: list[dict] = []
     for item in vulnerabilities[:limit]:
@@ -57,17 +57,6 @@ def lookup_cves(keyword: str, limit: int = 5) -> list[dict]:
     cache[cache_key] = findings
     _save_cache(cache)
     return findings
-
-
-def _sample_cves(keyword: str) -> list[dict]:
-    return [
-        {
-            "cve_id": "CVE-2024-0001",
-            "score": 7.5,
-            "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
-            "description": f"Sample CVE related to {keyword} for offline training mode.",
-        }
-    ]
 
 
 def _load_cache() -> dict:

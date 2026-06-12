@@ -1,15 +1,9 @@
-from config import is_local_only
 from src.feeds.models import IOC
-from src.feeds.sources import fetch_otx, fetch_urlhaus, load_sample_iocs
+from src.feeds.sources import fetch_otx, fetch_urlhaus
 
 
 def aggregate_feeds() -> list[IOC]:
-    if is_local_only():
-        collected = load_sample_iocs()
-    else:
-        collected = fetch_urlhaus() + fetch_otx()
-        if not collected:
-            collected = load_sample_iocs()
+    collected = fetch_urlhaus() + fetch_otx()
 
     merged: dict[tuple[str, str], IOC] = {}
     for ioc in collected:

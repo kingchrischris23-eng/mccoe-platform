@@ -58,7 +58,7 @@ def recommendations(data: ReportData) -> list[str]:
     if data.correlations:
         items.append("Immediately investigate IPs that matched both log alerts and threat feeds.")
     if not data.vuln_scans:
-        items.append("Run a vulnerability check to include exposure data in future reports.")
+        items.append("Run a vulnerability scan or add a manual finding to include exposure data.")
     if not data.iocs:
-        items.append("Refresh threat feeds or load sample IOC data before the next reporting cycle.")
+        items.append("Import IOCs via CSV/JSON or fetch live feeds to populate threat intelligence.")
     return items

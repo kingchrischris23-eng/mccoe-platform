@@ -3,7 +3,7 @@ import streamlit as st
 from config import settings
 from src.api_client import DashboardAPIError
 from src.logs.detectors import detect_alerts
-from src.logs.parser import load_sample_log, parse_log_file
+from src.logs.parser import parse_log_file
 from src.reports.generator import generate_threat_report
 from src.storage.repository import create_log_session, get_alerts, get_latest_session_id, save_alerts, save_log_entries
 from src.ui.api_helpers import get_client
@@ -11,17 +11,12 @@ from src.ui.api_helpers import get_client
 
 def render() -> None:
     st.title("Log Parser")
-    st.write("Upload Apache/Nginx combined logs or use the bundled attack sample.")
+    st.write("Upload Apache/Nginx combined logs for analysis.")
 
     uploaded = st.file_uploader("Log file", type=["log", "txt"])
-    use_sample = st.button("Load Sample Attack Log")
-
     content = None
     filename = None
-    if use_sample:
-        content = load_sample_log()
-        filename = "apache_attack.log"
-    elif uploaded is not None:
+    if uploaded is not None:
         size_mb = uploaded.size / (1024 * 1024)
         if size_mb > settings.max_upload_mb:
             st.error(f"File exceeds {settings.max_upload_mb} MB limit.")
@@ -31,6 +26,7 @@ def render() -> None:
 
     if content and filename and st.button("Parse & Detect", type="primary"):
         client = get_client()
+        alerts = []
         if client:
             try:
                 result = client.analyze_logs(filename, content)
@@ -55,10 +51,11 @@ def render() -> None:
         if settings.auto_report_on_upload and alerts:
             report_path = generate_threat_report(auto=True)
             st.info(f"Automated threat report generated: `{report_path.name}`")
+    elif not uploaded:
+        st.info("No log uploaded yet. Choose a log file above or load demo data from the sidebar.")
 
     session_id = st.session_state.get("active_session_id") or get_latest_session_id()
     if not session_id:
-        st.info("No parsed logs yet.")
         return
 
     alerts = get_alerts(session_id)

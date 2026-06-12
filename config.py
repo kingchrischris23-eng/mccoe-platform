@@ -4,12 +4,12 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
-SAMPLES_DIR = DATA_DIR / "samples"
+DEMO_DATA_DIR = DATA_DIR / "demo"
 CACHE_DIR = DATA_DIR / "cache"
 REPORTS_DIR = DATA_DIR / "reports"
 DB_PATH = BASE_DIR / "db" / "dashboard.db"
 
-for directory in (SAMPLES_DIR, CACHE_DIR, REPORTS_DIR, DB_PATH.parent):
+for directory in (DEMO_DATA_DIR, CACHE_DIR, REPORTS_DIR, DB_PATH.parent):
     directory.mkdir(parents=True, exist_ok=True)
 
 
@@ -23,7 +23,8 @@ class Settings(BaseSettings):
     feed_cache_ttl_minutes: int = 15
     max_upload_mb: int = 50
     auto_report_on_upload: bool = True
-    local_only: bool = False
+    local_only: bool = True
+    auto_load_demo: bool = False
     api_base_url: str = "http://127.0.0.1:8000"
     use_api_backend: bool = False
     api_auth_enabled: bool = True
