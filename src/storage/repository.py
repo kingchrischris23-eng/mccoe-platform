@@ -47,26 +47,36 @@ def save_iocs(iocs: list[IOC]) -> None:
             )
 
 
-def list_iocs() -> list[dict]:
-    return list_iocs_filtered()
-
-
-def list_iocs_filtered(
+def _ioc_filter_clauses(
     severity: str | None = None,
+    severities: list[str] | None = None,
     ioc_type: str | None = None,
+    ioc_types: list[str] | None = None,
     source: str | None = None,
     search: str | None = None,
-    limit: int = 500,
-) -> list[dict]:
-    query = "SELECT * FROM iocs WHERE 1=1"
+    recency_tier: str | None = None,
+) -> tuple[str, list]:
+    from datetime import datetime, timedelta, timezone
+
+    query = " WHERE 1=1"
     params: list = []
 
-    if severity:
+    if severities:
+        placeholders = ",".join("?" * len(severities))
+        query += f" AND severity IN ({placeholders})"
+        params.extend(s.lower() for s in severities)
+    elif severity:
         query += " AND severity = ?"
         params.append(severity.lower())
-    if ioc_type:
+
+    if ioc_types:
+        placeholders = ",".join("?" * len(ioc_types))
+        query += f" AND ioc_type IN ({placeholders})"
+        params.extend(t.lower() for t in ioc_types)
+    elif ioc_type:
         query += " AND ioc_type = ?"
         params.append(ioc_type.lower())
+
     if source:
         query += " AND source LIKE ?"
         params.append(f"%{source}%")
@@ -74,12 +84,135 @@ def list_iocs_filtered(
         query += " AND (value LIKE ? OR tags LIKE ? OR description LIKE ?)"
         params.extend([f"%{search}%"] * 3)
 
-    query += " ORDER BY severity DESC, value ASC LIMIT ?"
-    params.append(limit)
+    if recency_tier:
+        now = datetime.now(timezone.utc)
+        fresh_cutoff = (now - timedelta(days=7)).isoformat()
+        active_cutoff = (now - timedelta(days=30)).isoformat()
+        if recency_tier == "fresh":
+            query += " AND first_seen >= ?"
+            params.append(fresh_cutoff)
+        elif recency_tier == "active":
+            query += " AND first_seen < ? AND first_seen >= ?"
+            params.extend([fresh_cutoff, active_cutoff])
+        elif recency_tier == "older":
+            query += " AND first_seen < ?"
+            params.append(active_cutoff)
+
+    return query, params
+
+
+def _sort_clause(sort: str) -> str:
+    if sort == "oldest":
+        return "first_seen ASC, value ASC"
+    if sort == "risk":
+        return (
+            "CASE severity WHEN 'critical' THEN 4 WHEN 'high' THEN 3 "
+            "WHEN 'medium' THEN 2 WHEN 'low' THEN 1 ELSE 0 END DESC, "
+            "first_seen DESC, value ASC"
+        )
+    return "first_seen DESC, value ASC"
+
+
+def list_iocs(
+    limit: int | None = None,
+    *,
+    sort: str = "newest",
+    offset: int = 0,
+    severity: str | None = None,
+    severities: list[str] | None = None,
+    ioc_type: str | None = None,
+    ioc_types: list[str] | None = None,
+    source: str | None = None,
+    search: str | None = None,
+    recency_tier: str | None = None,
+    recent_days: int | None = None,
+) -> list[dict]:
+    return list_iocs_filtered(
+        severity=severity,
+        severities=severities,
+        ioc_type=ioc_type,
+        ioc_types=ioc_types,
+        source=source,
+        search=search,
+        recency_tier=recency_tier,
+        recent_days=recent_days,
+        limit=limit,
+        offset=offset,
+        sort=sort,
+    )
+
+
+def list_iocs_filtered(
+    severity: str | None = None,
+    severities: list[str] | None = None,
+    ioc_type: str | None = None,
+    ioc_types: list[str] | None = None,
+    source: str | None = None,
+    search: str | None = None,
+    recency_tier: str | None = None,
+    recent_days: int | None = None,
+    limit: int | None = None,
+    offset: int = 0,
+    sort: str = "newest",
+) -> list[dict]:
+    where, params = _ioc_filter_clauses(
+        severity, severities, ioc_type, ioc_types, source, search, recency_tier
+    )
+    if recent_days is not None:
+        from datetime import datetime, timedelta, timezone
+
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=recent_days)).isoformat()
+        where += " AND first_seen >= ?"
+        params.append(cutoff)
+    query = f"SELECT * FROM iocs{where} ORDER BY {_sort_clause(sort)}"
+    if limit is not None:
+        query += " LIMIT ? OFFSET ?"
+        params.extend([limit, offset])
 
     with get_connection() as conn:
         rows = conn.execute(query, params).fetchall()
     return [dict(row) for row in rows]
+
+
+def count_iocs_filtered(
+    severity: str | None = None,
+    severities: list[str] | None = None,
+    ioc_type: str | None = None,
+    ioc_types: list[str] | None = None,
+    source: str | None = None,
+    search: str | None = None,
+    recency_tier: str | None = None,
+    recent_days: int | None = None,
+) -> int:
+    where, params = _ioc_filter_clauses(
+        severity, severities, ioc_type, ioc_types, source, search, recency_tier
+    )
+    if recent_days is not None:
+        from datetime import datetime, timedelta, timezone
+
+        cutoff = (datetime.now(timezone.utc) - timedelta(days=recent_days)).isoformat()
+        where += " AND first_seen >= ?"
+        params.append(cutoff)
+    query = f"SELECT COUNT(*) FROM iocs{where}"
+
+    with get_connection() as conn:
+        row = conn.execute(query, params).fetchone()
+    return int(row[0]) if row else 0
+
+
+def list_ioc_distinct(field: str) -> list[str]:
+    if field not in {"severity", "ioc_type", "source"}:
+        raise ValueError(f"Unsupported distinct field: {field}")
+    with get_connection() as conn:
+        rows = conn.execute(f"SELECT DISTINCT {field} FROM iocs ORDER BY {field}").fetchall()
+    return [str(row[0]) for row in rows if row[0]]
+
+
+def list_ioc_values() -> set[str]:
+    """All IOC values for correlation — not subject to display limit."""
+    with get_connection() as conn:
+        rows = conn.execute("SELECT value FROM iocs").fetchall()
+    return {row[0].lower() for row in rows}
 
 
 def create_log_session(filename: str) -> int:
@@ -284,18 +417,9 @@ def list_network_scans(limit: int = 20) -> list[dict]:
 
 
 def clear_all_data() -> None:
-    with get_connection() as conn:
-        for table in (
-            "alerts",
-            "log_entries",
-            "log_sessions",
-            "iocs",
-            "vuln_scans",
-            "network_scans",
-            "scan_audit",
-            "reports",
-        ):
-            conn.execute(f"DELETE FROM {table}")
+    from src.storage.data_clear import execute_clear
+
+    execute_clear(["all_user_data"])
 
 
 def get_overview_stats() -> dict:

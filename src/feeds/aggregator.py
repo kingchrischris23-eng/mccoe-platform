@@ -2,7 +2,7 @@ from config import settings
 from src.feeds.cisa_kev import fetch_cisa_kev
 from src.feeds.models import FeedResult, FeedSourceResult, IOC
 from src.feeds.nvd_feed import fetch_nvd_feed
-from src.feeds.sources import fetch_otx, fetch_urlhaus
+from src.feeds.sources import fetch_otx, fetch_threatfox, fetch_urlhaus
 
 
 def can_refresh_live() -> bool:
@@ -11,8 +11,9 @@ def can_refresh_live() -> bool:
 
 def refresh_feeds(*, force_refresh: bool = False) -> FeedResult:
     source_results = [
-        fetch_urlhaus(force_refresh=force_refresh),
         fetch_otx(force_refresh=force_refresh),
+        fetch_urlhaus(force_refresh=force_refresh),
+        fetch_threatfox(force_refresh=force_refresh),
         fetch_nvd_feed(force_refresh=force_refresh),
         fetch_cisa_kev(force_refresh=force_refresh),
     ]

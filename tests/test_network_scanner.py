@@ -79,7 +79,10 @@ def test_run_network_scan_parses_results(monkeypatch, tmp_path):
         def __getitem__(self, host):
             return self._host
 
-    fake_nmap = SimpleNamespace(PortScanner=lambda: FakePortScanner(), PortScannerError=RuntimeError)
+    fake_nmap = SimpleNamespace(
+        PortScanner=lambda **kwargs: FakePortScanner(),
+        PortScannerError=RuntimeError,
+    )
     monkeypatch.setitem(__import__("sys").modules, "nmap", fake_nmap)
 
     result = run_network_scan("127.0.0.1", "1-1000", "Quick")

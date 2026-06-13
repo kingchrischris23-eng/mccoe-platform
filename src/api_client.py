@@ -75,10 +75,14 @@ class DashboardAPI:
         ioc_type: str | None = None,
         source: str | None = None,
         search: str | None = None,
-        limit: int = 100,
+        limit: int | None = None,
+        offset: int = 0,
+        sort: str = "newest",
         refresh: bool = False,
     ) -> dict:
-        params = {"limit": limit, "refresh": refresh}
+        params: dict = {"refresh": refresh, "offset": offset, "sort": sort}
+        if limit is not None:
+            params["limit"] = limit
         if severity:
             params["severity"] = severity
         if ioc_type:
@@ -109,11 +113,19 @@ class DashboardAPI:
             params["target"] = target
         return self._request("GET", "/api/vulnerabilities", params=params)
 
-    def generate_report(self, fmt: str = "pdf", auto: bool = False) -> dict:
+    def generate_report(
+        self,
+        fmt: str = "pdf",
+        auto: bool = False,
+        filters: dict | None = None,
+    ) -> dict:
+        payload: dict = {"format": fmt, "auto": auto}
+        if filters:
+            payload["filters"] = filters
         return self._request(
             "POST",
             "/api/reports/generate",
-            json={"format": fmt, "auto": auto},
+            json=payload,
         )
 
     def import_iocs(self, iocs: list[dict]) -> dict:

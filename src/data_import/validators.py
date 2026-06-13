@@ -1,5 +1,5 @@
 VALID_SEVERITIES = {"low", "medium", "high", "critical"}
-VALID_IOC_TYPES = {"ip", "domain", "url", "hash", "email", "filename", "unknown"}
+VALID_IOC_TYPES = {"ip", "domain", "url", "hash", "email", "filename", "cve", "unknown"}
 
 
 def normalize_severity(value: str) -> str:

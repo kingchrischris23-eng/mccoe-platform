@@ -2,6 +2,7 @@ import pandas as pd
 import streamlit as st
 
 from config import settings
+from src.network.nmap_path import apply_nmap_path_env, ensure_nmap_path_configured, get_resolved_nmap_path
 from src.network.scanner import run_network_scan
 from src.storage.repository import list_network_scans
 from src.vuln.checker import allowed_targets
@@ -17,6 +18,36 @@ def render() -> None:
         > authorization** to test. Unauthorized scanning may violate law and organizational policy.
         """
     )
+
+    ensure_nmap_path_configured()
+    apply_nmap_path_env()
+    nmap_bin = get_resolved_nmap_path()
+    col_status, col_test = st.columns([3, 1])
+    with col_status:
+        if nmap_bin:
+            st.success(f"Nmap detected: `{nmap_bin}`")
+        else:
+            st.warning(
+                "Nmap not detected. Install from [nmap.org](https://nmap.org/download.html) "
+                'or set `NMAP_PATH` in `.env` (e.g. `C:\\Program Files (x86)\\Nmap\\nmap.exe`).'
+            )
+    with col_test:
+        if st.button("Test Nmap", type="secondary"):
+            with st.spinner("Probing Nmap..."):
+                try:
+                    import nmap
+
+                    from src.network.nmap_path import resolve_nmap_search_path
+
+                    scanner = nmap.PortScanner(nmap_search_path=resolve_nmap_search_path())
+                    st.session_state["nmap_test_ok"] = scanner._nmap_path
+                except Exception as exc:
+                    st.session_state["nmap_test_ok"] = None
+                    st.session_state["nmap_test_error"] = str(exc)
+    if st.session_state.get("nmap_test_ok"):
+        st.caption(f"Nmap probe OK — using `{st.session_state['nmap_test_ok']}`")
+    elif st.session_state.get("nmap_test_error"):
+        st.error(f"Nmap probe failed: {st.session_state['nmap_test_error']}")
 
     st.error(
         "You must confirm permission before scanning. Default allowlist: "
@@ -94,7 +125,8 @@ def render() -> None:
     st.subheader("Safety Notes")
     st.markdown(
         """
-        - Install [Nmap](https://nmap.org/download.html) and ensure `nmap` is on your system `PATH`.
+        - Install [Nmap](https://nmap.org/download.html). The dashboard auto-detects common Windows paths;
+          override with `NMAP_PATH` in `.env` if needed.
         - Use **127.0.0.1** for safe local practice.
         - Home lab subnets: set `INSTRUCTOR_MODE=true` and add targets to `ALLOWED_TARGETS` if needed.
         - Scan results are saved to `data/scans/*.json` and the local database for threat reports.

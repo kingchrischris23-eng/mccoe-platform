@@ -1,16 +1,9 @@
-ioc_type,value,severity,source,tags,description
-ip,198.51.100.42,high,MCCoE Lab Feed,bruteforce;auth,Repeated SSH and web login failures from residential ISP range
-ip,203.0.113.77,medium,MCCoE Lab Feed,scanner;recon,Multi-port HTTP probe activity across /admin and /api paths
-ip,192.0.2.58,critical,URLhaus Mirror,malware;dropper,Host observed serving follow-up payloads after initial phishing click
-ip,198.18.0.44,high,OTX Sample,c2;beacon,Short-interval HTTPS beaconing consistent with Cobalt Strike staging
-domain,secure-login-missouri.example,critical,MCCoE Lab Feed,phishing;bec,Typosquat domain impersonating university SSO portal
-domain,cdn-updates-service.example,high,Feodo Tracker,malware;downloader,Parked domain rotating A records to bulletproof hosting
-domain,mail-delivery-alert.example,medium,MCCoE Lab Feed,spam;credential,SMTP HELO mismatch and suspicious attachment patterns
-url,http://malware-lab.example/payload.exe,high,URLhaus Mirror,malware;exe,Direct EXE download linked to Emotet-style campaigns
-url,https://cdn-updates-service.example/update.dll,high,MCCoE Lab Feed,malware;dll,DLL sideloading artifact masquerading as software update
-url,http://198.18.0.44/gate.php,critical,MCCoE Lab Feed,c2;webshell,Web shell callback endpoint with encoded POST bodies
-hash,9b1c7f4e2a8d6c0b5e3f1a9c7d2e4b6a,critical,MalwareBazaar Sample,ransomware;lockbit,LockBit-variant loader observed in regional healthcare drill
-hash,a3f5c8d1e7b2094f6c2d8a1e5b0c9f3d,high,MCCoE Lab Feed,trojan;dropper,PDF dropper hash from simulated spear-phishing exercise
-hash,5d41402abc4b2a76b9719d911017c592,medium,MCCoE Lab Feed,sample;md5,Legacy MD5 sample used for hash-lookup training labs
-email,alerts@secure-login-missouri.example,high,MCCoE Lab Feed,phishing;bec,Sender domain aligned with credential harvesting landing page
-filename,invoice_Q2_2026_macro.xlsm,medium,MCCoE Lab Feed,malware;office,Macro-enabled spreadsheet from finance-themed lure campaign
+ioc_type,value,severity,source,tags,description,first_seen
+ip,198.51.100.42,high,MCCoE Lab Feed,bruteforce;auth,Repeated SSH and web login failures from residential ISP range,2026-06-08T10:00:00+00:00
+ip,203.0.113.77,medium,MCCoE Lab Feed,scanner;recon,Multi-port HTTP probe activity across /admin and /api paths,2026-06-01T10:00:00+00:00
+ip,192.0.2.58,critical,URLhaus Mirror,malware;dropper,Host observed serving follow-up payloads after initial phishing click,2026-06-10T08:00:00+00:00
+cve,CVE-2026-90001,critical,MCCoE Lab Feed,lab;training,MCCoE scenario: unauthenticated VPN portal RCE on border firewall,2026-06-09T12:00:00+00:00
+cve,CVE-2026-10520,critical,CISA KEV,kev;exploit,Ivanti Sentry OS command injection — actively exploited,2026-06-10T14:00:00+00:00
+domain,secure-login-missouri.example,critical,MCCoE Lab Feed,phishing;bec,Typosquat domain impersonating university SSO portal,2026-06-09T09:00:00+00:00
+url,http://198.18.0.44/gate.php,critical,MCCoE Lab Feed,c2;webshell,Web shell callback endpoint with encoded POST bodies,2026-06-10T11:00:00+00:00
+hash,9b1c7f4e2a8d6c0b5e3f1a9c7d2e4b6a,critical,MalwareBazaar Sample,ransomware;lockbit,LockBit-variant loader observed in regional healthcare drill,2026-06-08T15:00:00+00:00

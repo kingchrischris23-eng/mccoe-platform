@@ -1,7 +1,7 @@
 import json
 from collections import Counter, defaultdict
 
-from src.storage.repository import list_iocs
+from src.storage.repository import list_ioc_values
 
 
 SEVERITY_WEIGHTS = {"critical": 40, "high": 25, "medium": 15, "low": 5}
@@ -78,7 +78,7 @@ def _risk_level(score: int) -> str:
 
 
 def _correlate_with_iocs(alerts: list[dict]) -> list[dict]:
-    ioc_values = {row["value"].lower() for row in list_iocs()}
+    ioc_values = list_ioc_values()
     correlations: list[dict] = []
     for alert in alerts:
         source_ip = (alert.get("source_ip") or "").lower()

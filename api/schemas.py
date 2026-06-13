@@ -22,6 +22,7 @@ class IOCResponse(BaseModel):
 
 class ThreatListResponse(BaseModel):
     count: int
+    total: int | None = None
     iocs: list[IOCResponse]
 
 
@@ -54,9 +55,18 @@ class VulnerabilityListResponse(BaseModel):
     scans: list[VulnerabilityScanResponse]
 
 
+class ReportFilterOptions(BaseModel):
+    severities: list[str] | None = None
+    date_range: str = "30d"
+    source: str = "all"
+    search: str | None = None
+    max_items: int = 150
+
+
 class ReportGenerateRequest(BaseModel):
     format: Literal["pdf", "markdown", "both"] = "pdf"
     auto: bool = False
+    filters: ReportFilterOptions | None = None
 
 
 class ReportGenerateResponse(BaseModel):
@@ -87,8 +97,18 @@ class DemoLoadResponse(BaseModel):
     message: str
 
 
+class DataClearRequest(BaseModel):
+    feed_cache: bool = False
+    logs: bool = False
+    manual_iocs: bool = False
+    scans: bool = False
+    reports: bool = False
+    all_user_data: bool = False
+
+
 class DataClearResponse(BaseModel):
     message: str
+    cleared: dict | None = None
 
 
 class FeedSourceStatus(BaseModel):

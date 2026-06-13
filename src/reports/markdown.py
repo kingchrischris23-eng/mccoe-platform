@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from config import REPORTS_DIR
+from config import REPORTS_DIR, get_ioc_recent_days
+from src.feeds.ioc_display import format_last_seen, is_high_risk, recency_label
 from src.reports.branding import (
     FOOTER_CONFIDENTIAL,
     FOOTER_TRAINING,
@@ -32,15 +33,28 @@ def render_markdown_content(data: ReportData) -> str:
         "",
         "## Executive Summary",
         "",
-        f"- Threat IOCs tracked: **{len(data.iocs)}**",
+        f"- Threat IOCs tracked: **{data.ioc_total_count:,}** "
+        f"(NIST NVD: **{data.ioc_nist_count:,}**, CISA KEV: **{data.ioc_cisa_count:,}**, "
+        f"OTX: **{data.ioc_otx_count:,}**, URLhaus: **{data.ioc_urlhaus_count:,}**, "
+        f"ThreatFox: **{data.ioc_threatfox_count:,}**, "
+        f"{data.ioc_recent_count:,} recent in last {get_ioc_recent_days()} days)",
         f"- Log alerts detected: **{len(data.alerts)}**",
         f"- Vulnerability scans on record: **{len(data.vuln_scans)}**",
         "",
+    ]
+
+    if data.filter_summary:
+        lines.extend(["## Report Filters Applied", ""])
+        for item in data.filter_summary:
+            lines.append(f"- {item}")
+        lines.append("")
+
+    lines.extend([
         "## Risk Scoring Legend",
         "",
         "| Score Range | Level | Action |",
         "|-------------|-------|--------|",
-    ]
+    ])
 
     for score_range, level, action in RISK_LEGEND:
         lines.append(f"| {score_range} | {level} | {action} |")
@@ -56,16 +70,41 @@ def render_markdown_content(data: ReportData) -> str:
     else:
         lines.append("_No feed cache metadata available._")
 
+    if data.recently_added:
+        lines.extend(["", "## Recently Added (Last 7 Days)", ""])
+        for row in data.recently_added:
+            risk = " **HIGH RISK**" if is_high_risk(row) else ""
+            lines.append(
+                f"- **[{row['severity'].upper()}]**{risk} `{row['ioc_type']}` — `{row['value']}` "
+                f"(Last seen: {format_last_seen(row)})"
+            )
+
     lines.extend(["", "## Threat Intelligence", ""])
     if data.iocs:
-        for row in data.iocs[:12]:
+        lines.append(
+            f"_Showing **{len(data.iocs):,}** filtered IOCs "
+            f"(**{data.ioc_filtered_count:,}** matched filters / **{data.ioc_total_count:,}** dashboard total). "
+            f"Newest first, max **{data.ioc_report_limit:,}**. "
+            f"Green = last 7d | Yellow = 8-30d | Gray = older._"
+        )
+        lines.append("")
+        for row in data.iocs:
             ioc_type = row["ioc_type"]
+            age = recency_label(row)
+            risk = " **HIGH RISK**" if is_high_risk(row) else ""
             explanation = IOC_TYPE_EXPLANATIONS.get(ioc_type, "Indicator observed in threat intelligence feeds.")
             lines.append(
-                f"- **[{row['severity'].upper()}]** `{ioc_type}` — `{row['value']}`  "
+                f"- **[{age}]** **[{row['severity'].upper()}]**{risk} `{ioc_type}` — `{row['value']}`  "
             )
-            lines.append(f"  - Source: {row['source']} | Tags: {row.get('tags', '')}")
+            lines.append(
+                f"  - Source: {row['source']} | Last seen: {format_last_seen(row)} | Tags: {row.get('tags', '')}"
+            )
             lines.append(f"  - *{explanation}*")
+        if data.ioc_filtered_count > len(data.iocs):
+            lines.append(
+                f"\n_{data.ioc_filtered_count - len(data.iocs):,} additional matching IOCs omitted — "
+                f"raise max items or adjust filters in Threat Reporter._"
+            )
     else:
         lines.append("_No IOCs available. Import IOCs, refresh feeds, or load demo data._")
 
@@ -164,8 +203,11 @@ def generate_markdown_report(data: ReportData | None = None, auto: bool = False,
             {
                 "filename": filename,
                 "generated_at": timestamp.isoformat(),
-                "summary": f"{len(data.iocs)} IOCs, {len(data.alerts)} alerts, {len(data.vuln_scans)} scans (MD)",
-                "ioc_count": len(data.iocs),
+                "summary": (
+                    f"{len(data.iocs)} IOCs (filtered {data.ioc_filtered_count:,} / "
+                    f"total {data.ioc_total_count:,}), {len(data.alerts)} alerts (MD)"
+                ),
+                "ioc_count": data.ioc_total_count,
                 "alert_count": len(data.alerts),
                 "vuln_count": len(data.vuln_scans),
             }

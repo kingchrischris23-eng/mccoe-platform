@@ -9,10 +9,23 @@ def test_import_fixture_iocs(fixtures_dir):
 
 
 def test_aggregate_empty_without_feeds(monkeypatch, tmp_path):
+    from config import Settings
+
     cache_dir = tmp_path / "cache"
     cache_dir.mkdir()
+    settings = Settings(
+        local_only=True,
+        enable_urlhaus=False,
+        enable_otx=False,
+        enable_threatfox=False,
+        enable_nvd_feed=False,
+        enable_cisa_kev=False,
+    )
     monkeypatch.setattr("config.CACHE_DIR", cache_dir)
     monkeypatch.setattr("src.feeds.cache.CACHE_DIR", cache_dir)
+    monkeypatch.setattr("config.settings", settings)
+    for module in ("src.feeds.sources", "src.feeds.nvd_feed", "src.feeds.cisa_kev", "src.feeds.cache"):
+        monkeypatch.setattr(f"{module}.settings", settings)
     iocs = aggregate_feeds()
     assert iocs == []
 

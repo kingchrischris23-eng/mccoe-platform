@@ -1,6 +1,12 @@
 from datetime import datetime, timezone
 
 from config import SCANS_DIR
+from src.network.nmap_path import (
+    apply_nmap_path_env,
+    ensure_nmap_path_configured,
+    get_resolved_nmap_path,
+    resolve_nmap_search_path,
+)
 from src.network.safety import parse_port_range, validate_scan_target
 from src.storage.repository import log_scan_audit, save_network_scan
 
@@ -54,13 +60,25 @@ def run_network_scan(target: str, port_range: str = "1-1000", scan_type: str = "
     arguments = _build_arguments(port_range, scan_type)
     log_scan_audit(validated_target, f"network_scan_started:{scan_type}")
 
-    scanner = nmap.PortScanner()
+    ensure_nmap_path_configured()
+    apply_nmap_path_env()
+    search_paths = resolve_nmap_search_path()
+    try:
+        scanner = nmap.PortScanner(nmap_search_path=search_paths)
+    except nmap.PortScannerError as exc:
+        raise RuntimeError(
+            f"Nmap not found. Tried: {', '.join(search_paths)}. "
+            "Install from https://nmap.org/download.html or set NMAP_PATH in .env "
+            '(e.g. NMAP_PATH="C:\\Program Files (x86)\\Nmap\\nmap.exe").'
+        ) from exc
+
     try:
         scanner.scan(hosts=validated_target, arguments=arguments)
     except nmap.PortScannerError as exc:
+        resolved = get_resolved_nmap_path() or "not found"
         raise RuntimeError(
-            f"Nmap failed: {exc}. Ensure Nmap is installed and on your PATH "
-            "(https://nmap.org/download.html)."
+            f"Nmap failed: {exc}. Using: {resolved}. "
+            "Set NMAP_PATH in .env if Nmap is installed outside PATH."
         ) from exc
 
     rows, hosts_up, open_ports = _parse_results(scanner, validated_target)

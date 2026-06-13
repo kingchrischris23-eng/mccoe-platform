@@ -39,3 +39,46 @@ def test_demo_loader_explicit_only(tmp_path, monkeypatch):
     assert summary["alerts"] >= 1
     assert summary["vuln_scans"] == 1
     assert stats["ioc_count"] == 1
+
+
+def test_demo_loader_uses_json_catalog(tmp_path, monkeypatch):
+    demo_dir = tmp_path / "demo"
+    demo_dir.mkdir()
+    (demo_dir / "demo_iocs.json").write_text(
+        json.dumps(
+            {
+                "iocs": [
+                    {
+                        "ioc_type": "cve",
+                        "value": "CVE-2026-90001",
+                        "severity": "critical",
+                        "source": "MCCoE Lab Feed",
+                        "tags": "lab;demo",
+                        "description": "Lab scenario",
+                        "first_seen": "2026-06-09T10:00:00+00:00",
+                    },
+                    {
+                        "ioc_type": "ip",
+                        "value": "198.51.100.42",
+                        "severity": "high",
+                        "source": "MCCoE Lab Feed",
+                        "tags": "scanner",
+                        "description": "Scanner IP",
+                        "first_seen": "2026-05-01T10:00:00+00:00",
+                    },
+                ]
+            }
+        ),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr("config.DB_PATH", tmp_path / "test.db")
+    monkeypatch.setattr("config.DEMO_DATA_DIR", demo_dir)
+    monkeypatch.setattr("src.storage.repository.DB_PATH", tmp_path / "test.db")
+    monkeypatch.setattr("src.data_import.demo_loader.DEMO_DATA_DIR", demo_dir)
+    init_db()
+
+    summary = load_demo_data()
+    assert summary["iocs"] == 2
+    assert summary["ioc_breakdown"]["cves"] == 1
+    assert summary["ioc_breakdown"]["fresh"] >= 1
+    assert summary["ioc_breakdown"]["older"] >= 1

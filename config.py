@@ -35,15 +35,25 @@ class Settings(BaseSettings):
     otx_api_key: str = ""
     nvd_api_key: str = ""
     enable_live_feeds: bool = False
+    enable_auto_feed_refresh: bool = False
+    auto_feed_refresh_hours: int = 24
     enable_urlhaus: bool = True
     enable_otx: bool = True
+    enable_threatfox: bool = True
+    enable_openphish: bool = False
     enable_nvd_feed: bool = True
     enable_cisa_kev: bool = True
+    abusech_auth_key: str = ""
     feed_stale_fallback: bool = True
     instructor_mode: bool = False
     allowed_targets: str = "127.0.0.1,localhost"
+    nmap_path: str = ""
     feed_cache_ttl_minutes: int = 15
     max_upload_mb: int = 50
+    max_iocs_display: int = 50000  # legacy — no UI cap; pagination handles display
+    max_iocs_report: int = 5000
+    ioc_ui_page_size: int = 50
+    ioc_recent_days: int = 30
     auto_report_on_upload: bool = True
     local_only: bool = True
     auto_load_demo: bool = False
@@ -58,13 +68,66 @@ class Settings(BaseSettings):
 settings = Settings()
 
 
+def ensure_settings_compat(target: Settings | None = None) -> Settings:
+    """Patch missing fields on a long-lived settings singleton (restart-safe)."""
+    obj = target or settings
+    fresh = Settings()
+    for field_name in Settings.model_fields:
+        if not hasattr(obj, field_name):
+            object.__setattr__(obj, field_name, getattr(fresh, field_name))
+    return obj
+
+
+def is_auto_feed_refresh_enabled() -> bool:
+    ensure_settings_compat()
+    return bool(getattr(settings, "enable_auto_feed_refresh", False))
+
+
+def get_auto_feed_refresh_hours() -> int:
+    ensure_settings_compat()
+    return int(getattr(settings, "auto_feed_refresh_hours", 24))
+
+
+IOC_HARD_CAP = 50000
+
+
+def get_max_iocs_display() -> int:
+    """Legacy alias — UI loads all IOCs via pagination (no practical cap)."""
+    ensure_settings_compat()
+    return max(5000, int(getattr(settings, "max_iocs_display", IOC_HARD_CAP)))
+
+
+def get_max_iocs_report() -> int:
+    ensure_settings_compat()
+    report_val = int(getattr(settings, "max_iocs_report", 5000))
+    return max(100, min(IOC_HARD_CAP, report_val))
+
+
+def get_ioc_ui_page_size() -> int:
+    ensure_settings_compat()
+    return max(10, min(200, int(getattr(settings, "ioc_ui_page_size", 50))))
+
+
+def get_ioc_recent_days() -> int:
+    ensure_settings_compat()
+    return max(1, int(getattr(settings, "ioc_recent_days", 30)))
+
+
+def get_ioc_page_size() -> int:
+    """Alias for UI pagination page size."""
+    return get_ioc_ui_page_size()
+
+
+ensure_settings_compat(settings)
+
+
 def reload_settings() -> Settings:
     """Reload .env and refresh the shared settings object in-place."""
     _load_env()
     fresh = Settings()
     for field_name in Settings.model_fields:
         object.__setattr__(settings, field_name, getattr(fresh, field_name))
-    return settings
+    return ensure_settings_compat(settings)
 
 
 def get_nvd_api_key() -> str:
@@ -85,6 +148,46 @@ def get_nvd_api_key() -> str:
 
 def has_nvd_api_key() -> bool:
     return bool(get_nvd_api_key())
+
+
+def get_otx_api_key() -> str:
+    """Resolve OTX API key: .env file first, then os.environ, then settings."""
+    from src.config.env_store import read_env_value
+
+    file_val = read_env_value("OTX_API_KEY")
+    if file_val is not None:
+        return file_val.strip()
+
+    _load_env()
+    env_val = os.getenv("OTX_API_KEY", "").strip()
+    if env_val:
+        return env_val
+
+    return settings.otx_api_key.strip()
+
+
+def has_otx_api_key() -> bool:
+    return bool(get_otx_api_key())
+
+
+def get_abusech_auth_key() -> str:
+    """Resolve abuse.ch Auth-Key (ThreatFox, etc.): .env first, then settings."""
+    from src.config.env_store import read_env_value
+
+    file_val = read_env_value("ABUSECH_AUTH_KEY")
+    if file_val is not None:
+        return file_val.strip()
+
+    _load_env()
+    env_val = os.getenv("ABUSECH_AUTH_KEY", "").strip()
+    if env_val:
+        return env_val
+
+    return settings.abusech_auth_key.strip()
+
+
+def has_abusech_auth_key() -> bool:
+    return bool(get_abusech_auth_key())
 
 
 def get_nvd_key_debug_info() -> dict:

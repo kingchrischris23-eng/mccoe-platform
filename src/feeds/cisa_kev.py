@@ -5,10 +5,10 @@ import httpx
 from config import settings
 from src.feeds.cache import read_cache, write_cache
 from src.feeds.common import ioc_from_dict, ioc_to_dict
+from src.feeds.kev_index import KEV_URL, write_kev_index
 from src.feeds.models import FeedSourceResult, IOC
 
 CACHE_NAME = "cisa_kev"
-KEV_URL = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
 
 
 def can_fetch_live() -> bool:
@@ -41,6 +41,7 @@ def fetch_cisa_kev(*, force_refresh: bool = False) -> FeedSourceResult:
         response = httpx.get(KEV_URL, timeout=30.0)
         response.raise_for_status()
         rows = response.json().get("vulnerabilities", [])
+        write_kev_index(rows)
         iocs = [_kev_to_ioc(row) for row in rows]
         serialized = [ioc_to_dict(ioc) for ioc in iocs]
         if serialized:

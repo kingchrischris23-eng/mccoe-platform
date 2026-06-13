@@ -98,3 +98,18 @@ def test_chart_generation(tmp_path):
     )
     assert pie and pie.exists()
     assert bar and bar.exists()
+    assert pie.stat().st_size > 8000
+
+
+def test_alert_pie_handles_many_labels(tmp_path):
+    breakdown = {
+        "Brute Force Authentication": 12,
+        "SQL Injection Attempt": 8,
+        "Directory Traversal Probe": 6,
+        "Suspicious User Agent": 5,
+        "High Request Rate": 4,
+        "Admin Path Scanning": 3,
+    }
+    pie = alert_breakdown_pie(breakdown, tmp_path / "busy_pie.png")
+    assert pie and pie.exists()
+    assert pie.stat().st_size > 12000

@@ -1,6 +1,13 @@
+import logging
+import os
+
 import streamlit as st
 
 from config import is_local_only, settings
+
+_log_level = os.getenv("PYTHONLOGGING_LEVEL", "INFO").upper()
+logging.basicConfig(level=getattr(logging, _log_level, logging.INFO))
+logging.getLogger("cyber_dashboard.feeds").setLevel(getattr(logging, _log_level, logging.INFO))
 from src.data_import.demo_loader import load_demo_data
 from src.storage.repository import get_overview_stats, init_db
 from src.ui import (
@@ -13,8 +20,11 @@ from src.ui import (
     threat_reporter,
     vuln_checker,
 )
+from src.monitoring.scheduler import maybe_run_scheduled_feed_refresh
+from src.network.nmap_path import apply_nmap_path_env, ensure_nmap_path_configured
 from src.ui.api_helpers import api_status_badge
 from src.ui.demo_controls import render_demo_controls
+from src.ui.status_banner import render_status_banner
 
 PAGES = {
     "Overview": overview.render,
@@ -36,6 +46,9 @@ def main() -> None:
         initial_sidebar_state="expanded",
     )
     init_db()
+    ensure_nmap_path_configured()
+    apply_nmap_path_env()
+    maybe_run_scheduled_feed_refresh()
 
     if settings.auto_load_demo and not st.session_state.get("auto_demo_checked"):
         stats = get_overview_stats()
@@ -61,6 +74,7 @@ def main() -> None:
     st.sidebar.markdown("---")
     render_demo_controls()
 
+    render_status_banner()
     PAGES[selection]()
 
 

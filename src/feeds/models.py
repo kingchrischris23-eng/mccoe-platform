@@ -27,6 +27,7 @@ class FeedSourceResult:
     live: bool = False
     error: str | None = None
     rate_limited: bool = False
+    status_message: str | None = None
 
 
 @dataclass
