@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+﻿from datetime import datetime, timezone
 
 import httpx
 
@@ -10,7 +10,7 @@ from src.feeds.abusech_client import (
     urlhaus_get_recent,
 )
 from src.feeds.cache import read_cache, write_cache
-from src.feeds.common import ioc_from_dict, ioc_to_dict, score_severity
+from src.feeds.common import ioc_from_dict, ioc_to_dict, normalize_tags, score_severity
 from src.feeds.feed_log import log_feed_result
 from src.feeds.models import FeedSourceResult, IOC
 from src.feeds.rate_limit import request_with_backoff
@@ -79,7 +79,7 @@ def fetch_urlhaus(*, force_refresh: bool = False) -> FeedSourceResult:
                 "urlhaus",
                 rate_limit_error("urlhaus"),
                 rate_limited=True,
-                status_message="URLhaus rate limited — serving cache.",
+                status_message="URLhaus rate limited ΓÇö serving cache.",
             )
         return _cache_fallback("urlhaus", str(exc), status_message=f"URLhaus HTTP error: {exc}")
     except httpx.HTTPError as exc:
@@ -216,7 +216,7 @@ def fetch_threatfox(*, force_refresh: bool = False) -> FeedSourceResult:
                 "threatfox",
                 rate_limit_error("threatfox"),
                 rate_limited=True,
-                status_message="ThreatFox rate limited — serving cache.",
+                status_message="ThreatFox rate limited ΓÇö serving cache.",
             )
         return _cache_fallback("threatfox", str(exc), status_message=f"ThreatFox HTTP error: {exc}")
     except httpx.HTTPError as exc:
@@ -241,15 +241,6 @@ def fetch_threatfox(*, force_refresh: bool = False) -> FeedSourceResult:
         live=True,
         status_message=message,
     )
-
-
-def _normalize_tags(raw) -> list[str]:
-    if raw is None:
-        return []
-    if isinstance(raw, list):
-        return [str(tag).strip() for tag in raw if str(tag).strip()]
-    text = str(raw).strip()
-    return [text] if text else []
 
 
 def _read_cached_source(name: str) -> FeedSourceResult | None:
@@ -280,17 +271,17 @@ def _abusech_block_reason() -> str:
 
 def _abusech_status_hint(feed_name: str) -> str:
     if settings.local_only:
-        return f"{feed_name}: LOCAL_ONLY=true — set LOCAL_ONLY=false in .env."
+        return f"{feed_name}: LOCAL_ONLY=true ΓÇö set LOCAL_ONLY=false in .env."
     if not has_abusech_auth_key():
         return f"{feed_name}: add ABUSECH_AUTH_KEY in Settings (free key from auth.abuse.ch)."
-    return f"{feed_name}: live pull blocked — check .env and feed settings."
+    return f"{feed_name}: live pull blocked ΓÇö check .env and feed settings."
 
 
 def _parse_urlhaus_rows(rows: list[dict]) -> tuple[list[IOC], list[dict]]:
     iocs: list[IOC] = []
     serialized: list[dict] = []
     for row in rows:
-        tags = _normalize_tags(row.get("threat", "malware")) + _normalize_tags(row.get("tags"))
+        tags = normalize_tags(row.get("threat", "malware"), row.get("tags"))
         description = f"URLhaus ({row.get('url_status', 'unknown')})"
         first_seen = _parse_timestamp(row.get("date_added")) or datetime.now(timezone.utc)
         ioc = IOC(

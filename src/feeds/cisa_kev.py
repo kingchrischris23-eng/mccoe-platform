@@ -77,6 +77,7 @@ def _kev_to_ioc(row: dict) -> IOC:
     due_date = row.get("dueDate", "")
     ransomware = row.get("knownRansomwareCampaignUse", "Unknown")
     description = row.get("shortDescription", row.get("vulnerabilityName", "CISA KEV entry"))
+    required_action = row.get("requiredAction", "Apply vendor patch per CISA guidance.")
     tags = [tag for tag in [vendor, product, f"due:{due_date}", f"ransomware:{ransomware}"] if tag]
     return IOC(
         ioc_type="cve",
@@ -85,5 +86,5 @@ def _kev_to_ioc(row: dict) -> IOC:
         source="CISA KEV",
         first_seen=datetime.now(timezone.utc),
         tags=tags,
-        description=f"{description[:200]} | Due: {due_date}",
+        description=f"{description[:200]} | Action: {required_action} | Due: {due_date}",
     )

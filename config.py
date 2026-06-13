@@ -32,6 +32,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    abuse_ch_auth_key: str = ""
     otx_api_key: str = ""
     nvd_api_key: str = ""
     enable_live_feeds: bool = False
@@ -171,19 +172,21 @@ def has_otx_api_key() -> bool:
 
 
 def get_abusech_auth_key() -> str:
-    """Resolve abuse.ch Auth-Key (ThreatFox, etc.): .env first, then settings."""
+    """Resolve abuse.ch Auth-Key (ThreatFox, URLhaus): .env first, then settings."""
     from src.config.env_store import read_env_value
 
-    file_val = read_env_value("ABUSECH_AUTH_KEY")
-    if file_val is not None:
-        return file_val.strip()
+    for env_name in ("ABUSECH_AUTH_KEY", "ABUSE_CH_AUTH_KEY"):
+        file_val = read_env_value(env_name)
+        if file_val is not None and file_val.strip():
+            return file_val.strip()
 
     _load_env()
-    env_val = os.getenv("ABUSECH_AUTH_KEY", "").strip()
-    if env_val:
-        return env_val
+    for env_name in ("ABUSECH_AUTH_KEY", "ABUSE_CH_AUTH_KEY"):
+        env_val = os.getenv(env_name, "").strip()
+        if env_val:
+            return env_val
 
-    return settings.abusech_auth_key.strip()
+    return (settings.abusech_auth_key or settings.abuse_ch_auth_key).strip()
 
 
 def has_abusech_auth_key() -> bool:

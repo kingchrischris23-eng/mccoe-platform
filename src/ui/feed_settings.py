@@ -5,10 +5,18 @@ from src.feeds.aggregator import can_refresh_live, get_feed_status
 from src.feeds.attribution import attribution_lines
 
 
+def _key_status(label: str, configured: bool) -> None:
+    if configured:
+        st.success(f"{label}: configured")
+    else:
+        st.warning(f"{label}: not set — add to `.env` or **Settings**")
+
+
 def render_feed_settings() -> None:
     with st.expander("Live Feed Settings", expanded=False):
         st.caption(
-            "Toggle sources. API keys for OTX, abuse.ch (ThreatFox), and NVD are managed in **Settings** (saved to `.env`)."
+            "Toggle sources for this session. API keys are saved in `.env` via **Settings** "
+            "(or edit `.env` directly and restart / `docker compose up --build -d`)."
         )
 
         enable_live = st.toggle(
@@ -36,12 +44,17 @@ def render_feed_settings() -> None:
                 help="Coming in a future update — toggle reserved.",
             )
 
+        st.markdown("**API keys**")
+        _key_status("abuse.ch Auth-Key (URLhaus / ThreatFox)", has_abusech_auth_key())
+        _key_status("OTX API Key", has_otx_api_key())
+        _key_status("NVD API Key", has_nvd_api_key())
+
         if not has_otx_api_key() and settings.enable_otx:
-            st.caption("OTX: no API key — cached data only. Add `OTX_API_KEY` in Settings.")
-        if not has_abusech_auth_key() and settings.enable_threatfox:
-            st.caption("ThreatFox: no Auth-Key — cached data only. Add `ABUSECH_AUTH_KEY` in Settings.")
+            st.caption("OTX: no API key — cached data only.")
+        if not has_abusech_auth_key() and (settings.enable_threatfox or settings.enable_urlhaus):
+            st.caption("abuse.ch: no Auth-Key — cached data only. Get one at auth.abuse.ch.")
         if not has_nvd_api_key():
-            st.caption("NVD: no API key — using public rate limits. Add one in **Settings**.")
+            st.caption("NVD: no API key — using public rate limits.")
 
         if st.button("Apply Feed Settings"):
             settings.enable_live_feeds = enable_live
@@ -87,7 +100,7 @@ def _render_feed_status() -> None:
     else:
         st.caption("No feed cache yet. Refresh live feeds when online.")
 
-    if can_refresh_live():
-        st.caption("Live refresh is available.")
+    if can_refresh_live() or has_abusech_auth_key():
+        st.caption("Live refresh is available when LOCAL_ONLY=false.")
     elif is_local_only():
         st.caption("Showing cached data only while LOCAL_ONLY=true.")

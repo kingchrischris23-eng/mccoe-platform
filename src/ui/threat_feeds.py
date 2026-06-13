@@ -1,4 +1,4 @@
-import pandas as pd
+﻿import pandas as pd
 import streamlit as st
 
 from config import get_ioc_recent_days, get_ioc_ui_page_size, is_local_only
@@ -96,7 +96,7 @@ def _render_threat_table_legend() -> None:
         <span style="background:#1976D2;color:#fff;padding:4px 10px;border-radius:6px;font-weight:700;margin-right:12px;">Low</span>
         **Recency chips:**
         <span style="background:#2E7D32;color:#fff;padding:4px 10px;border-radius:6px;font-weight:600;margin-right:6px;">Last 7 days</span>
-        <span style="background:#EF6C00;color:#fff;padding:4px 10px;border-radius:6px;font-weight:600;margin-right:6px;">8–30 days</span>
+        <span style="background:#EF6C00;color:#fff;padding:4px 10px;border-radius:6px;font-weight:600;margin-right:6px;">8ΓÇô30 days</span>
         <span style="background:#455A64;color:#fff;padding:4px 10px;border-radius:6px;font-weight:600;">Older</span>
         """,
         unsafe_allow_html=True,
@@ -109,7 +109,7 @@ def _render_recently_added() -> None:
         return
 
     st.markdown("#### Recently Added (Last 7 Days)")
-    st.caption(f"{count_iocs_filtered(recency_tier='fresh')} indicator(s) in the last week — showing top {len(fresh_rows)}.")
+    st.caption(f"{count_iocs_filtered(recency_tier='fresh')} indicator(s) in the last week ΓÇö showing top {len(fresh_rows)}.")
     _render_interactive_table(fresh_rows, table_key="ioc_recent_table")
     st.markdown("---")
 
@@ -157,7 +157,7 @@ def _build_filter_state() -> dict:
     filter_cols = st.columns([2, 1, 1])
     with filter_cols[0]:
         search = st.text_input(
-            "Search CVE, IP, domain, hash…",
+            "Search CVE, IP, domain, hashΓÇª",
             placeholder="e.g. CVE-2024, 10.0.0.1, evil.example",
             key="ioc_search",
         ).strip()
@@ -217,8 +217,8 @@ def _render_totals_banner(
     totals: dict[str, int],
 ) -> None:
     st.info(
-        f"**Showing {start:,}–{end:,} of {filtered_total:,} matching IOCs** "
-        f"({totals['total']:,} total — NIST: {totals['nist']:,}, CISA KEV: {totals['cisa']:,}, "
+        f"**Showing {start:,}ΓÇô{end:,} of {filtered_total:,} matching IOCs** "
+        f"({totals['total']:,} total ΓÇö NIST: {totals['nist']:,}, CISA KEV: {totals['cisa']:,}, "
         f"OTX: {totals['otx']:,}, URLhaus: {totals['urlhaus']:,}, ThreatFox: {totals['threatfox']:,})"
     )
 
@@ -229,13 +229,13 @@ def _render_pagination(page: int, total_pages: int, filtered_total: int, page_si
 
     nav1, nav2, nav3, nav4 = st.columns([1, 2, 1, 1])
     with nav1:
-        if st.button("◀ Previous", disabled=page <= 0, key="ioc_prev"):
+        if st.button("ΓùÇ Previous", disabled=page <= 0, key="ioc_prev"):
             st.session_state["ioc_page"] = page - 1
             st.rerun()
     with nav2:
         st.caption(f"Page {page + 1} of {total_pages:,} ({page_size} per page)")
     with nav3:
-        if st.button("Next ▶", disabled=page >= total_pages - 1, key="ioc_next"):
+        if st.button("Next Γû╢", disabled=page >= total_pages - 1, key="ioc_next"):
             st.session_state["ioc_page"] = page + 1
             st.rerun()
     with nav4:
@@ -260,7 +260,7 @@ def _render_threat_intelligence_table(client) -> None:
     ensure_kev_index()
     _render_threat_table_legend()
     st.caption(
-        f"Paginated view — {page_size} IOCs per page, no display cap. "
+        f"Paginated view ΓÇö {page_size} IOCs per page, no display cap. "
         f"Default sort: published date (newest first). "
         f"**Click a row** to open mitigation details."
     )
@@ -307,7 +307,7 @@ def _render_threat_intelligence_table(client) -> None:
     m5.metric("URLhaus", f"{totals['urlhaus']:,}")
     m6.metric("ThreatFox", f"{totals['threatfox']:,}")
     m7.metric("Filtered", f"{filtered_total:,}")
-    st.caption(f"Recency: {fresh_total:,} last 7d · {active_total:,} 8–30d")
+    st.caption(f"Recency: {fresh_total:,} last 7d ┬╖ {active_total:,} 8ΓÇô30d")
     st.caption(f"Recent window for metrics: {recent_days} days")
 
     page_rows = [
@@ -355,7 +355,7 @@ def _render_api_threat_table(
     start = page * page_size
     end = min(start + len(rows), filtered_total)
 
-    st.caption("API backend mode — server-side pagination (no client cap).")
+    st.caption("API backend mode ΓÇö server-side pagination (no client cap).")
     api_totals = {**totals, "total": totals["total"] or filtered_total}
     _render_totals_banner(
         start + 1 if filtered_total else 0,
@@ -411,9 +411,9 @@ def _show_refresh_summary() -> None:
         elif source.get("count"):
             label += " (cached)"
         if source.get("rate_limited"):
-            st.warning(f"{label} — rate limited, using cache.")
+            st.warning(f"{label} ΓÇö rate limited, using cache.")
         elif source.get("error") and source.get("count", 0):
-            st.info(f"{label} — fallback: {source['error']}")
+            st.info(f"{label} ΓÇö fallback: {source['error']}")
         elif source.get("error"):
             st.caption(f"{source['name']}: {source['error']}")
         else:

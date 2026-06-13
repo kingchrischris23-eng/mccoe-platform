@@ -27,9 +27,11 @@ def _patch_state(monkeypatch, tmp_path):
     return state_path
 
 
-def test_ensure_settings_compat_patches_missing_fields():
+def test_ensure_settings_compat_patches_missing_fields(monkeypatch):
     from types import SimpleNamespace
 
+    monkeypatch.setenv("ENABLE_AUTO_FEED_REFRESH", "false")
+    monkeypatch.setenv("AUTO_FEED_REFRESH_HOURS", "24")
     stale = SimpleNamespace(local_only=True)
     ensure_settings_compat(stale)
     assert hasattr(stale, "enable_auto_feed_refresh")
@@ -40,7 +42,14 @@ def test_ensure_settings_compat_patches_missing_fields():
 def test_stale_settings_singleton_accessors(monkeypatch):
     from types import SimpleNamespace
 
-    stale = SimpleNamespace(local_only=True, enable_live_feeds=False)
+    monkeypatch.setenv("ENABLE_AUTO_FEED_REFRESH", "false")
+    monkeypatch.setenv("AUTO_FEED_REFRESH_HOURS", "24")
+    stale = SimpleNamespace(
+        local_only=True,
+        enable_live_feeds=False,
+        enable_auto_feed_refresh=False,
+        auto_feed_refresh_hours=24,
+    )
     monkeypatch.setattr(config, "settings", stale)
     assert is_auto_feed_refresh_enabled() is False
     assert get_auto_feed_refresh_hours() == 24

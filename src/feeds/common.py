@@ -9,8 +9,20 @@ SEVERITY_KEYWORDS = {
 }
 
 
+def normalize_tags(*values) -> list[str]:
+    tags: list[str] = []
+    for value in values:
+        if not value:
+            continue
+        if isinstance(value, list):
+            tags.extend(str(item) for item in value if item)
+        else:
+            tags.append(str(value))
+    return tags
+
+
 def score_severity(tags: list[str], description: str) -> str:
-    text = " ".join(tags + [description]).lower()
+    text = " ".join(normalize_tags(tags, description)).lower()
     for severity, keywords in SEVERITY_KEYWORDS.items():
         if any(keyword in text for keyword in keywords):
             return severity
