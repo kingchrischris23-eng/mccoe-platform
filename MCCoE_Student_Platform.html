@@ -1952,6 +1952,16 @@ function cancelReturn() {
   if (res) res.innerHTML = '';
 }
 
+function showWelcomeModal(name, assignedId) {
+  document.getElementById('wm-name').textContent = name;
+  document.getElementById('wm-id').textContent = assignedId;
+  document.getElementById('welcome-modal').style.display = 'flex';
+}
+function welcomeContinue() {
+  document.getElementById('welcome-modal').style.display = 'none';
+  enterApp();
+}
+
 function _nextStudentId() {
   const reg = getRegistry();
   let max = 0;
@@ -1992,7 +2002,7 @@ function doRegister() {
   state.student = { name, cohort, tempId, assignedId };
   state.progress = {};
   saveState();
-  enterApp();
+  showWelcomeModal(name, assignedId);
   } catch(err) { alert('Register error: ' + err.message); }
 }
 
@@ -3000,5 +3010,21 @@ else showLoginTab('register');
 <style>
 @keyframes lessonSlideIn { from { opacity:0; transform:translateY(-16px) scale(.97); } to { opacity:1; transform:none; } }
 </style>
+<!-- Welcome / Student ID modal -->
+<div id="welcome-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10001;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:16px;max-width:400px;width:100%;padding:40px 36px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35);">
+    <div style="font-size:3em;margin-bottom:8px;">🎉</div>
+    <h2 style="color:var(--dark);margin:0 0 6px;font-size:1.4em;">Welcome to MCCoE!</h2>
+    <p style="color:#555;margin:0 0 24px;font-size:.95em;">Your account has been created, <strong id="wm-name"></strong>.</p>
+    <div style="background:#f0f4ff;border:2px solid var(--red);border-radius:12px;padding:18px 24px;margin-bottom:24px;">
+      <div style="font-size:.8em;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:6px;">Your Student ID</div>
+      <div id="wm-id" style="font-size:2em;font-weight:900;color:var(--red);letter-spacing:2px;"></div>
+      <div style="font-size:.78em;color:#888;margin-top:8px;">Save this ID — you may need it to reset your password.</div>
+    </div>
+    <button onclick="welcomeContinue()" style="width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:8px;font-size:1em;font-weight:700;cursor:pointer;">
+      Enter the Portal →
+    </button>
+  </div>
+</div>
 </body>
 </html>
