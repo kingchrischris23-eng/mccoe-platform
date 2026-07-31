@@ -1725,6 +1725,12 @@ function checkPassword(entered, stored) {
   if (!stored || !entered) return Promise.resolve(false);
   if (entered === stored) return Promise.resolve(true);
   if (_hashSync(entered) === stored) return Promise.resolve(true);
+  // Fallback: try SHA-256 for accounts created before btoa migration
+  if (/^[a-f0-9]{64}$/.test(stored) && window.crypto && window.crypto.subtle) {
+    return window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(entered))
+      .then(buf => Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('') === stored)
+      .catch(() => false);
+  }
   return Promise.resolve(false);
 }
 
@@ -1815,7 +1821,10 @@ function selectReturningProfile(tempId) {
 function verifyAndLogin() {
   if (!_selectedProfile) return;
   const entered = document.getElementById('returning-pass').value;
-  checkPassword(entered, _selectedProfile.password).then(ok => {
+  // Always re-read password from current registry so admin resets are picked up immediately
+  const latest = getRegistry().find(r => r.tempId === _selectedProfile.tempId);
+  const storedPassword = (latest && latest.password) ? latest.password : _selectedProfile.password;
+  checkPassword(entered, storedPassword).then(ok => {
     if (!ok) {
       document.getElementById('returning-error').style.display = 'block';
       document.getElementById('returning-pass').value = '';
