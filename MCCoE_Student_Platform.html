@@ -1952,6 +1952,18 @@ function cancelReturn() {
   if (res) res.innerHTML = '';
 }
 
+function _nextStudentId() {
+  const reg = getRegistry();
+  let max = 0;
+  reg.forEach(r => {
+    if (r.assignedId && /^MCCoE-\d+$/.test(r.assignedId)) {
+      const n = parseInt(r.assignedId.split('-')[1], 10);
+      if (n > max) max = n;
+    }
+  });
+  return 'MCCoE-' + String(max + 1).padStart(3, '0');
+}
+
 function doRegister() {
   try {
   const name   = document.getElementById('inp-name').value.trim();
@@ -1972,11 +1984,12 @@ function doRegister() {
 
   const tempId = 'PENDING_' + Date.now();
   const hash = _hashSync(pass);
-  const entry = { tempId, name, cohort, password: hash, registeredAt: new Date().toISOString(), addedToRoster: false, assignedId: null };
+  const assignedId = _nextStudentId();
+  const entry = { tempId, name, cohort, password: hash, registeredAt: new Date().toISOString(), addedToRoster: false, assignedId };
   _registryCache.push(entry);
   saveRegistry(_registryCache);
   _fbWriteEntry(entry);
-  state.student = { name, cohort, tempId, assignedId: null };
+  state.student = { name, cohort, tempId, assignedId };
   state.progress = {};
   saveState();
   enterApp();
