@@ -1210,15 +1210,14 @@ function startSyncPoller() {
   updateSyncBadge();
 }
 
-async function sha256(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+function _hashSync(str) {
+  try { return 'b64:' + btoa(unescape(encodeURIComponent(str || ''))); } catch(e) { return 'p:' + str; }
 }
 
 function resetStudentPassword(studentId, portalTempId) {
   const newPass = document.getElementById('reset-pass-' + studentId).value.trim();
   if (!newPass) { alert('Please enter a new password.'); return; }
-  sha256(newPass).then(hash => {
+  const hash = _hashSync(newPass);
   const reg = getRegistry();
   const idx = reg.findIndex(r => r.tempId === portalTempId);
   if (idx < 0) { alert('Portal account not found.'); return; }
@@ -1228,7 +1227,6 @@ function resetStudentPassword(studentId, portalTempId) {
   document.getElementById('reset-pass-' + studentId).value = '';
   const msg = document.getElementById('reset-msg-' + studentId);
   if (msg) { msg.style.display = 'block'; setTimeout(() => msg.style.display='none', 4000); }
-  }); // end sha256.then
 }
 
 function assignStudentId(rosterStudentId, portalTempId) {
