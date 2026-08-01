@@ -2554,6 +2554,7 @@ function renderWeek(num) {
           ${p.submitted ? '🔄 Retake Quiz' : '✅ Grade My Quiz'}
         </button>
         <div class="quiz-result-bar" id="quiz-result-bar"></div>
+        <div id="quiz-review-panel"></div>
       </div>
     </div>
 
@@ -2716,6 +2717,9 @@ function gradeQuiz(weekNum) {
   // disable inputs
   document.querySelectorAll('input[type=radio]').forEach(r => r.disabled = true);
 
+  // Build wrong-answer review panel
+  _showQuizReview(w.quiz, 'q', 'quiz-review-panel', w.title);
+
   // Refresh objectives display if content tab is visible
   if (pct >= 70) {
     w.objectives.forEach((o, i) => {
@@ -2725,6 +2729,43 @@ function gradeQuiz(weekNum) {
       if (lbl) { lbl.style.color = 'var(--green)'; lbl.style.fontWeight = '600'; lbl.innerHTML = '<s style="opacity:.6">'+o+'</s>  ✓'; }
     });
   }
+}
+
+
+// ── QUIZ WRONG-ANSWER REVIEW ────────────────────────────────────────────────
+function _showQuizReview(questions, namePrefix, panelId, topicTitle) {
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+
+  const wrongs = [];
+  questions.forEach((q, qi) => {
+    const sel = document.querySelector(`input[name="${namePrefix}${qi}"]:checked`);
+    if (!sel) return;
+    const chosen = parseInt(sel.value);
+    if (chosen !== q.ans) {
+      wrongs.push({ num: qi + 1, text: q.q, chosen: q.opts[chosen], correct: q.opts[q.ans] });
+    }
+  });
+
+  if (wrongs.length === 0) {
+    panel.innerHTML = '<div class="quiz-review-panel"><div class="quiz-review-all-pass">🎯 Perfect! You got every question correct — excellent work!</div></div>';
+    return;
+  }
+
+  let html = '<div class="quiz-review-panel">' +
+    '<div class="quiz-review-header">📖 WRONG ANSWERS — ' + wrongs.length + ' of ' + questions.length + ' to review · ' + topicTitle + '</div>';
+
+  wrongs.forEach(w => {
+    html += '<div class="quiz-review-item">' +
+      '<div class="quiz-review-qtext">Q' + w.num + '. ' + w.text + '</div>' +
+      '<div class="quiz-review-wrong">✗ You chose: ' + w.chosen + '</div>' +
+      '<div class="quiz-review-correct">✓ Correct answer: ' + w.correct + '</div>' +
+      '</div>';
+  });
+
+  html += '</div>';
+  panel.innerHTML = html;
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function retakeQuiz(weekNum) {
@@ -2738,9 +2779,11 @@ function retakeQuiz(weekNum) {
       if (label) label.classList.remove('correct', 'wrong', 'selected');
     });
   });
-  // Hide result bar
+  // Hide result bar and review panel
   const bar = document.getElementById('quiz-result-bar');
   if (bar) bar.style.display = 'none';
+  const rp = document.getElementById('quiz-review-panel');
+  if (rp) rp.remove();
   // Reset button back to Grade
   const btn = document.getElementById('btn-grade-quiz');
   if (btn) { btn.textContent = '✅ Grade My Quiz'; btn.onclick = () => gradeQuiz(weekNum); }
@@ -2947,6 +2990,7 @@ function renderSoftSkill(id) {
           ${p.quizScore !== null ? '🔄 Retake Quiz' : '✅ Grade My Quiz'}
         </button>
         <div class="quiz-result-bar" id="ss-quiz-result-bar"></div>
+        <div id="ss-quiz-review-panel"></div>
       </div>
     </div>
 
@@ -3032,6 +3076,8 @@ function gradeSoftSkillQuiz(id) {
   bar.innerHTML = `Score: ${score}/${s.quiz.length} — ${pct}% ${pct>=70?'✅ PASS — Great work!':'❌ Review the material and retake — 70% required to pass'}`;
   document.getElementById('btn-grade-ss-quiz').textContent = '🔄 Retake Quiz';
   document.querySelectorAll('input[type=radio][name^="ssq"]').forEach(r => r.disabled = true);
+
+  _showQuizReview(s.quiz, 'ssq', 'ss-quiz-review-panel', s.title);
 }
 
 function toggleSoftSkillActivity(id, idx) {
@@ -3273,6 +3319,61 @@ else showLoginTab('register');
 </div>
 <style>
 @keyframes lessonSlideIn { from { opacity:0; transform:translateY(-16px) scale(.97); } to { opacity:1; transform:none; } }
+
+/* ── QUIZ WRONG-ANSWER REVIEW PANEL ── */
+.quiz-review-panel {
+  margin-top: 18px;
+  background: rgba(10,10,28,0.92);
+  border: 1px solid rgba(0,245,255,0.2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.quiz-review-header {
+  background: rgba(0,245,255,0.08);
+  border-bottom: 1px solid rgba(0,245,255,0.15);
+  padding: 12px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #00f5ff;
+  font-family: 'Orbitron', monospace;
+  letter-spacing: 1px;
+}
+.quiz-review-item {
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(0,245,255,0.07);
+}
+.quiz-review-item:last-child { border-bottom: none; }
+.quiz-review-qtext {
+  font-size: 13px;
+  font-weight: 600;
+  color: #c8d8e8;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+.quiz-review-wrong {
+  font-size: 12px;
+  color: #ff6b6b;
+  padding: 5px 10px;
+  background: rgba(238,34,7,0.08);
+  border-left: 3px solid #EE2207;
+  border-radius: 0 4px 4px 0;
+  margin-bottom: 5px;
+}
+.quiz-review-correct {
+  font-size: 12px;
+  color: #00ff41;
+  padding: 5px 10px;
+  background: rgba(0,255,65,0.07);
+  border-left: 3px solid #00ff41;
+  border-radius: 0 4px 4px 0;
+}
+.quiz-review-all-pass {
+  padding: 20px 18px;
+  text-align: center;
+  color: #00ff41;
+  font-weight: 700;
+  font-size: 14px;
+}
 </style>
 <!-- Welcome / Student ID modal -->
 <div id="welcome-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:10001;align-items:center;justify-content:center;padding:20px;">
