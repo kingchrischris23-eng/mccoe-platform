@@ -2828,6 +2828,28 @@ function renderManageAdmins() {
         </div>
         <div id="admin-add-msg" style="display:none;margin-top:10px;font-size:.8rem;font-weight:600;"></div>
       </div>` : '<p style="color:#3a4a66;font-size:.8rem;margin-top:16px;">Contact a Master Admin to add or remove accounts.</p>'}
+
+      <!-- Change My Password — available to all admins -->
+      <div style="margin-top:20px;padding-top:20px;border-top:1px solid #1e3358;">
+        <div style="font-size:.8rem;font-weight:700;color:#7a8ba8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;">Change My Password</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end;flex-wrap:wrap;">
+          <div>
+            <label style="font-size:.75rem;color:#7a8ba8;display:block;margin-bottom:4px;">Current Password</label>
+            <input id="chg-pass-current" type="password" placeholder="Current password"
+              style="width:100%;padding:9px 12px;background:#080f1e;border:1.5px solid #1e3358;border-radius:7px;color:#e2e8f0;font-size:.85rem;outline:none;">
+          </div>
+          <div>
+            <label style="font-size:.75rem;color:#7a8ba8;display:block;margin-bottom:4px;">New Password</label>
+            <input id="chg-pass-new" type="password" placeholder="New password"
+              style="width:100%;padding:9px 12px;background:#080f1e;border:1.5px solid #1e3358;border-radius:7px;color:#e2e8f0;font-size:.85rem;outline:none;">
+          </div>
+          <button onclick="changeMyPassword()"
+            style="padding:9px 18px;background:#1e3358;color:#e2e8f0;border:1.5px solid #2a4a7a;border-radius:7px;font-size:.85rem;font-weight:700;cursor:pointer;white-space:nowrap;">
+            Update
+          </button>
+        </div>
+        <div id="chg-pass-msg" style="display:none;margin-top:10px;font-size:.8rem;font-weight:600;"></div>
+      </div>
     </div>`;
 
   const modal = document.getElementById('detailModal');
@@ -2856,6 +2878,30 @@ function removeAdminAccount(username) {
   const accounts = getAdminAccounts().filter(a => a.username !== username || a.master);
   saveAdminAccounts(accounts);
   renderManageAdmins();
+}
+
+function changeMyPassword() {
+  const currentPass = document.getElementById('chg-pass-current').value;
+  const newPass     = document.getElementById('chg-pass-new').value.trim();
+  const msg         = document.getElementById('chg-pass-msg');
+  const myUser      = sessionStorage.getItem('mccoe_admin_user');
+
+  msg.style.display = 'block';
+  if (!currentPass || !newPass) { msg.style.color='#e74c3c'; msg.textContent='Please fill in both fields.'; return; }
+  if (newPass.length < 6)       { msg.style.color='#e74c3c'; msg.textContent='New password must be at least 6 characters.'; return; }
+
+  const accounts = getAdminAccounts();
+  const idx = accounts.findIndex(a => a.username === myUser);
+  if (idx < 0) { msg.style.color='#e74c3c'; msg.textContent='Account not found.'; return; }
+  if (accounts[idx].password !== currentPass) { msg.style.color='#e74c3c'; msg.textContent='Current password is incorrect.'; return; }
+
+  accounts[idx].password = newPass;
+  saveAdminAccounts(accounts);
+  document.getElementById('chg-pass-current').value = '';
+  document.getElementById('chg-pass-new').value = '';
+  msg.style.color = 'var(--green)';
+  msg.textContent = 'Password updated successfully!';
+  setTimeout(() => { msg.style.display = 'none'; }, 3000);
 }
 
 // ════════════════════════════════════════════
