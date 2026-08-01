@@ -2115,6 +2115,18 @@ function verifyAndLogin() {
         date: _ts.split('T')[0],
         display: _now.toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' })
       });
+      // Capture IP geolocation for login map (fails silently if unavailable)
+      fetch('https://ipapi.co/json/')
+        .then(r => r.json())
+        .then(geo => {
+          if (geo && geo.latitude) {
+            _loginRef.child('geo').set({
+              lat: geo.latitude, lon: geo.longitude,
+              city: geo.city || '', region: geo.region || '', country: geo.country_name || '',
+              updated: _ts
+            });
+          }
+        }).catch(() => {});
     }
   });
 }
