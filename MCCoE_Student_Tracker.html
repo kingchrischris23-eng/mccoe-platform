@@ -782,24 +782,24 @@ select option { background:var(--surface); color:var(--text); }
         <div class="form-group"><label>SOC/Range Hours</label><input type="number" id="f-sochours" value="0" min="0" max="500"></div>
         <div class="form-group"><label>OJT Employer</label><input id="f-employer" placeholder="Employer name"></div>
         <div class="form-group"><label>OJT Mentor</label><input id="f-mentor" placeholder="Mentor name"></div>
+        <div class="form-group"><label>A+ Status</label>
+          <select id="f-aplus">
+            <option value="not_started">Not Started</option>
+            <option value="in_progress">In Progress</option>
+            <option value="passed">Passed</option>
+            <option value="failed">Failed</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Network+ Status</label>
+          <select id="f-netplus">
+            <option value="not_started">Not Started</option>
+            <option value="in_progress">In Progress</option>
+            <option value="passed">Passed</option>
+            <option value="failed">Failed</option>
+          </select>
+        </div>
         <div class="form-group"><label>Security+ Status</label>
           <select id="f-secplus">
-            <option value="not_started">Not Started</option>
-            <option value="in_progress">In Progress</option>
-            <option value="passed">Passed</option>
-            <option value="failed">Failed</option>
-          </select>
-        </div>
-        <div class="form-group"><label>CySA+ Status</label>
-          <select id="f-csaplus">
-            <option value="not_started">Not Started</option>
-            <option value="in_progress">In Progress</option>
-            <option value="passed">Passed</option>
-            <option value="failed">Failed</option>
-          </select>
-        </div>
-        <div class="form-group"><label>AI+ Status</label>
-          <select id="f-aiplus">
             <option value="not_started">Not Started</option>
             <option value="in_progress">In Progress</option>
             <option value="passed">Passed</option>
@@ -875,7 +875,7 @@ function loadData() {
     {
       id:'s1', name:'Marcus Johnson', cohort:'Cohort 2026-A', startDate:'2026-01-15',
       phase:2, hours:820, socHours:95,
-      certs:{ secplus:'in_progress', csaplus:'not_started', aiplus:'not_started' },
+      certs:{ aplus:'not_started', netplus:'not_started', secplus:'in_progress' },
       employer:'CyberGuard MSP', mentor:'Tom Rivera', placement:'active', notes:'Strong SIEM skills. Needs improvement on reporting.',
       attendance:{ '2026-07-21':'P','2026-07-22':'P','2026-07-23':'L','2026-07-24':'P' },
       scores:[88,92,79,91,85],
@@ -898,7 +898,7 @@ function loadData() {
     {
       id:'s2', name:'Aisha Williams', cohort:'Cohort 2026-A', startDate:'2026-01-15',
       phase:2, hours:950, socHours:128,
-      certs:{ secplus:'passed', csaplus:'in_progress', aiplus:'not_started' },
+      certs:{ aplus:'passed', netplus:'passed', secplus:'passed' },
       employer:'SecureNet Solutions', mentor:'Janet Cole', placement:'active', notes:'Top performer. Passed Security+ on first attempt.',
       attendance:{ '2026-07-21':'P','2026-07-22':'P','2026-07-23':'P','2026-07-24':'P' },
       scores:[95,97,94,99,96],
@@ -919,7 +919,7 @@ function loadData() {
     {
       id:'s3', name:'Derek Okafor', cohort:'Cohort 2026-A', startDate:'2026-01-15',
       phase:1, hours:380, socHours:42,
-      certs:{ secplus:'not_started', csaplus:'not_started', aiplus:'not_started' },
+      certs:{ aplus:'not_started', netplus:'not_started', secplus:'not_started' },
       employer:'', mentor:'', placement:'active', notes:'Late enrollment. Catching up quickly on fundamentals.',
       attendance:{ '2026-07-21':'A','2026-07-22':'P','2026-07-23':'P','2026-07-24':'L' },
       scores:[72,68,75,80,77],
@@ -936,7 +936,7 @@ function loadData() {
     {
       id:'s4', name:'Priya Patel', cohort:'Cohort 2026-A', startDate:'2026-01-15',
       phase:3, hours:1450, socHours:165,
-      certs:{ secplus:'passed', csaplus:'passed', aiplus:'in_progress' },
+      certs:{ aplus:'passed', netplus:'passed', secplus:'passed' },
       employer:'Ozarks Health IT', mentor:'Dan Lowe', placement:'ojt', notes:'Excellent candidate — employer highly satisfied with OJT performance.',
       attendance:{ '2026-07-21':'P','2026-07-22':'P','2026-07-23':'P','2026-07-24':'P' },
       scores:[93,96,91,98,95], surveys:[
@@ -946,7 +946,7 @@ function loadData() {
     {
       id:'s5', name:'Tyler Brooks', cohort:'Cohort 2026-A', startDate:'2026-01-15',
       phase:2, hours:710, socHours:88,
-      certs:{ secplus:'in_progress', csaplus:'not_started', aiplus:'not_started' },
+      certs:{ aplus:'not_started', netplus:'not_started', secplus:'in_progress' },
       employer:'', mentor:'', placement:'active', notes:'Veteran — strong discipline, adapting well to technical curriculum.',
       attendance:{ '2026-07-21':'P','2026-07-22':'A','2026-07-23':'P','2026-07-24':'P' },
       scores:[82,87,84,89,86], surveys:[]
@@ -973,7 +973,7 @@ function _addRegistryEntry(entry) {
     cohort: entry.cohort,
     startDate: new Date().toISOString().split('T')[0],
     phase: 1, hours: 0, socHours: 0,
-    certs: { secplus:'not_started', csaplus:'not_started', aiplus:'not_started' },
+    certs: { aplus:'not_started', netplus:'not_started', secplus:'not_started' },
     employer: '', mentor: '', placement: 'active',
     notes: 'Registered via Student Portal.',
     attendance: {}, scores: [], surveys: [],
@@ -1311,7 +1311,7 @@ function surveyAvg(s)    {
 }
 function hoursBar(h)     { return Math.min(100, Math.round((h/2000)*100)); }
 function initials(n)     { return n.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase(); }
-function certLabel(k)    { return {secplus:'Security+',csaplus:'CySA+',aiplus:'AI+'}[k]; }
+function certLabel(k)    { return {aplus:'A+',netplus:'Network+',secplus:'Security+'}[k]; }
 function certClass(v)    { return {passed:'cert-passed',in_progress:'cert-progress',not_started:'cert-not',failed:'cert-failed'}[v]; }
 function certIcon(v)     { return {passed:'✓',in_progress:'⟳',not_started:'○',failed:'✗'}[v]; }
 function certText(v)     { return {passed:'Passed',in_progress:'In Progress',not_started:'Not Started',failed:'Failed'}[v]; }
@@ -1860,7 +1860,7 @@ function openAddStudent() {
   document.getElementById('f-sochours').value = 0;
   document.getElementById('f-phase').value = 1;
   document.getElementById('f-placement').value = 'active';
-  ['secplus','csaplus','aiplus'].forEach(c=>document.getElementById('f-'+c).value='not_started');
+  ['aplus','netplus','secplus'].forEach(c=>document.getElementById('f-'+c).value='not_started');
   openModal('studentModal');
 }
 
@@ -1879,9 +1879,9 @@ function openEditStudent(id) {
   document.getElementById('f-mentor').value    = s.mentor;
   document.getElementById('f-placement').value = s.placement;
   document.getElementById('f-notes').value     = s.notes;
-  document.getElementById('f-secplus').value   = s.certs.secplus;
-  document.getElementById('f-csaplus').value   = s.certs.csaplus;
-  document.getElementById('f-aiplus').value    = s.certs.aiplus;
+  document.getElementById('f-aplus').value     = s.certs.aplus    || 'not_started';
+  document.getElementById('f-netplus').value   = s.certs.netplus  || 'not_started';
+  document.getElementById('f-secplus').value   = s.certs.secplus  || 'not_started';
   openModal('studentModal');
 }
 
@@ -1899,7 +1899,7 @@ function saveStudent() {
     mentor:document.getElementById('f-mentor').value,
     placement:document.getElementById('f-placement').value,
     notes:document.getElementById('f-notes').value,
-    certs:{ secplus:document.getElementById('f-secplus').value, csaplus:document.getElementById('f-csaplus').value, aiplus:document.getElementById('f-aiplus').value },
+    certs:{ aplus:document.getElementById('f-aplus').value, netplus:document.getElementById('f-netplus').value, secplus:document.getElementById('f-secplus').value },
     attendance: editingId ? students.find(x=>x.id===editingId).attendance : {},
     scores:     editingId ? students.find(x=>x.id===editingId).scores     : [],
     surveys:    editingId ? students.find(x=>x.id===editingId).surveys    : []
@@ -2622,7 +2622,7 @@ function approveSubmission(pendingIdx) {
       phase: 1,
       hours: 0,
       socHours: 0,
-      certs: { secplus:'not_started', csaplus:'not_started', aiplus:'not_started' },
+      certs: { aplus:'not_started', netplus:'not_started', secplus:'not_started' },
       employer: '', mentor: '', placement: 'active', notes: '',
       attendance: {}, scores: [], surveys: [],
       scoreLog: [], notesLog: []
