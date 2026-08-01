@@ -388,6 +388,19 @@ select option { background:var(--surface); color:var(--text); }
 .empty-state .empty-icon { font-size:3rem; margin-bottom:12px; opacity:.25; }
 
 /* ── PRINT ── */
+.dash-tab {
+  flex:1; padding:10px 6px; background:none; border:none; border-bottom:2px solid transparent;
+  color:#4a6080; font-size:.72rem; font-weight:700; cursor:pointer; transition:all 0.15s;
+  font-family:'Orbitron',monospace; letter-spacing:.5px;
+}
+.dash-tab:hover { color:#c8d8e8; background:rgba(0,245,255,0.04); }
+.dash-tab.active-tab { color:#00f5ff; border-bottom-color:#00f5ff; background:rgba(0,245,255,0.05); }
+@keyframes mapBlink { 0%,100%{opacity:1} 50%{opacity:0.15} }
+@keyframes mapRingOut { 0%{r:5;opacity:0.8} 100%{r:16;opacity:0} }
+@keyframes socSlideIn { from{opacity:0;transform:translateX(-6px)} to{opacity:1;transform:translateX(0)} }
+.map-dot-pulse { animation:mapBlink 2s ease-in-out infinite; }
+.map-ring-out { animation:mapRingOut 2.5s ease-out infinite; }
+.soc-entry { animation:socSlideIn 0.25s ease-out; }
 @media print {
   header, nav, aside, .sidebar, #admin-gate, #exportMenu,
   .modal-overlay, .page-header .btn, .btn, button,
@@ -550,12 +563,18 @@ select option { background:var(--surface); color:var(--text); }
 
   <!-- TWO COL -->
   <div class="two-col" style="margin-bottom:20px;">
-    <!-- Alerts -->
-    <div>
-      <div class="section-title">⚠ Attention Needed</div>
-      <div id="alertsList"></div>
+    <!-- Left: Tabbed Panel -->
+    <div style="background:#080f1e;border-radius:12px;overflow:hidden;border:1px solid rgba(0,245,255,0.12);">
+      <div style="display:flex;border-bottom:1px solid rgba(0,245,255,0.12);">
+        <button onclick="switchDashTab('map')"   id="dtab-map"   class="dash-tab active-tab">🗺 Live Map</button>
+        <button onclick="switchDashTab('feed')"  id="dtab-feed"  class="dash-tab">📡 SOC Feed</button>
+        <button onclick="switchDashTab('alerts')" id="dtab-alerts" class="dash-tab">⚠ Alerts</button>
+      </div>
+      <div id="dpanel-map"    style="height:280px;"></div>
+      <div id="dpanel-feed"   style="display:none;height:280px;overflow:hidden;"></div>
+      <div id="dpanel-alerts" style="display:none;padding:12px;height:280px;overflow-y:auto;"><div id="alertsList"></div></div>
     </div>
-    <!-- Top Performers -->
+    <!-- Right: Top Performers -->
     <div>
       <div class="section-title">🏆 Top Performers This Week</div>
       <div id="topPerformers"></div>
@@ -1277,6 +1296,9 @@ function startLoginListener() {
     });
     if (attendanceChanged) saveData();
 
+    // Refresh map and SOC feed
+    if (document.getElementById('dtab-map') && document.getElementById('dtab-map').classList.contains('active-tab')) renderLoginMap();
+    if (document.getElementById('dtab-feed') && document.getElementById('dtab-feed').classList.contains('active-tab')) renderSOCFeed();
     // Refresh attendance view if open
     const av = document.getElementById('view-attendance');
     if (av && av.classList.contains('active')) renderAttendance();
@@ -1451,6 +1473,9 @@ function renderDashboard() {
     if(!s.surveys.length)alerts+=`<div class="alert-item alert-yellow"><span>📝</span><div class="alert-text"><span class="alert-name">${s.name}</span> — No survey responses submitted yet</div></div>`;
   });
   document.getElementById('alertsList').innerHTML = alerts || '<div class="empty-state"><div>✅</div><div style="font-size:.85rem">No alerts — all students on track!</div></div>';
+  // Refresh whichever tab is active
+  if (document.getElementById('dtab-map') && document.getElementById('dtab-map').classList.contains('active-tab')) renderLoginMap();
+  if (document.getElementById('dtab-feed') && document.getElementById('dtab-feed').classList.contains('active-tab')) renderSOCFeed();
 
   // Top Performers
   const sorted = [...students].sort((a,b)=>avgScore(b)-avgScore(a)).slice(0,3);
@@ -1490,6 +1515,142 @@ function renderDashboard() {
 
 // ════════════════════════════════════════════
 //  STUDENTS
+// ════════════════════════════════════════════
+//  DASHBOARD TABS + MAP + SOC FEED
+// ════════════════════════════════════════════
+function switchDashTab(tab) {
+  ['map','feed','alerts'].forEach(t => {
+    document.getElementById('dpanel-'+t).style.display = t===tab ? 'block' : 'none';
+    const btn = document.getElementById('dtab-'+t);
+    btn.classList.toggle('active-tab', t===tab);
+  });
+  if (tab==='feed') { document.getElementById('dpanel-feed').style.display='flex'; document.getElementById('dpanel-feed').style.flexDirection='column'; renderSOCFeed(); }
+  if (tab==='map')  renderLoginMap();
+}
+
+// Simplified continent outlines [lon, lat]
+const _CONTINENTS = [
+  [[-170,72],[-140,72],[-100,84],[-65,84],[-52,65],[-54,47],[-66,45],[-75,45],[-82,42],[-76,35],[-80,25],[-87,16],[-83,10],[-77,8],[-110,5],[-118,22],[-117,32],[-120,49],[-125,50],[-142,60],[-170,60]],
+  [[-80,13],[-62,13],[-50,5],[-35,-5],[-40,-22],[-42,-23],[-68,-55],[-75,-50],[-80,-35]],
+  [[-68,83],[-15,83],[-15,70],[-42,65],[-68,70]],
+  [[-10,36],[28,36],[40,38],[40,50],[30,60],[25,71],[15,70],[5,62],[-5,58],[-8,44]],
+  [[-18,37],[37,37],[52,12],[42,-12],[35,-35],[18,-35],[12,-18],[8,5],[-8,5],[-18,15]],
+  [[25,71],[180,71],[180,12],[142,-5],[100,-10],[80,5],[60,20],[37,37],[28,36],[25,36]],
+  [[113,-10],[154,-10],[154,-44],[113,-44]],
+  [[-180,71],[-170,71],[-170,60],[-180,60]],
+];
+
+function _mproj(lon, lat, W, H) {
+  return [(lon+180)/360*W, (90-lat)/180*H];
+}
+
+function renderLoginMap() {
+  const panel = document.getElementById('dpanel-map');
+  if (!panel) return;
+  const W=900, H=280;
+
+  const gridLines = (() => {
+    let g='';
+    for(let lon=-180;lon<=180;lon+=30){const[x]=_mproj(lon,0,W,H);g+=`<line x1="${x.toFixed(1)}" y1="0" x2="${x.toFixed(1)}" y2="${H}" stroke="rgba(0,245,255,0.05)" stroke-width="0.5"/>`;}
+    for(let lat=-60;lat<=90;lat+=30){const[,y]=_mproj(0,lat,W,H);g+=`<line x1="0" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="rgba(0,245,255,0.05)" stroke-width="0.5"/>`;}
+    const[,eq]=_mproj(0,0,W,H);
+    g+=`<line x1="0" y1="${eq.toFixed(1)}" x2="${W}" y2="${eq.toFixed(1)}" stroke="rgba(0,245,255,0.14)" stroke-width="0.8" stroke-dasharray="4,4"/>`;
+    return g;
+  })();
+
+  const continentPaths = _CONTINENTS.map(pts=>{
+    const coords=pts.map(([lon,lat])=>_mproj(lon,lat,W,H).map(v=>v.toFixed(1)).join(',')).join(' ');
+    return `<polygon points="${coords}" fill="rgba(0,245,255,0.065)" stroke="rgba(0,245,255,0.38)" stroke-width="0.8" stroke-linejoin="round"/>`;
+  }).join('');
+
+  // MCCoE home base — Missouri
+  const[moX,moY]=_mproj(-92.5,38.5,W,H);
+  const home=`
+    <circle cx="${moX.toFixed(1)}" cy="${moY.toFixed(1)}" r="5" fill="#EE2207"/>
+    <circle cx="${moX.toFixed(1)}" cy="${moY.toFixed(1)}" r="5" fill="none" stroke="#EE2207" stroke-width="1.5" class="map-ring-out"/>
+    <circle cx="${moX.toFixed(1)}" cy="${moY.toFixed(1)}" r="5" fill="none" stroke="#EE2207" stroke-width="1" class="map-ring-out" style="animation-delay:1.2s"/>
+    <text x="${(moX+8).toFixed(1)}" y="${(moY+4).toFixed(1)}" fill="#EE2207" font-size="7.5" font-family="Share Tech Mono,monospace" opacity="0.9">MCCoE</text>`;
+
+  // Student login dots
+  let dots=''; const placed={};
+  students.forEach(s=>{
+    if(!s.portalTempId) return;
+    const ld=_loginsCache[s.portalTempId];
+    if(!ld||!ld.geo||!ld.geo.lat) return;
+    const{lat,lon,city,region}=ld.geo;
+    const isOnline=ld.lastLogin&&(Date.now()-new Date(ld.lastLogin).getTime())<3600000;
+    const color=isOnline?'#00f5ff':'#4fa3e0';
+    const key=`${Math.round(lat*2)}_${Math.round(lon*2)}`;
+    const offset=(placed[key]=(placed[key]||0))*8;
+    placed[key]++;
+    const[dx,dy]=_mproj(lon,lat,W,H);
+    const cx=(dx+offset).toFixed(1), cy=dy.toFixed(1);
+    const label=(city||s.name.split(' ')[0]).substring(0,14);
+    const delay=(Math.random()*2).toFixed(2);
+    dots+=`
+      <circle cx="${cx}" cy="${cy}" r="5" fill="${color}" opacity="0.88" class="map-dot-pulse" style="animation-delay:${delay}s"/>
+      <circle cx="${cx}" cy="${cy}" r="5" fill="none" stroke="${color}" stroke-width="1.5" class="map-ring-out" style="animation-delay:${delay}s"/>
+      <circle cx="${cx}" cy="${cy}" r="5" fill="none" stroke="${color}" stroke-width="1" class="map-ring-out" style="animation-delay:${(parseFloat(delay)+1.2).toFixed(2)}s"/>
+      <text x="${(parseFloat(cx)+8).toFixed(1)}" y="${(parseFloat(cy)+4).toFixed(1)}" fill="${color}" font-size="6.5" font-family="Share Tech Mono,monospace" opacity="0.85">${label}</text>`;
+  });
+
+  const hasGeo=students.some(s=>s.portalTempId&&_loginsCache[s.portalTempId]&&_loginsCache[s.portalTempId].geo);
+  const noDataMsg=!hasGeo?`<text x="${W/2}" y="${H-14}" fill="rgba(0,245,255,0.25)" font-size="8" font-family="Share Tech Mono,monospace" text-anchor="middle">Student location data will appear here after first portal login</text>`:'';
+
+  panel.innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:100%;display:block;" xmlns="http://www.w3.org/2000/svg">
+    <rect width="${W}" height="${H}" fill="#050510"/>
+    ${gridLines}${continentPaths}${home}${dots}${noDataMsg}
+    <text x="8" y="${H-8}" fill="rgba(0,245,255,0.28)" font-size="7" font-family="Share Tech Mono,monospace">LIVE · ${new Date().toLocaleTimeString()}</text>
+    <text x="${W-8}" y="${H-8}" fill="rgba(200,216,232,0.3)" font-size="7" font-family="Share Tech Mono,monospace" text-anchor="end">● MCCoE BASE  ● ACTIVE (&lt;1hr)  ◉ RECENT</text>
+  </svg>`;
+}
+
+function renderSOCFeed() {
+  const panel=document.getElementById('dpanel-feed');
+  if(!panel) return;
+
+  const events=[];
+  students.forEach(s=>{
+    if(!s.portalTempId) return;
+    const ld=_loginsCache[s.portalTempId];
+    if(!ld||!ld.history) return;
+    const geo=ld.geo;
+    Object.values(ld.history).forEach(h=>{
+      events.push({ts:h.ts, name:s.name, city:geo?(geo.city+(geo.region?', '+geo.region:'')):'', country:geo?geo.country:''});
+    });
+  });
+  events.sort((a,b)=>b.ts.localeCompare(a.ts));
+
+  if(!events.length){
+    panel.innerHTML=`<div style="flex:1;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;color:#4a6080;font-size:.8rem;flex-direction:column;gap:8px;"><div style="font-size:1.8rem;">📡</div>NO SIGNAL · Awaiting portal activity...</div>`;
+    return;
+  }
+
+  const now=Date.now();
+  const lines=events.slice(0,30).map(ev=>{
+    const age=now-new Date(ev.ts).getTime();
+    const color=age<1800000?'#00ff41':age<86400000?'#00f5ff':'#4a6080';
+    const dot=age<1800000?'●':age<86400000?'◉':'○';
+    const t=new Date(ev.ts);
+    const timeStr=t.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+    const dateStr=t.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    const loc=ev.city?` · ${ev.city}`:'';
+    return `<div class="soc-entry" style="padding:5px 14px;border-bottom:1px solid rgba(0,245,255,0.04);font-family:'Share Tech Mono',monospace;font-size:.72rem;white-space:nowrap;overflow:hidden;">
+      <span style="color:#3a5070;">[${dateStr} ${timeStr}]</span>
+      <span style="color:${color};margin:0 6px;">${dot}</span>
+      <span style="color:#c8d8e8;font-weight:700;">${ev.name.toUpperCase().replace(' ','_')}</span>
+      <span style="color:#4a6080;"> — PORTAL_ACCESS${loc}</span>
+    </div>`;
+  }).join('');
+
+  panel.innerHTML=`
+    <div style="padding:7px 14px 5px;font-family:'Share Tech Mono',monospace;font-size:.65rem;color:#4a6080;border-bottom:1px solid rgba(0,245,255,0.1);display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+      <span>MCCoE-SOC ACTIVITY LOG</span>
+      <span style="color:#00ff41;animation:mapBlink 1s infinite;">● LIVE</span>
+    </div>
+    <div style="flex:1;overflow-y:auto;">${lines}</div>`;
+}
+
 // ════════════════════════════════════════════
 //  KPI CHARTS
 // ════════════════════════════════════════════
