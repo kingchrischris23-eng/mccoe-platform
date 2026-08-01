@@ -987,8 +987,29 @@ function _addRegistryEntry(entry) {
   return true;
 }
 
+function _applyDeletions(dels) {
+  if (!dels.length) return false;
+  const before = students.length;
+  students = students.filter(s =>
+    !dels.some(d => d.trackerId === s.id || (d.portalTempId && d.portalTempId === s.portalTempId))
+  );
+  return students.length !== before;
+}
+
 function startFirebaseRegistryListener() {
   if (!_fbDb) return;
+
+  // Listen for cross-admin deletions (covers ALL students, portal and tracker-only)
+  _fbDb.ref('mccoe_tracker_deletions').on('value', snap => {
+    const dels = Object.values(snap.val() || {});
+    if (_applyDeletions(dels)) {
+      saveData();
+      renderDashboard();
+      const sv = document.getElementById('studentsView');
+      if (sv && sv.classList.contains('active')) renderStudents();
+    }
+  }, err => console.warn('Firebase deletions error:', err));
+
   _fbDb.ref('mccoe_registry').on('value', snap => {
     const data = snap.val() || {};
     let changed = false;
@@ -1887,12 +1908,20 @@ function deleteStudent(id) {
   const s = students.find(x => x.id === id);
   students = students.filter(x=>x.id!==id);
   saveData(); renderStudents(); renderDashboard();
-  // Remove from Firebase so all admin dashboards reflect the deletion
-  if (_fbDb && s && s.portalTempId) {
-    _fbDb.ref('mccoe_registry/' + s.portalTempId).remove();
-    _fbDb.ref('mccoe_progress/' + s.portalTempId).remove();
-    _fbDb.ref('mccoe_logins/' + s.portalTempId).remove();
-    _fbDb.ref('mccoe_xp/' + s.portalTempId).remove();
+  if (_fbDb && s) {
+    // Write to shared deletions path — fires listener on ALL open admin sessions
+    const delKey = (s.portalTempId || s.id).replace(/[.#$\[\]/]/g, '_');
+    _fbDb.ref('mccoe_tracker_deletions/' + delKey).set({
+      trackerId: s.id,
+      portalTempId: s.portalTempId || null,
+      deletedAt: Date.now()
+    });
+    if (s.portalTempId) {
+      _fbDb.ref('mccoe_registry/' + s.portalTempId).remove();
+      _fbDb.ref('mccoe_progress/' + s.portalTempId).remove();
+      _fbDb.ref('mccoe_logins/' + s.portalTempId).remove();
+      _fbDb.ref('mccoe_xp/' + s.portalTempId).remove();
+    }
   }
 }
 
