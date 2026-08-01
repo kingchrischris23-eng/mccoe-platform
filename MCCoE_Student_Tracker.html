@@ -1367,6 +1367,7 @@ function assignStudentId(rosterStudentId, portalTempId) {
 //  NAVIGATION
 // ════════════════════════════════════════════
 function showView(name, btn) {
+  if (name !== 'dashboard') stopRadar();
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
@@ -1519,90 +1520,222 @@ function renderDashboard() {
 //  DASHBOARD TABS + MAP + SOC FEED
 // ════════════════════════════════════════════
 function switchDashTab(tab) {
+  if (tab !== 'map') stopRadar();
   ['map','feed','alerts'].forEach(t => {
     document.getElementById('dpanel-'+t).style.display = t===tab ? 'block' : 'none';
-    const btn = document.getElementById('dtab-'+t);
-    btn.classList.toggle('active-tab', t===tab);
+    document.getElementById('dtab-'+t).classList.toggle('active-tab', t===tab);
   });
   if (tab==='feed') { document.getElementById('dpanel-feed').style.display='flex'; document.getElementById('dpanel-feed').style.flexDirection='column'; renderSOCFeed(); }
   if (tab==='map')  renderLoginMap();
 }
 
-// Simplified continent outlines [lon, lat]
-const _CONTINENTS = [
-  [[-170,72],[-140,72],[-100,84],[-65,84],[-52,65],[-54,47],[-66,45],[-75,45],[-82,42],[-76,35],[-80,25],[-87,16],[-83,10],[-77,8],[-110,5],[-118,22],[-117,32],[-120,49],[-125,50],[-142,60],[-170,60]],
-  [[-80,13],[-62,13],[-50,5],[-35,-5],[-40,-22],[-42,-23],[-68,-55],[-75,-50],[-80,-35]],
-  [[-68,83],[-15,83],[-15,70],[-42,65],[-68,70]],
-  [[-10,36],[28,36],[40,38],[40,50],[30,60],[25,71],[15,70],[5,62],[-5,58],[-8,44]],
-  [[-18,37],[37,37],[52,12],[42,-12],[35,-35],[18,-35],[12,-18],[8,5],[-8,5],[-18,15]],
-  [[25,71],[180,71],[180,12],[142,-5],[100,-10],[80,5],[60,20],[37,37],[28,36],[25,36]],
-  [[113,-10],[154,-10],[154,-44],[113,-44]],
-  [[-180,71],[-170,71],[-170,60],[-180,60]],
-];
+let _radarAngle = 0;
+let _radarRAF   = null;
 
-function _mproj(lon, lat, W, H) {
-  return [(lon+180)/360*W, (90-lat)/180*H];
+function stopRadar() {
+  if (_radarRAF) { cancelAnimationFrame(_radarRAF); _radarRAF = null; }
 }
 
 function renderLoginMap() {
   const panel = document.getElementById('dpanel-map');
   if (!panel) return;
-  const W=900, H=280;
+  stopRadar();
 
-  const gridLines = (() => {
-    let g='';
-    for(let lon=-180;lon<=180;lon+=30){const[x]=_mproj(lon,0,W,H);g+=`<line x1="${x.toFixed(1)}" y1="0" x2="${x.toFixed(1)}" y2="${H}" stroke="rgba(0,245,255,0.05)" stroke-width="0.5"/>`;}
-    for(let lat=-60;lat<=90;lat+=30){const[,y]=_mproj(0,lat,W,H);g+=`<line x1="0" y1="${y.toFixed(1)}" x2="${W}" y2="${y.toFixed(1)}" stroke="rgba(0,245,255,0.05)" stroke-width="0.5"/>`;}
-    const[,eq]=_mproj(0,0,W,H);
-    g+=`<line x1="0" y1="${eq.toFixed(1)}" x2="${W}" y2="${eq.toFixed(1)}" stroke="rgba(0,245,255,0.14)" stroke-width="0.8" stroke-dasharray="4,4"/>`;
-    return g;
-  })();
+  panel.innerHTML = '<canvas id="radarCanvas" style="display:block;width:100%;height:100%;"></canvas>';
+  const canvas = document.getElementById('radarCanvas');
+  canvas.width  = panel.offsetWidth  || 540;
+  canvas.height = panel.offsetHeight || 280;
 
-  const continentPaths = _CONTINENTS.map(pts=>{
-    const coords=pts.map(([lon,lat])=>_mproj(lon,lat,W,H).map(v=>v.toFixed(1)).join(',')).join(' ');
-    return `<polygon points="${coords}" fill="rgba(0,245,255,0.065)" stroke="rgba(0,245,255,0.38)" stroke-width="0.8" stroke-linejoin="round"/>`;
-  }).join('');
+  const ctx  = canvas.getContext('2d');
+  const H    = canvas.height;
+  const W    = canvas.width;
+  const cy   = H / 2;
+  const cx   = H / 2;          // radar centred in left square
+  const maxR = cy - 22;
 
-  // MCCoE home base — Missouri
-  const[moX,moY]=_mproj(-92.5,38.5,W,H);
-  const home=`
-    <circle cx="${moX.toFixed(1)}" cy="${moY.toFixed(1)}" r="5" fill="#EE2207"/>
-    <circle cx="${moX.toFixed(1)}" cy="${moY.toFixed(1)}" r="5" fill="none" stroke="#EE2207" stroke-width="1.5" class="map-ring-out"/>
-    <circle cx="${moX.toFixed(1)}" cy="${moY.toFixed(1)}" r="5" fill="none" stroke="#EE2207" stroke-width="1" class="map-ring-out" style="animation-delay:1.2s"/>
-    <text x="${(moX+8).toFixed(1)}" y="${(moY+4).toFixed(1)}" fill="#EE2207" font-size="7.5" font-family="Share Tech Mono,monospace" opacity="0.9">MCCoE</text>`;
+  function _blipColor(sc) {
+    if (sc >= 90) return { fill:'#00ff41', glow:'rgba(0,255,65,' };
+    if (sc >= 75) return { fill:'#00f5ff', glow:'rgba(0,245,255,' };
+    if (sc >= 60) return { fill:'#f5a623', glow:'rgba(245,166,35,' };
+    return               { fill:'#EE2207', glow:'rgba(238,34,7,' };
+  }
 
-  // Student login dots
-  let dots=''; const placed={};
-  students.forEach(s=>{
-    if(!s.portalTempId) return;
-    const ld=_loginsCache[s.portalTempId];
-    if(!ld||!ld.geo||!ld.geo.lat) return;
-    const{lat,lon,city,region}=ld.geo;
-    const isOnline=ld.lastLogin&&(Date.now()-new Date(ld.lastLogin).getTime())<3600000;
-    const color=isOnline?'#00f5ff':'#4fa3e0';
-    const key=`${Math.round(lat*2)}_${Math.round(lon*2)}`;
-    const offset=(placed[key]=(placed[key]||0))*8;
-    placed[key]++;
-    const[dx,dy]=_mproj(lon,lat,W,H);
-    const cx=(dx+offset).toFixed(1), cy=dy.toFixed(1);
-    const label=(city||s.name.split(' ')[0]).substring(0,14);
-    const delay=(Math.random()*2).toFixed(2);
-    dots+=`
-      <circle cx="${cx}" cy="${cy}" r="5" fill="${color}" opacity="0.88" class="map-dot-pulse" style="animation-delay:${delay}s"/>
-      <circle cx="${cx}" cy="${cy}" r="5" fill="none" stroke="${color}" stroke-width="1.5" class="map-ring-out" style="animation-delay:${delay}s"/>
-      <circle cx="${cx}" cy="${cy}" r="5" fill="none" stroke="${color}" stroke-width="1" class="map-ring-out" style="animation-delay:${(parseFloat(delay)+1.2).toFixed(2)}s"/>
-      <text x="${(parseFloat(cx)+8).toFixed(1)}" y="${(parseFloat(cy)+4).toFixed(1)}" fill="${color}" font-size="6.5" font-family="Share Tech Mono,monospace" opacity="0.85">${label}</text>`;
-  });
+  function draw() {
+    if (!document.getElementById('radarCanvas')) { _radarRAF = null; return; }
+    const now = Date.now();
 
-  const hasGeo=students.some(s=>s.portalTempId&&_loginsCache[s.portalTempId]&&_loginsCache[s.portalTempId].geo);
-  const noDataMsg=!hasGeo?`<text x="${W/2}" y="${H-14}" fill="rgba(0,245,255,0.25)" font-size="8" font-family="Share Tech Mono,monospace" text-anchor="middle">Student location data will appear here after first portal login</text>`:'';
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = '#050510';
+    ctx.fillRect(0, 0, W, H);
 
-  panel.innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:100%;display:block;" xmlns="http://www.w3.org/2000/svg">
-    <rect width="${W}" height="${H}" fill="#050510"/>
-    ${gridLines}${continentPaths}${home}${dots}${noDataMsg}
-    <text x="8" y="${H-8}" fill="rgba(0,245,255,0.28)" font-size="7" font-family="Share Tech Mono,monospace">LIVE · ${new Date().toLocaleTimeString()}</text>
-    <text x="${W-8}" y="${H-8}" fill="rgba(200,216,232,0.3)" font-size="7" font-family="Share Tech Mono,monospace" text-anchor="end">● MCCoE BASE  ● ACTIVE (&lt;1hr)  ◉ RECENT</text>
-  </svg>`;
+    // ── outer glow halo ──
+    const halo = ctx.createRadialGradient(cx, cy, maxR - 4, cx, cy, maxR + 28);
+    halo.addColorStop(0, 'rgba(0,245,255,0.18)');
+    halo.addColorStop(1, 'rgba(0,245,255,0)');
+    ctx.beginPath(); ctx.arc(cx, cy, maxR + 28, 0, Math.PI * 2);
+    ctx.fillStyle = halo; ctx.fill();
+
+    // ── radar background ──
+    const bgG = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
+    bgG.addColorStop(0, 'rgba(0,245,255,0.05)');
+    bgG.addColorStop(1, 'rgba(0,5,15,0.85)');
+    ctx.beginPath(); ctx.arc(cx, cy, maxR, 0, Math.PI * 2);
+    ctx.fillStyle = bgG; ctx.fill();
+
+    // ── clip to circle for sweep ──
+    ctx.save();
+    ctx.beginPath(); ctx.arc(cx, cy, maxR, 0, Math.PI * 2); ctx.clip();
+
+    _radarAngle = (_radarAngle + 0.013) % (Math.PI * 2);
+    const trailLen = Math.PI * 0.6;
+
+    // sweep trail sector
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, maxR, _radarAngle - trailLen, _radarAngle);
+    ctx.closePath();
+    const sg = ctx.createRadialGradient(cx, cy, 0, cx, cy, maxR);
+    sg.addColorStop(0, 'rgba(0,245,255,0.22)');
+    sg.addColorStop(0.6, 'rgba(0,245,255,0.08)');
+    sg.addColorStop(1, 'rgba(0,245,255,0.01)');
+    ctx.fillStyle = sg; ctx.fill();
+
+    ctx.restore();
+
+    // ── concentric rings ──
+    for (let i = 1; i <= 4; i++) {
+      const r = maxR * i / 4;
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.strokeStyle = `rgba(0,245,255,${0.07 + i * 0.04})`;
+      ctx.lineWidth = 0.8; ctx.stroke();
+      ctx.font = '6px "Share Tech Mono",monospace';
+      ctx.fillStyle = 'rgba(0,245,255,0.28)';
+      ctx.fillText(i * 25, cx + r + 2, cy - 2);
+    }
+
+    // ── outer border ──
+    ctx.beginPath(); ctx.arc(cx, cy, maxR, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(0,245,255,0.55)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+    // ── crosshairs ──
+    ctx.strokeStyle = 'rgba(0,245,255,0.1)'; ctx.lineWidth = 0.7;
+    for (let a = 0; a < Math.PI; a += Math.PI / 4) {
+      ctx.beginPath();
+      ctx.moveTo(cx + maxR * Math.cos(a), cy + maxR * Math.sin(a));
+      ctx.lineTo(cx - maxR * Math.cos(a), cy - maxR * Math.sin(a));
+      ctx.stroke();
+    }
+
+    // ── sweep line ──
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(cx + maxR * Math.cos(_radarAngle), cy + maxR * Math.sin(_radarAngle));
+    ctx.strokeStyle = '#00f5ff'; ctx.lineWidth = 2; ctx.stroke();
+
+    // ── student blips ──
+    students.forEach((s, i) => {
+      const sc    = avgScore(s) || 0;
+      const dist  = maxR * (0.15 + (sc / 100) * 0.82);
+      const angle = (i / Math.max(students.length, 1)) * Math.PI * 2 - Math.PI / 2;
+      const bx    = cx + dist * Math.cos(angle);
+      const by    = cy + dist * Math.sin(angle);
+
+      const ld       = s.portalTempId ? _loginsCache[s.portalTempId] : null;
+      const lastMs   = ld && ld.lastLogin ? now - new Date(ld.lastLogin).getTime() : Infinity;
+      const isActive = lastMs < 3600000;
+      const isToday  = lastMs < 86400000;
+      const { fill, glow } = _blipColor(sc);
+
+      // active pulse glow
+      if (isActive) {
+        const pr = 10 + 5 * Math.sin(now / 380 + i * 1.4);
+        const pg = ctx.createRadialGradient(bx, by, 0, bx, by, pr);
+        pg.addColorStop(0, glow + '0.35)');
+        pg.addColorStop(1, glow + '0)');
+        ctx.beginPath(); ctx.arc(bx, by, pr, 0, Math.PI * 2);
+        ctx.fillStyle = pg; ctx.fill();
+      }
+
+      // sweep flash
+      const aDiff = ((_radarAngle - angle) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+      if (aDiff < 0.2) {
+        ctx.beginPath(); ctx.arc(bx, by, 10, 0, Math.PI * 2);
+        ctx.fillStyle = glow + '0.55)'; ctx.fill();
+      }
+
+      // main dot
+      const dotR = isActive ? 5.5 : (isToday ? 4 : 3);
+      ctx.beginPath(); ctx.arc(bx, by, dotR, 0, Math.PI * 2);
+      ctx.fillStyle = isActive ? fill : (isToday ? fill + 'bb' : 'rgba(60,80,110,0.7)');
+      ctx.fill();
+      if (isActive) { ctx.strokeStyle = fill; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.arc(bx, by, dotR, 0, Math.PI * 2); ctx.stroke(); }
+
+      // name label
+      ctx.font = `${isActive ? '7.5' : '6.8'}px "Share Tech Mono",monospace`;
+      ctx.fillStyle = isActive ? fill : 'rgba(90,115,148,0.9)';
+      ctx.fillText(s.name.split(' ')[0], bx + 8, by + 3);
+    });
+
+    // ── centre (MCCoE base) ──
+    ctx.beginPath(); ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+    ctx.fillStyle = '#EE2207'; ctx.fill();
+    const crPulse = 7 + 3 * Math.sin(now / 550);
+    ctx.beginPath(); ctx.arc(cx, cy, crPulse, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(238,34,7,0.55)'; ctx.lineWidth = 1.2; ctx.stroke();
+
+    // ── right-side stats panel ──
+    const rx = cx + maxR + 18;
+    if (W - rx > 80) {
+      ctx.font = '8.5px "Share Tech Mono",monospace';
+      ctx.fillStyle = 'rgba(0,245,255,0.75)';
+      ctx.fillText('MCCoE-SOC RADAR', rx, 18);
+
+      const activeNow = students.filter(s => {
+        const ld = s.portalTempId ? _loginsCache[s.portalTempId] : null;
+        return ld && ld.lastLogin && (now - new Date(ld.lastLogin).getTime()) < 3600000;
+      }).length;
+      const todayN = students.filter(s => {
+        const ld = s.portalTempId ? _loginsCache[s.portalTempId] : null;
+        return ld && ld.lastLogin && (now - new Date(ld.lastLogin).getTime()) < 86400000;
+      }).length;
+      const avgSc = Math.round(students.reduce((a, s) => a + avgScore(s), 0) / (students.length || 1));
+
+      [['TARGETS', students.length, '#00f5ff'],
+       ['ONLINE',  activeNow,       '#00ff41'],
+       ['TODAY',   todayN,          '#4fa3e0'],
+       ['AVG SCORE', avgSc,         '#f5a623']
+      ].forEach(([lbl, val, col], i) => {
+        ctx.font = '7px "Share Tech Mono",monospace';
+        ctx.fillStyle = 'rgba(74,96,128,0.9)';
+        ctx.fillText(lbl, rx, 36 + i * 22);
+        ctx.font = 'bold 12px "Share Tech Mono",monospace';
+        ctx.fillStyle = col;
+        ctx.fillText(val, rx + 80, 36 + i * 22);
+      });
+
+      // legend
+      ctx.font = '7px "Share Tech Mono",monospace';
+      ctx.fillStyle = 'rgba(0,245,255,0.3)';
+      ctx.fillText('──────────────', rx, 130);
+      ctx.fillText('SCORE KEY', rx, 144);
+      [['#00ff41','90-100'], ['#00f5ff','75-89'], ['#f5a623','60-74'], ['#EE2207','Below 60']].forEach(([c, l], i) => {
+        ctx.beginPath(); ctx.arc(rx + 5, 156 + i * 16, 4, 0, Math.PI * 2);
+        ctx.fillStyle = c; ctx.fill();
+        ctx.fillStyle = 'rgba(190,210,230,0.6)';
+        ctx.font = '7px "Share Tech Mono",monospace';
+        ctx.fillText(l, rx + 14, 159 + i * 16);
+      });
+
+      // timestamp
+      ctx.font = '6.5px "Share Tech Mono",monospace';
+      ctx.fillStyle = 'rgba(0,245,255,0.22)';
+      ctx.fillText(new Date().toLocaleTimeString(), rx, H - 8);
+    }
+
+    _radarRAF = requestAnimationFrame(draw);
+  }
+
+  draw();
 }
 
 function renderSOCFeed() {
