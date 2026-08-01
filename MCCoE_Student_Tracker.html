@@ -1200,11 +1200,25 @@ function startLoginListener() {
   if (!_fbDb) return;
   _fbDb.ref('mccoe_logins').on('value', snap => {
     _loginsCache = snap.val() || {};
+    const today = new Date().toISOString().split('T')[0];
+
+    // Auto-mark Present when a student logs into the portal today
+    let attendanceChanged = false;
+    students.forEach(s => {
+      if (!s.portalTempId) return;
+      if (s.attendance[today]) return; // already marked — don't override admin's decision
+      const ld = _loginsCache[s.portalTempId];
+      if (ld && ld.history && Object.values(ld.history).some(h => h.date === today)) {
+        s.attendance[today] = 'P';
+        attendanceChanged = true;
+      }
+    });
+    if (attendanceChanged) saveData();
+
     // Refresh attendance view if open
     const av = document.getElementById('view-attendance');
     if (av && av.classList.contains('active')) renderAttendance();
     // Refresh portal-logins-today KPI
-    const today = new Date().toISOString().split('T')[0];
     let loginsToday = 0;
     students.forEach(s => {
       if (!s.portalTempId) return;
@@ -1213,7 +1227,7 @@ function startLoginListener() {
     });
     const kpiEl = document.getElementById('kpi-portal-today');
     if (kpiEl) kpiEl.textContent = loginsToday;
-    // Add recent-login alerts
+    // Refresh dashboard alerts
     const alertEl = document.getElementById('alertsList');
     if (alertEl) renderDashboard();
   });
