@@ -691,6 +691,11 @@ hr { border-color: rgba(0,245,255,0.12) !important; }
         <div class="week-num" style="background:var(--navy);color:#fff;">📚</div>
         <div class="week-label"><div>Resource Library</div><div style="font-size:11px;opacity:0.7;">Links &amp; References</div></div>
       </div>
+      <div class="sidebar-section" style="margin-top:12px;">Career Path</div>
+      <div class="week-item" id="nav-roadmap" onclick="renderRoadmap()">
+        <div class="week-num" style="background:var(--navy);color:#fff;">🗺</div>
+        <div class="week-label"><div>Journey Map</div><div style="font-size:11px;opacity:0.7;">SOC Analyst Roadmap</div></div>
+      </div>
       <div class="sidebar-section" style="margin-top:12px;">Achievements</div>
       <div class="week-item" id="nav-leaderboard" onclick="renderLeaderboard()">
         <div class="week-num" style="background:var(--navy);color:#fff;">🏆</div>
@@ -2732,6 +2737,339 @@ function gradeQuiz(weekNum) {
 }
 
 
+
+// ══════════════════════════════════════════════
+// TRAINING JOURNEY MAP — ROADMAP
+// ══════════════════════════════════════════════
+const ROADMAP_MODULES = [
+  // ── PHASE 1: FOUNDATION ──────────────────────────────────────────────────
+  {
+    id: 1, num: '01', phase: 1, icon: '🛡️',
+    title: 'Cybersecurity Essentials',
+    duration: '2 days',
+    tagline: 'NIST CSF · CISA Concepts · Entry-Level Foundations',
+    desc: 'An accessible introduction to cybersecurity concepts and practices guided by NIST CSF and CISA concepts. Provides a comprehensive introduction to the field with expert coverage of essential topics required for entry-level cybersecurity certifications.',
+    objective: 'Identify and explain the core Cybersecurity Essentials — NIST CSF framework, CIA Triad, and foundational security concepts.',
+    weekLink: 1
+  },
+  {
+    id: 2, num: '02', phase: 1, icon: '💻',
+    title: 'Operating Systems',
+    duration: '5 days',
+    tagline: 'Windows · macOS · Linux · Installation & Maintenance',
+    desc: 'You will need at least an intermediate level of familiarity with Windows, macOS, Linux, and other operating systems. Not all organizations use the same OS, so diversify your skill set to be competitive in any environment.',
+    objective: 'Explain what an Operating System is (Windows, macOS, Linux and others), how to install it, and how to maintain it.',
+    weekLink: 2
+  },
+  // ── PHASE 2: CORE TECHNICAL ──────────────────────────────────────────────
+  {
+    id: 3, num: '03', phase: 2, icon: '👨‍💻',
+    title: 'Programming Languages',
+    duration: '20 days',
+    tagline: 'Raw Data Storage · Processing · Scripting',
+    desc: 'The more programming languages you know that are used in raw data storage and processing, the better off you will be. Cybersecurity professionals use scripting to automate threat detection, process log data, and build security tools.',
+    objective: 'Understand programming languages used in raw data storage and processing. Develop and execute a program on raw data files and demonstrate how they can be processed as part of the cybersecurity mission.',
+    weekLink: null
+  },
+  {
+    id: 4, num: '04', phase: 2, icon: '🔥',
+    title: 'Firewall Management',
+    duration: '4 days',
+    tagline: 'Breach Detection · Backups · Fail-Safe Features',
+    desc: 'Cybersecurity consultants are expected to have proficient firewall management skills. Specific skills related to this position include breach detecting, configuring rules, managing backups, and implementing fail-safe features.',
+    objective: 'Demonstrate how to conduct Firewall Management — configure rules, detect breaches, and implement fail-safe protections.',
+    weekLink: 4
+  },
+  {
+    id: 5, num: '05', phase: 2, icon: '🔐',
+    title: 'Encryption Technologies',
+    duration: '3 days',
+    tagline: 'Data Protection · Implementation · Key Management',
+    desc: 'Encryption is increasingly being used as a key line of defense against data theft and destruction. Cybersecurity consultants must have a good understanding of how encryption will impact operations and experience implementing encryption solutions.',
+    objective: 'Explain what Encryption Technologies are and demonstrate how to implement an encryption solution to protect organizational data.',
+    weekLink: 3
+  },
+  {
+    id: 6, num: '06', phase: 2, icon: '🎯',
+    title: 'Ethical Hacking',
+    duration: '5 days',
+    tagline: 'Threat Modeling · Coding Practices · Authorized Testing',
+    desc: 'When you think like a hacker you can better stop them. Skills required include a firm understanding of threat modeling and configuration. Ethical hackers use the same tools and techniques as attackers but with full authorization.',
+    objective: 'Define ethical hacking and coding practices. Demonstrate how to use ethical hacking techniques to strengthen an organization\'s cyber hygiene.',
+    weekLink: null
+  },
+  {
+    id: 7, num: '07', phase: 2, icon: '🧠',
+    title: 'Adversarial / Hacker Mindset',
+    duration: '2 days',
+    tagline: 'Attack Trajectories · Attacker Psychology · Threat Prediction',
+    desc: 'Knowing how hackers and attackers think will help a cybersecurity consultant better predict strategies used and where attacks are more likely to be focused. It\'s almost more important to be able to think like a hacker than to think from a purely defensive mindset.',
+    objective: 'Explain how to think like an adversary/hacker. Identify the types of hacker attack trajectories and predict likely attack vectors against an organization.',
+    weekLink: 6
+  },
+  // ── PHASE 3: ADVANCED OPERATIONS ─────────────────────────────────────────
+  {
+    id: 8, num: '08', phase: 3, icon: '🔍',
+    title: 'Analysis Techniques',
+    duration: '5 days',
+    tagline: 'Industry Standards · Security Solutions · Data Analysis Tools',
+    desc: 'SOC Analysts need solid analysis skills. This includes the application of industry-standard analysis criteria when analyzing organization security solutions, identifying patterns in security data, and using tools to support investigation.',
+    objective: 'Demonstrate industry-standard understanding of data and problem analysis as it relates to an organization\'s security solution. Demonstrate the use of tools to assist in the analysis of data.',
+    weekLink: 4
+  },
+  {
+    id: 9, num: '09', phase: 3, icon: '⚡',
+    title: 'Advanced Persistent Threat Mgmt',
+    duration: '3 days',
+    tagline: 'APT · Multi-Stage Attacks · Phishing · Social Engineering',
+    desc: 'Advanced Persistent Threats (APTs) are multi-stage attacks that may proceed through a variety of different attack vectors. Examples of required knowledge include network access control, phishing, and social engineering countermeasures.',
+    objective: 'Explain what Persistent Threat Management is and demonstrate how to implement defenses against multi-stage APT attacks.',
+    weekLink: 5
+  },
+  {
+    id: 10, num: '10', phase: 3, icon: '🕵️',
+    title: 'Threat Hunting / Intelligence',
+    duration: '10 days',
+    tagline: 'Incident Response · Malware Indicators · Nation-State Threats',
+    desc: 'Incident response and threat hunting teams are keys to identifying and observing malware indicators and patterns of activity to generate accurate threat intelligence. This module provides advanced skills to hunt, identify, counter, and recover from APT nation-state adversaries, organized crime, and ransomware operators.',
+    objective: 'Demonstrate how to conduct Threat Hunting and Intelligence — identify malware indicators, generate actionable threat intelligence, and respond to advanced intrusions.',
+    weekLink: 8
+  },
+  {
+    id: 11, num: '11', phase: 3, icon: '💀',
+    title: 'Penetration Testing',
+    duration: '10 days',
+    tagline: 'Attack & Defend · Vulnerability Measurement · Application Testing',
+    desc: 'This position requires you to act as both attacker and defender with regard to your client\'s network and security environments. Real-life penetration testing skills include the ability to measure the vulnerability of a client\'s applications and software.',
+    objective: 'Demonstrate how to conduct Penetration Testing — plan and execute authorized security tests against networks and applications to identify exploitable vulnerabilities.',
+    weekLink: null
+  },
+  // ── PHASE 4: SOC PROFESSIONAL ─────────────────────────────────────────────
+  {
+    id: 12, num: '12', phase: 4, icon: '⚖️',
+    title: 'Risk Assessment Techniques',
+    duration: '5 days',
+    tagline: 'Compliance · Audit · Risk Frameworks · Foundational Skills',
+    desc: 'Recent laws require organizations to perform cybersecurity risk assessments for compliance and audit reasons. Teaches the foundational knowledge and practical, hands-on skills needed to perform such risk assessments across different industries and regulatory frameworks.',
+    objective: 'Demonstrate how to conduct Risk Assessments and Compliance Verification — apply risk frameworks to evaluate organizational security posture.',
+    weekLink: 3
+  },
+  {
+    id: 13, num: '13', phase: 4, icon: '🚨',
+    title: 'Vulnerability / Incident Management',
+    duration: '10 days',
+    tagline: 'Offensive & Defensive · IR Planning · Incident Prevention',
+    desc: 'The best offense is a good defense. This training addresses both an offensive and defensive view, providing the knowledge and tools needed to prepare an effective incident response, as well as strategies to prevent incidents from happening in the first place.',
+    objective: 'Demonstrate how to conduct Vulnerability and Incident Management — develop IR plans, triage incidents, and implement preventative security controls.',
+    weekLink: 8
+  },
+  {
+    id: 14, num: '14', phase: 4, icon: '🖥️',
+    title: 'EDR & SIEM Techniques',
+    duration: '10 days',
+    tagline: 'Endpoint Security · ELK Stack · Log Analysis · Detection',
+    desc: 'Endpoint Detection and Response (EDR) continuously monitors end-user devices to detect and respond to cyber threats like ransomware and malware. Covers endpoint security technologies (AV, NGAV, EPP, EDR, XDR) plus Security Information and Event Management (SIEM) using open-source ELK Stack (Elasticsearch, Logstash, Kibana).',
+    objective: 'Demonstrate how to conduct EDR and SIEM Deployment and Operations — configure endpoint protection, analyze logs, and detect threats using SIEM tooling.',
+    weekLink: 7
+  },
+  {
+    id: 15, num: '15', phase: 4, icon: '🏢',
+    title: 'SOC Operations',
+    duration: '5 days',
+    tagline: 'SOC Functions · Daily Responsibilities · Team Operations',
+    desc: 'Provides the primary functions of a Security Operations Center (SOC) and the critical role it plays in protecting organizational assets from cyber-attacks. Covers SOC team member daily activities, responsibilities, alert triage workflows, and escalation procedures.',
+    objective: 'Demonstrate an understanding of how to conduct SOC Operations — manage alert queues, triage incidents, and collaborate within a SOC team structure.',
+    weekLink: 7
+  },
+  // ── PHASE 5: CAREER READY ─────────────────────────────────────────────────
+  {
+    id: '16a', num: '16A', phase: 5, icon: '👑',
+    title: 'Leadership Skills',
+    duration: '1 day',
+    tagline: 'Client Engagement · Team Management · Professional Initiative',
+    desc: 'Working as a consultant requires leadership skills. A SOC Analyst will often need to take leadership initiative in solving potential organization cybersecurity issues proactively. In advanced situations you may be responsible for a security team reporting to you.',
+    objective: 'Demonstrate ability to engage with clients, peers, and supervisors effectively and professionally. Demonstrate ability to work with limited to no supervision.',
+    weekLink: 'ss-leadership'
+  },
+  {
+    id: '16b', num: '16B', phase: 5, icon: '🗣️',
+    title: 'Communication Skills',
+    duration: '1 day',
+    tagline: 'Written & Verbal · Executive Briefings · MS Office Suite',
+    desc: 'Effective communication is required to manage security teams and engage with clients. You will have regular communication with executives, department heads, and end users. Without strong communication skills it is nearly impossible to be a successful cybersecurity consultant.',
+    objective: 'Demonstrate ability to communicate (written and verbal) with clients, peers, and supervisors professionally. Demonstrate ability to use MS PowerPoint, Excel, Project, Word, email, Teams, and social platforms.',
+    weekLink: 'ss-communication'
+  },
+  {
+    id: 17, num: '17', phase: 5, icon: '🏅',
+    title: 'Industry Certifications',
+    duration: 'Self-Paced',
+    tagline: 'Security+ · CEH · CISM · CISSP · OSCP',
+    desc: 'There is no single required certification but the more you have, the better. MCCoE will pay for select students taking certification tests. Training aligns with CompTIA Security+, CySA+, Certified Ethical Hacker (CEH), ECSA, CISM, CISSP, and Offensive Security Certified Professional (OSCP).',
+    objective: 'Earn at least one industry-recognized cybersecurity certification — CompTIA Security+ is the recommended starting point for this program.',
+    weekLink: 9
+  },
+  {
+    id: 18, num: '18', phase: 5, icon: '🎓',
+    title: 'Education',
+    duration: 'TBD',
+    tagline: 'CS / IT / Cybersecurity Degree · Equivalent Experience',
+    desc: 'There are no set academic requirements to become a SOC Analyst. Many earn a bachelor\'s degree in information technology, computer science, or cybersecurity. Others satisfy this requirement by gaining equivalent work experience with relevant certifications.',
+    objective: 'Demonstrate educational readiness through a combination of MCCoE program completion, certifications, and documented cybersecurity knowledge.',
+    weekLink: null
+  },
+  {
+    id: 19, num: '19', phase: 5, icon: '💼',
+    title: 'Work Experience',
+    duration: '1 Year Goal',
+    tagline: 'Entry-Level IT · Security Analyst · Career Progression',
+    desc: 'Cybersecurity consultants in the US are generally expected to have 3-5 years of professional experience. A realistic starting path: enter an entry-level IT or information security role → earn the role of security administrator, analyst, engineer, or auditor → acquire relevant certifications → begin role of cybersecurity consultant.',
+    objective: 'Secure an entry-level cybersecurity or IT role and build 1+ year of hands-on professional experience aligned with SOC analyst responsibilities.',
+    weekLink: 9
+  }
+];
+
+const ROADMAP_PHASES = [
+  { num: 1, label: 'FOUNDATION',         color: '#00f5ff', modules: [1,2] },
+  { num: 2, label: 'CORE TECHNICAL',     color: '#f5a623', modules: [3,4,5,6,7] },
+  { num: 3, label: 'ADVANCED OPS',       color: '#ff6b35', modules: [8,9,10,11] },
+  { num: 4, label: 'SOC PROFESSIONAL',   color: '#00ff41', modules: [12,13,14,15] },
+  { num: 5, label: 'CAREER READY',       color: '#c084fc', modules: ['16a','16b',17,18,19] }
+];
+
+function renderRoadmap() {
+  currentWeek = null;
+  setActiveNav('roadmap');
+  const mc = document.getElementById('main-content');
+
+  const totalDays = 100; // approx based on durations
+
+  // Build phase chips
+  const phaseChips = ROADMAP_PHASES.map(p => `
+    <div class="roadmap-phase-chip" style="color:${p.color};border-color:${p.color}40;background:${p.color}0d;">
+      PHASE ${p.num}<br><span style="font-size:9px;opacity:.7;">${p.label}</span>
+    </div>`).join('');
+
+  // Build timeline
+  let timelineHTML = '';
+  let nodeIdx = 0;
+
+  ROADMAP_PHASES.forEach(phase => {
+    // Phase divider
+    timelineHTML += `
+      <div class="roadmap-phase-header">
+        <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,${phase.color}40);"></div>
+        <div class="roadmap-phase-title" style="color:${phase.color};border-color:${phase.color}50;background:${phase.color}0d;">
+          ⬡ PHASE ${phase.num} — ${phase.label}
+        </div>
+        <div style="flex:1;height:1px;background:linear-gradient(90deg,${phase.color}40,transparent);"></div>
+      </div>`;
+
+    // Module nodes in this phase
+    phase.modules.forEach(modId => {
+      const m = ROADMAP_MODULES.find(x => x.id === modId || x.id === String(modId));
+      if (!m) return;
+      const side = nodeIdx % 2 === 0 ? 'right' : 'left';
+      nodeIdx++;
+
+      let weekBtn = '';
+      if (m.weekLink !== null) {
+        if (typeof m.weekLink === 'number') {
+          weekBtn = `<button class="rm-week-link" onclick="renderWeek(${m.weekLink});event.stopPropagation()">
+            ▶ OPEN WEEK ${m.weekLink} IN CURRICULUM
+          </button>`;
+        } else if (typeof m.weekLink === 'string' && m.weekLink.startsWith('ss-')) {
+          const ssId = m.weekLink.replace('ss-','');
+          weekBtn = `<button class="rm-week-link" onclick="renderSoftSkill('${ssId}');event.stopPropagation()">
+            ▶ OPEN IN SOFT SKILLS
+          </button>`;
+        }
+      }
+
+      const connectorSide = side === 'right'
+        ? `<div class="rm-connector phase-${m.phase}" style="margin-right:0;"></div>`
+        : `<div class="rm-connector phase-${m.phase}" style="margin-left:0;"></div>`;
+
+      timelineHTML += `
+        <div class="rm-node ${side}" id="rm-node-${m.id}">
+          ${side === 'right' ? '' : connectorSide}
+          <div class="rm-dot phase-${m.phase}"></div>
+          ${side === 'left' ? '' : connectorSide}
+          <div class="rm-card phase-${m.phase}" onclick="_rmToggle('${m.id}')">
+            <div class="rm-card-top">
+              <div class="rm-num-badge phase-${m.phase}">${m.num}</div>
+              <div class="rm-icon">${m.icon}</div>
+              <div class="rm-card-title">${m.title}</div>
+              <div class="rm-duration-pill phase-${m.phase}">${m.duration}</div>
+            </div>
+            <div class="rm-card-sub">${m.tagline}</div>
+            <div class="rm-detail" id="rm-detail-${m.id}">
+              <div class="rm-detail-desc">${m.desc}</div>
+              <div class="rm-detail-obj">🎯 Learning Objective: ${m.objective}</div>
+              ${weekBtn}
+            </div>
+          </div>
+        </div>`;
+    });
+  });
+
+  // Goal card
+  const goalHTML = `
+    <div class="rm-goal-card">
+      <div style="font-size:2.2em;margin-bottom:8px;">🎯</div>
+      <h2>MISSION COMPLETE — CAREER READY</h2>
+      <p style="color:rgba(200,216,232,0.7);font-size:13px;margin:0;">
+        You are now a Tier I/II Cybersecurity Trained SOC Analyst<br>
+        with hands-on experience and industry certifications.
+      </p>
+      <div class="rm-goal-tags">
+        <span class="rm-goal-tag" style="color:#00f5ff;border-color:#00f5ff40;background:#00f5ff0d;">Tier I/II SOC Analyst</span>
+        <span class="rm-goal-tag" style="color:#f5a623;border-color:#f5a62340;background:#f5a6230d;">Security+ Certified</span>
+        <span class="rm-goal-tag" style="color:#00ff41;border-color:#00ff4140;background:#00ff410d;">Hands-On Experience</span>
+        <span class="rm-goal-tag" style="color:#c084fc;border-color:#c084fc40;background:#c084fc0d;">US Clearance Ready</span>
+      </div>
+    </div>`;
+
+  mc.innerHTML = `
+    <div class="roadmap-wrap">
+      <div class="roadmap-hero">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,245,255,0.5);letter-spacing:3px;margin-bottom:8px;">MCCoE · TRAINING JOURNEY</div>
+        <h1>SOC ANALYST CAREER ROADMAP</h1>
+        <p>Your complete path from cybersecurity essentials to a career-ready SOC Analyst. Click any module to expand details and connect to curriculum content.</p>
+        <div class="roadmap-phases">${phaseChips}</div>
+        <div class="roadmap-stats">
+          <div class="roadmap-stat">
+            <div class="roadmap-stat-num">19</div>
+            <div class="roadmap-stat-label">Modules</div>
+          </div>
+          <div class="roadmap-stat">
+            <div class="roadmap-stat-num">~100</div>
+            <div class="roadmap-stat-label">Training Days</div>
+          </div>
+          <div class="roadmap-stat">
+            <div class="roadmap-stat-num">5</div>
+            <div class="roadmap-stat-label">Phases</div>
+          </div>
+          <div class="roadmap-stat">
+            <div class="roadmap-stat-num">7+</div>
+            <div class="roadmap-stat-label">Certifications</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="roadmap-timeline">
+        ${timelineHTML}
+        ${goalHTML}
+      </div>
+    </div>`;
+}
+
+function _rmToggle(id) {
+  const detail = document.getElementById('rm-detail-' + id);
+  if (!detail) return;
+  detail.classList.toggle('open');
+}
+
 // ── QUIZ WRONG-ANSWER REVIEW ────────────────────────────────────────────────
 function _showQuizReview(questions, namePrefix, panelId, topicTitle) {
   const panel = document.getElementById(panelId);
@@ -3373,6 +3711,345 @@ else showLoginTab('register');
   color: #00ff41;
   font-weight: 700;
   font-size: 14px;
+}
+
+/* ═══════════════════════════════════════════
+   INTERACTIVE JOURNEY MAP — ROADMAP
+═══════════════════════════════════════════ */
+.roadmap-wrap { padding: 0 0 60px; position: relative; }
+
+/* ── Header ── */
+.roadmap-hero {
+  background: linear-gradient(135deg, rgba(5,5,20,0.98), rgba(13,0,28,0.98));
+  border: 1px solid rgba(0,245,255,0.2);
+  border-radius: 14px;
+  padding: 32px 36px;
+  margin-bottom: 40px;
+  position: relative;
+  overflow: hidden;
+}
+.roadmap-hero::before {
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background: linear-gradient(90deg, rgba(238,34,7,0.06), transparent 40%, rgba(0,245,255,0.08));
+}
+.roadmap-hero h1 {
+  font-family:'Orbitron',monospace;
+  color: var(--cyan);
+  font-size: 22px;
+  letter-spacing: 2px;
+  margin: 0 0 6px;
+  text-shadow: var(--glow-c);
+}
+.roadmap-hero p { color: rgba(200,216,232,0.7); font-size: 14px; margin: 0 0 24px; }
+
+/* Phase progress bar */
+.roadmap-phases {
+  display: flex; gap: 4px; flex-wrap: wrap;
+}
+.roadmap-phase-chip {
+  flex: 1; min-width: 80px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-family:'Share Tech Mono',monospace;
+  font-size: 10px;
+  text-align: center;
+  letter-spacing: 0.5px;
+  border: 1px solid;
+  cursor: default;
+}
+
+/* Stats row */
+.roadmap-stats {
+  display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap;
+}
+.roadmap-stat {
+  text-align: center;
+}
+.roadmap-stat-num {
+  font-family:'Orbitron',monospace;
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--cyan);
+  text-shadow: var(--glow-c);
+}
+.roadmap-stat-label {
+  font-size: 10px;
+  color: rgba(200,216,232,0.5);
+  font-family:'Share Tech Mono',monospace;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* ── Timeline ── */
+.roadmap-timeline {
+  position: relative;
+  padding: 0 0 20px;
+}
+/* The glowing center line */
+.roadmap-timeline::before {
+  content:'';
+  position: absolute;
+  left: 50%;
+  top: 0; bottom: 0;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(180deg,
+    var(--cyan) 0%,
+    rgba(0,245,255,0.4) 50%,
+    rgba(0,245,255,0.1) 100%
+  );
+  box-shadow: 0 0 12px rgba(0,245,255,0.4);
+}
+
+/* ── Phase divider ── */
+.roadmap-phase-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 36px 0 24px;
+  position: relative;
+  z-index: 2;
+}
+.roadmap-phase-header::before,
+.roadmap-phase-header::after {
+  content:''; flex:1; height:1px;
+}
+.roadmap-phase-title {
+  font-family:'Orbitron',monospace;
+  font-size: 11px;
+  letter-spacing: 3px;
+  padding: 6px 18px;
+  border-radius: 20px;
+  border: 1px solid;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+/* ── Module node ── */
+.rm-node {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 28px;
+  position: relative;
+}
+.rm-node.left  { flex-direction: row-reverse; }
+.rm-node.right { flex-direction: row; }
+
+/* The connector line from center to card */
+.rm-connector {
+  flex: 0 0 calc(50% - 24px);
+  height: 2px;
+  margin-top: 24px;
+  position: relative;
+}
+.rm-node.right .rm-connector { margin-right: 0; }
+.rm-node.left  .rm-connector { margin-left:  0; }
+
+/* Center dot */
+.rm-dot {
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid;
+  background: #050510;
+  flex-shrink: 0;
+  margin-top: 17px;
+  position: relative;
+  z-index: 3;
+  box-shadow: 0 0 10px;
+  transition: transform 0.2s;
+}
+
+/* Card */
+.rm-card {
+  flex: 0 0 calc(50% - 40px);
+  background: rgba(10,10,28,0.92);
+  border: 1px solid;
+  border-radius: 10px;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.rm-card:hover {
+  transform: translateY(-2px);
+}
+.rm-card::before {
+  content:''; position:absolute;top:0;left:0;right:0;height:2px;
+}
+
+.rm-card-top {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
+}
+.rm-num-badge {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family:'Orbitron',monospace;
+  font-size: 11px;
+  font-weight: 900;
+  flex-shrink: 0;
+  border: 1px solid;
+}
+.rm-card-title {
+  font-family:'Orbitron',monospace;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  flex: 1;
+}
+.rm-duration-pill {
+  font-family:'Share Tech Mono',monospace;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+.rm-icon { font-size: 18px; }
+.rm-card-sub {
+  font-size: 12px;
+  color: rgba(200,216,232,0.5);
+  margin-bottom: 0;
+  line-height: 1.4;
+}
+
+/* Expanded detail */
+.rm-detail {
+  display: none;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0,245,255,0.1);
+}
+.rm-detail.open { display: block; }
+.rm-detail-desc {
+  font-size: 13px;
+  color: rgba(200,216,232,0.8);
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+.rm-detail-obj {
+  background: rgba(0,245,255,0.05);
+  border-left: 3px solid var(--cyan);
+  padding: 8px 12px;
+  font-size: 12px;
+  color: rgba(0,245,255,0.9);
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 10px;
+  font-style: italic;
+}
+.rm-week-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family:'Orbitron',monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 5px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+  cursor: pointer;
+  transition: all 0.15s;
+  background: transparent;
+  margin-top: 4px;
+}
+.rm-week-link:hover {
+  background: var(--cyan);
+  color: #050510;
+  box-shadow: var(--glow-c);
+}
+
+/* Phase color themes */
+.phase-1 { --ph: #00f5ff; }    /* cyan    - Foundation */
+.phase-2 { --ph: #f5a623; }    /* amber   - Core Technical */
+.phase-3 { --ph: #ff6b35; }    /* orange  - Advanced Ops */
+.phase-4 { --ph: #00ff41; }    /* green   - SOC Professional */
+.phase-5 { --ph: #c084fc; }    /* purple  - Career Ready */
+
+.rm-card.phase-1 { border-color: rgba(0,245,255,0.25); }
+.rm-card.phase-1 .rm-card-title { color: #00f5ff; }
+.rm-card.phase-1 .rm-num-badge { background: rgba(0,245,255,0.1); color:#00f5ff; border-color:rgba(0,245,255,0.4); }
+.rm-card.phase-1 .rm-duration-pill { color:rgba(0,245,255,0.8); border-color:rgba(0,245,255,0.3); background:rgba(0,245,255,0.05); }
+.rm-card.phase-1::before { background: linear-gradient(90deg,#00f5ff,transparent); }
+.rm-card.phase-1:hover { border-color: rgba(0,245,255,0.6); box-shadow: 0 4px 20px rgba(0,245,255,0.15); }
+.rm-dot.phase-1 { border-color:#00f5ff; box-shadow: 0 0 10px rgba(0,245,255,0.6); }
+.rm-connector.phase-1 { background: rgba(0,245,255,0.35); }
+
+.rm-card.phase-2 { border-color: rgba(245,166,35,0.25); }
+.rm-card.phase-2 .rm-card-title { color: #f5a623; }
+.rm-card.phase-2 .rm-num-badge { background: rgba(245,166,35,0.1); color:#f5a623; border-color:rgba(245,166,35,0.4); }
+.rm-card.phase-2 .rm-duration-pill { color:rgba(245,166,35,0.8); border-color:rgba(245,166,35,0.3); background:rgba(245,166,35,0.05); }
+.rm-card.phase-2::before { background: linear-gradient(90deg,#f5a623,transparent); }
+.rm-card.phase-2:hover { border-color: rgba(245,166,35,0.6); box-shadow: 0 4px 20px rgba(245,166,35,0.12); }
+.rm-dot.phase-2 { border-color:#f5a623; box-shadow: 0 0 10px rgba(245,166,35,0.5); }
+.rm-connector.phase-2 { background: rgba(245,166,35,0.35); }
+
+.rm-card.phase-3 { border-color: rgba(255,107,53,0.25); }
+.rm-card.phase-3 .rm-card-title { color: #ff6b35; }
+.rm-card.phase-3 .rm-num-badge { background: rgba(255,107,53,0.1); color:#ff6b35; border-color:rgba(255,107,53,0.4); }
+.rm-card.phase-3 .rm-duration-pill { color:rgba(255,107,53,0.8); border-color:rgba(255,107,53,0.3); background:rgba(255,107,53,0.05); }
+.rm-card.phase-3::before { background: linear-gradient(90deg,#ff6b35,transparent); }
+.rm-card.phase-3:hover { border-color: rgba(255,107,53,0.6); box-shadow: 0 4px 20px rgba(255,107,53,0.12); }
+.rm-dot.phase-3 { border-color:#ff6b35; box-shadow: 0 0 10px rgba(255,107,53,0.5); }
+.rm-connector.phase-3 { background: rgba(255,107,53,0.35); }
+
+.rm-card.phase-4 { border-color: rgba(0,255,65,0.25); }
+.rm-card.phase-4 .rm-card-title { color: #00ff41; }
+.rm-card.phase-4 .rm-num-badge { background: rgba(0,255,65,0.1); color:#00ff41; border-color:rgba(0,255,65,0.4); }
+.rm-card.phase-4 .rm-duration-pill { color:rgba(0,255,65,0.8); border-color:rgba(0,255,65,0.3); background:rgba(0,255,65,0.05); }
+.rm-card.phase-4::before { background: linear-gradient(90deg,#00ff41,transparent); }
+.rm-card.phase-4:hover { border-color: rgba(0,255,65,0.6); box-shadow: 0 4px 20px rgba(0,255,65,0.1); }
+.rm-dot.phase-4 { border-color:#00ff41; box-shadow: 0 0 10px rgba(0,255,65,0.5); }
+.rm-connector.phase-4 { background: rgba(0,255,65,0.35); }
+
+.rm-card.phase-5 { border-color: rgba(192,132,252,0.25); }
+.rm-card.phase-5 .rm-card-title { color: #c084fc; }
+.rm-card.phase-5 .rm-num-badge { background: rgba(192,132,252,0.1); color:#c084fc; border-color:rgba(192,132,252,0.4); }
+.rm-card.phase-5 .rm-duration-pill { color:rgba(192,132,252,0.8); border-color:rgba(192,132,252,0.3); background:rgba(192,132,252,0.05); }
+.rm-card.phase-5::before { background: linear-gradient(90deg,#c084fc,transparent); }
+.rm-card.phase-5:hover { border-color: rgba(192,132,252,0.6); box-shadow: 0 4px 20px rgba(192,132,252,0.12); }
+.rm-dot.phase-5 { border-color:#c084fc; box-shadow: 0 0 10px rgba(192,132,252,0.5); }
+.rm-connector.phase-5 { background: rgba(192,132,252,0.35); }
+
+/* Goal card */
+.rm-goal-card {
+  background: linear-gradient(135deg, rgba(238,34,7,0.12), rgba(0,245,255,0.08));
+  border: 2px solid var(--cyan);
+  border-radius: 12px;
+  padding: 28px 32px;
+  text-align: center;
+  margin: 40px auto 0;
+  max-width: 500px;
+  box-shadow: var(--glow-c);
+  position: relative;
+  z-index: 2;
+}
+.rm-goal-card h2 {
+  font-family:'Orbitron',monospace;
+  color: var(--cyan);
+  font-size: 16px;
+  letter-spacing: 2px;
+  margin: 0 0 8px;
+  text-shadow: var(--glow-c);
+}
+.rm-goal-tags {
+  display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 16px;
+}
+.rm-goal-tag {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-family:'Share Tech Mono',monospace;
+  font-size: 11px;
+  border: 1px solid;
+}
+
+@media(max-width:700px) {
+  .roadmap-timeline::before { left: 20px; }
+  .rm-node { flex-direction: column !important; }
+  .rm-connector { display: none; }
+  .rm-dot { display: none; }
+  .rm-card { flex: 1 1 100%; }
+  .roadmap-hero h1 { font-size: 16px; }
 }
 </style>
 <!-- Welcome / Student ID modal -->
