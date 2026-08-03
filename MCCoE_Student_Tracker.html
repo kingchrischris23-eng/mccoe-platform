@@ -432,6 +432,97 @@ select option { background:var(--surface); color:var(--text); }
   #print-timestamp { display:block !important; }
 }
 #print-timestamp { display:none; font-size:.7rem; color:#666; margin-top:4px; }
+
+/* ── ONLINE NOW PANEL ── */
+.online-now-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0,20,10,0.85);
+  border: 1px solid rgba(0,255,65,0.25);
+  border-radius: 10px;
+  padding: 12px 18px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  min-height: 52px;
+}
+.online-now-label {
+  font-family: var(--font-h);
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  color: rgba(0,255,65,0.6);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+.online-pulse {
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: #00ff41;
+  box-shadow: 0 0 8px #00ff41;
+  animation: onlinePulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+@keyframes onlinePulse {
+  0%,100% { box-shadow: 0 0 4px #00ff41; transform: scale(1); }
+  50%      { box-shadow: 0 0 14px #00ff41, 0 0 28px rgba(0,255,65,0.4); transform: scale(1.25); }
+}
+.online-divider {
+  width: 1px; height: 28px;
+  background: rgba(0,255,65,0.2);
+  flex-shrink: 0;
+}
+.online-chips {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: 1;
+  align-items: center;
+}
+.online-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0,255,65,0.07);
+  border: 1px solid rgba(0,255,65,0.25);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.78rem;
+  color: #c8d8e8;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.online-chip:hover {
+  background: rgba(0,255,65,0.14);
+  border-color: rgba(0,255,65,0.5);
+  color: #00ff41;
+}
+.online-chip-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #00ff41;
+  box-shadow: 0 0 6px #00ff41;
+  flex-shrink: 0;
+}
+.online-chip-name { font-weight: 700; }
+.online-chip-time { font-size: 0.68rem; color: rgba(0,255,65,0.6); }
+.online-none {
+  font-family: var(--font-h);
+  font-size: 0.65rem;
+  color: rgba(0,255,65,0.3);
+  letter-spacing: 1px;
+}
+.online-count-badge {
+  margin-left: auto;
+  font-family: var(--font-h);
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  color: rgba(0,255,65,0.5);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
 </style>
 </head>
 <body>
@@ -560,6 +651,13 @@ select option { background:var(--surface); color:var(--text); }
 
   <!-- KPI CARDS -->
   <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- ONLINE NOW -->
+  <div class="online-now-bar" id="onlineNowBar">
+    <div class="online-now-label"><div class="online-pulse"></div>ONLINE NOW</div>
+    <div class="online-divider"></div>
+    <div class="online-chips" id="onlineChips"><span class="online-none">AWAITING PORTAL ACTIVITY...</span></div>
+  </div>
 
   <!-- TWO COL -->
   <div class="two-col" style="margin-bottom:20px;">
@@ -1311,6 +1409,7 @@ function startLoginListener() {
     });
     const kpiEl = document.getElementById('kpi-portal-today');
     if (kpiEl) kpiEl.textContent = loginsToday;
+    renderOnlineNow();
     // Refresh dashboard alerts
     const alertEl = document.getElementById('alertsList');
     if (alertEl) renderDashboard();
@@ -1407,6 +1506,57 @@ function phaseLabel(p)   { return ['','Phase 1','Phase 2','Phase 3','Phase 4'][p
 // ════════════════════════════════════════════
 //  DASHBOARD
 // ════════════════════════════════════════════
+
+// ── ONLINE NOW ──────────────────────────────────────────────────────────────
+function renderOnlineNow() {
+  const chips = document.getElementById('onlineChips');
+  if (!chips) return;
+
+  const now = Date.now();
+  const WINDOW = 30 * 60 * 1000; // 30 minutes
+
+  const online = [];
+  students.forEach(s => {
+    if (!s.portalTempId) return;
+    const ld = _loginsCache[s.portalTempId];
+    if (!ld || !ld.history) return;
+    const entries = Object.values(ld.history);
+    const latest = entries.reduce((best, h) => {
+      const t = new Date(h.ts).getTime();
+      return t > best ? t : best;
+    }, 0);
+    if (latest && (now - latest) < WINDOW) {
+      online.push({ name: s.name, id: s.id, ts: latest });
+    }
+  });
+
+  online.sort((a, b) => b.ts - a.ts);
+
+  const bar = document.getElementById('onlineNowBar');
+  if (bar) {
+    bar.style.borderColor = online.length
+      ? 'rgba(0,255,65,0.35)'
+      : 'rgba(0,255,65,0.1)';
+  }
+
+  if (!online.length) {
+    chips.innerHTML = '<span class="online-none">NO ACTIVE SESSIONS · 0 STUDENTS ONLINE</span>';
+    const badge = document.getElementById('onlineCountBadge');
+    if (badge) badge.textContent = '0 ONLINE';
+    return;
+  }
+
+  chips.innerHTML = online.map(o => {
+    const minsAgo = Math.floor((now - o.ts) / 60000);
+    const timeStr = minsAgo < 1 ? 'just now' : minsAgo + 'm ago';
+    return `<div class="online-chip" onclick="openDetail('${o.id}')" title="Click to open student record">
+      <div class="online-chip-dot"></div>
+      <span class="online-chip-name">${o.name}</span>
+      <span class="online-chip-time">${timeStr}</span>
+    </div>`;
+  }).join('') + `<span class="online-count-badge" id="onlineCountBadge">${online.length} ONLINE</span>`;
+}
+
 function renderDashboard() {
   const newStudents = syncRegistry();
   if (newStudents) { renderStudents(); }
@@ -1474,6 +1624,7 @@ function renderDashboard() {
     if(!s.surveys.length)alerts+=`<div class="alert-item alert-yellow"><span>📝</span><div class="alert-text"><span class="alert-name">${s.name}</span> — No survey responses submitted yet</div></div>`;
   });
   document.getElementById('alertsList').innerHTML = alerts || '<div class="empty-state"><div>✅</div><div style="font-size:.85rem">No alerts — all students on track!</div></div>';
+  renderOnlineNow();
   // Refresh whichever tab is active
   if (document.getElementById('dtab-map') && document.getElementById('dtab-map').classList.contains('active-tab')) renderLoginMap();
   if (document.getElementById('dtab-feed') && document.getElementById('dtab-feed').classList.contains('active-tab')) renderSOCFeed();
