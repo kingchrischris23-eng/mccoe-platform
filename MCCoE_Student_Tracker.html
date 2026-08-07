@@ -405,7 +405,7 @@ select option { background:var(--surface); color:var(--text); }
   header, nav, aside, .sidebar, #admin-gate, #exportMenu,
   .modal-overlay, .page-header .btn, .btn, button,
   #view-students, #view-attendance, #view-survey,
-  #view-employer, #view-submissions, #view-library { display:none !important; }
+  #view-employer, #view-submissions, #view-library, #view-documents { display:none !important; }
   body, html { background:#fff !important; color:#000 !important; margin:0; padding:0; }
   .app { padding:0 !important; }
   #view-dashboard { display:block !important; padding:10px !important; }
@@ -621,6 +621,9 @@ select option { background:var(--surface); color:var(--text); }
   <div class="nav-section">Content</div>
   <button class="nav-btn" onclick="showView('library',this)">
     <span class="nav-icon">📚</span> Resource Library
+  </button>
+  <button class="nav-btn" onclick="showView('documents',this)">
+    <span class="nav-icon">📄</span> Course Documents
   </button>
 </nav>
 
@@ -909,6 +912,59 @@ select option { background:var(--surface); color:var(--text); }
 
   <div id="lib-admin-count" style="font-size:.78rem;color:var(--muted);margin-bottom:12px;"></div>
   <div id="lib-admin-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;"></div>
+</div>
+
+<!-- ═══ COURSE DOCUMENTS ═══ -->
+<div id="view-documents" class="view">
+  <div class="page-header">
+    <div>
+      <h2>📄 Course Documents</h2>
+      <p>Instructor resources — download and distribute to students as needed</p>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+
+    <!-- Exec Summary Template -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;">
+      <div style="font-size:2rem;margin-bottom:12px;">📝</div>
+      <div style="font-family:var(--font-h);font-size:.7rem;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Student Template</div>
+      <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:8px;">Executive Summary Template</div>
+      <div style="font-size:.82rem;color:rgba(200,216,232,0.6);line-height:1.6;margin-bottom:18px;">The official MCCoE template students use to write their professional executive summary for each Part 2 project. All 9 sections included with formatting guidelines.</div>
+      <a href="MCCoE_Executive_Summary_Template.docx" download
+         style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;background:rgba(0,245,255,0.07);border:1px solid rgba(0,245,255,0.3);border-radius:6px;color:var(--cyan);font-size:.8rem;font-weight:600;text-decoration:none;transition:all .2s;"
+         onmouseover="this.style.background='rgba(0,245,255,0.15)'" onmouseout="this.style.background='rgba(0,245,255,0.07)'">
+        ↓ Download .docx
+      </a>
+    </div>
+
+    <!-- Teacher Master Copy -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;">
+      <div style="font-size:2rem;margin-bottom:12px;">👨‍🏫</div>
+      <div style="font-family:var(--font-h);font-size:.7rem;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Instructor Only</div>
+      <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:8px;">Teacher Master Copy</div>
+      <div style="font-size:.82rem;color:rgba(200,216,232,0.6);line-height:1.6;margin-bottom:18px;">Complete instructor guide with answer keys, teaching notes, grading rubrics, and facilitation tips for all 8 projects. Do not distribute to students.</div>
+      <a href="MCCoE_Teacher_Master_Copy.docx" download
+         style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;background:rgba(0,245,255,0.07);border:1px solid rgba(0,245,255,0.3);border-radius:6px;color:var(--cyan);font-size:.8rem;font-weight:600;text-decoration:none;transition:all .2s;"
+         onmouseover="this.style.background='rgba(0,245,255,0.15)'" onmouseout="this.style.background='rgba(0,245,255,0.07)'">
+        ↓ Download .docx
+      </a>
+    </div>
+
+    <!-- SY0-701 Acronyms -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;">
+      <div style="font-size:2rem;margin-bottom:12px;">🔤</div>
+      <div style="font-family:var(--font-h);font-size:.7rem;color:var(--cyan);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">Reference Sheet</div>
+      <div style="font-size:1rem;font-weight:700;color:var(--text);margin-bottom:8px;">SY0-701 Acronyms</div>
+      <div style="font-size:.82rem;color:rgba(200,216,232,0.6);line-height:1.6;margin-bottom:18px;">Complete acronym reference sheet for the CompTIA Security+ SY0-701 exam. Covers all domains. Distribute to students for use during study and review sessions.</div>
+      <a href="SY0-701_Acronyms.docx" download
+         style="display:inline-flex;align-items:center;gap:8px;padding:9px 18px;background:rgba(0,245,255,0.07);border:1px solid rgba(0,245,255,0.3);border-radius:6px;color:var(--cyan);font-size:.8rem;font-weight:600;text-decoration:none;transition:all .2s;"
+         onmouseover="this.style.background='rgba(0,245,255,0.15)'" onmouseout="this.style.background='rgba(0,245,255,0.07)'">
+        ↓ Download .docx
+      </a>
+    </div>
+
+  </div>
 </div>
 
 </main>
