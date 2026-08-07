@@ -718,7 +718,7 @@ const INSTRUCTOR_EMAIL = 'jharbour@mccoe.org';
 
 const WEEKS = [
   {
-    num: 5, title: 'Kali Advanced', nist: 'Identify / Protect',
+    num: 2, title: 'Kali Linux Fundamentals', nist: 'Identify / Protect',
     topics: 'Terminal Navigation | Filesystem | Text Manipulation | Network Commands | Permissions | Bash Scripting',
     hours: '5-6 hours', level: 'Foundational',
     objectives: [
@@ -734,13 +734,13 @@ const WEEKS = [
         explanation: "The Linux terminal is the primary tool for every cybersecurity professional. Kali Linux is built around the command line — all 300+ security tools run from it. These 10 essential commands let you navigate directories, find files, and understand what is on a system in minutes.",
         keyPoints: ["pwd — print working directory (shows your current location in the filesystem)", "whoami — shows which user you are logged in as (root = full admin privileges)", "ls -la — lists ALL files including hidden dot-files with permissions, sizes, and dates", "cd /path — navigate to a directory; cd .. goes up one level; cd ~ goes to home directory", "cat file — reads entire file to screen; head -5 reads first 5 lines; tail -20 reads last 20", "locate name — fast file search using a pre-built database", "history — shows your recent commands; up-arrow repeats the previous command"],
         example: "When handed an unfamiliar Linux server, every security analyst starts the same way: pwd (where am I?), whoami (who am I?), ls -la (what files are here?). These 3 commands orient you in under 10 seconds — the terminal instinct this module builds.",
-        quizHint: "Quiz asks: 'Which Linux command prints your current working directory?' Answer: pwd. Also: 'Which command lists ALL files including hidden files with permissions?' Answer: ls -la. Both appear on the Week 5 quiz."
+        quizHint: "Quiz asks: 'Which Linux command prints your current working directory?' Answer: pwd. Also: 'Which command lists ALL files including hidden files with permissions?' Answer: ls -la. Both appear on the Week 2 quiz."
       },
       {
         explanation: "Log files, config files, and command output are all text. cat, grep, sed, and awk are the four tools that let you read, search, filter, and transform text — skills used in every phase of security work, from reviewing logs after an incident to manipulating tool output in scripts.",
         keyPoints: ["cat file — displays the full file; pipe it: cat /etc/passwd | head -10", "grep 'pattern' file — finds lines matching a pattern; -i for case-insensitive; -r for recursive search in a directory", "grep 'Failed password' /var/log/auth.log — filters an SSH log for failed logins instantly", "sed 's/old/new/g' file — global find-and-replace throughout a text stream or file", "awk '{print $1, $3}' file — extracts columns 1 and 3 from space-delimited text", "Chain commands with pipes: grep 'root' /etc/passwd | awk '{print $1}'"],
         example: "After a suspected breach, run: grep 'Failed password' /var/log/auth.log | awk '{print $11}' | sort | uniq -c | sort -rn. This single pipeline gives you a ranked list of IP addresses with the most failed SSH login attempts — instant evidence for incident response.",
-        quizHint: "Quiz: 'To search for the word password inside a file called log.txt, you use:' Answer: grep 'password' log.txt. Memorize grep syntax — it is tested directly on the Week 5 quiz."
+        quizHint: "Quiz: 'To search for the word password inside a file called log.txt, you use:' Answer: grep 'password' log.txt. Memorize grep syntax — it is tested directly on the Week 2 quiz."
       },
       {
         explanation: "ifconfig shows every network interface on the system and its IP address. netstat -tulpn shows every port with a service actively listening on it. Together these two commands reveal the complete network exposure of a machine — where it can be reached and what services are running.",
@@ -806,7 +806,7 @@ const WEEKS = [
     ]
   },
   {
-    num: 1, title: 'Cyber Fundamentals', nist: 'Identify',
+    num: 3, title: 'Cybersecurity Foundations', nist: 'Identify',
     topics: 'CIA Triad | DAD Triad | Security Mindset | AAA | Risk Assessment',
     hours: '3-4 hours', level: 'Foundational',
     objectives: [
@@ -901,7 +901,7 @@ const WEEKS = [
     ]
   },
   {
-    num: 2, title: 'Network Fundamentals', nist: 'Identify / Protect',
+    num: 4, title: 'Network Fundamentals', nist: 'Identify / Protect',
     topics: 'OSI Model | Protocols | Wireshark | Defense in Depth',
     hours: '3-4 hours', level: 'Foundational',
     objectives: [
@@ -988,7 +988,7 @@ const WEEKS = [
     ]
   },
   {
-    num: 3, title: 'Threat Landscape', nist: 'Identify / Detect',
+    num: 5, title: 'Threat Landscape', nist: 'Identify / Detect',
     topics: 'Threat Intelligence | Malware Types | MITRE ATT&CK | IOCs',
     hours: '3-4 hours', level: 'Foundational',
     objectives: [
@@ -1157,7 +1157,7 @@ const WEEKS = [
     ]
   },
   {
-    num: 4, title: 'Kali Basics', nist: 'Protect / Detect',
+    num: 1, title: 'Core Classes', nist: 'Protect / Detect',
     topics: 'Linux CLI | Kali Environment | 7 Tool Categories',
     hours: '4-5 hours', level: 'Intermediate',
     objectives: [
@@ -1178,7 +1178,7 @@ const WEEKS = [
         explanation: "The Linux command line (CLI) is the foundation of everything in cybersecurity. Every Kali tool runs from the terminal. Mastering these 15 commands gives you the ability to navigate any Linux system, find files, read configurations, manage users, and understand what is running.",
         keyPoints: ["Navigation: pwd (where am I), cd (move to directory), ls -la (list all files with permissions)", "File reading: cat (full file), head -N (first N lines), tail -N (last N lines)", "File search: find / -name pattern (live search), locate filename (fast indexed search)", "Text search: grep 'pattern' file (search inside file content)", "Permissions: chmod (change permissions), chown (change ownership)", "Process management: ps aux (list all processes), top (live monitor), kill PID (terminate)", "Network: ifconfig (show IP addresses), netstat -tulpn (show open ports), history (recent commands)"],
         example: "Security analysts use the same 15 commands on every engagement: first pwd and whoami to orient, then ls -la and find / -name '*.conf' to understand the system, then netstat -tulpn and ps aux to see what is running. This workflow becomes second nature with practice.",
-        quizHint: "Quiz: 'Which Linux command lists ALL files including hidden ones with permissions?' Answer: ls -la. 'Which command shows currently listening ports?' Answer: netstat -tulpn. These exact questions appear on the Week 4 quiz."
+        quizHint: "Quiz: 'Which Linux command lists ALL files including hidden ones with permissions?' Answer: ls -la. 'Which command shows currently listening ports?' Answer: netstat -tulpn. These exact questions appear on the Week 1 quiz."
       },
       {
         explanation: "Kali Linux organizes its 300+ security tools into 7 categories by function. Knowing which category a tool belongs to is essential because each category corresponds to a phase of a security engagement. Tools from different categories work together in sequence.",
@@ -1238,7 +1238,7 @@ const WEEKS = [
     ]
   },
   {
-    num: 9, title: 'Defensive Security & Tools', nist: 'Protect / Detect',
+    num: 7, title: 'Defensive Security & Tools', nist: 'Protect / Detect',
     topics: 'Firewalls | IDS & IPS | SIEM | Endpoint Security | Patch Management',
     hours: '3-4 hours', level: 'Foundational',
     objectives: [
@@ -1319,7 +1319,7 @@ const WEEKS = [
     ]
   },
   {
-    num: 7, title: 'Incident Response Basics', nist: 'Detect / Respond / Recover',
+    num: 8, title: 'Incident Response Basics', nist: 'Detect / Respond / Recover',
     topics: 'IR Lifecycle | Triage | Containment | Eradication | Recovery | Documentation',
     hours: '3-4 hours', level: 'Foundational',
     objectives: [
@@ -1400,7 +1400,7 @@ const WEEKS = [
     ]
   },
   {
-    num: 8, title: 'Cybersecurity Careers & Capstone', nist: 'All Domains',
+    num: 9, title: 'Cybersecurity Careers & Capstone', nist: 'All Domains',
     topics: 'Career Paths | CompTIA Security+ | Certifications | Capstone Review',
     hours: '3-4 hours', level: 'Foundational / Capstone',
     objectives: [
@@ -1465,7 +1465,7 @@ const WEEKS = [
       'Map all 5 CompTIA Security+ SY0-701 exam domains to the MCCoE weeks that cover each one — identify the one domain where you need the most additional study',
       'Write and record your 60-second elevator pitch — review the recording and self-assess: Does it name specific tools? Is it confident? Is it under 60 seconds?',
       'Take the CompTIA free Security+ practice questions at comptia.org — document your score and the 3 topics where you missed the most questions',
-      'CAPSTONE QUIZ: Complete the Week 8 quiz — it pulls one question from each of the 8 previous weeks. Review any questions you miss by returning to that week\'s content'
+      'CAPSTONE QUIZ: Complete the Week 9 quiz — it pulls one question from each of the 8 previous weeks. Review any questions you miss by returning to that week\'s content'
     ],
     quiz: [
       { q:'A security analyst runs nmap -sV 10.0.0.1 during an authorized penetration test. This command performs service version detection. Which Kali Linux function is being used?', opts:['Password cracking', 'Network port and service enumeration', 'Log analysis', 'Firewall bypass'], ans:1 },
@@ -1651,31 +1651,31 @@ const LEVELS = [
 ];
 const BADGES_DEF = [
   { id:'first_login', icon:'🔑', name:'First Login',      desc:'Signed into the platform for the first time' },
-  { id:'week1',       icon:'🛡️', name:'CIA Master',       desc:'Passed Week 1: Cyber Fundamentals' },
-  { id:'week2',       icon:'🌐', name:'Network Pro',      desc:'Passed Week 2: Network Fundamentals' },
-  { id:'week3',       icon:'🦠', name:'Threat Hunter',    desc:'Passed Week 3: Threat Landscape' },
-  { id:'week4',       icon:'🐧', name:'Linux Learner',    desc:'Passed Week 4: Kali Basics' },
-  { id:'week5',       icon:'🗡️', name:'Kali Warrior',     desc:'Passed Week 5: Kali Advanced' },
+  { id:'week1',       icon:'🐧', name:'Linux Learner',    desc:'Passed Week 1: Core Linux Classes' },
+  { id:'week2',       icon:'🗡️', name:'Kali Warrior',     desc:'Passed Week 2: Kali Linux Fundamentals' },
+  { id:'week3',       icon:'🛡️', name:'CIA Master',       desc:'Passed Week 3: Cybersecurity Foundations' },
+  { id:'week4',       icon:'🌐', name:'Network Pro',      desc:'Passed Week 4: Network Fundamentals' },
+  { id:'week5',       icon:'🦠', name:'Threat Hunter',    desc:'Passed Week 5: Threat Landscape' },
   { id:'week6',       icon:'🎭', name:'Social Guard',     desc:'Passed Week 6: Human Factors' },
-  { id:'week7',       icon:'🚨', name:'IR Responder',     desc:'Passed Week 7: Incident Response Basics' },
-  { id:'week8',       icon:'🎓', name:'MCCoE Graduate',   desc:'Passed all 8 weeks — Security+ Ready!' },
-  { id:'week9',       icon:'🔥', name:'Defender',         desc:'Passed Week 9: Defensive Security & Tools' },
+  { id:'week7',       icon:'🔥', name:'Defender',         desc:'Passed Week 7: Defensive Security' },
+  { id:'week8',       icon:'🚨', name:'IR Responder',     desc:'Passed Week 8: Incident Response' },
+  { id:'week9',       icon:'🎓', name:'MCCoE Graduate',   desc:'Passed all 9 weeks — Security+ Ready!' },
   { id:'perfect',     icon:'💯', name:'Perfect Score',    desc:'Scored 100% on any quiz' },
   { id:'streak3',     icon:'🔥', name:'3-Day Streak',     desc:'Logged in 3 days in a row' },
   { id:'streak7',     icon:'⚡', name:'7-Day Streak',     desc:'Logged in 7 days in a row' },
   { id:'halfway',     icon:'🏁', name:'Halfway There',    desc:'Passed Weeks 1 through 5' },
-  { id:'secplus',     icon:'🏅', name:'Security+ Ready',  desc:'Scored 70%+ on all 8 weekly quizzes' },
+  { id:'secplus',     icon:'🏅', name:'Security+ Ready',  desc:'Scored 70%+ on all 9 weekly quizzes' },
 ];
 const SECPLUS_DOMAINS = {
-  1:'SY0-701: Domain 1.0 — General Security Concepts',
-  2:'SY0-701: Domain 3.0 — Security Architecture',
-  3:'SY0-701: Domain 2.0 — Threats & Vulnerabilities',
-  4:'SY0-701: Domain 4.0 — Security Operations',
-  5:'SY0-701: Domain 4.0 — Security Operations',
+  1:'SY0-701: Domain 4.0 — Security Operations',
+  2:'SY0-701: Domain 4.0 — Security Operations',
+  3:'SY0-701: Domain 1.0 — General Security Concepts',
+  4:'SY0-701: Domain 3.0 — Security Architecture',
+  5:'SY0-701: Domain 2.0 — Threats & Vulnerabilities',
   6:'SY0-701: Domain 2.0 — Threats & Vulnerabilities',
-  7:'SY0-701: Domain 4.0 — Security Operations',
-  8:'SY0-701: All Five Domains',
-  9:'SY0-701: Domains 3.0 + 4.0 — Architecture & Operations',
+  7:'SY0-701: Domains 3.0 + 4.0 — Architecture & Operations',
+  8:'SY0-701: Domain 4.0 — Security Operations',
+  9:'SY0-701: All Five Domains',
 };
 
 function getLevel(xp) {
@@ -1720,7 +1720,7 @@ function checkBadges(weekNum, score, total, pct) {
     if (half) { g.badges.push('halfway'); earned.push('halfway'); }
   }
   if (!g.badges.includes('secplus')) {
-    const all = [1,2,3,4,5,6,7,8].every(n => { const p = state.progress[n]; return p && p.quizTotal && Math.round(p.quizScore/p.quizTotal*100)>=70; });
+    const all = [1,2,3,4,5,6,7,8,9].every(n => { const p = state.progress[n]; return p && p.quizTotal && Math.round(p.quizScore/p.quizTotal*100)>=70; });
     if (all) { g.badges.push('secplus'); earned.push('secplus'); }
   }
   earned.forEach((id, i) => {
@@ -2391,6 +2391,22 @@ function renderStudentDashboard() {
       </div>
     </div>
 
+    <!-- CYBERSEC ACADEMY LAUNCHER -->
+    <div style="background:#fff;border-radius:12px;padding:20px 24px;border:2px solid #00aa2a;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;box-shadow:0 2px 8px rgba(0,170,42,.08);">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="font-size:32px;">🎮</div>
+        <div>
+          <div style="font-size:14px;font-weight:800;color:#004d10;letter-spacing:.5px;">CyberSec Academy</div>
+          <div style="font-size:12px;color:#555;margin-top:2px;">Quiz, SOC Simulator, Phishing Spotter — your score syncs to the tracker</div>
+        </div>
+      </div>
+      <a href="CyberSec_Academy.html?name=${encodeURIComponent(s.name)}&id=${encodeURIComponent(s.tempId||s.name)}" target="_blank"
+         style="background:#00aa2a;color:#fff;font-size:12px;font-weight:800;padding:10px 22px;border-radius:6px;text-decoration:none;letter-spacing:.5px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,170,42,.3);transition:all .2s;"
+         onmouseover="this.style.background='#008f22'" onmouseout="this.style.background='#00aa2a'">
+        ▶ LAUNCH ACADEMY
+      </a>
+    </div>
+
     ${renderGamePanel()}
 
     <!-- STAT CARDS -->
@@ -2750,7 +2766,7 @@ const ROADMAP_MODULES = [
     tagline: 'NIST CSF · CISA Concepts · Entry-Level Foundations',
     desc: 'An accessible introduction to cybersecurity concepts and practices guided by NIST CSF and CISA concepts. Provides a comprehensive introduction to the field with expert coverage of essential topics required for entry-level cybersecurity certifications.',
     objective: 'Identify and explain the core Cybersecurity Essentials — NIST CSF framework, CIA Triad, and foundational security concepts.',
-    weekLink: 4
+    weekLink: 1
   },
   {
     id: 2, num: '02', phase: 1, icon: '💻',
@@ -2759,7 +2775,7 @@ const ROADMAP_MODULES = [
     tagline: 'Windows · macOS · Linux · Installation & Maintenance',
     desc: 'You will need at least an intermediate level of familiarity with Windows, macOS, Linux, and other operating systems. Not all organizations use the same OS, so diversify your skill set to be competitive in any environment.',
     objective: 'Explain what an Operating System is (Windows, macOS, Linux and others), how to install it, and how to maintain it.',
-    weekLink: 5
+    weekLink: 2
   },
   // ── PHASE 2: CORE TECHNICAL ──────────────────────────────────────────────
   {
@@ -2778,7 +2794,7 @@ const ROADMAP_MODULES = [
     tagline: 'Breach Detection · Backups · Fail-Safe Features',
     desc: 'Cybersecurity consultants are expected to have proficient firewall management skills. Specific skills related to this position include breach detecting, configuring rules, managing backups, and implementing fail-safe features.',
     objective: 'Demonstrate how to conduct Firewall Management — configure rules, detect breaches, and implement fail-safe protections.',
-    weekLink: 2
+    weekLink: 4
   },
   {
     id: 5, num: '05', phase: 2, icon: '🔐',
@@ -2787,7 +2803,7 @@ const ROADMAP_MODULES = [
     tagline: 'Data Protection · Implementation · Key Management',
     desc: 'Encryption is increasingly being used as a key line of defense against data theft and destruction. Cybersecurity consultants must have a good understanding of how encryption will impact operations and experience implementing encryption solutions.',
     objective: 'Explain what Encryption Technologies are and demonstrate how to implement an encryption solution to protect organizational data.',
-    weekLink: 1
+    weekLink: 3
   },
   {
     id: 6, num: '06', phase: 2, icon: '🎯',
@@ -2815,7 +2831,7 @@ const ROADMAP_MODULES = [
     tagline: 'Industry Standards · Security Solutions · Data Analysis Tools',
     desc: 'SOC Analysts need solid analysis skills. This includes the application of industry-standard analysis criteria when analyzing organization security solutions, identifying patterns in security data, and using tools to support investigation.',
     objective: 'Demonstrate industry-standard understanding of data and problem analysis as it relates to an organization\'s security solution. Demonstrate the use of tools to assist in the analysis of data.',
-    weekLink: 2
+    weekLink: 4
   },
   {
     id: 9, num: '09', phase: 3, icon: '⚡',
@@ -2824,7 +2840,7 @@ const ROADMAP_MODULES = [
     tagline: 'APT · Multi-Stage Attacks · Phishing · Social Engineering',
     desc: 'Advanced Persistent Threats (APTs) are multi-stage attacks that may proceed through a variety of different attack vectors. Examples of required knowledge include network access control, phishing, and social engineering countermeasures.',
     objective: 'Explain what Persistent Threat Management is and demonstrate how to implement defenses against multi-stage APT attacks.',
-    weekLink: 3
+    weekLink: 5
   },
   {
     id: 10, num: '10', phase: 3, icon: '🕵️',
@@ -2833,7 +2849,7 @@ const ROADMAP_MODULES = [
     tagline: 'Incident Response · Malware Indicators · Nation-State Threats',
     desc: 'Incident response and threat hunting teams are keys to identifying and observing malware indicators and patterns of activity to generate accurate threat intelligence. This module provides advanced skills to hunt, identify, counter, and recover from APT nation-state adversaries, organized crime, and ransomware operators.',
     objective: 'Demonstrate how to conduct Threat Hunting and Intelligence — identify malware indicators, generate actionable threat intelligence, and respond to advanced intrusions.',
-    weekLink: 7
+    weekLink: 8
   },
   {
     id: 11, num: '11', phase: 3, icon: '💀',
@@ -2852,7 +2868,7 @@ const ROADMAP_MODULES = [
     tagline: 'Compliance · Audit · Risk Frameworks · Foundational Skills',
     desc: 'Recent laws require organizations to perform cybersecurity risk assessments for compliance and audit reasons. Teaches the foundational knowledge and practical, hands-on skills needed to perform such risk assessments across different industries and regulatory frameworks.',
     objective: 'Demonstrate how to conduct Risk Assessments and Compliance Verification — apply risk frameworks to evaluate organizational security posture.',
-    weekLink: 1
+    weekLink: 3
   },
   {
     id: 13, num: '13', phase: 4, icon: '🚨',
@@ -2861,7 +2877,7 @@ const ROADMAP_MODULES = [
     tagline: 'Offensive & Defensive · IR Planning · Incident Prevention',
     desc: 'The best offense is a good defense. This training addresses both an offensive and defensive view, providing the knowledge and tools needed to prepare an effective incident response, as well as strategies to prevent incidents from happening in the first place.',
     objective: 'Demonstrate how to conduct Vulnerability and Incident Management — develop IR plans, triage incidents, and implement preventative security controls.',
-    weekLink: 7
+    weekLink: 8
   },
   {
     id: 14, num: '14', phase: 4, icon: '🖥️',
@@ -2870,7 +2886,7 @@ const ROADMAP_MODULES = [
     tagline: 'Endpoint Security · ELK Stack · Log Analysis · Detection',
     desc: 'Endpoint Detection and Response (EDR) continuously monitors end-user devices to detect and respond to cyber threats like ransomware and malware. Covers endpoint security technologies (AV, NGAV, EPP, EDR, XDR) plus Security Information and Event Management (SIEM) using open-source ELK Stack (Elasticsearch, Logstash, Kibana).',
     objective: 'Demonstrate how to conduct EDR and SIEM Deployment and Operations — configure endpoint protection, analyze logs, and detect threats using SIEM tooling.',
-    weekLink: 9
+    weekLink: 7
   },
   {
     id: 15, num: '15', phase: 4, icon: '🏢',
@@ -2879,7 +2895,7 @@ const ROADMAP_MODULES = [
     tagline: 'SOC Functions · Daily Responsibilities · Team Operations',
     desc: 'Provides the primary functions of a Security Operations Center (SOC) and the critical role it plays in protecting organizational assets from cyber-attacks. Covers SOC team member daily activities, responsibilities, alert triage workflows, and escalation procedures.',
     objective: 'Demonstrate an understanding of how to conduct SOC Operations — manage alert queues, triage incidents, and collaborate within a SOC team structure.',
-    weekLink: 9
+    weekLink: 7
   },
   // ── PHASE 5: CAREER READY ─────────────────────────────────────────────────
   {
@@ -2907,7 +2923,7 @@ const ROADMAP_MODULES = [
     tagline: 'Security+ · CEH · CISM · CISSP · OSCP',
     desc: 'There is no single required certification but the more you have, the better. MCCoE will pay for select students taking certification tests. Training aligns with CompTIA Security+, CySA+, Certified Ethical Hacker (CEH), ECSA, CISM, CISSP, and Offensive Security Certified Professional (OSCP).',
     objective: 'Earn at least one industry-recognized cybersecurity certification — CompTIA Security+ is the recommended starting point for this program.',
-    weekLink: 8
+    weekLink: 9
   },
   {
     id: 18, num: '18', phase: 5, icon: '🎓',
@@ -2925,7 +2941,7 @@ const ROADMAP_MODULES = [
     tagline: 'Entry-Level IT · Security Analyst · Career Progression',
     desc: 'Cybersecurity consultants in the US are generally expected to have 3-5 years of professional experience. A realistic starting path: enter an entry-level IT or information security role → earn the role of security administrator, analyst, engineer, or auditor → acquire relevant certifications → begin role of cybersecurity consultant.',
     objective: 'Secure an entry-level cybersecurity or IT role and build 1+ year of hands-on professional experience aligned with SOC analyst responsibilities.',
-    weekLink: 8
+    weekLink: 9
   }
 ];
 
