@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CYBERSEC ACADEMY // TERMINAL v1.0</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -225,6 +227,48 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 </div>
 
 <script>
+// ===== FIREBASE =====
+var _fbDb = null;
+var _studentName = '';
+var _studentId   = '';
+
+(function initFirebase() {
+  var params = new URLSearchParams(window.location.search);
+  _studentName = params.get('name') || sessionStorage.getItem('acad_name') || '';
+  _studentId   = params.get('id')   || sessionStorage.getItem('acad_id')   || '';
+  if (_studentName) sessionStorage.setItem('acad_name', _studentName);
+  if (_studentId)   sessionStorage.setItem('acad_id',   _studentId);
+
+  try {
+    if (!firebase.apps.length) firebase.initializeApp({
+      apiKey:            "AIzaSyCeJmzFfWmHHkfZe-OFkJU1D9qJtH7m3Rk",
+      authDomain:        "mccoe-platform-a9710.firebaseapp.com",
+      databaseURL:       "https://mccoe-platform-a9710-default-rtdb.firebaseio.com",
+      projectId:         "mccoe-platform-a9710",
+      storageBucket:     "mccoe-platform-a9710.firebasestorage.app",
+      messagingSenderId: "123456789",
+      appId:             "mccoe-platform-a9710"
+    });
+    _fbDb = firebase.database();
+  } catch(e) {}
+})();
+
+function saveProgress() {
+  if (!_fbDb || !(_studentName || _studentId)) return;
+  var key = _studentId || _studentName.replace(/\s+/g,'_').toLowerCase();
+  _fbDb.ref('mccoe_academy/' + key).set({
+    name:        _studentName || _studentId,
+    totalScore:  score,
+    quizPts:     _quizPts,
+    socPts:      _socPts,
+    phishPts:    _phishPts,
+    lastPlayed:  new Date().toISOString(),
+    sessions:    (_sessionCount || 1)
+  });
+}
+
+var _quizPts = 0, _socPts = 0, _phishPts = 0, _sessionCount = 1;
+
 // ===== STATE =====
 var score = 0;
 var sid = Math.random().toString(36).substr(2,8).toUpperCase();
@@ -283,7 +327,27 @@ function skipBoot() { endBoot(); }
 
 function endBoot() {
   document.getElementById('boot').style.display = 'none';
-  document.getElementById('sid').textContent = sid;
+  if (_studentName) {
+    document.getElementById('sid').textContent = _studentName;
+    // load prior session score from Firebase
+    if (_fbDb) {
+      var key = _studentId || _studentName.replace(/\s+/g,'_').toLowerCase();
+      _fbDb.ref('mccoe_academy/' + key).once('value', function(snap) {
+        var d = snap.val();
+        if (d) {
+          score    = d.totalScore  || 0;
+          _quizPts = d.quizPts     || 0;
+          _socPts  = d.socPts      || 0;
+          _phishPts= d.phishPts    || 0;
+          _sessionCount = (d.sessions || 0) + 1;
+          document.getElementById('pts').textContent = score;
+          updateRank();
+        }
+      });
+    }
+  } else {
+    document.getElementById('sid').textContent = sid;
+  }
   initQuiz();
   initSOC();
   initPH();
@@ -298,15 +362,23 @@ function showScr(name, btn) {
   if (btn) btn.classList.add('active');
 }
 
-function addScore(pts) {
-  score += pts;
-  document.getElementById('pts').textContent = score;
+function updateRank() {
   var ranks = [[0,'RECRUIT'],[100,'ANALYST'],[250,'SPECIALIST'],[500,'EXPERT'],[750,'ELITE'],[1000,'LEGEND']];
   var rank = 'RECRUIT';
   for (var i = 0; i < ranks.length; i++) {
     if (score >= ranks[i][0]) rank = ranks[i][1];
   }
   document.getElementById('rank').textContent = rank;
+}
+
+function addScore(pts, type) {
+  score += pts;
+  if (type === 'quiz')  _quizPts  += pts;
+  if (type === 'soc')   _socPts   += pts;
+  if (type === 'phish') _phishPts += pts;
+  document.getElementById('pts').textContent = score;
+  updateRank();
+  saveProgress();
 }
 
 // ===== QUIZ DATA =====
@@ -433,7 +505,7 @@ function answerQ(i) {
   fb.style.display = 'block';
   if (i === q.a) {
     opts[i].classList.add('ok');
-    addScore(10);
+    addScore(10, 'quiz');
     fb.className = '';
     fb.style.cssText = 'display:block;margin-top:14px;padding:12px;font-size:13px;line-height:1.6;color:var(--text);border-left:3px solid var(--g);background:rgba(0,255,65,.04)';
     fb.innerHTML = '<span style="color:var(--g);font-size:11px;letter-spacing:2px">✔ CORRECT! +10 PTS</span><br><br>'+q.e;
@@ -572,7 +644,7 @@ function pickSOC(opt) {
   var lbl = opt.r==='good'?'<span style="color:var(--g);font-size:11px;letter-spacing:2px">▶ CORRECT RESPONSE</span>':opt.r==='bad'?'<span style="color:var(--red);font-size:11px;letter-spacing:2px">▶ CRITICAL ERROR</span>':'<span style="color:var(--amber);font-size:11px;letter-spacing:2px">▶ PARTIAL CREDIT</span>';
   el.className = cls;
   el.innerHTML = lbl+'<br><br>'+opt.f;
-  addScore(opt.p);
+  addScore(opt.p, 'soc');
   var nxt = document.getElementById('soc-nxt');
   nxt.style.display = 'inline-block';
   var total = SCENS[si].steps.length;
@@ -700,7 +772,7 @@ function renderPH() {
         phFound.add(fi);
         flag.classList.add('found');
         document.getElementById('ph-cnt').textContent = phFound.size;
-        addScore(5);
+        addScore(5, 'phish');
         showTip(flag, flag.dataset.tip);
       }
     });
