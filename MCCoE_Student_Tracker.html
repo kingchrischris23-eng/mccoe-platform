@@ -405,7 +405,7 @@ select option { background:var(--surface); color:var(--text); }
   header, nav, aside, .sidebar, #admin-gate, #exportMenu,
   .modal-overlay, .page-header .btn, .btn, button,
   #view-students, #view-attendance, #view-survey,
-  #view-employer, #view-submissions, #view-library, #view-documents { display:none !important; }
+  #view-employer, #view-submissions, #view-library, #view-documents, #view-academy { display:none !important; }
   body, html { background:#fff !important; color:#000 !important; margin:0; padding:0; }
   .app { padding:0 !important; }
   #view-dashboard { display:block !important; padding:10px !important; }
@@ -624,6 +624,9 @@ select option { background:var(--surface); color:var(--text); }
   </button>
   <button class="nav-btn" onclick="showView('documents',this)">
     <span class="nav-icon">📄</span> Course Documents
+  </button>
+  <button class="nav-btn" onclick="showView('academy',this)">
+    <span class="nav-icon">🎮</span> Academy Scores
   </button>
 </nav>
 
@@ -964,6 +967,26 @@ select option { background:var(--surface); color:var(--text); }
       </a>
     </div>
 
+  </div>
+</div>
+
+<!-- ═══ ACADEMY SCORES ═══ -->
+<div id="view-academy" class="view">
+  <div class="page-header">
+    <div>
+      <h2>🎮 Academy Scores</h2>
+      <p>Live CyberSec Academy activity — quiz, SOC simulator, and phishing scores per student</p>
+    </div>
+    <button class="btn btn-outline" onclick="loadAcademyScores()">↻ Refresh</button>
+  </div>
+
+  <div id="academy-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;"></div>
+
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;">
+    <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase;">Student Leaderboard</div>
+    <div id="academy-table-wrap">
+      <div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0;">Loading scores...</div>
+    </div>
   </div>
 </div>
 
@@ -1534,6 +1557,100 @@ function showView(name, btn) {
   if(name==='employer')     renderEmployerSelect();
   if(name==='submissions')  renderSubmissionsView();
   if(name==='library')      renderLibraryAdmin();
+  if(name==='academy')      loadAcademyScores();
+}
+
+// ════════════════════════════════════════════
+//  ACADEMY SCORES
+// ════════════════════════════════════════════
+function loadAcademyScores() {
+  const wrap = document.getElementById('academy-table-wrap');
+  const kpis = document.getElementById('academy-kpis');
+  wrap.innerHTML = '<div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0;">Loading...</div>';
+
+  if (!_fbDb) {
+    wrap.innerHTML = '<div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0;">Firebase not connected.</div>';
+    return;
+  }
+
+  _fbDb.ref('mccoe_academy').orderByChild('totalScore').once('value', snap => {
+    const rows = [];
+    snap.forEach(child => { rows.push(child.val()); });
+    rows.sort((a,b) => (b.totalScore||0) - (a.totalScore||0));
+
+    if (!rows.length) {
+      wrap.innerHTML = '<div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0;">No Academy activity yet. Students launch from their dashboard.</div>';
+      kpis.innerHTML = '';
+      return;
+    }
+
+    const totalStudents = rows.length;
+    const avgTotal   = Math.round(rows.reduce((a,r)=>a+(r.totalScore||0),0)/totalStudents);
+    const topScore   = rows[0].totalScore || 0;
+    const lastPlayed = rows.reduce((a,r)=> r.lastPlayed > a ? r.lastPlayed : a, '');
+    const lastDate   = lastPlayed ? new Date(lastPlayed).toLocaleDateString() : '—';
+
+    kpis.innerHTML = [
+      ['👥', totalStudents, 'Students Active'],
+      ['🏆', topScore + ' pts', 'Top Score'],
+      ['📊', avgTotal + ' pts', 'Avg Score'],
+      ['🕒', lastDate, 'Last Session'],
+    ].map(([icon, val, lbl]) => `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;">
+        <div style="font-size:22px;margin-bottom:6px;">${icon}</div>
+        <div style="font-size:1.4rem;font-weight:900;color:var(--cyan);">${val}</div>
+        <div style="font-size:.7rem;color:rgba(200,216,232,0.5);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">${lbl}</div>
+      </div>`).join('');
+
+    const rankLabel = s => {
+      const t = s.totalScore||0;
+      if (t>=1000) return 'LEGEND';
+      if (t>=750)  return 'ELITE';
+      if (t>=500)  return 'EXPERT';
+      if (t>=250)  return 'SPECIALIST';
+      if (t>=100)  return 'ANALYST';
+      return 'RECRUIT';
+    };
+
+    wrap.innerHTML = `
+      <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+        <thead><tr style="border-bottom:1px solid var(--border);">
+          <th style="text-align:left;padding:10px 8px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">#</th>
+          <th style="text-align:left;padding:10px 8px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Student</th>
+          <th style="text-align:center;padding:10px 8px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Total Score</th>
+          <th style="text-align:center;padding:10px 8px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Quiz Pts</th>
+          <th style="text-align:center;padding:10px 8px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">SOC Pts</th>
+          <th style="text-align:center;padding:10px 8px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Phish Pts</th>
+          <th style="text-align:center;padding:10px 8px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Rank</th>
+          <th style="text-align:center;padding:10px 8px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Sessions</th>
+          <th style="text-align:left;padding:10px 8px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Last Played</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map((r,i) => {
+            const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+            const lp = r.lastPlayed ? new Date(r.lastPlayed).toLocaleDateString() : '—';
+            const pts = r.totalScore||0;
+            const barW = topScore ? Math.round(pts/topScore*100) : 0;
+            return `<tr style="border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s;" onmouseover="this.style.background='rgba(0,245,255,.03)'" onmouseout="this.style.background=''">
+              <td style="padding:10px 8px;color:rgba(200,216,232,0.4);font-weight:700;">${medal||i+1}</td>
+              <td style="padding:10px 8px;font-weight:700;color:var(--text);">${r.name||'—'}</td>
+              <td style="padding:10px 8px;text-align:center;">
+                <div style="font-weight:900;color:var(--cyan);font-size:.95rem;">${pts}</div>
+                <div style="height:3px;background:rgba(0,245,255,.1);border-radius:2px;margin-top:4px;"><div style="height:3px;background:var(--cyan);border-radius:2px;width:${barW}%;"></div></div>
+              </td>
+              <td style="padding:10px 8px;text-align:center;color:rgba(200,216,232,0.7);">${r.quizPts||0}</td>
+              <td style="padding:10px 8px;text-align:center;color:rgba(200,216,232,0.7);">${r.socPts||0}</td>
+              <td style="padding:10px 8px;text-align:center;color:rgba(200,216,232,0.7);">${r.phishPts||0}</td>
+              <td style="padding:10px 8px;text-align:center;"><span style="font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(0,245,255,.1);color:var(--cyan);letter-spacing:.5px;">${rankLabel(r)}</span></td>
+              <td style="padding:10px 8px;text-align:center;color:rgba(200,216,232,0.5);">${r.sessions||1}</td>
+              <td style="padding:10px 8px;color:rgba(200,216,232,0.5);">${lp}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+      </div>`;
+  });
 }
 
 // ════════════════════════════════════════════
