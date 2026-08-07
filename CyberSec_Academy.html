@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYBERSEC ACADEMY // TERMINAL v1.0</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#00ff41;--gd:#00aa2a;--gk:#004d10;
+  --amber:#ffb700;--red:#ff3a3a;
+  --bg:#050a05;--bg2:#0a120a;
+  --border:rgba(0,255,65,0.2);--text:#c8ffc8;
+}
+body{background:var(--bg);color:var(--g);font-family:'Courier New',Courier,monospace;font-size:14px;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:1000}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,0.6) 100%);pointer-events:none;z-index:1001}
+#app{max-width:860px;margin:0 auto;padding:16px;min-height:100vh}
+
+/* BOOT */
+#boot{position:fixed;inset:0;background:#000;z-index:9998;display:flex;align-items:center;justify-content:center;padding:32px;cursor:pointer}
+#boot-text{color:var(--g);font-size:13px;line-height:1.7;white-space:pre;text-shadow:0 0 4px var(--g);max-width:600px}
+
+/* HEADER */
+#hdr{border:1px solid var(--gd);padding:10px 16px;margin-bottom:12px;background:var(--bg2)}
+#hdr-title{text-align:center;letter-spacing:3px;font-size:15px;text-shadow:0 0 10px var(--g);margin-bottom:6px}
+#score-bar{display:flex;justify-content:space-between;font-size:12px;color:var(--gd)}
+#score-bar span b{color:var(--g)}
+
+/* NAV */
+#nav{display:flex;gap:4px;margin-bottom:14px}
+.nb{flex:1;background:var(--bg2);border:1px solid var(--gd);color:var(--gd);padding:8px 4px;cursor:pointer;font-family:inherit;font-size:12px;letter-spacing:1px;text-align:center;transition:all .15s}
+.nb:hover,.nb.active{background:var(--gk);border-color:var(--g);color:var(--g);text-shadow:0 0 6px var(--g)}
+
+/* SCREENS */
+.scr{display:none}.scr.on{display:block}
+
+/* PANEL */
+.pnl{border:1px solid var(--border);background:var(--bg2);padding:18px;margin-bottom:14px}
+.ptitle{font-size:12px;letter-spacing:2px;color:var(--gd);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:14px}
+
+/* QUIZ */
+#q-prog-info{font-size:12px;color:var(--gd);margin-bottom:6px}
+.prog-bar{height:3px;background:var(--gk);margin-bottom:14px;border-radius:2px}
+.prog-fill{height:100%;background:var(--g);border-radius:2px;transition:width .3s;box-shadow:0 0 6px var(--g)}
+#q-text{font-size:14px;color:var(--text);margin-bottom:18px;line-height:1.65}
+.qopt{display:block;width:100%;background:transparent;border:1px solid var(--gk);color:var(--gd);padding:9px 12px;margin-bottom:7px;cursor:pointer;font-family:inherit;font-size:13px;text-align:left;transition:all .15s}
+.qopt::before{content:'> '}
+.qopt:hover:not(:disabled){background:var(--gk);border-color:var(--g);color:var(--g)}
+.qopt.ok{background:rgba(0,200,50,.12);border-color:var(--g);color:var(--g)}
+.qopt.ng{background:rgba(255,50,50,.1);border-color:var(--red);color:var(--red)}
+#q-fb{display:none;margin-top:14px;padding:12px;font-size:13px;line-height:1.6;color:var(--text);border-left:3px solid var(--g);background:rgba(0,255,65,.04)}
+#q-fb.bad{border-left-color:var(--red);background:rgba(255,50,50,.05);color:#ffaaaa}
+.btn{background:var(--gk);border:1px solid var(--g);color:var(--g);padding:9px 18px;cursor:pointer;font-family:inherit;font-size:12px;letter-spacing:1px;margin-top:10px;display:none}
+.btn:hover{background:rgba(0,255,65,.2)}
+
+/* SOC */
+#soc-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{background:var(--bg2);border:1px solid var(--gd);color:var(--gd);padding:5px 12px;cursor:pointer;font-family:inherit;font-size:12px;letter-spacing:1px;transition:all .15s}
+.chip:hover,.chip.on{background:var(--gk);border-color:var(--g);color:var(--g)}
+#soc-text{font-size:13px;line-height:1.8;color:var(--text);margin-bottom:18px;white-space:pre-wrap}
+.sopt{display:block;width:100%;background:transparent;border:1px solid var(--gk);color:var(--gd);padding:9px 12px;margin-bottom:7px;cursor:pointer;font-family:inherit;font-size:13px;text-align:left;transition:all .15s}
+.sopt::before{content:'>> '}
+.sopt:hover:not(:disabled){background:var(--gk);border-color:var(--g);color:var(--g)}
+#soc-res{display:none;margin-top:14px;padding:12px;font-size:13px;line-height:1.6}
+.r-good{border-left:3px solid var(--g);background:rgba(0,255,65,.05);color:var(--text)}
+.r-bad{border-left:3px solid var(--red);background:rgba(255,50,50,.05);color:#ffaaaa}
+.r-ok{border-left:3px solid var(--amber);background:rgba(255,183,0,.05);color:#ffe0aa}
+
+/* PASSWORD */
+#pw-in{width:100%;background:var(--bg);border:1px solid var(--gd);color:var(--g);padding:10px 14px;font-family:inherit;font-size:14px;margin-bottom:10px;outline:none}
+#pw-in:focus{border-color:var(--g);box-shadow:0 0 8px rgba(0,255,65,.15)}
+#pw-in::placeholder{color:var(--gd);opacity:.5}
+.pwmeter{height:7px;background:var(--gk);border-radius:4px;margin-bottom:8px;overflow:hidden}
+.pwfill{height:100%;border-radius:4px;transition:width .3s,background .3s}
+#pw-label{font-size:13px;margin-bottom:12px;letter-spacing:1px}
+#pw-checks{font-size:12px;line-height:2.1}
+.pc{color:var(--gd)}.pc.y{color:var(--g)}.pc.n{color:var(--red)}
+#pw-crack{margin-top:12px;padding:10px;background:rgba(0,255,65,.03);border:1px solid var(--border);font-size:12px;color:var(--text)}
+
+/* PHISHING */
+#ph-nav{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.pchip{background:var(--bg2);border:1px solid var(--gd);color:var(--gd);padding:5px 12px;cursor:pointer;font-family:inherit;font-size:12px;transition:all .15s}
+.pchip:hover,.pchip.on{background:var(--gk);border-color:var(--g);color:var(--g)}
+#ph-count-bar{font-size:13px;color:var(--amber);margin-bottom:10px}
+#ph-email{background:#0d1117;border:1px solid #333;padding:16px;font-size:13px;line-height:1.9;margin-bottom:12px;color:#e0e0e0}
+.ph-hdr{border-bottom:1px solid #333;padding-bottom:10px;margin-bottom:10px;font-size:12px;color:#999}
+.pf{background:rgba(255,183,0,.08);border-bottom:2px solid transparent;cursor:pointer;transition:all .2s}
+.pf:hover{background:rgba(255,183,0,.18);border-bottom-color:var(--amber)}
+.pf.found{background:rgba(255,50,50,.12);border-bottom-color:var(--red);color:#ffaaaa}
+.pf.missed{background:rgba(255,120,0,.2);border-bottom-color:orange}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.blink{animation:blink 1s step-end infinite}
+#ph-res{display:none;margin-top:12px;font-size:12px;line-height:1.8}
+#phtooltip{position:fixed;background:#0a1a0a;border:1px solid var(--amber);color:#ffe0aa;padding:10px 14px;font-size:12px;max-width:300px;line-height:1.6;z-index:5000;box-shadow:0 0 20px rgba(255,183,0,.2);display:none;pointer-events:none}
+
+/* CURRICULUM */
+#wk-chips{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px}
+.wk-chip{background:var(--bg2);border:1px solid var(--gd);color:var(--gd);padding:5px 10px;cursor:pointer;font-family:inherit;font-size:11px;letter-spacing:1px;transition:all .15s}
+.wk-chip:hover,.wk-chip.on{background:var(--gk);border-color:var(--g);color:var(--g)}
+.wk-title{font-size:14px;color:var(--g);font-weight:bold;margin-bottom:4px;letter-spacing:1px;text-shadow:0 0 6px var(--g)}
+.wk-topics{font-size:12px;color:var(--amber);margin-bottom:8px;letter-spacing:1px}
+.wk-nist{font-size:11px;color:var(--gd);margin-bottom:12px}
+.wk-sec{font-size:11px;color:var(--gd);letter-spacing:2px;margin:14px 0 6px;border-bottom:1px solid var(--border);padding-bottom:4px}
+.wk-body{font-size:13px;color:var(--text);line-height:1.7;margin-bottom:10px}
+.wk-li{font-size:13px;color:var(--text);line-height:1.9;padding-left:4px;display:block;margin-bottom:2px}
+.wk-li::before{content:'> ';color:var(--gd)}
+.ct{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px}
+.ct th{background:var(--gk);color:var(--g);padding:6px 8px;text-align:left;border:1px solid var(--border);font-size:11px;letter-spacing:1px}
+.ct td{padding:6px 8px;border:1px solid rgba(0,255,65,.1);color:var(--text);vertical-align:top;line-height:1.5}
+.ct tr:nth-child(even) td{background:rgba(0,255,65,.03)}
+</style>
+</head>
+<body>
+
+<div id="boot" onclick="skipBoot()">
+  <pre id="boot-text"></pre>
+</div>
+
+<div id="phtooltip"></div>
+
+<div id="app">
+  <div id="hdr">
+    <div id="hdr-title">█ CYBERSEC ACADEMY // TERMINAL v1.0 █</div>
+    <div id="score-bar">
+      <span>SESSION: <b id="sid">——</b></span>
+      <span>SCORE: <b id="pts">0</b> PTS</span>
+      <span>RANK: <b id="rank">RECRUIT</b></span>
+    </div>
+  </div>
+
+  <div id="nav">
+    <button class="nb active" onclick="showScr('quiz',this)">[ QUIZ ]</button>
+    <button class="nb" onclick="showScr('soc',this)">[ SOC SIM ]</button>
+    <button class="nb" onclick="showScr('pw',this)">[ PW CHECK ]</button>
+    <button class="nb" onclick="showScr('ph',this)">[ PHISH SPOT ]</button>
+    <button class="nb" onclick="showScr('cur',this)">[ CURRICULUM ]</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-scr" class="scr on">
+    <div class="pnl">
+      <div class="ptitle">// CYBER TRIVIA — TEST YOUR KNOWLEDGE</div>
+      <div id="q-prog-info">Question <span id="qn">1</span> of <span id="qt">20</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="qpf" style="width:5%"></div></div>
+      <div id="q-text"></div>
+      <div id="q-opts"></div>
+      <div id="q-fb"></div>
+      <button class="btn" id="q-nxt" onclick="nextQ()">[ NEXT QUESTION &gt;&gt; ]</button>
+    </div>
+  </div>
+
+  <!-- SOC -->
+  <div id="soc-scr" class="scr">
+    <div class="pnl">
+      <div class="ptitle">// SOC ANALYST SIMULATOR — INCIDENT RESPONSE</div>
+      <div id="soc-chips"></div>
+      <div id="soc-text"></div>
+      <div id="soc-opts"></div>
+      <div id="soc-res"></div>
+      <button class="btn" id="soc-nxt" onclick="socNext()">[ CONTINUE &gt;&gt; ]</button>
+    </div>
+  </div>
+
+  <!-- PASSWORD -->
+  <div id="pw-scr" class="scr">
+    <div class="pnl">
+      <div class="ptitle">// PASSWORD STRENGTH ANALYZER</div>
+      <p style="font-size:12px;color:var(--gd);margin-bottom:14px">Enter any password to analyze — all processing is local, nothing is sent anywhere.</p>
+      <input type="password" id="pw-in" placeholder="Type a password to analyze..." oninput="checkPW()" autocomplete="off">
+      <div class="pwmeter"><div class="pwfill" id="pwf" style="width:0%"></div></div>
+      <div id="pw-label">STRENGTH: <span id="pw-str">—</span></div>
+      <div id="pw-checks"></div>
+      <div id="pw-crack"></div>
+    </div>
+    <div class="pnl">
+      <div class="ptitle">// COMMON PASSWORD MISTAKES</div>
+      <div style="font-size:12px;color:var(--text);line-height:2.2">
+        <div><span style="color:var(--red)">✗</span> "password123" — cracked in under 1 second by any tool</div>
+        <div><span style="color:var(--red)">✗</span> Your name + birth year — social engineering finds this easily</div>
+        <div><span style="color:var(--red)">✗</span> Under 8 characters — brute force in minutes</div>
+        <div><span style="color:var(--red)">✗</span> Dictionary words only — vulnerable to dictionary attacks</div>
+        <div><span style="color:var(--g)">✓</span> Use a passphrase: "Purple!Monkey$Dishwasher9"</div>
+        <div><span style="color:var(--g)">✓</span> Use a password manager (Bitwarden is free and open-source)</div>
+        <div><span style="color:var(--g)">✓</span> Enable MFA on every account — stops 99.9% of automated attacks</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CURRICULUM -->
+  <div id="cur-scr" class="scr">
+    <div class="pnl">
+      <div class="ptitle">// 8-WEEK CYBERSECURITY FOUNDATIONS CURRICULUM</div>
+      <div id="wk-chips"></div>
+      <div id="wk-content"></div>
+    </div>
+  </div>
+
+  <!-- PHISHING -->
+  <div id="ph-scr" class="scr">
+    <div class="pnl">
+      <div class="ptitle">// PHISHING EMAIL DETECTOR — CLICK ALL RED FLAGS</div>
+      <p style="font-size:12px;color:var(--gd);margin-bottom:12px">Find every suspicious element in the email. Click anything that looks like a red flag to score points.</p>
+      <div id="ph-nav"></div>
+      <div id="ph-count-bar">Red flags found: <span id="ph-cnt">0</span> / <span id="ph-tot">0</span></div>
+      <div id="ph-email"></div>
+      <button class="btn" id="ph-sub" style="display:inline-block" onclick="submitPH()">[ SUBMIT ANALYSIS ]</button>
+      <div id="ph-res"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+var score = 0;
+var sid = Math.random().toString(36).substr(2,8).toUpperCase();
+
+// ===== BOOT =====
+var bootLines = [
+  'CYBERSEC ACADEMY TERMINAL v1.0',
+  'Missouri Cybersecurity Center of Excellence',
+  '',
+  'Initializing training modules...',
+  '[OK] Threat intelligence database    (24,891 CVE entries)',
+  '[OK] Quiz engine                     (20 questions loaded)',
+  '[OK] SOC Incident Simulator          (3 scenarios)',
+  '[OK] Password analyzer               (847M common passwords)',
+  '[OK] Phishing detection trainer      (3 email samples)',
+  '[OK] 8-Week curriculum loaded        (all modules)',
+  '',
+  'WARNING: FOR AUTHORIZED TRAINING USE ONLY',
+  '',
+  'All systems nominal. Welcome, Analyst.',
+  '',
+  '> Click or press any key to begin...'
+];
+
+(function boot() {
+  var el = document.getElementById('boot-text');
+  var full = '';
+  var li = 0, ci = 0;
+  var done = false;
+
+  function skipBoot() {
+    if (!done) { done = true; endBoot(); }
+  }
+  document.getElementById('boot').addEventListener('click', skipBoot);
+  document.addEventListener('keydown', skipBoot);
+
+  function tick() {
+    if (done) return;
+    if (li >= bootLines.length) { setTimeout(endBoot, 700); return; }
+    var line = bootLines[li];
+    if (ci < line.length) {
+      el.textContent = full + line.slice(0, ci+1) + '█';
+      ci++;
+      setTimeout(tick, line.indexOf('[OK]') === 0 ? 5 : 15);
+    } else {
+      full += line + '\n';
+      el.textContent = full;
+      li++; ci = 0;
+      setTimeout(tick, 35);
+    }
+  }
+  tick();
+})();
+
+function skipBoot() { endBoot(); }
+
+function endBoot() {
+  document.getElementById('boot').style.display = 'none';
+  document.getElementById('sid').textContent = sid;
+  initQuiz();
+  initSOC();
+  initPH();
+  initCurriculum();
+}
+
+// ===== NAV =====
+function showScr(name, btn) {
+  document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on')});
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('active')});
+  document.getElementById(name+'-scr').classList.add('on');
+  if (btn) btn.classList.add('active');
+}
+
+function addScore(pts) {
+  score += pts;
+  document.getElementById('pts').textContent = score;
+  var ranks = [[0,'RECRUIT'],[100,'ANALYST'],[250,'SPECIALIST'],[500,'EXPERT'],[750,'ELITE'],[1000,'LEGEND']];
+  var rank = 'RECRUIT';
+  for (var i = 0; i < ranks.length; i++) {
+    if (score >= ranks[i][0]) rank = ranks[i][1];
+  }
+  document.getElementById('rank').textContent = rank;
+}
+
+// ===== QUIZ DATA =====
+var QS = [
+  {q:"What does the CIA Triad stand for in information security?",
+   o:["Central Intelligence Agency","Confidentiality, Integrity, Availability","Cyber Intrusion Analysis","Computer Internet Architecture"],
+   a:1,
+   e:"The CIA Triad is the foundation of information security. Confidentiality (only authorized access), Integrity (data isn't tampered with), Availability (systems work when needed). Every security control maps to one or more of these three."},
+  {q:"A zero-day vulnerability is best described as:",
+   o:["A flaw discovered on January 1st","A vulnerability with no patch available yet","A bug that takes zero time to exploit","A weakness in day-one software releases"],
+   a:1,
+   e:"Zero-day means the vendor has had ZERO days to fix it. These are extremely dangerous — attackers exploit them freely until a patch is released. Nation-states and criminal groups pay millions for zero-days in widely-used software."},
+  {q:"What does SIEM stand for?",
+   o:["Security Information and Event Management","System Intrusion and Error Monitoring","Secure Internet Email Management","Software Intelligence Event Module"],
+   a:0,
+   e:"SIEM tools (Splunk, Microsoft Sentinel, QRadar) collect logs from across your environment and correlate events to detect threats in real time. They're the central nervous system of a SOC."},
+  {q:"A DDoS attack is designed to:",
+   o:["Steal database credentials","Encrypt files for ransom","Overwhelm a system with traffic to make it unavailable","Intercept network communications"],
+   a:2,
+   e:"Distributed Denial of Service uses thousands of compromised machines (a botnet) to flood a target with traffic. The goal is availability — crashing the service for legitimate users. Cloudflare, Akamai, and AWS Shield help mitigate DDoS."},
+  {q:"The Principle of Least Privilege means:",
+   o:["Give users the widest access for maximum productivity","Grant only the minimum permissions required to do a job","Less senior staff get fewer system privileges","Reduce system privileges to conserve resources"],
+   a:1,
+   e:"Least privilege limits blast radius. If an account is compromised, the attacker can only reach what that account has permission to access. Apply it to users, services, APIs, and applications equally."},
+  {q:"Social engineering attacks primarily exploit:",
+   o:["Unpatched software vulnerabilities","Human psychology and trust","Network configuration errors","Weak encryption algorithms"],
+   a:1,
+   e:"Social engineering bypasses technical controls by targeting people. Phishing, vishing (voice), smishing (SMS), baiting, and pretexting all work by building false trust or creating urgency. Humans are consistently the weakest link."},
+  {q:"Multi-Factor Authentication (MFA) primarily protects against:",
+   o:["Malware on your device","Stolen passwords being used without a second factor","Physical device theft","Network-level intrusions"],
+   a:1,
+   e:"MFA requires something you KNOW (password) + something you HAVE (phone/token) + something you ARE (biometric). Even if attackers steal your password, they still can't log in without the second factor. MFA blocks over 99% of automated attacks."},
+  {q:"Ransomware attacks work by:",
+   o:["Overloading servers with traffic","Encrypting victim files and demanding payment for the decryption key","Stealing passwords via fake login pages","Recording keystrokes and sending them to attackers"],
+   a:1,
+   e:"Ransomware encrypts your files and holds them hostage. Colonial Pipeline (2021) paid $4.4M. The best defense: offline backups (3-2-1 rule), network segmentation, and endpoint detection. Never pay if you can restore from backup."},
+  {q:"A honeypot in cybersecurity is:",
+   o:["A reward offered for catching attackers","A decoy system designed to detect and trap attackers","A type of encryption algorithm","A category of password manager"],
+   a:1,
+   e:"Honeypots mimic real assets to lure attackers. When someone accesses a honeypot, you know something suspicious is happening — no legitimate user should ever touch it. Great for early detection and studying attacker techniques."},
+  {q:"SQL injection attacks exploit:",
+   o:["Weak password policies","Unsanitized user input in database queries","Unencrypted network traffic","Operating system kernel vulnerabilities"],
+   a:1,
+   e:"SQL injection inserts malicious code into input fields (search boxes, login forms) to manipulate database queries. Can expose all data, bypass authentication, or delete entire databases. Always use parameterized queries / prepared statements."},
+  {q:"An Indicator of Compromise (IOC) is:",
+   o:["An agreement that a system is compliant","Forensic evidence that a breach has occurred or is occurring","A compliance score for security audits","A risk measurement metric"],
+   a:1,
+   e:"IOCs are artifacts that suggest compromise: malicious IP addresses, file hashes, suspicious registry keys, unusual outbound traffic patterns. SOC teams use IOCs in SIEM rules and threat intelligence feeds to detect attacks automatically."},
+  {q:"A botnet consists of:",
+   o:["Automated security scanning robots","Compromised computers controlled remotely by an attacker","A network of security testing tools","Automated bots used for customer service"],
+   a:1,
+   e:"Botnets are zombie networks — thousands to millions of infected machines controlled via command-and-control (C2) servers. Used for DDoS, spam, credential stuffing, and crypto mining. Mirai botnet (2016) took down major websites using IoT devices."},
+  {q:"The NIST Cybersecurity Framework core functions are:",
+   o:["Plan, Patch, Protect, Prove","Identify, Protect, Detect, Respond, Recover","Assess, Mitigate, Monitor, Report, Repeat","Prevent, Detect, React, Remediate, Review"],
+   a:1,
+   e:"NIST CSF's five functions are a risk management lifecycle. Identify your assets, Protect them with controls, Detect threats early, Respond to incidents, and Recover operations. It's voluntary but widely adopted — especially by federal contractors."},
+  {q:"Which of these is NOT a type of malware?",
+   o:["Trojan horse","Worm","Firewall","Spyware"],
+   a:2,
+   e:"A firewall is a security control that filters network traffic — not malware. Trojans disguise themselves as legitimate software. Worms self-replicate across networks. Spyware secretly monitors and exfiltrates user activity."},
+  {q:"A DMZ (Demilitarized Zone) in networking is:",
+   o:["A firewall-free zone for fast internal traffic","A buffer network hosting public-facing services, isolated from internal systems","A network segment with reduced monitoring","A zone for decommissioned legacy servers"],
+   a:1,
+   e:"A DMZ sits between the internet and your internal LAN, hosting web servers, email gateways, and DNS. If an attacker compromises a DMZ host, they still face another firewall before reaching internal systems — defense in depth."},
+  {q:"The difference between authentication and authorization:",
+   o:["They are the same concept","Authentication = WHO you are; Authorization = WHAT you can do","Authorization verifies identity; authentication grants permissions","Authentication is for networks; authorization is for applications"],
+   a:1,
+   e:"Authentication (authn) proves identity — username + password, certificate, biometric. Authorization (authz) determines what you're permitted to do after logging in — RBAC, ACLs, scopes. Both are essential; authorization without authentication is meaningless."},
+  {q:"A man-in-the-middle (MitM) attack involves:",
+   o:["A hacker physically located between two servers","An attacker secretly intercepting and potentially altering communications between two parties","A senior attacker directing junior hackers","A network device intercepting broadcast traffic"],
+   a:1,
+   e:"MitM attackers position themselves between victim and server, intercepting or modifying traffic. Common on unsecured Wi-Fi. HTTPS/TLS with certificate validation prevents most MitM. Watch for certificate warnings — never click through them."},
+  {q:"Threat hunting is best described as:",
+   o:["Hiring ethical hackers from the dark web","Proactively searching for hidden threats that bypass automated detection","Running automated vulnerability scans on a schedule","Monitoring social media for threat actor chatter"],
+   a:1,
+   e:"Threat hunting assumes a breach has already occurred and looks for stealthy attackers that bypassed alerts. Hunters use hypotheses based on threat intelligence, look for anomalies in logs and endpoints, and require deep knowledge of attacker TTPs."},
+  {q:"The MITRE ATT&CK framework documents:",
+   o:["Cybersecurity compliance requirements by industry","Tactics, Techniques, and Procedures (TTPs) used by real-world threat actors","Attack surface management best practices","Security team training and certification paths"],
+   a:1,
+   e:"MITRE ATT&CK is a knowledge base of adversary behavior based on real observations. SOC teams map detections to ATT&CK techniques, identify coverage gaps, and use it for threat intelligence reporting. Essential for any mature security program."},
+  {q:"The 3-2-1 backup rule means:",
+   o:["Back up 3 times a day, 2 locations, 1 cloud","Keep 3 copies of data, on 2 different media types, with 1 copy offsite","3 backups per server, 2 encrypted, 1 tested","Retain backups for 3 years, 2 formats, 1 archive"],
+   a:1,
+   e:"3 copies of your data, on 2 different media types (disk + tape, or disk + cloud), with 1 copy stored offsite. The offsite copy is your lifeline against ransomware, fire, or flood. Test your restores regularly — an untested backup is not a backup."}
+];
+
+var qi = 0, answered = false;
+
+function initQuiz() {
+  qi = 0;
+  renderQ();
+}
+
+function renderQ() {
+  var q = QS[qi];
+  var tot = QS.length;
+  document.getElementById('qn').textContent = qi+1;
+  document.getElementById('qt').textContent = tot;
+  document.getElementById('qpf').style.width = ((qi+1)/tot*100)+'%';
+  document.getElementById('q-text').textContent = 'Q'+(qi+1)+'. '+q.q;
+  var el = document.getElementById('q-opts');
+  el.innerHTML = '';
+  q.o.forEach(function(opt, i) {
+    var btn = document.createElement('button');
+    btn.className = 'qopt';
+    btn.textContent = String.fromCharCode(65+i)+') '+opt;
+    btn.onclick = function(){ answerQ(i); };
+    el.appendChild(btn);
+  });
+  document.getElementById('q-fb').style.display = 'none';
+  document.getElementById('q-nxt').style.display = 'none';
+  document.getElementById('q-nxt').textContent = qi === QS.length-1 ? '[ RESTART QUIZ ]' : '[ NEXT QUESTION >> ]';
+  answered = false;
+}
+
+function answerQ(i) {
+  if (answered) return;
+  answered = true;
+  var q = QS[qi];
+  var opts = document.querySelectorAll('.qopt');
+  opts.forEach(function(b){ b.disabled = true; });
+  opts[q.a].classList.add('ok');
+  var fb = document.getElementById('q-fb');
+  fb.style.display = 'block';
+  if (i === q.a) {
+    opts[i].classList.add('ok');
+    addScore(10);
+    fb.className = '';
+    fb.style.cssText = 'display:block;margin-top:14px;padding:12px;font-size:13px;line-height:1.6;color:var(--text);border-left:3px solid var(--g);background:rgba(0,255,65,.04)';
+    fb.innerHTML = '<span style="color:var(--g);font-size:11px;letter-spacing:2px">✔ CORRECT! +10 PTS</span><br><br>'+q.e;
+  } else {
+    opts[i].classList.add('ng');
+    fb.style.cssText = 'display:block;margin-top:14px;padding:12px;font-size:13px;line-height:1.6;color:#ffaaaa;border-left:3px solid var(--red);background:rgba(255,50,50,.05)';
+    fb.innerHTML = '<span style="color:var(--red);font-size:11px;letter-spacing:2px">✘ INCORRECT</span><br><br>'+q.e;
+  }
+  document.getElementById('q-nxt').style.display = 'inline-block';
+}
+
+function nextQ() {
+  qi = (qi+1) % QS.length;
+  renderQ();
+}
+
+// ===== SOC DATA =====
+var SCENS = [
+  {
+    name:'⚠ RANSOMWARE',
+    steps:[
+      {
+        text:'SIEM ALERT — CRITICAL SEVERITY\n════════════════════════════════════════\nRule:   Mass File Encryption Detected\nHosts:  7 endpoints (Finance + HR segments)\nDetail: Files renamed with .LOCKED extension\n        Ransom note READ_ME_NOW.txt deployed\n        C2 beaconing to 185.220.xx.xx (Tor)\n════════════════════════════════════════\n\nYou are the on-call SOC Analyst. Ransomware is actively encrypting files across 7 endpoints. You have minutes before it spreads to domain controllers.\n\nWhat is your FIRST action?',
+        opts:[
+          {t:'Shut down ALL company systems immediately',r:'bad',f:'Shutting down destroys forensic evidence (volatile memory, running processes) and has massive business impact. Always isolate, never nuke wholesale. Ransomware in memory is lost forever. Score: 0',p:0},
+          {t:'Isolate affected endpoints from the network without shutting them down',r:'good',f:'CORRECT. Network isolation (disable NIC, VLAN quarantine) stops lateral spread while preserving volatile memory for forensics. The machines stay powered on so you can capture the running process. Score: +20',p:20},
+          {t:'Call the media to warn other companies',r:'bad',f:'Never disclose before containment. Premature disclosure causes panic, enables insider trading, triggers regulatory issues, and tips off the attacker. Follow your IR plan — contain first, communicate through proper channels later. Score: 0',p:0},
+          {t:'Monitor silently to gather more intelligence before acting',r:'bad',f:'Ransomware spreads in minutes. WannaCry infected 230,000 machines in hours. Every second of delay equals more encrypted files and higher chance of domain controller compromise. Act immediately. Score: 0',p:0}
+        ]
+      },
+      {
+        text:'CONTAINMENT ACHIEVED\n════════════════════════════════════════\nAffected endpoints isolated. Encryption stopped.\n3 hosts remain unaffected and operational.\nDomain controllers: CLEAN (so far).\n════════════════════════════════════════\n\nYou need to find Patient Zero — the first host compromised. Which approach do you use?',
+        opts:[
+          {t:'Query SIEM for the earliest endpoint showing file encryption events',r:'good',f:'CORRECT. SIEM aggregates timestamps across all hosts. Sorting by earliest encryption event identifies patient zero reliably. Then correlate with process creation logs and network connections to trace the initial infection vector. Score: +20',p:20},
+          {t:'Walk around and ask employees which one clicked something weird',r:'ok',f:'Useful for context but slow and unreliable — people don\'t admit mistakes under pressure. Use SIEM/EDR for technical root cause first, then interview the user for timeline details. Score: +5',p:5},
+          {t:'Run antivirus scan on all remaining hosts',r:'ok',f:'Good practice for the clean hosts, but AV won\'t identify patient zero on already-encrypted machines. You need log analysis for attribution. Do both — but SIEM first for speed. Score: +5',p:5}
+        ]
+      },
+      {
+        text:'PATIENT ZERO IDENTIFIED\n════════════════════════════════════════\nHost:   WS-FINANCE-014\nUser:   j.martinez@yourcompany.com\nVector: Phishing email attachment\n  From:    noreply@invoice-secure-pay.ru\n  Subject: URGENT: Invoice #INV-2024-8847\n  File:    Invoice_8847.pdf.exe (double ext)\n\nThe .exe masqueraded as a PDF. User double-clicked it. Malware then used EternalBlue (MS17-010) to spread laterally to 6 more hosts.\n════════════════════════════════════════\n\nWhat remediation steps do you recommend?',
+        opts:[
+          {t:'Block .exe email attachments, apply MS17-010 patch, conduct phishing awareness training',r:'good',f:'PERFECT. Block the attack vector (email filtering), patch the lateral movement exploit (EternalBlue/WannaCry used this same bug), and address the human layer with training. This is defense-in-depth. Score: +20',p:20},
+          {t:'Terminate the employee who clicked the attachment',r:'bad',f:'Punishing victims creates a culture of fear where people hide security incidents. The real failure was a lack of email filtering, missing patches, and absent security training. Fix the system, not the person. Score: 0',p:0},
+          {t:'Disable email company-wide until further notice',r:'bad',f:'The business impact would be severe. Email filtering (block .exe attachments), sandboxing (detonate suspicious files), and SPF/DKIM/DMARC authentication solve this without disabling communication. Score: 0',p:0}
+        ]
+      }
+    ]
+  },
+  {
+    name:'⚑ SUSPICIOUS LOGIN',
+    steps:[
+      {
+        text:'SIEM ALERT — HIGH SEVERITY\n════════════════════════════════════════\nRule:   Impossible Travel Detected\nUser:   cfo@company.com (Sarah Chen)\nLogin1: 22:45 CST from Chicago, IL, USA\nLogin2: 03:17 UTC from Moscow, Russia\nDelta:  4h 32min (physically impossible)\nIP:     91.108.4.x (Tor exit node)\nActions: 847 files downloaded from SharePoint\n         in 12 minutes\n════════════════════════════════════════\n\nCFO account accessed from Russia 4.5 hours after a Chicago login — impossible. 847 files already downloaded.\n\nWhat do you do FIRST?',
+        opts:[
+          {t:'Force-logout the active session and lock the account immediately',r:'good',f:'CORRECT. The session is almost certainly a breach. Terminating it stops active exfiltration. Lock the account to prevent re-entry. Speed matters — 847 files are already gone but you can stop more. Score: +20',p:20},
+          {t:'Send an email to the CFO asking if that\'s her',r:'bad',f:'Email is too slow and the CFO is likely asleep at 3am. Also, if the attacker has email access too, this tips them off. Call her phone directly — but TERMINATE the session first, then call. Score: 0',p:0},
+          {t:'Passively monitor to gather more forensic evidence',r:'ok',f:'Evidence collection is important, but 847 files are already exfiltrated and every minute of delay means more data loss. Contain first, investigate second. You can still collect evidence from logs after locking. Score: +5',p:5},
+          {t:'Block the Russian IP address in the firewall',r:'ok',f:'Blocking the IP is a good quick action, but the attacker can rotate to a different Tor exit node in seconds. Account lockout is far more effective. Do both, but prioritize account action. Score: +5',p:5}
+        ]
+      },
+      {
+        text:'SESSION TERMINATED — ACCOUNT LOCKED\n════════════════════════════════════════\nNo further downloads. CFO confirmed she did NOT\nlog in — her credentials were stolen.\n\nEMAIL FORENSICS: 6 days prior, CFO received:\n  From:    it-helpdesk@company-support.net\n           (NOT company.com — different domain!)\n  Subject: Password Reset Required\n  Link:    http://company-support.net/reset\n           (credential harvesting site)\n════════════════════════════════════════\n\nThe attacker phished the CFO\'s credentials via a fake IT helpdesk email. What single control would have PREVENTED this login?',
+        opts:[
+          {t:'MFA on the CFO account — even with stolen password, attacker has no second factor',r:'good',f:'EXACTLY. This was a credential theft + replay attack. With MFA enabled, the correct password alone cannot authenticate. The attacker in Russia would need the CFO\'s phone for the OTP. MFA stops this cold. It\'s the single highest-impact control against phishing. Score: +20',p:20},
+          {t:'Require more frequent password changes',r:'ok',f:'Password rotation has limited value here — the attacker used a freshly stolen password. NIST SP 800-63 actually recommends against forced rotation as it leads to predictable, weak passwords. MFA is far more effective. Score: +5',p:5},
+          {t:'Block all external email from .net domains',r:'bad',f:'Far too aggressive. Countless legitimate businesses use .net. The right controls: DMARC to prevent domain spoofing, email security filtering, and user training to verify sender domains carefully. Score: 0',p:0}
+        ]
+      }
+    ]
+  },
+  {
+    name:'⚡ INSIDER THREAT',
+    steps:[
+      {
+        text:'DLP ALERT — HIGH SEVERITY\n════════════════════════════════════════\nRule:   Abnormal Data Exfiltration Pattern\nUser:   m.torres@company.com (Sr. Dev Engineer)\nToday\'s activity timeline:\n  15:00 — Cloned 2.1 GB source code repository\n  15:30 — Zipped contents: "vacation_photos.zip"\n  16:00 — Uploaded to personal Dropbox account\n  16:30 — Submitted resignation email to HR\n════════════════════════════════════════\n\nDeveloper resigned today and immediately downloaded 2.1GB of source code to personal cloud storage. Classic insider threat pattern.\n\nWhat is your FIRST response?',
+        opts:[
+          {t:'Immediately revoke all system access and preserve forensic evidence (do not alert the user)',r:'good',f:'CORRECT. Insider threats require immediate, silent access revocation before the employee has any indication. Simultaneously: image the workstation, place a legal hold on all email/logs, and notify HR + Legal. Do NOT confront Mike yet. Score: +20',p:20},
+          {t:'Pull Mike aside and ask him what he downloaded',r:'bad',f:'Tipping off the insider gives him time to cover tracks, delete evidence, or exfiltrate more data. Forensic preservation must come FIRST. HR and Legal conduct all conversations after systems are secured. Score: 0',p:0},
+          {t:'Wait until his official last day in 2 weeks',r:'bad',f:'The source code is already in his personal Dropbox. He has 2 weeks to share it with a competitor or further exfiltrate data. Insider threats require immediate action — every hour of delay is risk. Score: 0',p:0},
+          {t:'Block all personal cloud storage company-wide',r:'ok',f:'Blocking cloud storage retrospectively doesn\'t recover the stolen data. Better: DLP should have blocked the upload in real time. Retroactive blocking helps prevent future incidents but doesn\'t address this one. Score: +5',p:5}
+        ]
+      },
+      {
+        text:'ACCESS REVOKED — FORENSICS PRESERVED\n════════════════════════════════════════\nAll access terminated. Workstation imaged.\nLegal hold placed on email and DLP logs.\nHR + Legal notified. Law enforcement consulted.\n\nDLP caught this, but barely — it detected AFTER\nthe upload was complete. What process changes\nwould PREVENT this next time?\n════════════════════════════════════════',
+        opts:[
+          {t:'DLP rules to BLOCK (not just alert) bulk uploads for departing employees + enhanced offboarding checklist',r:'good',f:'EXCELLENT. Departing employees are highest-risk in the notice period. DLP should BLOCK large uploads, not just alert. Offboarding checklists should trigger immediate access reviews. Behavioral analytics (UEBA) can flag sudden bulk downloads as anomalies. Score: +20',p:20},
+          {t:'Require employees to sign stronger NDAs',r:'ok',f:'NDAs are a legal deterrent, not a technical control. They help in court after the fact, but do nothing to prevent exfiltration. Technical controls (DLP blocking, least privilege, UEBA) are what actually stop the behavior. Score: +5',p:5},
+          {t:'Implement Zero Trust architecture with continuous verification',r:'good',f:'GREAT. Zero Trust (\'never trust, always verify\') requires continuous authentication and authorization checks — even for insiders. Combined with DLP enforcement and behavioral analytics, it significantly limits what any single user can exfiltrate. Score: +20',p:20}
+        ]
+      }
+    ]
+  }
+];
+
+var si = 0, step = 0;
+
+function initSOC() {
+  var el = document.getElementById('soc-chips');
+  el.innerHTML = '';
+  SCENS.forEach(function(s, i) {
+    var b = document.createElement('button');
+    b.className = 'chip'+(i===0?' on':'');
+    b.textContent = s.name;
+    (function(idx, btn){ btn.onclick = function(){
+      si = idx; step = 0;
+      document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('on')});
+      btn.classList.add('on');
+      renderSOC();
+    }; })(i, b);
+    el.appendChild(b);
+  });
+  renderSOC();
+}
+
+function renderSOC() {
+  var s = SCENS[si].steps[step];
+  document.getElementById('soc-text').textContent = s.text;
+  var el = document.getElementById('soc-opts');
+  el.innerHTML = '';
+  s.opts.forEach(function(opt) {
+    var b = document.createElement('button');
+    b.className = 'sopt';
+    b.textContent = opt.t;
+    (function(o){ b.onclick = function(){ pickSOC(o); }; })(opt);
+    el.appendChild(b);
+  });
+  document.getElementById('soc-res').style.display = 'none';
+  document.getElementById('soc-nxt').style.display = 'none';
+}
+
+function pickSOC(opt) {
+  document.querySelectorAll('.sopt').forEach(function(b){b.disabled=true});
+  var el = document.getElementById('soc-res');
+  el.style.display = 'block';
+  var cls = opt.r==='good'?'r-good':opt.r==='bad'?'r-bad':'r-ok';
+  var lbl = opt.r==='good'?'<span style="color:var(--g);font-size:11px;letter-spacing:2px">▶ CORRECT RESPONSE</span>':opt.r==='bad'?'<span style="color:var(--red);font-size:11px;letter-spacing:2px">▶ CRITICAL ERROR</span>':'<span style="color:var(--amber);font-size:11px;letter-spacing:2px">▶ PARTIAL CREDIT</span>';
+  el.className = cls;
+  el.innerHTML = lbl+'<br><br>'+opt.f;
+  addScore(opt.p);
+  var nxt = document.getElementById('soc-nxt');
+  nxt.style.display = 'inline-block';
+  var total = SCENS[si].steps.length;
+  nxt.textContent = step >= total-1 ? '[ NEXT SCENARIO ]' : '[ NEXT DECISION >> ]';
+}
+
+function socNext() {
+  if (step >= SCENS[si].steps.length-1) {
+    si = (si+1) % SCENS.length;
+    step = 0;
+    document.querySelectorAll('.chip').forEach(function(c,i){c.classList.toggle('on',i===si)});
+  } else {
+    step++;
+  }
+  renderSOC();
+}
+
+// ===== PASSWORD =====
+var COMMON = ['password','password1','password123','123456','1234567890','qwerty','abc123','letmein','admin','welcome','monkey','dragon','master','iloveyou','sunshine','princess','football','baseball','soccer','superman'];
+
+function checkPW() {
+  var pw = document.getElementById('pw-in').value;
+  var fill = document.getElementById('pwf');
+  var str = document.getElementById('pw-str');
+  var checks = document.getElementById('pw-checks');
+  var crack = document.getElementById('pw-crack');
+  if (!pw) {
+    fill.style.width='0%'; str.textContent='—'; checks.innerHTML=''; crack.innerHTML=''; return;
+  }
+  var c = [
+    {l:'At least 8 characters',p:pw.length>=8},
+    {l:'At least 12 characters (recommended)',p:pw.length>=12},
+    {l:'Uppercase letters (A-Z)',p:/[A-Z]/.test(pw)},
+    {l:'Lowercase letters (a-z)',p:/[a-z]/.test(pw)},
+    {l:'Numbers (0-9)',p:/[0-9]/.test(pw)},
+    {l:'Special characters (!@#$%...)',p:/[^A-Za-z0-9]/.test(pw)},
+    {l:'Not a known common password',p:!COMMON.includes(pw.toLowerCase())},
+    {l:'No repeated chars (aaa, 111)',p:!/(.)\1{2,}/.test(pw)}
+  ];
+  var pass = c.filter(function(x){return x.p}).length;
+  var pct = Math.round(pass/c.length*100);
+  var cs = 0;
+  if (/[a-z]/.test(pw)) cs+=26;
+  if (/[A-Z]/.test(pw)) cs+=26;
+  if (/[0-9]/.test(pw)) cs+=10;
+  if (/[^A-Za-z0-9]/.test(pw)) cs+=32;
+  var ent = Math.round(pw.length * Math.log2(Math.max(cs,1)));
+  var combos = Math.pow(cs, pw.length);
+  var secs = combos / 1e10 / 2;
+  function fmt(s) {
+    if (s<1) return 'Instantly (< 1 second)';
+    if (s<60) return Math.round(s)+' seconds';
+    if (s<3600) return Math.round(s/60)+' minutes';
+    if (s<86400) return Math.round(s/3600)+' hours';
+    if (s<31536000) return Math.round(s/86400)+' days';
+    if (s<3.154e9) return Math.round(s/31536000)+' years';
+    if (s<3.154e12) return Math.round(s/3.154e9)+' thousand years';
+    return 'Longer than the age of the universe';
+  }
+  var strength, color;
+  if (pct<25||COMMON.includes(pw.toLowerCase())) {strength='CRITICAL — CHANGE NOW';color='#ff3a3a';}
+  else if (pct<50) {strength='WEAK';color='#ff6b00';}
+  else if (pct<75) {strength='MODERATE';color='#ffb700';}
+  else if (pct<90) {strength='STRONG';color='#7fff00';}
+  else {strength='EXCELLENT';color='var(--g)';}
+  fill.style.width=pct+'%';
+  fill.style.background=color;
+  fill.style.boxShadow='0 0 6px '+color;
+  str.textContent=strength; str.style.color=color;
+  checks.innerHTML=c.map(function(x){return '<div class="pc '+(x.p?'y':'n')+'">'+(x.p?'✔':'✘')+' '+x.l+'</div>';}).join('');
+  crack.innerHTML='<div style="color:var(--gd);font-size:11px;letter-spacing:1px;margin-bottom:4px">ESTIMATED CRACK TIME (offline, 10B hashes/sec):</div><div style="color:'+color+';font-size:14px;margin-bottom:4px">'+fmt(secs)+'</div><div style="color:var(--gd);font-size:11px">Entropy: '+ent+' bits | Charset size: '+cs+'</div>';
+}
+
+// ===== PHISHING =====
+var EMAILS = [
+  {
+    name:'Email 1: PayPal',
+    flagCount:6,
+    html:function(){return '<div class="ph-hdr"><div><b>From:</b> <span class="pf" data-tip="Sender domain is \'paypa1.com\' — the letter \'l\' is replaced with the number \'1\'. This is typosquatting, a common phishing technique." data-fi="0">security@paypa1-accounts.com</span></div><div><b>To:</b> you@yourcompany.com</div><div><b>Subject:</b> <span class="pf" data-tip="Extreme urgency language (\'URGENT\', \'IMMEDIATELY\') is designed to create panic and bypass your critical thinking." data-fi="1">URGENT: Your PayPal account will be suspended IMMEDIATELY</span></div><div><b>Date:</b> Mon, 20 Jul 2026 03:14:22 +0000</div></div><p>Dear <span class="pf" data-tip="Generic greeting \'Valued Customer\' instead of your name. Phishers blast millions of emails without knowing recipients\' names." data-fi="2">Valued Customer</span>,</p><br><p>We have detected <span class="pf" data-tip="Vague claim of \'suspicious activity\' with zero specifics. This is designed to scare you into acting without verifying." data-fi="3">suspicious activity on your account</span>. To prevent unauthorized access, you must verify your information within 24 hours or your account will be permanently suspended.</p><br><p>Verify your account here: <span class="pf" data-tip="The URL is \'secure-paypal-verify.ru\' — a .ru (Russian) domain. PayPal\'s real website is always paypal.com." data-fi="4">http://secure-paypal-verify.ru/confirm</span></p><br><p>Failure to comply will result in <span class="pf" data-tip="Threats of legal consequences or account closure are pressure tactics to make you act without thinking." data-fi="5">permanent account closure and report of suspicious activity to the authorities</span>.</p><br><p>Regards,<br>PayPal Security Team</p>';}
+  },
+  {
+    name:'Email 2: IT Helpdesk',
+    flagCount:5,
+    html:function(){return '<div class="ph-hdr"><div><b>From:</b> <span class="pf" data-tip="Domain is \'company-it-helpdesk.net\' — attacker registered a lookalike domain. Your real IT department uses company.com." data-fi="0">it.support@company-it-helpdesk.net</span></div><div><b>To:</b> all-staff@yourcompany.com</div><div><b>Subject:</b> <span class="pf" data-tip="Real IT departments use secure portals or Active Directory policies for resets — not email links requiring your current password." data-fi="1">Mandatory Password Reset — All Staff Action Required Today</span></div><div><b>Date:</b> Tue, 21 Jul 2026 08:33:17 +0000</div></div><p>Hello Team,</p><br><p>Due to a recent security audit, all employees must reset their passwords by <span class="pf" data-tip="Artificial deadline (\'today\', \'5:00 PM\') prevents you from pausing to verify the request with IT before acting." data-fi="2">5:00 PM today</span>. Accounts that do not comply will be locked automatically.</p><br><p>Click below and enter your <span class="pf" data-tip="Legitimate IT never asks you to type your current password to reset it. That IS the credential harvesting." data-fi="3">current username and password to begin the reset process</span>:</p><br><p><span class="pf" data-tip="\'company-secure-reset.info\' is NOT your company\'s domain. Real password resets use your company\'s actual domain." data-fi="4">http://company-secure-reset.info/pw-reset</span></p><br><p>This link expires in 2 hours. Please act promptly to avoid disruption to your account.</p><br><p>IT Help Desk</p>';}
+  },
+  {
+    name:'Email 3: FedEx Package',
+    flagCount:5,
+    html:function(){return '<div class="ph-hdr"><div><b>From:</b> <span class="pf" data-tip="FedEx only uses @fedex.com. \'fedex-tracking.delivery-notify.com\' is an attacker-registered domain designed to look official." data-fi="0">noreply@fedex-tracking.delivery-notify.com</span></div><div><b>To:</b> you@yourcompany.com</div><div><b>Subject:</b> <span class="pf" data-tip="Fake tracking numbers exploit our habit of expecting packages. This triggers curiosity even when you\'re not expecting anything." data-fi="1">Your package #FX-2847291 could not be delivered — action required</span></div><div><b>Date:</b> Wed, 22 Jul 2026 11:22:05 +0000</div></div><p>Dear Customer,</p><br><p>We attempted to deliver your package but were unable to complete delivery. To reschedule, please pay a small redelivery fee of <span class="pf" data-tip="FedEx, UPS, and USPS never request payment via email links. The \'$2.99\' is bait — they want your full credit card number." data-fi="2">$2.99 using our secure payment link</span>.</p><br><p>Reschedule delivery: <span class="pf" data-tip="\'fedex-redelivery.ru\' is a .ru (Russian) domain with no connection to FedEx. Entering payment here sends your card to attackers." data-fi="3">http://fedex-redelivery.ru/pay?id=FX2847291</span></p><br><p>Your package will be returned to sender if no action is taken within 48 hours.</p><br><p><span class="pf" data-tip="Unsubscribe links in phishing emails often confirm your address is active to spammers, or lead to another malicious page." data-fi="4">Click here to unsubscribe from delivery notifications.</span></p><br><p>FedEx Delivery Services</p>';}
+  }
+];
+
+var pi = 0, phFound = new Set();
+
+function initPH() {
+  var nav = document.getElementById('ph-nav');
+  nav.innerHTML = '';
+  EMAILS.forEach(function(e, i) {
+    var b = document.createElement('button');
+    b.className = 'pchip'+(i===0?' on':'');
+    b.textContent = e.name;
+    (function(idx, btn){ btn.onclick = function(){
+      pi = idx;
+      document.querySelectorAll('.pchip').forEach(function(c){c.classList.remove('on')});
+      btn.classList.add('on');
+      renderPH();
+    }; })(i, b);
+    nav.appendChild(b);
+  });
+  renderPH();
+}
+
+function renderPH() {
+  phFound = new Set();
+  var e = EMAILS[pi];
+  document.getElementById('ph-cnt').textContent = '0';
+  document.getElementById('ph-tot').textContent = e.flagCount;
+  document.getElementById('ph-res').style.display = 'none';
+  var el = document.getElementById('ph-email');
+  el.innerHTML = e.html();
+  el.querySelectorAll('.pf').forEach(function(flag) {
+    flag.addEventListener('click', function() {
+      var fi = flag.dataset.fi;
+      if (!phFound.has(fi)) {
+        phFound.add(fi);
+        flag.classList.add('found');
+        document.getElementById('ph-cnt').textContent = phFound.size;
+        addScore(5);
+        showTip(flag, flag.dataset.tip);
+      }
+    });
+  });
+}
+
+function showTip(el, tip) {
+  var tt = document.getElementById('phtooltip');
+  tt.innerHTML = '<span style="color:var(--amber);font-size:11px;letter-spacing:1px">⚠ RED FLAG FOUND</span><br><br>'+tip;
+  tt.style.display = 'block';
+  var r = el.getBoundingClientRect();
+  var top = r.bottom + window.scrollY + 6;
+  var left = Math.min(r.left, window.innerWidth - 320);
+  tt.style.top = top+'px';
+  tt.style.left = left+'px';
+  clearTimeout(tt._t);
+  tt._t = setTimeout(function(){ tt.style.display='none'; }, 3500);
+}
+
+// ===== CURRICULUM =====
+var WEEKS = [
+  {
+    num:1, title:'Cybersecurity Foundations', topics:'CIA Triad | DAD Triad', nist:'Identify',
+    overview:'The CIA Triad is the foundational framework of all information security. Every control, policy, and best practice maps to at least one of its three elements. The DAD Triad is the attacker\'s mirror image — understanding both gives you the lens to analyze any security incident.',
+    objectives:['Define Confidentiality, Integrity, and Availability with real-world examples','Define Disclosure, Alteration, and Denial and map each to a CIA violation','Identify which CIA element is violated in a given security incident','Name two security controls that address each CIA element'],
+    concepts:'<table class="ct"><tr><th>CIA Element</th><th>Definition</th><th>Example Attack</th><th>Key Controls</th></tr><tr><td>Confidentiality</td><td>Only authorized parties can access data</td><td>Equifax breach — 147M records exposed</td><td>Encryption, MFA, access controls</td></tr><tr><td>Integrity</td><td>Data is accurate, complete, unmodified</td><td>SolarWinds — malicious code in trusted update</td><td>Hashing (SHA-256), digital signatures</td></tr><tr><td>Availability</td><td>Systems accessible when needed</td><td>Colonial Pipeline — ransomware halted fuel supply</td><td>Redundancy, backups, DDoS mitigation</td></tr></table><table class="ct"><tr><th>DAD Element</th><th>CIA It Breaks</th><th>Example</th></tr><tr><td>Disclosure</td><td>Confidentiality</td><td>Data breach exposing customer records</td></tr><tr><td>Alteration</td><td>Integrity</td><td>DNS cache poisoning redirects users to fake sites</td></tr><tr><td>Denial</td><td>Availability</td><td>DDoS attack crashing a web service</td></tr></table>',
+    resources:[['Pre-Security Path','TryHackMe','Free'],['Intro to Cybersecurity','Cisco NetAcad','Free'],['Security+ Videos','Professor Messer','Free'],['NIST SP 800-12','nist.gov','Free'],['Quiz Module','CyberSec Academy (this tool)','Free']],
+    activities:['Research 5 real incidents (Equifax, WannaCry, SolarWinds, Colonial Pipeline, Target 2013) and map each to a CIA/DAD violation','Complete the CIA Triad questions in the Quiz tab of this tool','Write a 1-paragraph reflection: which CIA element is hardest to protect and why'],
+    assessment:'Quiz: Define all 6 CIA/DAD elements from memory. Case Study: Given an incident scenario, identify the element violated and name one preventive and one detective control.'
+  },
+  {
+    num:2, title:'Network Fundamentals', topics:'OSI Model (All 7 Layers)', nist:'Identify / Protect',
+    overview:'The OSI (Open Systems Interconnection) model describes how data moves across a network in 7 layers. Security professionals use it to pinpoint exactly where an attack occurs and which defensive control applies. Every attack from MAC spoofing to SQL injection targets a specific layer.',
+    objectives:['Name all 7 OSI layers and describe the primary function of each','Identify at least 2 protocols at each layer','Map 7 common attack types to the correct OSI layer','Explain data encapsulation (sending) and decapsulation (receiving)'],
+    concepts:'<table class="ct"><tr><th>Layer</th><th>Name</th><th>Key Protocols</th><th>Common Attacks</th></tr><tr><td>7</td><td>Application</td><td>HTTP, HTTPS, DNS, FTP, SMTP</td><td>SQL Injection, XSS, Phishing</td></tr><tr><td>6</td><td>Presentation</td><td>TLS/SSL, JPEG, ASCII</td><td>SSL Stripping</td></tr><tr><td>5</td><td>Session</td><td>NetBIOS, RPC, PPTP</td><td>Session Hijacking</td></tr><tr><td>4</td><td>Transport</td><td>TCP, UDP</td><td>SYN Flood, Port Scanning</td></tr><tr><td>3</td><td>Network</td><td>IP, ICMP, OSPF, BGP</td><td>IP Spoofing, ICMP Flood</td></tr><tr><td>2</td><td>Data Link</td><td>Ethernet, MAC, ARP, 802.11</td><td>MAC Spoofing, ARP Poisoning</td></tr><tr><td>1</td><td>Physical</td><td>Cables, Hubs, Wi-Fi signals</td><td>Signal Jamming, Tap</td></tr></table><p style="font-size:12px;color:var(--amber);margin-top:8px">Memory Aid (7 to 1): <b>A</b>ll <b>P</b>eople <b>S</b>eem <b>T</b>o <b>N</b>eed <b>D</b>ata <b>P</b>rocessing<br>Memory Aid (1 to 7): <b>P</b>lease <b>D</b>o <b>N</b>ot <b>T</b>hrow <b>S</b>ausage <b>P</b>izza <b>A</b>way</p>',
+    resources:[['Networking Fundamentals rooms','TryHackMe','Free'],['OSI Model videos','Professor Messer','Free'],['Networking Basics','Cisco NetAcad','Free'],['OSI & TCP/IP videos','NetworkChuck (YouTube)','Free']],
+    activities:['Draw and label all 7 OSI layers from memory, then verify against the table','Sort 15 protocols (Telnet, ARP, TCP, HTTP, DNS, SMTP, IP, 802.11, TLS, FTP, ICMP, SSH, UDP, BGP, NetBIOS) into the correct layer','For each attack type in the table, explain in one sentence why it targets that specific layer'],
+    assessment:'Layer Quiz: Given 10 attack scenarios, identify the OSI layer targeted. Protocol Sort: Place 15 protocols into the correct layer without references.'
+  },
+  {
+    num:3, title:'Threat Landscape', topics:'Threat Intelligence | Malicious Code', nist:'Identify / Detect',
+    overview:'Threat intelligence transforms raw data about attackers into actionable knowledge defenders can use. Malware is the primary weapon in the threat actor toolkit. Recognizing malware types, behaviors, and indicators is a core skill for SOC analysts, incident responders, and penetration testers.',
+    objectives:['Distinguish between strategic, tactical, operational, and technical threat intelligence','Identify and describe 9 types of malware and their behaviors','Navigate the MITRE ATT&CK framework and find techniques for a given tactic','Define IOC (Indicator of Compromise) and list 4 examples'],
+    concepts:'<table class="ct"><tr><th>Intel Type</th><th>Audience</th><th>Example</th></tr><tr><td>Strategic</td><td>Executives</td><td>Ransomware attacks on healthcare rose 125% last year</td></tr><tr><td>Tactical</td><td>Security architects</td><td>Attackers use spear phishing for initial access, then EternalBlue to spread</td></tr><tr><td>Operational</td><td>SOC teams</td><td>Threat actor group X is targeting Midwest financial firms this quarter</td></tr><tr><td>Technical</td><td>SIEM engineers</td><td>IOCs: IP 185.220.x.x, hash 4a5f6b..., domain evil-update.ru</td></tr></table><table class="ct" style="margin-top:10px"><tr><th>Malware Type</th><th>Behavior</th><th>Example</th></tr><tr><td>Virus</td><td>Attaches to files; spreads when host is executed</td><td>ILOVEYOU (2000)</td></tr><tr><td>Worm</td><td>Self-replicates across networks, no user action needed</td><td>WannaCry (2017)</td></tr><tr><td>Trojan</td><td>Disguised as legitimate software</td><td>Emotet banking trojan</td></tr><tr><td>Ransomware</td><td>Encrypts files, demands payment for decryption key</td><td>Colonial Pipeline (2021)</td></tr><tr><td>Spyware</td><td>Silently monitors and exfiltrates user activity</td><td>Pegasus spyware</td></tr><tr><td>Rootkit</td><td>Hides attacker presence deep in the OS</td><td>Stuxnet rootkit</td></tr><tr><td>Keylogger</td><td>Records all keystrokes to steal credentials</td><td>Bundled in most RATs</td></tr><tr><td>RAT</td><td>Remote Access Trojan — full remote control of machine</td><td>DarkComet, AsyncRAT</td></tr><tr><td>Botnet Agent</td><td>Joins device to attacker-controlled zombie network</td><td>Mirai IoT botnet (2016)</td></tr></table>',
+    resources:[['MITRE ATT&CK Navigator','attack.mitre.org','Free'],['Threat Intelligence rooms','TryHackMe','Free'],['CISA Cybersecurity Advisories','cisa.gov','Free'],['VirusTotal scanner','virustotal.com','Free'],['Any.Run sandbox','any.run','Free (limited)'],['SOC Simulator','CyberSec Academy (this tool)','Free']],
+    activities:['Find a recent CISA advisory at cisa.gov and list all IOCs provided','Visit attack.mitre.org, search T1486 (Data Encrypted for Impact), and find 3 detection opportunities','Complete all 3 SOC Simulator scenarios in this tool from the defender perspective','Submit a renamed .txt file to VirusTotal and explore the Detection and Behavior tabs'],
+    assessment:'Malware ID: Match 9 behavior descriptions to the correct malware type. ATT&CK Mapping: Given a described attack chain, map each phase to a MITRE Tactic and one Technique.'
+  },
+  {
+    num:4, title:'Human Factors', topics:'Social Engineering | Password Attacks', nist:'Protect',
+    overview:'The most advanced firewall cannot stop an employee who hands over their password to someone claiming to be IT support. Social engineering and password attacks exploit people — the most persistently vulnerable element in any security program. Building recognition and resistance is foundational.',
+    objectives:['Identify and describe 8 types of social engineering attacks','Explain 5 types of password attacks and what makes each effective','Evaluate password strength using entropy and complexity principles','Implement MFA, password managers, and phishing-resistant habits'],
+    concepts:'<table class="ct"><tr><th>Attack</th><th>Method</th><th>Example</th></tr><tr><td>Phishing</td><td>Mass email impersonating legitimate entity</td><td>Fake PayPal email to harvest credentials</td></tr><tr><td>Spear Phishing</td><td>Targeted phishing using personal details</td><td>Email using victim\'s name, employer, manager</td></tr><tr><td>Whaling</td><td>Phishing targeting C-suite executives</td><td>Fake legal notice to CEO for wire transfer</td></tr><tr><td>Vishing</td><td>Voice/phone-based social engineering</td><td>Caller impersonates IT, asks for password</td></tr><tr><td>Smishing</td><td>SMS-based phishing</td><td>Fake USPS text with malicious tracking link</td></tr><tr><td>Pretexting</td><td>Fabricated scenario to extract information</td><td>Attacker claims to be auditor needing access</td></tr><tr><td>Tailgating</td><td>Following authorized person through secure door</td><td>Attacker carries boxes, employees hold door open</td></tr><tr><td>Baiting</td><td>Infected USB or enticing digital offer</td><td>USB labeled "Payroll 2026" left in parking lot</td></tr></table><table class="ct" style="margin-top:10px"><tr><th>Password Attack</th><th>Method</th><th>Defense</th></tr><tr><td>Brute Force</td><td>Try every possible character combination</td><td>Long passwords + account lockout</td></tr><tr><td>Dictionary</td><td>Wordlist of common passwords tried in order</td><td>Avoid common words; use passphrases</td></tr><tr><td>Credential Stuffing</td><td>Use leaked credentials from one breach on other sites</td><td>Unique password per site + MFA</td></tr><tr><td>Password Spraying</td><td>One common password tried against many accounts</td><td>Block common passwords; monitor distributed failures</td></tr><tr><td>Rainbow Table</td><td>Precomputed hash-to-password lookups</td><td>Salted hashes (bcrypt, Argon2) defeat this</td></tr></table>',
+    resources:[['Phishing analysis rooms','TryHackMe','Free'],['Have I Been Pwned','haveibeenpwned.com','Free'],['Phishing Spotter game','CyberSec Academy (this tool)','Free'],['Password Checker','CyberSec Academy (this tool)','Free'],['Google Phishing Quiz','phishingquiz.withgoogle.com','Free']],
+    activities:['Check your work email domain at haveibeenpwned.com; document any breaches found','Complete all 3 phishing emails in the Phish Spot tab — aim for 100% before moving on','Test 5 different password strategies in the PW Check tab; document what improved each score','Find a real phishing email from news coverage and list every red flag'],
+    assessment:'Attack ID: Match 8 scenarios to the correct social engineering or password attack type. Phishing Analysis: Given a suspicious email, list every red flag and explain why each element is suspicious.'
+  },
+  {
+    num:5, title:'Kali Linux Basics', topics:'Linux CLI | Kali Environment | Tool Overview', nist:'Protect / Detect',
+    overview:'Kali Linux is the industry-standard platform for penetration testing and security research, maintained by Offensive Security with 600+ pre-installed tools. Linux command line fluency is a prerequisite for every tool in the Kali arsenal. This week establishes the working environment used through Week 8.',
+    objectives:['Install Kali Linux as a virtual machine using VirtualBox (free)','Navigate the Linux filesystem and execute 15 essential terminal commands','Identify the 7 major Kali tool categories and name 3 tools from each','Understand the legal requirements for using Kali Linux'],
+    concepts:'<table class="ct"><tr><th>Command</th><th>Function</th><th>Example</th></tr><tr><td>ls -la</td><td>List all files including hidden, with permissions</td><td>ls -la /etc</td></tr><tr><td>cd / pwd</td><td>Change directory / print current location</td><td>cd /var/log</td></tr><tr><td>cat / grep</td><td>Display file / search for text patterns</td><td>grep \'root\' /etc/passwd</td></tr><tr><td>find</td><td>Search filesystem by name or type</td><td>find / -name \'*.conf\'</td></tr><tr><td>chmod / sudo</td><td>Change permissions / run as admin</td><td>sudo apt install nmap</td></tr><tr><td>ifconfig / ip a</td><td>Show network interface information</td><td>ip addr show</td></tr><tr><td>netstat -tulpn</td><td>Show listening ports and connections</td><td>sudo netstat -tulpn</td></tr><tr><td>ps aux</td><td>List all running processes</td><td>ps aux | grep apache</td></tr><tr><td>history</td><td>Show previously run commands</td><td>history | grep nmap</td></tr><tr><td>man</td><td>Display the manual page for any command</td><td>man nmap</td></tr></table><table class="ct" style="margin-top:10px"><tr><th>Kali Category</th><th>Purpose</th><th>Key Tools</th></tr><tr><td>Information Gathering</td><td>Reconnaissance</td><td>Nmap, theHarvester, Maltego</td></tr><tr><td>Vulnerability Analysis</td><td>Find system weaknesses</td><td>Nikto, OpenVAS, Lynis</td></tr><tr><td>Web Application</td><td>Test web app vulnerabilities</td><td>Burp Suite, OWASP ZAP, SQLmap</td></tr><tr><td>Password Attacks</td><td>Crack or brute-force credentials</td><td>Hydra, John the Ripper, Hashcat</td></tr><tr><td>Wireless Attacks</td><td>Test wireless security</td><td>Aircrack-ng, Kismet, Wifite</td></tr><tr><td>Exploitation Tools</td><td>Execute attacks on vulnerabilities</td><td>Metasploit Framework, BeEF</td></tr><tr><td>Forensics</td><td>Analyze disk images and memory</td><td>Autopsy, Volatility, Binwalk</td></tr></table><p style="color:var(--red);font-size:12px;margin-top:8px">LEGAL: Kali tools must ONLY be used on systems you own or have explicit written authorization to test. Unauthorized use is a federal crime under the CFAA.</p>',
+    resources:[['Linux Fundamentals Parts 1-3','TryHackMe','Free'],['Bandit wargame','OverTheWire (overthewire.org)','Free'],['Kali documentation','kali.org/docs','Free'],['Kali Linux Basics videos','NetworkChuck (YouTube)','Free'],['VirtualBox','virtualbox.org','Free']],
+    activities:['Install VirtualBox and create a Kali Linux VM; document each installation step','Complete all 10 commands from the table above in the Kali terminal; screenshot each result','Open Kali Applications menu and list 3 tools from each of the 7 categories','Complete at least 5 levels of OverTheWire Bandit to build terminal fluency'],
+    assessment:'Command Quiz: Given a task in plain English, write the correct terminal command. Tool Matching: Match 14 security tasks to the correct Kali tool and category.'
+  },
+  {
+    num:6, title:'Network Reconnaissance', topics:'Nmap (Network Mapper)', nist:'Identify / Detect',
+    overview:'Nmap is the most widely used network scanning tool in both offensive and defensive security. Created in 1997 and continuously updated, it is the gold standard for host discovery, port scanning, service version detection, and OS fingerprinting. Reading Nmap output is a core SOC analyst and penetration tester skill.',
+    objectives:['Execute 7 different Nmap scan types from the command line','Interpret Nmap output: ports, services, versions, OS guess','Explain the difference between open, closed, and filtered port states','Use Nmap Scripting Engine (NSE) for basic vulnerability detection'],
+    concepts:'<table class="ct"><tr><th>Command</th><th>Scan Type</th><th>Best Used For</th></tr><tr><td>nmap [target]</td><td>Default (top 1000 TCP ports)</td><td>Quick first look</td></tr><tr><td>nmap -sS [target]</td><td>SYN / Stealth scan</td><td>Standard pentest scan — fast, less noisy</td></tr><tr><td>nmap -sV [target]</td><td>Service version detection</td><td>Identify software running on each port</td></tr><tr><td>nmap -sC [target]</td><td>Default NSE scripts</td><td>Gather extra service info automatically</td></tr><tr><td>nmap -A [target]</td><td>Aggressive (OS+version+scripts+traceroute)</td><td>Full picture on authorized tests</td></tr><tr><td>nmap -p- [target]</td><td>All 65,535 ports</td><td>Find services on non-standard ports</td></tr><tr><td>nmap -sU [target]</td><td>UDP scan</td><td>Find DNS, SNMP, DHCP services</td></tr><tr><td>nmap -oN out.txt [t]</td><td>Save to text file</td><td>Documentation and reporting</td></tr><tr><td>nmap --script vuln [t]</td><td>Vulnerability scripts</td><td>Quick vuln check on authorized targets</td></tr></table><table class="ct" style="margin-top:10px"><tr><th>Port State</th><th>Meaning</th><th>Implication</th></tr><tr><td>Open</td><td>Service actively listening and accepting connections</td><td>Primary finding — investigate service version</td></tr><tr><td>Closed</td><td>Port reachable, no service listening</td><td>Useful for OS fingerprinting</td></tr><tr><td>Filtered</td><td>Firewall blocking scan — state unknown</td><td>Firewall present; try different scan types</td></tr></table><p style="color:var(--red);font-size:12px;margin-top:8px">LEGAL: Only scan systems you own or have explicit written permission to test. Unauthorized scanning violates the CFAA.</p>',
+    resources:[['Nmap room','TryHackMe','Free'],['Nmap: The Network Mapper (full book)','nmap.org/book','Free'],['Nmap tutorial videos','NetworkChuck (YouTube)','Free'],['Starting Point labs','Hack The Box (hackthebox.com)','Free'],['Metasploitable 2 (vulnerable VM)','Rapid7 / SourceForge','Free']],
+    activities:['Scan your Metasploitable 2 VM from Kali using 5 different scan types; compare results','Run nmap --script vuln against your lab VM; document every finding','Interpret a printed Nmap output: list all open ports, services, versions, and OS','Write a one-page scanning report with port, service, version, risk level, and recommended fix'],
+    assessment:'Command Writing: Given 5 scanning scenarios, write the correct Nmap command. Output Interpretation: Given a Nmap result, answer 10 questions about the target.'
+  },
+  {
+    num:7, title:'Secure Development', topics:'Secure Coding | Software Development Life Cycle (SDLC)', nist:'Protect',
+    overview:'Approximately 90% of security incidents exploit software vulnerabilities. Integrating security into every SDLC phase — the DevSecOps "shift left" approach — prevents vulnerabilities from reaching production. This module is essential for developers, analysts, and anyone working with software teams.',
+    objectives:['Identify and describe each OWASP Top 10 vulnerability','Apply at least one security activity to each SDLC phase','Recognize vulnerable code patterns and describe the secure alternative','Explain the DevSecOps shift-left concept and its business value'],
+    concepts:'<table class="ct"><tr><th>#</th><th>OWASP Top 10 Vulnerability</th><th>Key Prevention</th></tr><tr><td>A01</td><td>Broken Access Control</td><td>RBAC, deny by default, test all access paths</td></tr><tr><td>A02</td><td>Cryptographic Failures</td><td>TLS 1.2+, AES-256, bcrypt for passwords</td></tr><tr><td>A03</td><td>Injection (SQL, OS, LDAP)</td><td>Parameterized queries, input validation, WAF</td></tr><tr><td>A04</td><td>Insecure Design</td><td>Threat modeling, security requirements, design review</td></tr><tr><td>A05</td><td>Security Misconfiguration</td><td>Hardening guides, config management, automated scans</td></tr><tr><td>A06</td><td>Vulnerable & Outdated Components</td><td>SCA tools, patch management, software inventory</td></tr><tr><td>A07</td><td>Identification & Auth Failures</td><td>MFA, secure session tokens, lockout policies</td></tr><tr><td>A08</td><td>Software & Data Integrity Failures</td><td>Digital signatures, signed packages, SBOM</td></tr><tr><td>A09</td><td>Security Logging & Monitoring Failures</td><td>Log all auth events, SIEM integration, 90+ day retention</td></tr><tr><td>A10</td><td>Server-Side Request Forgery (SSRF)</td><td>Allowlist valid URLs, block internal network requests</td></tr></table><table class="ct" style="margin-top:10px"><tr><th>SDLC Phase</th><th>Security Activity</th></tr><tr><td>Planning</td><td>Risk assessment, security requirements, compliance mapping</td></tr><tr><td>Requirements</td><td>Abuse cases, security acceptance criteria</td></tr><tr><td>Design</td><td>Threat modeling (STRIDE), security architecture review</td></tr><tr><td>Development</td><td>Secure coding standards, code review, SAST scanning</td></tr><tr><td>Testing</td><td>DAST, penetration testing, OWASP ZAP scanning</td></tr><tr><td>Deployment</td><td>Server hardening, secrets management, least privilege</td></tr><tr><td>Maintenance</td><td>Patch management, vulnerability scanning, IR planning</td></tr></table>',
+    resources:[['OWASP Top 10','owasp.org','Free'],['OWASP WebGoat (vulnerable practice app)','owasp.org/WebGoat','Free'],['Secure coding rooms','TryHackMe','Free'],['NIST SP 800-64','nist.gov','Free']],
+    activities:['Review owasp.org Top 10 and find one real CVE example for each vulnerability category','Install OWASP WebGoat and complete the SQL Injection module — exploit then fix','Draw the SDLC as a cycle and annotate one security tool or activity at each of the 7 phases','Review 3 vulnerable code snippets (from instructor) and write the corrected secure version'],
+    assessment:'Vulnerability Matching: Match 10 scenario descriptions to the correct OWASP category. SDLC Security: For 5 phases, name two security activities and one tool that supports each.'
+  },
+  {
+    num:8, title:'Penetration Testing Methodology', topics:'The 5 Steps of Pentesting | Capstone', nist:'Identify / Respond',
+    overview:'Penetration testing is the authorized simulation of a cyberattack to identify and demonstrate vulnerabilities before malicious actors do. The 5-step methodology is a repeatable, professional framework used by security firms globally. This capstone week integrates all 8 modules into a complete simulated engagement.',
+    objectives:['Execute all 5 pentesting phases in an authorized lab environment','Explain the legal and ethical framework governing penetration testing','Write a professional pentest report with executive and technical sections','Integrate skills from all 8 modules into a cohesive engagement'],
+    concepts:'<table class="ct"><tr><th>Phase</th><th>Name</th><th>Activities</th><th>Key Tools</th></tr><tr><td>1</td><td>Reconnaissance</td><td>Passive OSINT (WHOIS, Shodan, LinkedIn); Active info gathering</td><td>theHarvester, Maltego, Shodan</td></tr><tr><td>2</td><td>Scanning</td><td>Port/service enumeration, vulnerability scanning, map attack surface</td><td>Nmap, Nikto, OpenVAS</td></tr><tr><td>3</td><td>Gaining Access</td><td>Exploit vulnerabilities, obtain initial shell/foothold</td><td>Metasploit, SQLmap, Burp Suite</td></tr><tr><td>4</td><td>Maintaining Access</td><td>Privilege escalation, lateral movement, demonstrate dwell time</td><td>Metasploit post-modules</td></tr><tr><td>5</td><td>Reporting</td><td>Executive summary, technical findings, remediation roadmap</td><td>Word/PDF, Dradis, Faraday</td></tr></table><table class="ct" style="margin-top:10px"><tr><th>Report Section</th><th>Content</th><th>Audience</th></tr><tr><td>Executive Summary</td><td>Business risk, overall rating, top 3 findings in plain language</td><td>Leadership / Board</td></tr><tr><td>Technical Findings</td><td>Per-finding: title, CVSS severity, description, evidence, remediation</td><td>Security team</td></tr><tr><td>Remediation Roadmap</td><td>Prioritized fix list with effort estimate and business impact</td><td>IT / DevOps</td></tr><tr><td>Appendix</td><td>Raw Nmap output, full command history, tool configs</td><td>Technical reviewers</td></tr></table><p style="color:var(--red);font-size:12px;margin-top:8px">LEGAL: Written authorization (Rules of Engagement) is required before any test. Unauthorized pentesting is a federal felony under the CFAA.</p>',
+    resources:[['Jr Penetration Tester path','TryHackMe','Free (some rooms)'],['Starting Point machines','Hack The Box (hackthebox.com)','Free'],['Metasploitable 2 (vulnerable VM)','Rapid7 / SourceForge','Free'],['HackTricks reference','book.hacktricks.xyz','Free'],['Pentest report templates','GitHub (search: pentest report template)','Free']],
+    activities:['Full pentest: perform all 5 phases against your Metasploitable 2 VM using Kali Linux','Document every command run and capture screenshots throughout the engagement','Write a complete professional report: executive summary + 3 technical findings + remediation plan','Capstone: present findings to the group as if presenting to a client (15 minutes)','Bonus: Complete a TryHackMe or Hack The Box machine and document it using the 5-step framework'],
+    assessment:'Practical: Authorized pentest against lab VM + submit professional report. Written: Match 10 activities to correct phase. Oral: 15-minute client-style debrief presentation.'
+  }
+];
+
+var wkCurrent = 0;
+
+function initCurriculum() {
+  var el = document.getElementById('wk-chips');
+  el.innerHTML = '';
+  WEEKS.forEach(function(w, i) {
+    var b = document.createElement('button');
+    b.className = 'wk-chip' + (i === 0 ? ' on' : '');
+    b.textContent = 'WK ' + w.num;
+    (function(idx, btn) {
+      btn.onclick = function() {
+        wkCurrent = idx;
+        document.querySelectorAll('.wk-chip').forEach(function(c) { c.classList.remove('on'); });
+        btn.classList.add('on');
+        renderWeek();
+      };
+    })(i, b);
+    el.appendChild(b);
+  });
+  renderWeek();
+}
+
+function renderWeek() {
+  var w = WEEKS[wkCurrent];
+  var res = w.resources.map(function(r) {
+    return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td style="color:var(--g)">' + r[2] + '</td></tr>';
+  }).join('');
+  var acts = w.activities.map(function(a) {
+    return '<span class="wk-li">' + a + '</span>';
+  }).join('');
+  var objs = w.objectives.map(function(o) {
+    return '<span class="wk-li">' + o + '</span>';
+  }).join('');
+  document.getElementById('wk-content').innerHTML =
+    '<div class="wk-title">WEEK ' + w.num + ' — ' + w.title.toUpperCase() + '</div>' +
+    '<div class="wk-topics">Topics: ' + w.topics + '</div>' +
+    '<div class="wk-nist">NIST CSF Function: ' + w.nist + '</div>' +
+    '<div class="wk-body">' + w.overview + '</div>' +
+    '<div class="wk-sec">// LEARNING OBJECTIVES</div>' + objs +
+    '<div class="wk-sec">// KEY CONCEPTS</div>' + w.concepts +
+    '<div class="wk-sec">// FREE RESOURCES</div>' +
+    '<table class="ct"><tr><th>Resource</th><th>Platform</th><th>Cost</th></tr>' + res + '</table>' +
+    '<div class="wk-sec">// HANDS-ON ACTIVITIES</div>' + acts +
+    '<div class="wk-sec">// WEEKLY ASSESSMENT</div>' +
+    '<div class="wk-body">' + w.assessment + '</div>';
+}
+
+function submitPH() {
+  var e = EMAILS[pi];
+  var res = document.getElementById('ph-res');
+  document.querySelectorAll('.pf').forEach(function(f) {
+    if (!phFound.has(f.dataset.fi)) f.classList.add('missed');
+  });
+  var pct = Math.round(phFound.size / e.flagCount * 100);
+  var grade, col;
+  if (pct===100){grade='EXPERT ANALYST — Perfect detection!';col='var(--g)';}
+  else if (pct>=80){grade='STRONG — Good eye for red flags';col='#7fff00';}
+  else if (pct>=60){grade='DEVELOPING — Keep practicing';col='var(--amber)';}
+  else{grade='TRAINEE — Review the highlighted misses in orange';col='var(--red)';}
+  res.style.display = 'block';
+  res.innerHTML = '<div style="border-left:3px solid '+col+';padding:12px;background:rgba(0,0,0,.3)"><div style="color:'+col+';font-size:13px;letter-spacing:1px;margin-bottom:6px">'+grade+'</div><div style="color:var(--text)">Found '+phFound.size+' of '+e.flagCount+' red flags ('+pct+'%)</div><div style="color:var(--gd);margin-top:6px;font-size:12px">Missed flags highlighted in orange above — click them to learn why they are suspicious.</div></div>';
+  document.querySelectorAll('.pf.missed').forEach(function(f){
+    f.addEventListener('click', function(){ showTip(f, f.dataset.tip); });
+  });
+}
+</script>
+</body>
+</html>
