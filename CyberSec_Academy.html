@@ -111,6 +111,28 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .ct th{background:var(--gk);color:var(--g);padding:6px 8px;text-align:left;border:1px solid var(--border);font-size:11px;letter-spacing:1px}
 .ct td{padding:6px 8px;border:1px solid rgba(0,255,65,.1);color:var(--text);vertical-align:top;line-height:1.5}
 .ct tr:nth-child(even) td{background:rgba(0,255,65,.03)}
+
+/* FLASHCARDS */
+#fc-alpha{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:10px}
+.fc-alph{background:var(--bg2);border:1px solid var(--gd);color:var(--gd);padding:4px 9px;cursor:pointer;font-family:inherit;font-size:11px;letter-spacing:1px;transition:all .15s;min-width:30px;text-align:center}
+.fc-alph:hover,.fc-alph.on{background:var(--gk);border-color:var(--g);color:var(--g)}
+#fc-controls{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+#fc-status{font-size:12px;color:var(--gd);flex:1}
+.fc-btn{background:var(--gk);border:1px solid var(--g);color:var(--g);padding:7px 14px;cursor:pointer;font-family:inherit;font-size:11px;letter-spacing:1px;transition:all .15s}
+.fc-btn:hover{background:rgba(0,255,65,.2)}
+.fc-btn.amber{border-color:var(--amber);color:var(--amber)}
+.fc-btn.amber:hover{background:rgba(255,183,0,.15)}
+#fc-card-wrap{perspective:1000px;height:160px;margin-bottom:12px;cursor:pointer;user-select:none}
+.fc-card{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .45s;border:1px solid var(--border)}
+.fc-card.flipped{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;inset:0;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px;background:var(--bg2)}
+.fc-back{transform:rotateY(180deg);background:rgba(0,30,10,1)}
+.fc-acronym{font-size:30px;letter-spacing:5px;color:var(--g);text-shadow:0 0 18px var(--g);font-weight:bold}
+.fc-hint{font-size:11px;color:var(--gd);margin-top:10px;letter-spacing:1px}
+.fc-def{font-size:14px;color:var(--text);text-align:center;line-height:1.6;max-width:90%}
+.fc-def-acr{font-size:11px;color:var(--gd);margin-top:8px;letter-spacing:3px}
+#fc-actions{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
+#fc-prog-label{font-size:11px;color:var(--gd);margin-bottom:5px}
 </style>
 </head>
 <body>
@@ -137,6 +159,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
     <button class="nb" onclick="showScr('pw',this)">[ PW CHECK ]</button>
     <button class="nb" onclick="showScr('ph',this)">[ PHISH SPOT ]</button>
     <button class="nb" onclick="showScr('cur',this)">[ CURRICULUM ]</button>
+    <button class="nb" onclick="showScr('fc',this)">[ FLASH CARDS ]</button>
   </div>
 
   <!-- QUIZ -->
@@ -225,6 +248,39 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
       <div id="ph-res"></div>
     </div>
   </div>
+
+  <!-- FLASHCARDS -->
+  <div id="fc-scr" class="scr">
+    <div class="pnl">
+      <div class="ptitle">// SY0-701 ACRONYM FLASH CARDS — 293 TERMS</div>
+      <p style="font-size:12px;color:var(--gd);margin-bottom:10px">Filter by letter · Click card to flip · Mark terms learned to track progress · Earn XP for every term learned</p>
+      <div id="fc-alpha"></div>
+      <div id="fc-controls">
+        <span id="fc-status">Card 1 of 293 · 0 / 293 learned</span>
+        <button class="fc-btn" onclick="fcShuffle()">[ SHUFFLE ]</button>
+        <button class="fc-btn amber" onclick="fcResetLearned()">[ RESET PROGRESS ]</button>
+      </div>
+      <div id="fc-card-wrap" onclick="fcFlip()">
+        <div class="fc-card" id="fc-card">
+          <div class="fc-front">
+            <div class="fc-acronym" id="fc-acr">AAA</div>
+            <div class="fc-hint">▶ Click to reveal definition</div>
+          </div>
+          <div class="fc-back">
+            <div class="fc-def" id="fc-def">Authentication, Authorization, and Accounting</div>
+            <div class="fc-def-acr" id="fc-def-acr">AAA</div>
+          </div>
+        </div>
+      </div>
+      <div id="fc-actions">
+        <button class="fc-btn" onclick="fcPrev()">[ &lt;&lt; PREV ]</button>
+        <button class="fc-btn amber" id="fc-learn-btn" onclick="fcMarkLearned()">[ MARK LEARNED ]</button>
+        <button class="fc-btn" onclick="fcNext()">[ NEXT &gt;&gt; ]</button>
+      </div>
+      <div id="fc-prog-label">Progress: 0 / 293 terms learned (0%)</div>
+      <div class="prog-bar"><div class="prog-fill" id="fc-pf" style="width:0%"></div></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -263,12 +319,13 @@ function saveProgress() {
     quizPts:     _quizPts,
     socPts:      _socPts,
     phishPts:    _phishPts,
+    flashPts:    _flashPts,
     lastPlayed:  new Date().toISOString(),
     sessions:    (_sessionCount || 1)
   });
 }
 
-var _quizPts = 0, _socPts = 0, _phishPts = 0, _sessionCount = 1;
+var _quizPts = 0, _socPts = 0, _phishPts = 0, _flashPts = 0, _sessionCount = 1;
 
 // ===== STATE =====
 var score = 0;
@@ -286,6 +343,7 @@ var bootLines = [
   '[OK] Password analyzer               (847M common passwords)',
   '[OK] Phishing detection trainer      (3 email samples)',
   '[OK] 8-Week curriculum loaded        (all modules)',
+  '[OK] Flash card trainer loaded       (293 SY0-701 acronyms)',
   '',
   'WARNING: FOR AUTHORIZED TRAINING USE ONLY',
   '',
@@ -353,6 +411,7 @@ function endBoot() {
   initSOC();
   initPH();
   initCurriculum();
+  initFC();
 }
 
 // ===== NAV =====
@@ -377,6 +436,7 @@ function addScore(pts, type) {
   if (type === 'quiz')  _quizPts  += pts;
   if (type === 'soc')   _socPts   += pts;
   if (type === 'phish') _phishPts += pts;
+  if (type === 'flash') _flashPts += pts;
   document.getElementById('pts').textContent = score;
   updateRank();
   saveProgress();
@@ -1023,6 +1083,420 @@ function renderWeek() {
     '<div class="wk-sec">// HANDS-ON ACTIVITIES</div>' + acts +
     '<div class="wk-sec">// WEEKLY ASSESSMENT</div>' +
     '<div class="wk-body">' + w.assessment + '</div>';
+}
+
+// ===== FLASH CARDS DATA =====
+var FC_DATA = [
+  {a:'AAA',d:'Authentication, Authorization, and Accounting'},
+  {a:'ACL',d:'Access Control List'},
+  {a:'AES',d:'Advanced Encryption Standard'},
+  {a:'AH',d:'Authentication Header'},
+  {a:'AI',d:'Artificial Intelligence'},
+  {a:'AIS',d:'Automated Indicator Sharing'},
+  {a:'ALE',d:'Annualized Loss Expectancy'},
+  {a:'APT',d:'Advanced Persistent Threat'},
+  {a:'ARO',d:'Annualized Rate of Occurrence'},
+  {a:'ARP',d:'Address Resolution Protocol'},
+  {a:'ASLR',d:'Address Space Layout Randomization'},
+  {a:'ATT&CK',d:'Adversarial Tactics, Techniques, and Common Knowledge'},
+  {a:'AUP',d:'Acceptable Use Policy'},
+  {a:'AV',d:'Antivirus / Asset Value'},
+  {a:'AVI',d:'Audio Video Interleave'},
+  {a:'AWS',d:'Amazon Web Services'},
+  {a:'BAC',d:'Business Availability Center'},
+  {a:'BCP',d:'Business Continuity Plan'},
+  {a:'BGP',d:'Border Gateway Protocol'},
+  {a:'BIA',d:'Business Impact Analysis'},
+  {a:'BIOS',d:'Basic Input/Output System'},
+  {a:'BPA',d:'Business Partnership Agreement'},
+  {a:'BPDU',d:'Bridge Protocol Data Unit'},
+  {a:'BYOD',d:'Bring Your Own Device'},
+  {a:'CA',d:'Certificate Authority'},
+  {a:'CAC',d:'Common Access Card'},
+  {a:'CAPTCHA',d:'Completely Automated Public Turing Test to Tell Computers and Humans Apart'},
+  {a:'CAR',d:'Corrective Action Report'},
+  {a:'CASB',d:'Cloud Access Security Broker'},
+  {a:'CBC',d:'Cipher Block Chaining'},
+  {a:'CCMP',d:'Counter Mode with Cipher Block Chaining Message Authentication Code Protocol'},
+  {a:'CCTV',d:'Closed-Circuit Television'},
+  {a:'CERT',d:'Computer Emergency Response Team'},
+  {a:'CFB',d:'Cipher Feedback'},
+  {a:'CHAP',d:'Challenge Handshake Authentication Protocol'},
+  {a:'CIA',d:'Confidentiality, Integrity, and Availability'},
+  {a:'CIS',d:'Center for Internet Security'},
+  {a:'CISA',d:'Cybersecurity and Infrastructure Security Agency'},
+  {a:'CMS',d:'Content Management System'},
+  {a:'COOP',d:'Continuity of Operations Plan'},
+  {a:'COPE',d:'Corporate-Owned, Personally Enabled'},
+  {a:'CPU',d:'Central Processing Unit'},
+  {a:'CRC',d:'Cyclic Redundancy Check'},
+  {a:'CRL',d:'Certificate Revocation List'},
+  {a:'CSP',d:'Cloud Service Provider / Content Security Policy'},
+  {a:'CSR',d:'Certificate Signing Request'},
+  {a:'CSRF',d:'Cross-Site Request Forgery'},
+  {a:'CTI',d:'Cyber Threat Intelligence'},
+  {a:'CVE',d:'Common Vulnerabilities and Exposures'},
+  {a:'CVSS',d:'Common Vulnerability Scoring System'},
+  {a:'CYOD',d:'Choose Your Own Device'},
+  {a:'DAC',d:'Discretionary Access Control'},
+  {a:'DaaS',d:'Desktop as a Service'},
+  {a:'DB',d:'Database'},
+  {a:'DBA',d:'Database Administrator'},
+  {a:'DBMS',d:'Database Management System'},
+  {a:'DDoS',d:'Distributed Denial of Service'},
+  {a:'DEP',d:'Data Execution Prevention'},
+  {a:'DES',d:'Digital Encryption Standard'},
+  {a:'DHCP',d:'Dynamic Host Configuration Protocol'},
+  {a:'DHE',d:'Diffie-Hellman Ephemeral'},
+  {a:'DKIM',d:'DomainKeys Identified Mail'},
+  {a:'DLL',d:'Dynamic-Link Library'},
+  {a:'DLP',d:'Data Loss Prevention'},
+  {a:'DMARC',d:'Domain-Based Message Authentication, Reporting, and Conformance'},
+  {a:'DMZ',d:'Demilitarized Zone'},
+  {a:'DNS',d:'Domain Name System'},
+  {a:'DNSSEC',d:'Domain Name System Security Extensions'},
+  {a:'DoS',d:'Denial of Service'},
+  {a:'DPO',d:'Data Protection Officer'},
+  {a:'DR',d:'Disaster Recovery'},
+  {a:'DRP',d:'Disaster Recovery Plan'},
+  {a:'DSA',d:'Digital Signature Algorithm'},
+  {a:'DSGVO',d:'Datenschutz-Grundverordnung (German GDPR)'},
+  {a:'EAP',d:'Extensible Authentication Protocol'},
+  {a:'ECB',d:'Electronic Code Book'},
+  {a:'ECDHE',d:'Elliptic Curve Diffie-Hellman Ephemeral'},
+  {a:'ECDSA',d:'Elliptic Curve Digital Signature Algorithm'},
+  {a:'EDR',d:'Endpoint Detection and Response'},
+  {a:'EFS',d:'Encrypted File System'},
+  {a:'ELK',d:'Elasticsearch, Logstash, and Kibana'},
+  {a:'EMM',d:'Enterprise Mobility Management'},
+  {a:'EMP',d:'Electromagnetic Pulse'},
+  {a:'ESP',d:'Encapsulating Security Payload'},
+  {a:'EV',d:'Extended Validation'},
+  {a:'FDE',d:'Full-Disk Encryption'},
+  {a:'FIM',d:'File Integrity Monitoring'},
+  {a:'FIPS',d:'Federal Information Processing Standards'},
+  {a:'FISMA',d:'Federal Information Security Management Act'},
+  {a:'FTP',d:'File Transfer Protocol'},
+  {a:'FTPS',d:'File Transfer Protocol Secure'},
+  {a:'GCP',d:'Google Cloud Platform'},
+  {a:'GDPR',d:'General Data Protection Regulation'},
+  {a:'GPG',d:'GNU Privacy Guard'},
+  {a:'GPO',d:'Group Policy Object'},
+  {a:'GPS',d:'Global Positioning System'},
+  {a:'GPU',d:'Graphics Processing Unit'},
+  {a:'GRE',d:'Generic Routing Encapsulation'},
+  {a:'HA',d:'High Availability'},
+  {a:'HDD',d:'Hard Disk Drive'},
+  {a:'HIDS',d:'Host-Based Intrusion Detection System'},
+  {a:'HIPS',d:'Host-Based Intrusion Prevention System'},
+  {a:'HMAC',d:'Hash-Based Message Authentication Code'},
+  {a:'HOTP',d:'HMAC-Based One-Time Password'},
+  {a:'HSM',d:'Hardware Security Module'},
+  {a:'HTML',d:'Hypertext Markup Language'},
+  {a:'HTTP',d:'Hypertext Transfer Protocol'},
+  {a:'HTTPS',d:'Hypertext Transfer Protocol Secure'},
+  {a:'HVAC',d:'Heating, Ventilation, and Air Conditioning'},
+  {a:'IaaS',d:'Infrastructure as a Service'},
+  {a:'IAM',d:'Identity and Access Management'},
+  {a:'ICMP',d:'Internet Control Message Protocol'},
+  {a:'ICS',d:'Industrial Control System'},
+  {a:'IdP',d:'Identity Provider'},
+  {a:'IDS',d:'Intrusion Detection System'},
+  {a:'IEEE',d:'Institute of Electrical and Electronics Engineers'},
+  {a:'IKE',d:'Internet Key Exchange'},
+  {a:'IM',d:'Instant Messaging'},
+  {a:'IMAP',d:'Internet Message Access Protocol'},
+  {a:'IoC',d:'Indicator of Compromise'},
+  {a:'IoT',d:'Internet of Things'},
+  {a:'IP',d:'Internet Protocol'},
+  {a:'IPS',d:'Intrusion Prevention System'},
+  {a:'IPSec',d:'Internet Protocol Security'},
+  {a:'IR',d:'Incident Response'},
+  {a:'IRP',d:'Incident Response Plan'},
+  {a:'ISA',d:'Interconnection Security Agreement'},
+  {a:'ISP',d:'Internet Service Provider'},
+  {a:'ISSO',d:'Information Systems Security Officer'},
+  {a:'IV',d:'Initialization Vector'},
+  {a:'KDC',d:'Key Distribution Center'},
+  {a:'KEK',d:'Key Encryption Key'},
+  {a:'L2TP',d:'Layer 2 Tunneling Protocol'},
+  {a:'LDAP',d:'Lightweight Directory Access Protocol'},
+  {a:'LDAPS',d:'Lightweight Directory Access Protocol Secure'},
+  {a:'LEAP',d:'Lightweight Extensible Authentication Protocol'},
+  {a:'MaaS',d:'Malware as a Service'},
+  {a:'MAC',d:'Mandatory Access Control / Media Access Control / Message Authentication Code'},
+  {a:'MAN',d:'Metropolitan Area Network'},
+  {a:'MBR',d:'Master Boot Record'},
+  {a:'MD5',d:'Message Digest 5'},
+  {a:'MFA',d:'Multifactor Authentication'},
+  {a:'MFD',d:'Multifunction Device'},
+  {a:'MFP',d:'Multifunction Printer'},
+  {a:'ML',d:'Machine Learning'},
+  {a:'MOU',d:'Memorandum of Understanding'},
+  {a:'MPLS',d:'Multiprotocol Label Switching'},
+  {a:'MSA',d:'Master Service Agreement'},
+  {a:'MSCHAP',d:'Microsoft Challenge Handshake Authentication Protocol'},
+  {a:'MSP',d:'Managed Service Provider'},
+  {a:'MSSP',d:'Managed Security Service Provider'},
+  {a:'MTBF',d:'Mean Time Between Failures'},
+  {a:'MTTF',d:'Mean Time to Failure'},
+  {a:'MTTR',d:'Mean Time to Repair'},
+  {a:'MTU',d:'Maximum Transmission Unit'},
+  {a:'NAC',d:'Network Access Control'},
+  {a:'NAT',d:'Network Address Translation'},
+  {a:'NDA',d:'Non-Disclosure Agreement'},
+  {a:'NFC',d:'Near-Field Communication'},
+  {a:'NGFW',d:'Next-Generation Firewall'},
+  {a:'NIDS',d:'Network-Based Intrusion Detection System'},
+  {a:'NIPS',d:'Network-Based Intrusion Prevention System'},
+  {a:'NIST',d:'National Institute of Standards and Technology'},
+  {a:'NTFS',d:'New Technology File System'},
+  {a:'NTLM',d:'New Technology LAN Manager'},
+  {a:'NTP',d:'Network Time Protocol'},
+  {a:'OAuth',d:'Open Authorization'},
+  {a:'OCSP',d:'Online Certificate Status Protocol'},
+  {a:'OID',d:'Object Identifier'},
+  {a:'OS',d:'Operating System'},
+  {a:'OSINT',d:'Open-Source Intelligence'},
+  {a:'OT',d:'Operational Technology'},
+  {a:'OTP',d:'One-Time Password'},
+  {a:'OVAL',d:'Open Vulnerability and Assessment Language'},
+  {a:'P12',d:'PKCS #12'},
+  {a:'P2P',d:'Peer to Peer'},
+  {a:'PaaS',d:'Platform as a Service'},
+  {a:'PAM',d:'Privileged Access Management'},
+  {a:'PAP',d:'Password Authentication Protocol'},
+  {a:'PAT',d:'Port Address Translation'},
+  {a:'PBKDF2',d:'Password-Based Key Derivation Function 2'},
+  {a:'PCI DSS',d:'Payment Card Industry Data Security Standard'},
+  {a:'PDU',d:'Protocol Data Unit'},
+  {a:'PEAP',d:'Protected Extensible Authentication Protocol'},
+  {a:'PED',d:'Personal Electronic Device'},
+  {a:'PEM',d:'Privacy Enhanced Mail'},
+  {a:'PFS',d:'Perfect Forward Secrecy'},
+  {a:'PGP',d:'Pretty Good Privacy'},
+  {a:'PHI',d:'Protected Health Information'},
+  {a:'PII',d:'Personally Identifiable Information'},
+  {a:'PIV',d:'Personal Identity Verification'},
+  {a:'PKI',d:'Public Key Infrastructure'},
+  {a:'PKCS',d:'Public Key Cryptography Standards'},
+  {a:'POP',d:'Post Office Protocol'},
+  {a:'POTS',d:'Plain Old Telephone Service'},
+  {a:'PPP',d:'Point-to-Point Protocol'},
+  {a:'PPTP',d:'Point-to-Point Tunneling Protocol'},
+  {a:'PSK',d:'Pre-Shared Key'},
+  {a:'PTZ',d:'Pan-Tilt-Zoom'},
+  {a:'RA',d:'Registration Authority / Risk Assessment'},
+  {a:'RACE',d:'Research and Development in Advanced Communications in Europe'},
+  {a:'RAD',d:'Rapid Application Development'},
+  {a:'RADIUS',d:'Remote Authentication Dial-In User Service'},
+  {a:'RAID',d:'Redundant Array of Inexpensive Disks'},
+  {a:'RAM',d:'Random Access Memory'},
+  {a:'RAS',d:'Remote Access Server'},
+  {a:'RAT',d:'Remote Access Trojan'},
+  {a:'RBAC',d:'Role-Based Access Control'},
+  {a:'RC4',d:'Rivest Cipher 4'},
+  {a:'RDP',d:'Remote Desktop Protocol'},
+  {a:'RFID',d:'Radio Frequency Identification'},
+  {a:'RIPEMD',d:'RACE Integrity Primitives Evaluation Message Digest'},
+  {a:'ROI',d:'Return on Investment'},
+  {a:'RPO',d:'Recovery Point Objective'},
+  {a:'RSA',d:'Rivest, Shamir, and Adleman'},
+  {a:'RTBH',d:'Remotely Triggered Black Hole'},
+  {a:'RTO',d:'Recovery Time Objective'},
+  {a:'RTOS',d:'Real-Time Operating System'},
+  {a:'RTP',d:'Real-Time Transport Protocol'},
+  {a:'S/MIME',d:'Secure/Multipurpose Internet Mail Extensions'},
+  {a:'SaaS',d:'Software as a Service'},
+  {a:'SAML',d:'Security Assertions Markup Language'},
+  {a:'SAN',d:'Storage Area Network / Subject Alternative Name'},
+  {a:'SCADA',d:'Supervisory Control and Data Acquisition'},
+  {a:'SCAP',d:'Security Content Automation Protocol'},
+  {a:'SCEP',d:'Simple Certificate Enrollment Protocol'},
+  {a:'SD-WAN',d:'Software-Defined Wide Area Network'},
+  {a:'SDN',d:'Software-Defined Networking'},
+  {a:'SEAndroid',d:'Security-Enhanced Android'},
+  {a:'SELinux',d:'Security-Enhanced Linux'},
+  {a:'SHA',d:'Secure Hashing Algorithm'},
+  {a:'SIEM',d:'Security Information and Event Management'},
+  {a:'SIM',d:'Subscriber Identity Module'},
+  {a:'SLA',d:'Service-Level Agreement'},
+  {a:'SLE',d:'Single Loss Expectancy'},
+  {a:'SMB',d:'Server Message Block'},
+  {a:'SMS',d:'Short Message Service'},
+  {a:'SMTP',d:'Simple Mail Transfer Protocol'},
+  {a:'SMTPS',d:'Simple Mail Transfer Protocol Secure'},
+  {a:'SNMP',d:'Simple Network Management Protocol'},
+  {a:'SOAP',d:'Simple Object Access Protocol'},
+  {a:'SOC',d:'Security Operations Center'},
+  {a:'SOW',d:'Statement of Work'},
+  {a:'SPF',d:'Sender Policy Framework'},
+  {a:'SQL',d:'Structured Query Language'},
+  {a:'SQLi',d:'SQL Injection'},
+  {a:'SSH',d:'Secure Shell'},
+  {a:'SSID',d:'Service Set Identifier'},
+  {a:'SSL',d:'Secure Sockets Layer'},
+  {a:'SSO',d:'Single Sign-On'},
+  {a:'STP',d:'Spanning Tree Protocol'},
+  {a:'TACACS+',d:'Terminal Access Controller Access Control System Plus'},
+  {a:'TCP',d:'Transmission Control Protocol'},
+  {a:'TGT',d:'Ticket Granting Ticket'},
+  {a:'TKIP',d:'Temporal Key Integrity Protocol'},
+  {a:'TLS',d:'Transport Layer Security'},
+  {a:'TOTP',d:'Time-Based One-Time Password'},
+  {a:'TPM',d:'Trusted Platform Module'},
+  {a:'TTP',d:'Tactics, Techniques, and Procedures'},
+  {a:'UAT',d:'User Acceptance Testing'},
+  {a:'UAV',d:'Unmanned Aerial Vehicle'},
+  {a:'UDP',d:'User Datagram Protocol'},
+  {a:'UEFI',d:'Unified Extensible Firmware Interface'},
+  {a:'UPS',d:'Uninterruptible Power Supply'},
+  {a:'URI',d:'Uniform Resource Identifier'},
+  {a:'URL',d:'Uniform Resource Locator'},
+  {a:'USB',d:'Universal Serial Bus'},
+  {a:'UTM',d:'Unified Threat Management'},
+  {a:'UTP',d:'Unshielded Twisted Pair'},
+  {a:'VBA',d:'Visual Basic for Applications'},
+  {a:'VDE',d:'Virtual Desktop Environment'},
+  {a:'VDI',d:'Virtual Desktop Infrastructure'},
+  {a:'VLAN',d:'Virtual Local Area Network'},
+  {a:'VLSM',d:'Variable Length Subnet Masking'},
+  {a:'VM',d:'Virtual Machine'},
+  {a:'VoIP',d:'Voice over Internet Protocol'},
+  {a:'VPN',d:'Virtual Private Network'},
+  {a:'VTC',d:'Video Teleconferencing'},
+  {a:'WAF',d:'Web Application Firewall'},
+  {a:'WAP',d:'Wireless Access Point'},
+  {a:'WEP',d:'Wired Equivalent Privacy'},
+  {a:'WIDS',d:'Wireless Intrusion Detection System'},
+  {a:'WIPS',d:'Wireless Intrusion Prevention System'},
+  {a:'WPA',d:'Wi-Fi Protected Access'},
+  {a:'WPA2',d:'Wi-Fi Protected Access 2'},
+  {a:'WPA3',d:'Wi-Fi Protected Access 3'},
+  {a:'WPS',d:'Wi-Fi Protected Setup'},
+  {a:'XDR',d:'Extended Detection and Response'},
+  {a:'XML',d:'Extensible Markup Language'},
+  {a:'XOR',d:'Exclusive Or'},
+  {a:'XSS',d:'Cross-Site Scripting'},
+  {a:'XSRF',d:'Cross-Site Request Forgery'},
+  {a:'ZTA',d:'Zero Trust Architecture'}
+];
+
+// ===== FLASH CARDS LOGIC =====
+var fcDeck = [];
+var fcIdx = 0;
+var fcFlipped = false;
+var fcLearned = {};
+var fcLetterFilter = 'ALL';
+
+function initFC() {
+  fcDeck = FC_DATA.slice();
+  var letters = ['ALL'];
+  var seen = {};
+  FC_DATA.forEach(function(c) {
+    var l = c.a[0].toUpperCase();
+    if (!seen[l]) { seen[l] = true; letters.push(l); }
+  });
+  var el = document.getElementById('fc-alpha');
+  el.innerHTML = '';
+  letters.forEach(function(l) {
+    var b = document.createElement('button');
+    b.className = 'fc-alph' + (l === 'ALL' ? ' on' : '');
+    b.textContent = l;
+    (function(letter, btn) {
+      btn.onclick = function() {
+        document.querySelectorAll('.fc-alph').forEach(function(x) { x.classList.remove('on'); });
+        btn.classList.add('on');
+        fcLetterFilter = letter;
+        fcDeck = letter === 'ALL'
+          ? FC_DATA.slice()
+          : FC_DATA.filter(function(c) { return c.a[0].toUpperCase() === letter; });
+        fcIdx = 0;
+        fcRender();
+      };
+    })(l, b);
+    el.appendChild(b);
+  });
+  fcRender();
+}
+
+function fcRender() {
+  if (!fcDeck.length) return;
+  var card = fcDeck[fcIdx];
+  var cardEl = document.getElementById('fc-card');
+  cardEl.classList.remove('flipped');
+  fcFlipped = false;
+  document.getElementById('fc-acr').textContent = card.a;
+  document.getElementById('fc-def').textContent = card.d;
+  document.getElementById('fc-def-acr').textContent = card.a;
+  var btn = document.getElementById('fc-learn-btn');
+  if (fcLearned[card.a]) {
+    btn.textContent = '[ ✓ LEARNED ]';
+    btn.style.borderColor = 'var(--g)';
+    btn.style.color = 'var(--g)';
+  } else {
+    btn.textContent = '[ MARK LEARNED ]';
+    btn.style.borderColor = 'var(--amber)';
+    btn.style.color = 'var(--amber)';
+  }
+  fcUpdateStatus();
+}
+
+function fcFlip() {
+  var cardEl = document.getElementById('fc-card');
+  fcFlipped = !fcFlipped;
+  if (fcFlipped) cardEl.classList.add('flipped');
+  else cardEl.classList.remove('flipped');
+}
+
+function fcNext() {
+  fcIdx = fcIdx < fcDeck.length - 1 ? fcIdx + 1 : 0;
+  fcRender();
+}
+
+function fcPrev() {
+  fcIdx = fcIdx > 0 ? fcIdx - 1 : fcDeck.length - 1;
+  fcRender();
+}
+
+function fcMarkLearned() {
+  var card = fcDeck[fcIdx];
+  if (!fcLearned[card.a]) {
+    fcLearned[card.a] = true;
+    addScore(1, 'flash');
+    var allDone = fcDeck.every(function(c) { return fcLearned[c.a]; });
+    if (allDone && fcLetterFilter !== 'ALL') addScore(10, 'flash');
+    if (Object.keys(fcLearned).length === FC_DATA.length) addScore(50, 'flash');
+  }
+  fcRender();
+  if (fcIdx < fcDeck.length - 1) setTimeout(fcNext, 350);
+}
+
+function fcShuffle() {
+  for (var i = fcDeck.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = fcDeck[i]; fcDeck[i] = fcDeck[j]; fcDeck[j] = t;
+  }
+  fcIdx = 0;
+  fcRender();
+}
+
+function fcResetLearned() {
+  fcLearned = {};
+  fcRender();
+}
+
+function fcUpdateStatus() {
+  var learned = Object.keys(fcLearned).length;
+  var total = FC_DATA.length;
+  var pct = Math.round(learned / total * 100);
+  document.getElementById('fc-status').textContent =
+    'Card ' + (fcIdx + 1) + ' of ' + fcDeck.length +
+    (fcLetterFilter !== 'ALL' ? ' (' + fcLetterFilter + ')' : '') +
+    ' · ' + learned + ' / ' + total + ' learned';
+  document.getElementById('fc-pf').style.width = pct + '%';
+  document.getElementById('fc-prog-label').textContent =
+    'Progress: ' + learned + ' / ' + total + ' terms learned (' + pct + '%)';
 }
 
 function submitPH() {
