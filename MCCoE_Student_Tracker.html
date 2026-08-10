@@ -1280,7 +1280,13 @@ function loadData() {
   ];
 }
 
-function saveData() { localStorage.setItem('mccoe_students', JSON.stringify(students)); }
+let _lastSavedStr = '';
+function saveData() {
+  const str = JSON.stringify(students);
+  _lastSavedStr = str;
+  localStorage.setItem('mccoe_students', str);
+  if (_fbDb) _fbDb.ref('mccoe_tracker_students').set(students);
+}
 let students = loadData();
 let editingId = null;
 let starValues = { rating:0, confidence:0, instruction:0 };
@@ -1362,6 +1368,33 @@ function startFirebaseRegistryListener() {
     }
     updateSyncBadge();
   }, err => console.warn('Firebase registry error:', err));
+
+  // Sync tracker-managed students across all admin sessions in real time
+  _fbDb.ref('mccoe_tracker_students').on('value', snap => {
+    const fbStudents = snap.val();
+    // Firebase empty — push our local data up so other admins get it
+    if (!fbStudents || !Array.isArray(fbStudents) || fbStudents.length === 0) {
+      if (students.length > 0) {
+        const str = JSON.stringify(students);
+        _lastSavedStr = str;
+        _fbDb.ref('mccoe_tracker_students').set(students);
+      }
+      return;
+    }
+    const fbStr = JSON.stringify(fbStudents);
+    if (fbStr === _lastSavedStr) return; // our own write echoing back — skip
+    students = fbStudents;
+    _lastSavedStr = fbStr;
+    localStorage.setItem('mccoe_students', JSON.stringify(students));
+    renderDashboard();
+    const active = document.querySelector('.view.active');
+    if (active) {
+      if (active.id === 'view-students')    renderStudents();
+      if (active.id === 'view-attendance')  renderAttendance();
+      if (active.id === 'view-survey')      renderSurveyView();
+      if (active.id === 'view-employer')    renderEmployerSelect();
+    }
+  });
 }
 
 function syncRegistry() {
