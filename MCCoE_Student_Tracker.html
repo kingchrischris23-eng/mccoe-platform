@@ -628,6 +628,10 @@ select option { background:var(--surface); color:var(--text); }
   <button class="nav-btn" onclick="showView('academy',this)">
     <span class="nav-icon">🎮</span> Academy Scores
   </button>
+  <div class="nav-section">Admin Tools</div>
+  <button class="nav-btn" onclick="showView('content',this)">
+    <span class="nav-icon">⚙️</span> Content Manager
+  </button>
 </nav>
 
 <!-- MAIN -->
@@ -986,6 +990,70 @@ select option { background:var(--surface); color:var(--text); }
     <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase;">Student Leaderboard</div>
     <div id="academy-table-wrap">
       <div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0;">Loading scores...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CONTENT MANAGER ═══ -->
+<div id="view-content" class="view">
+  <div class="page-header">
+    <div>
+      <h2>⚙️ Content Manager</h2>
+      <p>Add quiz questions and flash cards to the CyberSec Academy — live for all students instantly</p>
+    </div>
+    <button class="btn btn-outline" onclick="loadContentManager()">↻ Refresh</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="ctab-quiz" onclick="switchContentTab('quiz',this)">Quiz Questions</button>
+    <button class="tab" id="ctab-flash" onclick="switchContentTab('flash',this)">Flash Cards</button>
+  </div>
+
+  <!-- QUIZ TAB -->
+  <div id="ctab-quiz-content" class="tab-content active">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;">
+        <div class="section-title">Add New Quiz Question</div>
+        <div class="form-group" style="margin-bottom:12px;"><label>Category</label><input id="cm-q-cat" placeholder="e.g. Network Security"></div>
+        <div class="form-group" style="margin-bottom:12px;"><label>Question</label><textarea id="cm-q-q" placeholder="Enter the question..."></textarea></div>
+        <div class="form-group" style="margin-bottom:10px;"><label>Option A</label><input id="cm-q-0" placeholder="Option A"></div>
+        <div class="form-group" style="margin-bottom:10px;"><label>Option B</label><input id="cm-q-1" placeholder="Option B"></div>
+        <div class="form-group" style="margin-bottom:10px;"><label>Option C</label><input id="cm-q-2" placeholder="Option C"></div>
+        <div class="form-group" style="margin-bottom:12px;"><label>Option D</label><input id="cm-q-3" placeholder="Option D"></div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>Correct Answer</label>
+          <select id="cm-q-ans">
+            <option value="0">A</option>
+            <option value="1">B</option>
+            <option value="2">C</option>
+            <option value="3">D</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-bottom:16px;"><label>Explanation (shown to student after answering)</label><textarea id="cm-q-exp" placeholder="Explain why the correct answer is right..."></textarea></div>
+        <button class="btn btn-green" onclick="addCustomQuiz()" style="width:100%;">+ Add Question to Academy</button>
+        <div id="cm-q-msg" style="display:none;margin-top:10px;font-size:.82rem;font-weight:600;"></div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;">
+        <div class="section-title">Custom Questions Added (<span id="cm-q-count">0</span>)</div>
+        <div id="cm-q-list"><div class="empty-state"><div class="empty-icon">❓</div>No custom questions yet</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLASH CARD TAB -->
+  <div id="ctab-flash-content" class="tab-content">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;">
+        <div class="section-title">Add New Flash Card</div>
+        <div class="form-group" style="margin-bottom:12px;"><label>Acronym</label><input id="cm-f-acr" placeholder="e.g. VPN" style="text-transform:uppercase;"></div>
+        <div class="form-group" style="margin-bottom:16px;"><label>Definition</label><input id="cm-f-def" placeholder="e.g. Virtual Private Network"></div>
+        <button class="btn btn-green" onclick="addCustomFlash()" style="width:100%;">+ Add Flash Card to Academy</button>
+        <div id="cm-f-msg" style="display:none;margin-top:10px;font-size:.82rem;font-weight:600;"></div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;">
+        <div class="section-title">Custom Flash Cards Added (<span id="cm-f-count">0</span>)</div>
+        <div id="cm-f-list"><div class="empty-state"><div class="empty-icon">🃏</div>No custom flash cards yet</div></div>
+      </div>
     </div>
   </div>
 </div>
@@ -1558,6 +1626,7 @@ function showView(name, btn) {
   if(name==='submissions')  renderSubmissionsView();
   if(name==='library')      renderLibraryAdmin();
   if(name==='academy')      loadAcademyScores();
+  if(name==='content')      loadContentManager();
 }
 
 // ════════════════════════════════════════════
@@ -3855,6 +3924,130 @@ function changeMyPassword() {
 // ════════════════════════════════════════════
 document.getElementById('headerDate').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
 document.getElementById('attendDate').value = new Date().toISOString().split('T')[0];
+
+// ════════════════════════════════════════════
+//  CONTENT MANAGER
+// ════════════════════════════════════════════
+function escHtml(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function switchContentTab(tab, btn) {
+  document.querySelectorAll('#view-content .tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#view-content .tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('ctab-' + tab + '-content').classList.add('active');
+}
+
+function loadContentManager() {
+  renderCMQuizList();
+  renderCMFlashList();
+}
+
+function addCustomQuiz() {
+  const cat = document.getElementById('cm-q-cat').value.trim();
+  const q   = document.getElementById('cm-q-q').value.trim();
+  const o0  = document.getElementById('cm-q-0').value.trim();
+  const o1  = document.getElementById('cm-q-1').value.trim();
+  const o2  = document.getElementById('cm-q-2').value.trim();
+  const o3  = document.getElementById('cm-q-3').value.trim();
+  const ans = parseInt(document.getElementById('cm-q-ans').value);
+  const exp = document.getElementById('cm-q-exp').value.trim();
+  const msg = document.getElementById('cm-q-msg');
+  msg.style.display = 'block';
+  if (!cat || !q || !o0 || !o1 || !o2 || !o3 || !exp) {
+    msg.style.color = 'var(--red)'; msg.textContent = '✗ Please fill in all fields.'; return;
+  }
+  if (!_fbDb) { msg.style.color = 'var(--red)'; msg.textContent = '✗ Not connected to Firebase.'; return; }
+  const adminUser = sessionStorage.getItem('mccoe_admin_user') || 'admin';
+  _fbDb.ref('mccoe_content/quiz').push({
+    category: cat, question: q,
+    opt0: o0, opt1: o1, opt2: o2, opt3: o3,
+    answer: ans, explanation: exp,
+    addedBy: adminUser, addedAt: new Date().toISOString()
+  }).then(() => {
+    msg.style.color = 'var(--green)';
+    msg.textContent = '✓ Question added — students will see it in the Academy quiz.';
+    ['cm-q-cat','cm-q-q','cm-q-0','cm-q-1','cm-q-2','cm-q-3','cm-q-exp'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('cm-q-ans').value = '0';
+    renderCMQuizList();
+    setTimeout(() => { msg.style.display = 'none'; }, 4000);
+  });
+}
+
+function addCustomFlash() {
+  const acr = document.getElementById('cm-f-acr').value.trim().toUpperCase();
+  const def = document.getElementById('cm-f-def').value.trim();
+  const msg = document.getElementById('cm-f-msg');
+  msg.style.display = 'block';
+  if (!acr || !def) {
+    msg.style.color = 'var(--red)'; msg.textContent = '✗ Please fill in both fields.'; return;
+  }
+  if (!_fbDb) { msg.style.color = 'var(--red)'; msg.textContent = '✗ Not connected to Firebase.'; return; }
+  const adminUser = sessionStorage.getItem('mccoe_admin_user') || 'admin';
+  _fbDb.ref('mccoe_content/flashcards').push({
+    acronym: acr, definition: def,
+    addedBy: adminUser, addedAt: new Date().toISOString()
+  }).then(() => {
+    msg.style.color = 'var(--green)';
+    msg.textContent = '✓ Flash card added — students will see it in the Academy.';
+    document.getElementById('cm-f-acr').value = '';
+    document.getElementById('cm-f-def').value = '';
+    renderCMFlashList();
+    setTimeout(() => { msg.style.display = 'none'; }, 4000);
+  });
+}
+
+function renderCMQuizList() {
+  const listEl  = document.getElementById('cm-q-list');
+  const countEl = document.getElementById('cm-q-count');
+  if (!listEl) return;
+  if (!_fbDb) { listEl.innerHTML = '<div style="color:var(--muted);font-size:.82rem;padding:10px 0;">Firebase not connected.</div>'; return; }
+  listEl.innerHTML = '<div style="color:var(--muted);font-size:.8rem;padding:10px 0;">Loading...</div>';
+  _fbDb.ref('mccoe_content/quiz').once('value', snap => {
+    const d = snap.val();
+    countEl.textContent = d ? Object.keys(d).length : 0;
+    if (!d) { listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">❓</div>No custom questions yet</div>'; return; }
+    const OPTS = ['A','B','C','D'];
+    listEl.innerHTML = Object.entries(d).map(([key, q]) => `
+      <div style="background:rgba(0,245,255,0.04);border:1px solid rgba(0,245,255,0.1);border-radius:8px;padding:12px;margin-bottom:8px;">
+        <div style="font-size:.68rem;color:var(--muted);margin-bottom:4px;">${escHtml(q.category)} · Added by ${escHtml(q.addedBy)}</div>
+        <div style="font-size:.85rem;color:var(--white);font-weight:600;margin-bottom:6px;">${escHtml(q.question)}</div>
+        <div style="font-size:.75rem;color:var(--green);">✓ ${OPTS[q.answer]}: ${escHtml([q.opt0,q.opt1,q.opt2,q.opt3][q.answer])}</div>
+        <button class="btn btn-red btn-sm" style="margin-top:8px;" onclick="deleteCustomContent('quiz','${key}')">Delete</button>
+      </div>`).join('');
+  });
+}
+
+function renderCMFlashList() {
+  const listEl  = document.getElementById('cm-f-list');
+  const countEl = document.getElementById('cm-f-count');
+  if (!listEl) return;
+  if (!_fbDb) { listEl.innerHTML = '<div style="color:var(--muted);font-size:.82rem;padding:10px 0;">Firebase not connected.</div>'; return; }
+  listEl.innerHTML = '<div style="color:var(--muted);font-size:.8rem;padding:10px 0;">Loading...</div>';
+  _fbDb.ref('mccoe_content/flashcards').once('value', snap => {
+    const d = snap.val();
+    countEl.textContent = d ? Object.keys(d).length : 0;
+    if (!d) { listEl.innerHTML = '<div class="empty-state"><div class="empty-icon">🃏</div>No custom flash cards yet</div>'; return; }
+    listEl.innerHTML = Object.entries(d).map(([key, f]) => `
+      <div style="background:rgba(0,245,255,0.04);border:1px solid rgba(0,245,255,0.1);border-radius:8px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div>
+          <div style="font-size:.9rem;font-weight:700;color:var(--cyan);font-family:var(--font-h);letter-spacing:1px;">${escHtml(f.acronym)}</div>
+          <div style="font-size:.8rem;color:var(--text);">${escHtml(f.definition)}</div>
+          <div style="font-size:.68rem;color:var(--muted);margin-top:2px;">Added by ${escHtml(f.addedBy)}</div>
+        </div>
+        <button class="btn btn-red btn-sm" onclick="deleteCustomContent('flashcards','${key}')">Delete</button>
+      </div>`).join('');
+  });
+}
+
+function deleteCustomContent(type, key) {
+  if (!_fbDb || !confirm('Delete this item? Students will no longer see it.')) return;
+  _fbDb.ref('mccoe_content/' + type + '/' + key).remove().then(() => {
+    if (type === 'quiz') renderCMQuizList();
+    else renderCMFlashList();
+  });
+}
 
 if (sessionStorage.getItem('mccoe_admin_auth') === '1') {
   gate.style.display = 'none';

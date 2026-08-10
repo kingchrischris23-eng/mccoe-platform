@@ -412,6 +412,7 @@ function endBoot() {
   initPH();
   initCurriculum();
   initFC();
+  loadCustomContent();
 }
 
 // ===== NAV =====
@@ -1484,6 +1485,30 @@ function fcShuffle() {
 function fcResetLearned() {
   fcLearned = {};
   fcRender();
+}
+
+function loadCustomContent() {
+  if (!_fbDb) return;
+  _fbDb.ref('mccoe_content').once('value', function(snap) {
+    var d = snap.val();
+    if (!d) return;
+    var quizAdded = 0, flashAdded = 0;
+    if (d.quiz) {
+      Object.values(d.quiz).forEach(function(q) {
+        QS_ALL.push({c: q.category, q: q.question, o: [q.opt0, q.opt1, q.opt2, q.opt3], a: q.answer, e: q.explanation});
+        quizAdded++;
+      });
+    }
+    if (d.flashcards) {
+      Object.values(d.flashcards).forEach(function(f) {
+        if (!FC_DATA.find(function(x) { return x.a === f.acronym; })) {
+          FC_DATA.push({a: f.acronym, d: f.definition});
+          flashAdded++;
+        }
+      });
+      if (flashAdded > 0) initFC();
+    }
+  });
 }
 
 function fcUpdateStatus() {
