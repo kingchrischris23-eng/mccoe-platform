@@ -2619,6 +2619,9 @@ function renderWeek(num) {
         </button>
         <div class="quiz-result-bar" id="quiz-result-bar"></div>
         <div id="quiz-review-panel"></div>
+        <div id="quiz-submit-hint" style="display:none;margin-top:12px;padding:10px 14px;background:rgba(0,166,81,0.08);border:1px solid rgba(0,166,81,0.3);border-radius:8px;font-size:13px;color:#00a651;">
+          Ready to turn in your work? Click the <strong>📤 Submit</strong> tab above to submit your quiz, labs, and reflection to your instructor.
+        </div>
       </div>
     </div>
 
@@ -2653,15 +2656,17 @@ function renderWeek(num) {
     </div>
   `;
 
-  // Show previously graded quiz result if exists
+  // Restore graded quiz state if student navigates back to this week
   if (p.quizScore !== null) {
     const bar = document.getElementById('quiz-result-bar');
     if (bar) {
       const pct = Math.round(p.quizScore/p.quizTotal*100);
       bar.style.display = 'block';
       bar.className = `quiz-result-bar ${pct>=70?'pass':'fail'}`;
-      bar.innerHTML = `Score: ${p.quizScore}/${p.quizTotal} — ${pct}% ${pct>=70?'✅ PASS — Great work!':'❌ Review the material and retake'}`;
+      bar.innerHTML = `Score: ${p.quizScore}/${p.quizTotal} — ${pct}% ${pct>=70?'✅ PASS — Great work!':'❌ Review the material and retake — 70% required to pass'}`;
     }
+    const btn = document.getElementById('btn-grade-quiz');
+    if (btn) { btn.textContent = '🔄 Retake Quiz'; btn.onclick = () => retakeQuiz(num); }
   }
 }
 
@@ -2760,6 +2765,7 @@ function gradeQuiz(weekNum) {
 
   if (!allAnswered) { alert('Please answer all questions before grading.'); return; }
 
+  const wasAlreadyGraded = p.quizScore !== null;
   p.quizScore = score;
   p.quizTotal = w.quiz.length;
   const pct = Math.round(score/w.quiz.length*100);
@@ -2768,7 +2774,7 @@ function gradeQuiz(weekNum) {
     p.objectivesChecked = w.objectives.map((_, i) => i);
   }
   saveState();
-  awardXP(weekNum, score, w.quiz.length, pct);
+  if (!wasAlreadyGraded) awardXP(weekNum, score, w.quiz.length, pct);
 
   const bar = document.getElementById('quiz-result-bar');
   bar.style.display = 'block';
@@ -2777,6 +2783,9 @@ function gradeQuiz(weekNum) {
 
   const btn = document.getElementById('btn-grade-quiz');
   if (btn) { btn.textContent = '🔄 Retake Quiz'; btn.onclick = () => retakeQuiz(weekNum); }
+
+  const hint = document.getElementById('quiz-submit-hint');
+  if (hint) hint.style.display = 'block';
 
   // disable inputs
   document.querySelectorAll('input[type=radio]').forEach(r => r.disabled = true);

@@ -944,8 +944,8 @@ function renderPH() {
         flag.classList.add('found');
         document.getElementById('ph-cnt').textContent = phFound.size;
         addScore(5, 'phish');
-        showTip(flag, flag.dataset.tip);
       }
+      showTip(flag, flag.dataset.tip);
     });
   });
 }
@@ -955,8 +955,12 @@ function showTip(el, tip) {
   tt.innerHTML = '<span style="color:var(--amber);font-size:11px;letter-spacing:1px">⚠ RED FLAG FOUND</span><br><br>'+tip;
   tt.style.display = 'block';
   var r = el.getBoundingClientRect();
-  var top = r.bottom + window.scrollY + 6;
-  var left = Math.min(r.left, window.innerWidth - 320);
+  var ttH = tt.offsetHeight || 130;
+  var left = Math.min(r.left + window.scrollX, window.innerWidth - 325);
+  var spaceBelow = window.innerHeight - r.bottom;
+  var top = spaceBelow >= ttH + 14
+    ? r.bottom + window.scrollY + 6
+    : r.top + window.scrollY - ttH - 8;
   tt.style.top = top+'px';
   tt.style.left = left+'px';
   clearTimeout(tt._t);
