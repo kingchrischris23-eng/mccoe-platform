@@ -1,0 +1,1551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CYBERSEC ACADEMY // TERMINAL v1.0</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --g:#00ff41;--gd:#00aa2a;--gk:#004d10;
+  --amber:#ffb700;--red:#ff3a3a;
+  --bg:#050a05;--bg2:#0a120a;
+  --border:rgba(0,255,65,0.2);--text:#c8ffc8;
+}
+body{background:var(--bg);color:var(--g);font-family:'Courier New',Courier,monospace;font-size:14px;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);pointer-events:none;z-index:1000}
+body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,0.6) 100%);pointer-events:none;z-index:1001}
+#app{max-width:860px;margin:0 auto;padding:16px;min-height:100vh}
+
+/* BOOT */
+#boot{position:fixed;inset:0;background:#000;z-index:9998;display:flex;align-items:center;justify-content:center;padding:32px;cursor:pointer}
+#boot-text{color:var(--g);font-size:13px;line-height:1.7;white-space:pre;text-shadow:0 0 4px var(--g);max-width:600px}
+
+/* HEADER */
+#hdr{border:1px solid var(--gd);padding:10px 16px;margin-bottom:12px;background:var(--bg2)}
+#hdr-title{text-align:center;letter-spacing:3px;font-size:15px;text-shadow:0 0 10px var(--g);margin-bottom:6px}
+#score-bar{display:flex;justify-content:space-between;font-size:12px;color:var(--gd)}
+#score-bar span b{color:var(--g)}
+
+/* NAV */
+#nav{display:flex;gap:4px;margin-bottom:14px}
+.nb{flex:1;background:var(--bg2);border:1px solid var(--gd);color:var(--gd);padding:8px 4px;cursor:pointer;font-family:inherit;font-size:12px;letter-spacing:1px;text-align:center;transition:all .15s}
+.nb:hover,.nb.active{background:var(--gk);border-color:var(--g);color:var(--g);text-shadow:0 0 6px var(--g)}
+
+/* SCREENS */
+.scr{display:none}.scr.on{display:block}
+
+/* PANEL */
+.pnl{border:1px solid var(--border);background:var(--bg2);padding:18px;margin-bottom:14px}
+.ptitle{font-size:12px;letter-spacing:2px;color:var(--gd);border-bottom:1px solid var(--border);padding-bottom:8px;margin-bottom:14px}
+
+/* QUIZ */
+#q-prog-info{font-size:12px;color:var(--gd);margin-bottom:6px}
+.prog-bar{height:3px;background:var(--gk);margin-bottom:14px;border-radius:2px}
+.prog-fill{height:100%;background:var(--g);border-radius:2px;transition:width .3s;box-shadow:0 0 6px var(--g)}
+#q-text{font-size:14px;color:var(--text);margin-bottom:18px;line-height:1.65}
+.qopt{display:block;width:100%;background:transparent;border:1px solid var(--gk);color:var(--gd);padding:9px 12px;margin-bottom:7px;cursor:pointer;font-family:inherit;font-size:13px;text-align:left;transition:all .15s}
+.qopt::before{content:'> '}
+.qopt:hover:not(:disabled){background:var(--gk);border-color:var(--g);color:var(--g)}
+.qopt.ok{background:rgba(0,200,50,.12);border-color:var(--g);color:var(--g)}
+.qopt.ng{background:rgba(255,50,50,.1);border-color:var(--red);color:var(--red)}
+#q-fb{display:none;margin-top:14px;padding:12px;font-size:13px;line-height:1.6;color:var(--text);border-left:3px solid var(--g);background:rgba(0,255,65,.04)}
+#q-fb.bad{border-left-color:var(--red);background:rgba(255,50,50,.05);color:#ffaaaa}
+.btn{background:var(--gk);border:1px solid var(--g);color:var(--g);padding:9px 18px;cursor:pointer;font-family:inherit;font-size:12px;letter-spacing:1px;margin-top:10px;display:none}
+.btn:hover{background:rgba(0,255,65,.2)}
+
+/* SOC */
+#soc-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chip{background:var(--bg2);border:1px solid var(--gd);color:var(--gd);padding:5px 12px;cursor:pointer;font-family:inherit;font-size:12px;letter-spacing:1px;transition:all .15s}
+.chip:hover,.chip.on{background:var(--gk);border-color:var(--g);color:var(--g)}
+#soc-text{font-size:13px;line-height:1.8;color:var(--text);margin-bottom:18px;white-space:pre-wrap}
+.sopt{display:block;width:100%;background:transparent;border:1px solid var(--gk);color:var(--gd);padding:9px 12px;margin-bottom:7px;cursor:pointer;font-family:inherit;font-size:13px;text-align:left;transition:all .15s}
+.sopt::before{content:'>> '}
+.sopt:hover:not(:disabled){background:var(--gk);border-color:var(--g);color:var(--g)}
+#soc-res{display:none;margin-top:14px;padding:12px;font-size:13px;line-height:1.6}
+.r-good{border-left:3px solid var(--g);background:rgba(0,255,65,.05);color:var(--text)}
+.r-bad{border-left:3px solid var(--red);background:rgba(255,50,50,.05);color:#ffaaaa}
+.r-ok{border-left:3px solid var(--amber);background:rgba(255,183,0,.05);color:#ffe0aa}
+
+/* PASSWORD */
+#pw-in{width:100%;background:var(--bg);border:1px solid var(--gd);color:var(--g);padding:10px 14px;font-family:inherit;font-size:14px;margin-bottom:10px;outline:none}
+#pw-in:focus{border-color:var(--g);box-shadow:0 0 8px rgba(0,255,65,.15)}
+#pw-in::placeholder{color:var(--gd);opacity:.5}
+.pwmeter{height:7px;background:var(--gk);border-radius:4px;margin-bottom:8px;overflow:hidden}
+.pwfill{height:100%;border-radius:4px;transition:width .3s,background .3s}
+#pw-label{font-size:13px;margin-bottom:12px;letter-spacing:1px}
+#pw-checks{font-size:12px;line-height:2.1}
+.pc{color:var(--gd)}.pc.y{color:var(--g)}.pc.n{color:var(--red)}
+#pw-crack{margin-top:12px;padding:10px;background:rgba(0,255,65,.03);border:1px solid var(--border);font-size:12px;color:var(--text)}
+
+/* PHISHING */
+#ph-nav{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.pchip{background:var(--bg2);border:1px solid var(--gd);color:var(--gd);padding:5px 12px;cursor:pointer;font-family:inherit;font-size:12px;transition:all .15s}
+.pchip:hover,.pchip.on{background:var(--gk);border-color:var(--g);color:var(--g)}
+#ph-count-bar{font-size:13px;color:var(--amber);margin-bottom:10px}
+#ph-email{background:#0d1117;border:1px solid #333;padding:16px;font-size:13px;line-height:1.9;margin-bottom:12px;color:#e0e0e0}
+.ph-hdr{border-bottom:1px solid #333;padding-bottom:10px;margin-bottom:10px;font-size:12px;color:#999}
+.pf{background:rgba(255,183,0,.08);border-bottom:2px solid transparent;cursor:pointer;transition:all .2s}
+.pf:hover{background:rgba(255,183,0,.18);border-bottom-color:var(--amber)}
+.pf.found{background:rgba(255,50,50,.12);border-bottom-color:var(--red);color:#ffaaaa}
+.pf.missed{background:rgba(255,120,0,.2);border-bottom-color:orange}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.blink{animation:blink 1s step-end infinite}
+#ph-res{display:none;margin-top:12px;font-size:12px;line-height:1.8}
+#phtooltip{position:fixed;background:#0a1a0a;border:1px solid var(--amber);color:#ffe0aa;padding:10px 14px;font-size:12px;max-width:300px;line-height:1.6;z-index:5000;box-shadow:0 0 20px rgba(255,183,0,.2);display:none;pointer-events:none}
+
+/* CURRICULUM */
+#wk-chips{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px}
+.wk-chip{background:var(--bg2);border:1px solid var(--gd);color:var(--gd);padding:5px 10px;cursor:pointer;font-family:inherit;font-size:11px;letter-spacing:1px;transition:all .15s}
+.wk-chip:hover,.wk-chip.on{background:var(--gk);border-color:var(--g);color:var(--g)}
+.wk-title{font-size:14px;color:var(--g);font-weight:bold;margin-bottom:4px;letter-spacing:1px;text-shadow:0 0 6px var(--g)}
+.wk-topics{font-size:12px;color:var(--amber);margin-bottom:8px;letter-spacing:1px}
+.wk-nist{font-size:11px;color:var(--gd);margin-bottom:12px}
+.wk-sec{font-size:11px;color:var(--gd);letter-spacing:2px;margin:14px 0 6px;border-bottom:1px solid var(--border);padding-bottom:4px}
+.wk-body{font-size:13px;color:var(--text);line-height:1.7;margin-bottom:10px}
+.wk-li{font-size:13px;color:var(--text);line-height:1.9;padding-left:4px;display:block;margin-bottom:2px}
+.wk-li::before{content:'> ';color:var(--gd)}
+.ct{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:12px}
+.ct th{background:var(--gk);color:var(--g);padding:6px 8px;text-align:left;border:1px solid var(--border);font-size:11px;letter-spacing:1px}
+.ct td{padding:6px 8px;border:1px solid rgba(0,255,65,.1);color:var(--text);vertical-align:top;line-height:1.5}
+.ct tr:nth-child(even) td{background:rgba(0,255,65,.03)}
+
+/* FLASHCARDS */
+#fc-alpha{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:10px}
+.fc-alph{background:var(--bg2);border:1px solid var(--gd);color:var(--gd);padding:4px 9px;cursor:pointer;font-family:inherit;font-size:11px;letter-spacing:1px;transition:all .15s;min-width:30px;text-align:center}
+.fc-alph:hover,.fc-alph.on{background:var(--gk);border-color:var(--g);color:var(--g)}
+#fc-controls{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+#fc-status{font-size:12px;color:var(--gd);flex:1}
+.fc-btn{background:var(--gk);border:1px solid var(--g);color:var(--g);padding:7px 14px;cursor:pointer;font-family:inherit;font-size:11px;letter-spacing:1px;transition:all .15s}
+.fc-btn:hover{background:rgba(0,255,65,.2)}
+.fc-btn.amber{border-color:var(--amber);color:var(--amber)}
+.fc-btn.amber:hover{background:rgba(255,183,0,.15)}
+#fc-card-wrap{perspective:1000px;height:160px;margin-bottom:12px;cursor:pointer;user-select:none}
+.fc-card{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform .45s;border:1px solid var(--border)}
+.fc-card.flipped{transform:rotateY(180deg)}
+.fc-front,.fc-back{position:absolute;inset:0;backface-visibility:hidden;display:flex;align-items:center;justify-content:center;flex-direction:column;padding:20px;background:var(--bg2)}
+.fc-back{transform:rotateY(180deg);background:rgba(0,30,10,1)}
+.fc-acronym{font-size:30px;letter-spacing:5px;color:var(--g);text-shadow:0 0 18px var(--g);font-weight:bold}
+.fc-hint{font-size:11px;color:var(--gd);margin-top:10px;letter-spacing:1px}
+.fc-def{font-size:14px;color:var(--text);text-align:center;line-height:1.6;max-width:90%}
+.fc-def-acr{font-size:11px;color:var(--gd);margin-top:8px;letter-spacing:3px}
+#fc-actions{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
+#fc-prog-label{font-size:11px;color:var(--gd);margin-bottom:5px}
+</style>
+</head>
+<body>
+
+<div id="boot" onclick="skipBoot()">
+  <pre id="boot-text"></pre>
+</div>
+
+<div id="phtooltip"></div>
+
+<div id="app">
+  <div id="hdr">
+    <div id="hdr-title">█ CYBERSEC ACADEMY // TERMINAL v1.0 █</div>
+    <div id="score-bar">
+      <span>SESSION: <b id="sid">——</b></span>
+      <span>SCORE: <b id="pts">0</b> PTS</span>
+      <span>RANK: <b id="rank">RECRUIT</b></span>
+    </div>
+  </div>
+
+  <div id="nav">
+    <button class="nb active" onclick="showScr('quiz',this)">[ QUIZ ]</button>
+    <button class="nb" onclick="showScr('soc',this)">[ SOC SIM ]</button>
+    <button class="nb" onclick="showScr('pw',this)">[ PW CHECK ]</button>
+    <button class="nb" onclick="showScr('ph',this)">[ PHISH SPOT ]</button>
+    <button class="nb" onclick="showScr('cur',this)">[ CURRICULUM ]</button>
+    <button class="nb" onclick="showScr('fc',this)">[ FLASH CARDS ]</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz-scr" class="scr on">
+    <div class="pnl">
+      <div class="ptitle">// CYBER TRIVIA — TEST YOUR KNOWLEDGE</div>
+      <div id="q-cats" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px"></div>
+      <div id="q-prog-info">Question <span id="qn">1</span> of <span id="qt">20</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="qpf" style="width:5%"></div></div>
+      <div id="q-text"></div>
+      <div id="q-opts"></div>
+      <div id="q-fb"></div>
+      <button class="btn" id="q-nxt" onclick="nextQ()">[ NEXT QUESTION &gt;&gt; ]</button>
+    </div>
+  </div>
+
+  <!-- SOC -->
+  <div id="soc-scr" class="scr">
+    <div class="pnl">
+      <div class="ptitle">// SOC ANALYST SIMULATOR — INCIDENT RESPONSE</div>
+      <div id="soc-chips"></div>
+      <div id="soc-text"></div>
+      <div id="soc-opts"></div>
+      <div id="soc-res"></div>
+      <button class="btn" id="soc-nxt" onclick="socNext()">[ CONTINUE &gt;&gt; ]</button>
+    </div>
+  </div>
+
+  <!-- PASSWORD -->
+  <div id="pw-scr" class="scr">
+    <div class="pnl">
+      <div class="ptitle">// PASSWORD STRENGTH ANALYZER</div>
+      <p style="font-size:12px;color:var(--gd);margin-bottom:14px">Enter any password to analyze — all processing is local, nothing is sent anywhere.</p>
+      <input type="password" id="pw-in" placeholder="Type a password to analyze..." oninput="checkPW()" autocomplete="off">
+      <div class="pwmeter"><div class="pwfill" id="pwf" style="width:0%"></div></div>
+      <div id="pw-label">STRENGTH: <span id="pw-str">—</span></div>
+      <div id="pw-checks"></div>
+      <div id="pw-crack"></div>
+    </div>
+    <div class="pnl">
+      <div class="ptitle">// COMMON PASSWORD MISTAKES</div>
+      <div style="font-size:12px;color:var(--text);line-height:2.2">
+        <div><span style="color:var(--red)">✗</span> "password123" — cracked in under 1 second by any tool</div>
+        <div><span style="color:var(--red)">✗</span> Your name + birth year — social engineering finds this easily</div>
+        <div><span style="color:var(--red)">✗</span> Under 8 characters — brute force in minutes</div>
+        <div><span style="color:var(--red)">✗</span> Dictionary words only — vulnerable to dictionary attacks</div>
+        <div><span style="color:var(--g)">✓</span> Use a passphrase: "Purple!Monkey$Dishwasher9"</div>
+        <div><span style="color:var(--g)">✓</span> Use a password manager (Bitwarden is free and open-source)</div>
+        <div><span style="color:var(--g)">✓</span> Enable MFA on every account — stops 99.9% of automated attacks</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CURRICULUM -->
+  <div id="cur-scr" class="scr">
+    <div class="pnl">
+      <div class="ptitle">// 8-WEEK CYBERSECURITY FOUNDATIONS CURRICULUM</div>
+
+      <!-- MCCoE Official Doc Download Banner -->
+      <div style="border:1px solid rgba(0,255,65,0.35);padding:16px 18px;margin-bottom:18px;background:rgba(0,255,65,0.04);">
+        <div style="color:var(--g);font-size:10px;letter-spacing:3px;margin-bottom:6px;">▶ MCCoE OFFICIAL CURRICULUM DOCUMENT</div>
+        <div style="font-size:12px;color:var(--text);line-height:1.7;margin-bottom:12px;">
+          Download the complete MCCoE Cybersecurity Apprenticeship curriculum — 8 projects across 4 real-world incidents (Target, Colonial Pipeline, SolarWinds, Equifax). Includes deep-dive docs, executive summary templates, grading rubrics, and instructor notes.
+        </div>
+        <a href="MCCoE_8Week_Cybersecurity_Curriculum.docx" download
+           style="display:inline-block;background:rgba(0,255,65,0.1);border:1px solid var(--g);color:var(--g);padding:9px 20px;font-family:inherit;font-size:11px;letter-spacing:2px;text-decoration:none;margin-right:10px;">
+          [ ↓ DOWNLOAD CURRICULUM.DOCX ]
+        </a>
+        <span style="font-size:10px;color:var(--gd);letter-spacing:1px;">Microsoft Word · 650 pts total · Mon–Thu schedule</span>
+      </div>
+
+      <div id="wk-chips"></div>
+      <div id="wk-content"></div>
+    </div>
+  </div>
+
+  <!-- PHISHING -->
+  <div id="ph-scr" class="scr">
+    <div class="pnl">
+      <div class="ptitle">// PHISHING EMAIL DETECTOR — CLICK ALL RED FLAGS</div>
+      <p style="font-size:12px;color:var(--gd);margin-bottom:12px">Find every suspicious element in the email. Click anything that looks like a red flag to score points.</p>
+      <div id="ph-nav"></div>
+      <div id="ph-count-bar">Red flags found: <span id="ph-cnt">0</span> / <span id="ph-tot">0</span></div>
+      <div id="ph-email"></div>
+      <button class="btn" id="ph-sub" style="display:inline-block" onclick="submitPH()">[ SUBMIT ANALYSIS ]</button>
+      <div id="ph-res"></div>
+    </div>
+  </div>
+
+  <!-- FLASHCARDS -->
+  <div id="fc-scr" class="scr">
+    <div class="pnl">
+      <div class="ptitle">// SY0-701 ACRONYM FLASH CARDS — 293 TERMS</div>
+      <p style="font-size:12px;color:var(--gd);margin-bottom:10px">Filter by letter · Click card to flip · Mark terms learned to track progress · Earn XP for every term learned</p>
+      <div id="fc-alpha"></div>
+      <div id="fc-controls">
+        <span id="fc-status">Card 1 of 293 · 0 / 293 learned</span>
+        <button class="fc-btn" onclick="fcShuffle()">[ SHUFFLE ]</button>
+        <button class="fc-btn amber" onclick="fcResetLearned()">[ RESET PROGRESS ]</button>
+      </div>
+      <div id="fc-card-wrap" onclick="fcFlip()">
+        <div class="fc-card" id="fc-card">
+          <div class="fc-front">
+            <div class="fc-acronym" id="fc-acr">AAA</div>
+            <div class="fc-hint">▶ Click to reveal definition</div>
+          </div>
+          <div class="fc-back">
+            <div class="fc-def" id="fc-def">Authentication, Authorization, and Accounting</div>
+            <div class="fc-def-acr" id="fc-def-acr">AAA</div>
+          </div>
+        </div>
+      </div>
+      <div id="fc-actions">
+        <button class="fc-btn" onclick="fcPrev()">[ &lt;&lt; PREV ]</button>
+        <button class="fc-btn amber" id="fc-learn-btn" onclick="fcMarkLearned()">[ MARK LEARNED ]</button>
+        <button class="fc-btn" onclick="fcNext()">[ NEXT &gt;&gt; ]</button>
+      </div>
+      <div id="fc-prog-label">Progress: 0 / 293 terms learned (0%)</div>
+      <div class="prog-bar"><div class="prog-fill" id="fc-pf" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== FIREBASE =====
+var _fbDb = null;
+var _studentName = '';
+var _studentId   = '';
+
+(function initFirebase() {
+  var params = new URLSearchParams(window.location.search);
+  _studentName = params.get('name') || sessionStorage.getItem('acad_name') || '';
+  _studentId   = params.get('id')   || sessionStorage.getItem('acad_id')   || '';
+  if (_studentName) sessionStorage.setItem('acad_name', _studentName);
+  if (_studentId)   sessionStorage.setItem('acad_id',   _studentId);
+
+  try {
+    if (!firebase.apps.length) firebase.initializeApp({
+      apiKey:            "AIzaSyBpK8uLCD0_m83a1xFiOQVaS1PKWSGcEc8",
+      authDomain:        "mccoe-platform-a9710.firebaseapp.com",
+      databaseURL:       "https://mccoe-platform-a9710-default-rtdb.firebaseio.com",
+      projectId:         "mccoe-platform-a9710",
+      storageBucket:     "mccoe-platform-a9710.firebasestorage.app",
+      messagingSenderId: "435411134511",
+      appId:             "1:435411134511:web:face8dfcc670df20f1beda"
+    });
+    _fbDb = firebase.database();
+  } catch(e) {}
+})();
+
+function saveProgress() {
+  if (!_fbDb || !(_studentName || _studentId)) return;
+  var key = _studentId || _studentName.replace(/\s+/g,'_').toLowerCase();
+  _fbDb.ref('mccoe_academy/' + key).set({
+    name:        _studentName || _studentId,
+    totalScore:  score,
+    quizPts:     _quizPts,
+    socPts:      _socPts,
+    phishPts:    _phishPts,
+    flashPts:    _flashPts,
+    lastPlayed:  new Date().toISOString(),
+    sessions:    (_sessionCount || 1)
+  });
+}
+
+var _quizPts = 0, _socPts = 0, _phishPts = 0, _flashPts = 0, _sessionCount = 1;
+
+// ===== STATE =====
+var score = 0;
+var sid = Math.random().toString(36).substr(2,8).toUpperCase();
+
+// ===== BOOT =====
+var bootLines = [
+  'CYBERSEC ACADEMY TERMINAL v1.0',
+  'Missouri Cybersecurity Center of Excellence',
+  '',
+  'Initializing training modules...',
+  '[OK] Threat intelligence database    (24,891 CVE entries)',
+  '[OK] Quiz engine                     (150 questions loaded)',
+  '[OK] SOC Incident Simulator          (3 scenarios)',
+  '[OK] Password analyzer               (847M common passwords)',
+  '[OK] Phishing detection trainer      (3 email samples)',
+  '[OK] 8-Week curriculum loaded        (all modules)',
+  '[OK] Flash card trainer loaded       (293 SY0-701 acronyms)',
+  '',
+  'WARNING: FOR AUTHORIZED TRAINING USE ONLY',
+  '',
+  'All systems nominal. Welcome, Analyst.',
+  '',
+  '> Click or press any key to begin...'
+];
+
+(function boot() {
+  var el = document.getElementById('boot-text');
+  var full = '';
+  var li = 0, ci = 0;
+  var done = false;
+
+  function skipBoot() {
+    if (!done) { done = true; endBoot(); }
+  }
+  document.getElementById('boot').addEventListener('click', skipBoot);
+  document.addEventListener('keydown', skipBoot);
+
+  function tick() {
+    if (done) return;
+    if (li >= bootLines.length) { setTimeout(endBoot, 700); return; }
+    var line = bootLines[li];
+    if (ci < line.length) {
+      el.textContent = full + line.slice(0, ci+1) + '█';
+      ci++;
+      setTimeout(tick, line.indexOf('[OK]') === 0 ? 5 : 15);
+    } else {
+      full += line + '\n';
+      el.textContent = full;
+      li++; ci = 0;
+      setTimeout(tick, 35);
+    }
+  }
+  tick();
+})();
+
+function skipBoot() { endBoot(); }
+
+function endBoot() {
+  document.getElementById('boot').style.display = 'none';
+  if (_studentName) {
+    document.getElementById('sid').textContent = _studentName;
+    // load prior session score from Firebase
+    if (_fbDb) {
+      var key = _studentId || _studentName.replace(/\s+/g,'_').toLowerCase();
+      _fbDb.ref('mccoe_academy/' + key).once('value', function(snap) {
+        var d = snap.val();
+        if (d) {
+          score    = d.totalScore  || 0;
+          _quizPts = d.quizPts     || 0;
+          _socPts  = d.socPts      || 0;
+          _phishPts= d.phishPts    || 0;
+          _sessionCount = (d.sessions || 0) + 1;
+          document.getElementById('pts').textContent = score;
+          updateRank();
+        }
+      });
+    }
+  } else {
+    document.getElementById('sid').textContent = sid;
+  }
+  initQuiz();
+  initSOC();
+  initPH();
+  initCurriculum();
+  initFC();
+  loadCustomContent();
+}
+
+// ===== NAV =====
+function showScr(name, btn) {
+  document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on')});
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('active')});
+  document.getElementById(name+'-scr').classList.add('on');
+  if (btn) btn.classList.add('active');
+}
+
+function updateRank() {
+  var ranks = [[0,'RECRUIT'],[100,'ANALYST'],[250,'SPECIALIST'],[500,'EXPERT'],[750,'ELITE'],[1000,'LEGEND']];
+  var rank = 'RECRUIT';
+  for (var i = 0; i < ranks.length; i++) {
+    if (score >= ranks[i][0]) rank = ranks[i][1];
+  }
+  document.getElementById('rank').textContent = rank;
+}
+
+function addScore(pts, type) {
+  score += pts;
+  if (type === 'quiz')  _quizPts  += pts;
+  if (type === 'soc')   _socPts   += pts;
+  if (type === 'phish') _phishPts += pts;
+  if (type === 'flash') _flashPts += pts;
+  document.getElementById('pts').textContent = score;
+  updateRank();
+  saveProgress();
+}
+
+// ===== QUIZ DATA =====
+var QS_ALL = [
+  // --- Cybersecurity Foundations ---
+  {c:'Cyber Foundations',q:"What does the CIA Triad stand for in information security?",o:["Central Intelligence Agency","Cyber Intrusion Analysis","Confidentiality, Integrity, Availability","Computer Internet Architecture"],a:2,e:"The CIA Triad is the bedrock of information security. Confidentiality means only authorized users access data. Integrity means data is not tampered with. Availability means systems work when needed. Every security control maps to one or more of these."},
+  {c:'Cyber Foundations',q:"The Principle of Least Privilege states:",o:["Grant the minimum access needed to do a job","Give users the widest access for productivity","Reduce privileges based on seniority only","Limit access to conserve system resources"],a:0,e:"Least privilege limits blast radius. A compromised account can only reach what it was permitted to access. Apply it equally to users, services, APIs, and applications."},
+  {c:'Cyber Foundations',q:"AAA in cybersecurity stands for:",o:["Access, Audit, Assessment","Alert, Analyze, Act","Authenticate, Assess, Archive","Authentication, Authorization, Accounting"],a:3,e:"AAA is a security framework. Authentication proves who you are, Authorization defines what you can do, and Accounting logs what you did. RADIUS and TACACS+ are common AAA protocols."},
+  {c:'Cyber Foundations',q:"A vulnerability is best defined as:",o:["A successful breach of a system","A weakness that could be exploited","A category of malware tool","A network misconfiguration only"],a:1,e:"A vulnerability is a flaw or weakness in software, hardware, or processes. Threats exploit vulnerabilities to cause harm. Risk exists where a threat, a vulnerability, and an asset overlap."},
+  {c:'Cyber Foundations',q:"Defense in Depth means:",o:["Relying on one very strong firewall","Encrypting all data at rest","Multiple layered security controls","Deep packet inspection on all traffic"],a:2,e:"Defense in Depth (DiD) stacks multiple controls so that if one fails, others still protect the asset. Layers include perimeter, network, host, application, and data controls. No single control is sufficient."},
+  {c:'Cyber Foundations',q:"The DAD Triad is the opposite of the CIA Triad. DAD stands for:",o:["Deny, Alter, Delete","Detect, Analyze, Defend","Destroy, Access, Deploy","Disclosure, Alteration, Denial"],a:3,e:"DAD represents the attack side: Disclosure (breach of Confidentiality), Alteration (breach of Integrity), Denial (breach of Availability). Understanding both triads helps map threats to the controls that counter them."},
+  {c:'Cyber Foundations',q:"Non-repudiation in security means:",o:["Blocking repeated login attempts","Encrypting emails end-to-end","Proof that a user performed a specific action","Users cannot reset their own passwords"],a:2,e:"Non-repudiation prevents someone from denying an action they took. Digital signatures provide non-repudiation — the signer cannot later claim they did not sign. Critical for audit trails and legal accountability."},
+  {c:'Cyber Foundations',q:"Risk is most accurately calculated as:",o:["Threat minus Control","Vulnerability plus Asset Value","Asset divided by Threat","Likelihood multiplied by Impact"],a:3,e:"Risk = Likelihood × Impact. A high-likelihood, high-impact event is your top priority. Severity of a vulnerability and value of the asset also factor in. Risk assessments use this logic to prioritize controls."},
+  {c:'Cyber Foundations',q:"A threat actor is best defined as:",o:["A network vulnerability","A malicious software type","An entity that poses a security risk","A failed security audit finding"],a:2,e:"Threat actors include nation-states, criminal organizations, hacktivists, insiders, and script kiddies. Each has different motives (espionage, profit, ideology, revenge) and capabilities that drive the threats they pose."},
+  {c:'Cyber Foundations',q:"Which of the following is a preventive security control?",o:["Security camera footage","Intrusion detection alert","Firewall blocking unauthorized traffic","Forensic investigation after a breach"],a:2,e:"Preventive controls stop incidents before they happen. Firewalls, access controls, and encryption are preventive. Detective controls (IDS, logs) find incidents in progress. Corrective controls (backups, patches) reduce damage after the fact."},
+  // --- Network Security ---
+  {c:'Network Security',q:"What does TCP stand for?",o:["Transfer Control Protocol","Transmission Control Protocol","Technical Communication Protocol","Traffic Control Process"],a:1,e:"TCP (Transmission Control Protocol) provides reliable, ordered delivery of data using a three-way handshake (SYN, SYN-ACK, ACK). It guarantees delivery, making it ideal for web, email, and file transfers where accuracy matters."},
+  {c:'Network Security',q:"Which port does HTTPS use by default?",o:["80","8080","22","443"],a:3,e:"HTTPS uses port 443. HTTP uses port 80. SSH uses port 22. Common ports are a must-know for security analysts — attackers often use non-standard ports to hide traffic."},
+  {c:'Network Security',q:"A subnet mask is used to:",o:["Hide IP addresses from external attackers","Filter web traffic by domain name","Divide a network into logical segments","Encrypt DNS query responses"],a:2,e:"Subnet masks define which portion of an IP address identifies the network vs. the host. Subnetting allows large networks to be split into smaller, manageable segments improving security and performance."},
+  {c:'Network Security',q:"The OSI model has how many layers?",o:["4","5","6","7"],a:3,e:"The OSI (Open Systems Interconnection) model has 7 layers: Physical, Data Link, Network, Transport, Session, Presentation, Application. Security controls operate at specific layers — firewalls at layer 3/4, WAFs at layer 7."},
+  {c:'Network Security',q:"DNS is responsible for:",o:["Assigning IP addresses dynamically","Encrypting network traffic","Routing packets between networks","Translating domain names to IP addresses"],a:3,e:"DNS (Domain Name System) is the internet's phone book. It converts human-readable names (google.com) to IP addresses machines can route to. DNS attacks include poisoning, hijacking, and tunneling."},
+  {c:'Network Security',q:"A VLAN is used to:",o:["Encrypt wireless traffic","Extend wireless network range","Logically segment a network","Assign static IP addresses to hosts"],a:2,e:"VLANs (Virtual Local Area Networks) segment a physical network into logical groups without separate hardware. They improve security by isolating traffic — a guest VLAN cannot see the corporate VLAN even on the same switch."},
+  {c:'Network Security',q:"What does NAT stand for?",o:["Network Address Translation","Network Access Token","Node Authentication Tool","Network Audit Trail"],a:0,e:"NAT translates private IP addresses to a public IP for internet communication. It conserves public IP space and adds a layer of obscurity by hiding internal addressing — though it is not a substitute for a firewall."},
+  {c:'Network Security',q:"A packet sniffer captures:",o:["Login credentials from servers only","Malware signatures in transit","System event logs from endpoints","Network traffic passing through an interface"],a:3,e:"Packet sniffers (Wireshark, tcpdump) capture raw network frames. Used legitimately for troubleshooting and forensics, and maliciously on unsecured networks. HTTPS encryption prevents sniffers from reading content even if they capture packets."},
+  {c:'Network Security',q:"A proxy server acts as:",o:["A VPN tunnel endpoint","An intermediary between client and destination server","A DNS resolver for internal hosts","A packet filter between VLANs only"],a:1,e:"A proxy sits between client and server, forwarding requests on the client's behalf. Forward proxies hide the client; reverse proxies hide the server. Both are used for filtering, caching, and anonymization."},
+  {c:'Network Security',q:"Which protocol assigns IP addresses automatically to devices?",o:["ARP","DHCP","SNMP","ICMP"],a:1,e:"DHCP (Dynamic Host Configuration Protocol) automatically assigns IP addresses, subnet masks, gateways, and DNS servers to devices. Rogue DHCP servers are a common attack vector for man-in-the-middle attacks."},
+  // --- Threat Landscape & Malware ---
+  {c:'Threat Landscape',q:"Ransomware primarily attacks which CIA Triad property?",o:["Confidentiality","Availability","Integrity","Authentication"],a:1,e:"Ransomware encrypts files and demands payment for the decryption key — it is an attack on Availability. Colonial Pipeline (2021) paid $4.4M. The best defense is offline backups following the 3-2-1 rule."},
+  {c:'Threat Landscape',q:"A Trojan horse is malware that:",o:["Disguises itself as legitimate software","Self-replicates across networks without a host","Displays unwanted advertisements","Brute-forces login credentials"],a:0,e:"Trojans deceive users into running them by appearing legitimate (fake update, cracked software). Unlike worms, they do not self-replicate. Once installed they create backdoors, steal data, or download additional malware."},
+  {c:'Threat Landscape',q:"Which malware type records every key a user presses?",o:["Ransomware","Adware","Keylogger","Worm"],a:2,e:"Keyloggers capture everything typed — passwords, credit cards, messages. They can be software (often bundled in trojans) or hardware (USB dongles between keyboard and PC). Output is sent to the attacker's server."},
+  {c:'Threat Landscape',q:"A botnet is controlled through:",o:["Antivirus management consoles","Security Operations Centers","Firewall policy rules","Command-and-Control (C2) servers"],a:3,e:"Botnets are zombie networks of infected machines operated via C2 servers. Used for DDoS, spam, credential stuffing, and crypto mining. Mirai botnet (2016) used IoT devices to take down major websites."},
+  {c:'Threat Landscape',q:"Zero-day exploits target:",o:["Old systems that are fully patched","Vulnerabilities the vendor has already fixed","Vulnerabilities with no patch available yet","Open-source software exclusively"],a:2,e:"Zero-day means the vendor has had zero days to fix it. Nation-states and criminal groups pay millions for zero-days in widely-used software. The only defenses are behavior-based detection and network segmentation."},
+  {c:'Threat Landscape',q:"An APT (Advanced Persistent Threat) is characterized by:",o:["Quick opportunistic smash-and-grab attacks","Fully automated attack tools with no human involvement","Long-term stealthy access to a target environment","Attacks limited to financial sector targets"],a:2,e:"APTs (often nation-state actors) establish persistent footholds — sometimes living inside networks for months before acting. They use custom tools, legitimate credentials, and slow-and-low techniques to avoid detection."},
+  {c:'Threat Landscape',q:"A worm differs from a virus because a worm:",o:["Requires a host file to spread","Self-replicates across networks without a host file","Targets only Linux operating systems","Encrypts files and demands ransom"],a:1,e:"Worms spread autonomously by exploiting network vulnerabilities. WannaCry used EternalBlue (MS17-010) to infect 230,000 systems in hours. Viruses attach to host files and require user action to spread."},
+  {c:'Threat Landscape',q:"The MITRE ATT&CK framework documents:",o:["Compliance requirements by industry sector","Tactics, Techniques, and Procedures of real threat actors","Attack surface management best practices","Security certification training paths"],a:1,e:"MITRE ATT&CK is built from real-world attack observations. SOC teams map detections to ATT&CK techniques to identify coverage gaps and share threat intelligence in a common language."},
+  {c:'Threat Landscape',q:"Indicators of Compromise (IOCs) include:",o:["Security policy documents","Penetration test reports","Forensic evidence of a breach or attack","Firewall configuration files"],a:2,e:"IOCs are artifacts that indicate compromise: malicious IP addresses, file hashes, domain names, registry keys, unusual outbound traffic. SIEM rules trigger on IOCs from threat intelligence feeds to detect attacks automatically."},
+  {c:'Threat Landscape',q:"Spyware is designed to:",o:["Secretly monitor and steal user data","Encrypt files and demand ransom","Display unwanted advertisements","Self-replicate across connected networks"],a:0,e:"Spyware collects information — browsing history, credentials, screen captures, keystrokes — and exfiltrates it silently. Often bundled with free software. Strong endpoint protection and app whitelisting help prevent it."},
+  // --- Operating Systems & Linux ---
+  {c:'OS & Linux',q:"Which Linux command shows the current working directory?",o:["ls","cd","pwd","dir"],a:2,e:"pwd (print working directory) outputs the full path of your current location. Essential for navigating the filesystem. Common interview question — know your basic Linux commands: ls (list), cd (change dir), pwd (where am I)."},
+  {c:'OS & Linux',q:"In Linux, the chmod command is used to:",o:["Change the owner of a file","Display running network connections","Set file and directory permissions","Search for text patterns in files"],a:2,e:"chmod modifies read (r), write (w), and execute (x) permissions for owner, group, and others. chmod 755 gives full access to the owner and read/execute to everyone else — a common web server setting."},
+  {c:'OS & Linux',q:"The Linux root user account has:",o:["Limited network access only","Full unrestricted system privileges","Read-only access to all files","Audit-only access to system logs"],a:1,e:"Root is the superuser with full control over the entire system. Always use sudo for administrative tasks rather than logging in as root — it limits exposure and creates an audit trail of elevated commands."},
+  {c:'OS & Linux',q:"Which command lists all files including hidden ones with permissions?",o:["ls -la","ls -r","dir /all","show hidden"],a:0,e:"ls -la combines -l (long format, shows permissions, size, owner) and -a (all files, including hidden dot-files like .bashrc). Hidden files in Linux start with a dot and are commonly used for config files and malware staging."},
+  {c:'OS & Linux',q:"The /etc/passwd file in Linux stores:",o:["Encrypted system passwords","Network interface configurations","User account information and shell settings","Active firewall rules"],a:2,e:"/etc/passwd stores usernames, UIDs, GIDs, home directories, and shells. Passwords are stored as hashes in /etc/shadow, which is readable only by root. Attackers target /etc/shadow for offline hash cracking."},
+  {c:'OS & Linux',q:"What does the grep command do?",o:["Copies files between directories","Searches for text patterns in files","Lists all running processes","Monitors live network traffic"],a:1,e:"grep (Global Regular Expression Print) searches files or input for matching patterns. grep -r searches recursively. grep 'password' /etc/config finds the word password in a config file — a basic but powerful forensic tool."},
+  {c:'OS & Linux',q:"The command netstat -tulpn displays:",o:["Logged-in users and session times","Disk usage per mounted filesystem","Active firewall allow and deny rules","Active network connections and listening ports"],a:3,e:"netstat -tulpn shows TCP (-t) and UDP (-u) listening (-l) ports with the process name (-p) and numeric addresses (-n). Essential for finding what services are exposed and identifying suspicious listeners."},
+  {c:'OS & Linux',q:"In Linux, the pipe symbol | is used to:",o:["Run two commands at the same time","Send the output of one command into another","Append output to an existing file","Log all commands to a history file"],a:1,e:"Piping chains commands together. ps aux | grep apache filters process list for apache entries. cat /etc/passwd | cut -d: -f1 extracts just usernames. Mastering pipes makes you dramatically faster on the command line."},
+  {c:'OS & Linux',q:"The sudo command allows a user to:",o:["Run a command with superuser privileges","Switch between user accounts permanently","Secure a file with a password","Display user login history"],a:0,e:"sudo (superuser do) executes a single command with elevated privileges and logs it. It requires the user to be in the sudoers file. Prefer sudo over logging in as root — it limits the attack surface and creates accountability."},
+  {c:'OS & Linux',q:"Which symbol redirects command output to overwrite a file?",o:["|","&",">","#"],a:2,e:"> redirects stdout to a file, overwriting it. >> appends. 2> redirects stderr. In forensics and scripting, output redirection is used constantly: nmap -sV 10.0.0.1 > scan_results.txt saves results for later analysis."},
+  // --- Kali Linux & Pentesting ---
+  {c:'Kali & Pentesting',q:"Nmap is primarily used for:",o:["Cracking password hashes offline","Network scanning and host discovery","Injecting SQL into web forms","Capturing wireless handshakes"],a:1,e:"Nmap (Network Mapper) scans networks to discover live hosts, open ports, running services, and OS types. nmap -sV -O 192.168.1.0/24 enumerates an entire subnet. It is the first tool in nearly every engagement."},
+  {c:'Kali & Pentesting',q:"Metasploit is best described as:",o:["A log analysis platform","A network packet analyzer","A DNS enumeration tool","A penetration testing and exploitation framework"],a:3,e:"Metasploit is an open-source framework with hundreds of exploits, payloads, and post-exploitation modules. use exploit/windows/smb/ms17_010_eternalblue is one of its most famous modules — the WannaCry exploit."},
+  {c:'Kali & Pentesting',q:"Wireshark is used to:",o:["Scan for open ports on a host","Test web application security flaws","Crack WPA2 wireless passwords","Capture and analyze network packets"],a:3,e:"Wireshark is a GUI packet analyzer. It captures raw frames off the wire and lets you filter, follow streams, and decode protocols. Used in forensics to reconstruct attacker activity and in pentesting to capture credentials on unencrypted protocols."},
+  {c:'Kali & Pentesting',q:"In a penetration test, reconnaissance means:",o:["Exploiting a discovered vulnerability","Gathering information about the target","Writing the final engagement report","Installing persistence mechanisms"],a:1,e:"Reconnaissance (recon) is phase 1 of a pentest. Passive recon uses public data (OSINT, WHOIS, LinkedIn). Active recon touches the target (Nmap, ping sweeps). Thorough recon makes later exploitation phases far more efficient."},
+  {c:'Kali & Pentesting',q:"Burp Suite is primarily used for:",o:["Network traffic capture and analysis","Cracking password hashes","Web application security testing and proxying","Wireless network auditing and deauth"],a:2,e:"Burp Suite is the industry-standard web app pentesting tool. It intercepts HTTP/S traffic between your browser and the server, letting you manipulate requests to find SQLi, XSS, IDOR, and other web vulnerabilities."},
+  {c:'Kali & Pentesting',q:"Which Nmap flag performs a stealth SYN scan?",o:["-sS","-sU","-sV","-sA"],a:0,e:"-sS (SYN scan) is the default Nmap scan. It sends SYN packets and analyzes responses without completing the TCP handshake, making it faster and less likely to appear in application logs. -sU scans UDP ports, -sV detects service versions."},
+  {c:'Kali & Pentesting',q:"Hydra is a tool used for:",o:["SQL injection automation","Wireless deauthentication attacks","Password brute-forcing against network services","Network packet capture and analysis"],a:2,e:"Hydra performs fast online password attacks against protocols like SSH, FTP, RDP, HTTP, and SMB. hydra -l admin -P rockyou.txt ssh://10.0.0.1 tries all passwords in the wordlist against the admin account via SSH."},
+  {c:'Kali & Pentesting',q:"The correct order of pentest phases is:",o:["Exploit, Recon, Scan, Report, Cleanup","Recon, Scan, Exploit, Post-Exploit, Report","Scan, Exploit, Recon, Report, Cleanup","Plan, Attack, Defend, Review, Report"],a:1,e:"Standard pentest phases: Reconnaissance → Scanning/Enumeration → Exploitation → Post-Exploitation → Reporting. Each phase informs the next. A well-written report is what clients actually pay for — it drives remediation."},
+  {c:'Kali & Pentesting',q:"Aircrack-ng is used to test the security of:",o:["Wireless network authentication","Web application firewalls","Database injection vulnerabilities","VPN tunnel configurations"],a:0,e:"Aircrack-ng is a suite for wireless auditing — capturing WPA2 handshakes with airodump-ng, deauthenticating clients with aireplay-ng, and cracking handshakes offline with aircrack-ng using a wordlist like rockyou.txt."},
+  {c:'Kali & Pentesting',q:"A CVE number identifies:",o:["A security certification level","A software vendor patch release","A compliance framework version number","A specific publicly known vulnerability"],a:3,e:"CVE (Common Vulnerabilities and Exposures) is a standardized identifier for vulnerabilities. CVE-2017-0144 is EternalBlue (WannaCry). Checking CVEs for your software versions is a core part of vulnerability management."},
+  // --- Social Engineering ---
+  {c:'Social Engineering',q:"Phishing attacks are most commonly delivered via:",o:["Infected USB drives","Email messages","Voice phone calls","Physical mail"],a:1,e:"Email phishing is the #1 attack vector for initial access. Attackers spoof trusted senders, create urgency, and embed malicious links or attachments. 91% of cyberattacks begin with a phishing email."},
+  {c:'Social Engineering',q:"Vishing is social engineering conducted via:",o:["Infected USB drives","Fake lookalike websites","Voice phone calls","Bulk SMS text messages"],a:2,e:"Vishing (voice phishing) uses phone calls to impersonate IT support, banks, or government agencies. Attackers create urgency ('your account is compromised') to extract credentials, OTP codes, or financial information."},
+  {c:'Social Engineering',q:"Pretexting involves:",o:["Sending bulk phishing emails to many targets","Cloning a legitimate website to harvest credentials","Creating a fabricated scenario to gain a victim's trust","Installing malware via email attachments"],a:2,e:"Pretexting builds a false identity or story to manipulate a target. Example: 'Hi, I'm from IT — we detected a breach on your account and need your credentials to restore access.' Always verify through a separate known contact."},
+  {c:'Social Engineering',q:"Which is the most common red flag of a phishing email?",o:["Sent from a recognizable contact name","Contains a professional company logo","Uses your first and last name","Creates urgency and pressures immediate action"],a:3,e:"Urgency is the #1 social engineering trigger — 'Act now or your account will be deleted.' Attackers exploit time pressure because rushed people skip verification steps. Always pause and verify through official channels."},
+  {c:'Social Engineering',q:"Tailgating (piggybacking) is a physical security attack where:",o:["An attacker follows authorized personnel into a secured area","An attacker monitors wireless network traffic","An attacker sends spoofed emails from inside the building","An attacker clones key fobs remotely"],a:0,e:"Tailgating bypasses physical access controls by following someone through a door. Attackers often pose as delivery personnel or new employees. Mantraps (double-door airlocks) and security culture ('challenge strangers') are the defenses."},
+  {c:'Social Engineering',q:"Spear phishing differs from regular phishing because it is:",o:["Delivered via SMS text message","Automated and sent to millions of targets","Limited to fake website cloning only","Targeted and personalized to a specific individual or organization"],a:3,e:"Spear phishing uses OSINT to personalize attacks — referencing your boss's name, recent projects, or company events. It is far more convincing than generic phishing. BEC (Business Email Compromise) is a form of spear phishing targeting finance teams."},
+  {c:'Social Engineering',q:"Baiting attacks typically use:",o:["Fake login pages to harvest credentials","Infected physical media like USB drives","Impersonation via voice phone calls","Fake job postings on LinkedIn only"],a:1,e:"Baiting leaves infected USB drives in parking lots labeled 'Salary Data Q4' or 'Confidential.' Curious employees plug them in and execute malware automatically. A USB drop test is a standard social engineering assessment."},
+  {c:'Social Engineering',q:"The best defense against social engineering is:",o:["Stronger encryption on all endpoints","Updated antivirus signature databases","Employee security awareness training","Network segmentation between departments"],a:2,e:"Technical controls don't stop a trained human from being manipulated. Security awareness training — teaching employees to recognize pretexts, verify requests, and report suspicious contact — is the most effective countermeasure."},
+  {c:'Social Engineering',q:"Whaling attacks specifically target:",o:["Senior executives and high-value individuals","Random users in mass phishing campaigns","Junior employees with system access","IT help desk support staff only"],a:0,e:"Whaling targets 'big fish' — CEOs, CFOs, and board members. These attacks are highly customized and often result in large wire transfer fraud or data breaches. The FBI reported $43B in BEC losses from 2016-2021."},
+  {c:'Social Engineering',q:"OSINT stands for:",o:["Operational Security Intelligence Network Tool","Open Source Intelligence","Online Security Information Network","Offensive System Intrusion Testing"],a:1,e:"OSINT is intelligence gathered from publicly available sources — LinkedIn, social media, WHOIS, job postings, and public records. Attackers use OSINT to research targets before social engineering attacks. Tools include Maltego, theHarvester, and Shodan."},
+  // --- Defensive Security & Tools ---
+  {c:'Defensive Security',q:"An IDS differs from an IPS because:",o:["IDS blocks traffic; IPS only alerts","IDS detects and alerts; IPS actively blocks threats","IPS requires manual rules; IDS is fully automatic","IDS and IPS are the same technology"],a:1,e:"IDS (Intrusion Detection System) monitors and alerts. IPS (Intrusion Prevention System) monitors and blocks. IPS must be inline in the traffic path. False positives in an IPS block legitimate traffic — tune carefully before enabling blocking."},
+  {c:'Defensive Security',q:"What does EDR stand for?",o:["Encrypted Data Repository","Event Detection and Remediation","Endpoint Detection and Response","Enterprise Data Recovery system"],a:2,e:"EDR tools (CrowdStrike, SentinelOne, Microsoft Defender for Endpoint) provide continuous endpoint monitoring, behavioral analysis, threat detection, and response capabilities. They are the evolution beyond traditional antivirus."},
+  {c:'Defensive Security',q:"A SIEM platform collects data from:",o:["Firewalls and routers only","Dark web threat feeds only","Physical security camera systems","Multiple sources including logs, endpoints, and cloud services"],a:3,e:"SIEM (Security Information and Event Management) ingests logs from firewalls, servers, endpoints, cloud services, and applications. It correlates events across sources to detect patterns that no single source would reveal alone."},
+  {c:'Defensive Security',q:"The 3-2-1 backup rule requires:",o:["3 daily backups, 2 admins approving, 1 offsite","3 copies on 2 media types with 1 offsite copy","3 weekly backups, 2 local, 1 encrypted","3 servers, 2 networks, and 1 cloud provider"],a:1,e:"3 copies of your data, on 2 different media types (disk + tape, disk + cloud), with 1 copy stored offsite. The offsite copy defeats ransomware and physical disasters. Test your restores regularly — untested backups are not real backups."},
+  {c:'Defensive Security',q:"Network segmentation reduces attack risk by:",o:["Encrypting all inter-VLAN communications","Improving overall network performance","Limiting an attacker's lateral movement after a breach","Blocking all inbound internet connections"],a:2,e:"Segmentation confines breaches. If an attacker lands in the guest VLAN, they cannot pivot directly to the finance VLAN. Zero Trust extends this principle — verify every request regardless of network location."},
+  {c:'Defensive Security',q:"A Web Application Firewall (WAF) primarily protects against:",o:["Application-layer attacks like SQLi and XSS","Volumetric DDoS attacks only","Layer 3 network-level intrusions","Ransomware executing on endpoints"],a:0,e:"WAFs inspect HTTP/S traffic and block malicious requests targeting web application vulnerabilities — SQL injection, XSS, CSRF, and OWASP Top 10 attacks. They operate at OSI Layer 7 and require regular rule tuning."},
+  {c:'Defensive Security',q:"Patch management is critical because:",o:["Patches always improve application speed","Unpatched systems are one of the top attack vectors","Patches automatically remove user accounts","Patches replace the need for a firewall"],a:1,e:"The Equifax breach (2017) exposed 147M records because a known Apache Struts patch (CVE-2017-5638) went unapplied for 2 months. Most breaches exploit known vulnerabilities with available patches — patch fast."},
+  {c:'Defensive Security',q:"DLP stands for:",o:["Data Loss Prevention","Dynamic Link Protocol","Distributed Logging Platform","Defense Layer Policy"],a:0,e:"DLP tools monitor and prevent sensitive data from leaving the organization — blocking SSNs in emails, preventing USB file transfers, or alerting on large database exports. Critical for compliance with HIPAA, PCI DSS, and GDPR."},
+  {c:'Defensive Security',q:"A security baseline establishes:",o:["Maximum user privileges allowed","Network performance benchmarks","Vendor contract minimum terms","Minimum required security configuration standards"],a:3,e:"Security baselines define the minimum acceptable security configuration for a system type. CIS Benchmarks provide detailed baselines for Windows, Linux, AWS, and more. Deviation from baseline is a trigger for remediation."},
+  {c:'Defensive Security',q:"Zero Trust security is based on the principle of:",o:["Trusting all traffic inside the corporate network","Allowing trusted users without re-authentication","Never trust, always verify — regardless of network location","Firewalls being the only required security control"],a:2,e:"Zero Trust eliminates implicit trust. Every access request is authenticated, authorized, and continuously validated regardless of where it originates. Microsegmentation, MFA, and least privilege are core Zero Trust pillars."},
+  // --- Incident Response ---
+  {c:'Incident Response',q:"The first phase of the NIST Incident Response lifecycle is:",o:["Detection and Analysis","Containment","Post-Incident Activity","Preparation"],a:3,e:"NIST SP 800-61 defines 4 phases: Preparation → Detection & Analysis → Containment, Eradication & Recovery → Post-Incident Activity. Preparation — IR plans, tools, training — is done before any incident occurs."},
+  {c:'Incident Response',q:"Containment in incident response means:",o:["Deleting all affected systems immediately","Paying the attacker's ransom demand","Stopping the spread of the incident","Publishing a public breach notification"],a:2,e:"Containment limits damage without destroying evidence. Isolate affected hosts at the network switch (VLAN quarantine) rather than powering them off — volatile memory (RAM, running processes) is critical forensic evidence."},
+  {c:'Incident Response',q:"Chain of custody in digital forensics ensures:",o:["Faster prosecution of attackers","Documented integrity of evidence throughout handling","Faster system restoration from backup","Encryption of all collected log files"],a:1,e:"Chain of custody documents who collected evidence, when, and how it was stored and transferred. Without it, evidence may be inadmissible in court. Write-blockers, hash verification (MD5/SHA-256), and signed logs preserve custody."},
+  {c:'Incident Response',q:"The eradication phase of IR involves:",o:["Notifying affected customers of the breach","Restoring systems from clean backups","Writing the final incident summary report","Removing the root cause and threat from the environment"],a:3,e:"Eradication removes the threat — deleting malware, closing exploited accounts, patching vulnerabilities, and reimaging compromised systems. Skipping thorough eradication leads to re-infection, a common mistake in ransomware recovery."},
+  {c:'Incident Response',q:"Tabletop exercises are used to:",o:["Test physical server hardware limits","Benchmark firewall throughput performance","Test IR plans through simulated discussion scenarios","Measure antivirus detection rates"],a:2,e:"Tabletop exercises walk IR teams through realistic scenarios in a discussion format — no systems are touched. They expose gaps in plans, unclear responsibilities, and missing communication channels before a real incident occurs."},
+  {c:'Incident Response',q:"MTTR in incident response stands for:",o:["Mean Time To Recover","Maximum Threat and Risk Rating","Minimum Threshold To Respond","Multi-Team Triage Record"],a:0,e:"MTTR (Mean Time To Recover) measures the average time to restore normal operations after an incident. MTTD (Mean Time To Detect) measures how long before an attack is found. Both are key SOC KPIs — lower is better."},
+  {c:'Incident Response',q:"When should IR documentation and logging begin?",o:["After the incident is fully resolved","When legal counsel has been engaged","After containment has been achieved","As soon as the incident is detected"],a:3,e:"Document everything from the moment detection occurs — timestamps, actions taken, who was notified, and decisions made. This log becomes the post-incident timeline, legal evidence, and source for lessons-learned improvements."},
+  {c:'Incident Response',q:"The purpose of a post-incident review is:",o:["Assign blame to responsible employees","Bill clients for IR services rendered","Update cyber insurance policy terms","Identify lessons learned and improve future defenses"],a:3,e:"Blameless post-incident reviews ('retrospectives') identify what went wrong technically and process-wise. Outputs include updated playbooks, new detection rules, patched vulnerabilities, and improved communication plans."},
+  {c:'Incident Response',q:"Volatile evidence such as RAM must be collected:",o:["After system reimaging is complete","After all users have been notified","Before shutting the system down","After recovering data from backup"],a:2,e:"RAM contains running processes, network connections, decryption keys, and attacker activity that disappears on power-off. Tools like Volatility analyze memory dumps. Collect volatile evidence before anything else — it is irreplaceable."},
+  {c:'Incident Response',q:"The most useful log source for detecting lateral movement is:",o:["Web server HTTP access logs","Authentication and Windows Security Event logs","Physical door access control logs","Application error and crash logs"],a:1,e:"Lateral movement uses stolen credentials and legitimate protocols (RDP, WMI, PsExec, SMB). Windows Security Event Log records logon events (Event ID 4624), failed logins (4625), and new service installs (7045) — gold for detecting pivoting."},
+  // --- Cryptography ---
+  {c:'Cryptography',q:"Symmetric encryption uses:",o:["Two mathematically linked key pairs","A public key for encryption and private for decryption","One shared key for both encryption and decryption","A Certificate Authority to manage key exchange"],a:2,e:"Symmetric encryption (AES, DES) uses one key to encrypt and decrypt. It is faster than asymmetric but requires secure key exchange — how do you safely share the key? This is the key distribution problem symmetric encryption faces."},
+  {c:'Cryptography',q:"AES stands for:",o:["Authenticated Encryption Standard","Advanced Encryption Standard","Applied Encryption System","Asymmetric Encryption Suite"],a:1,e:"AES (Advanced Encryption Standard) is the most widely used symmetric cipher. AES-256 is considered quantum-resistant for now. It replaced DES (broken in 1998) and is used in TLS, disk encryption (BitLocker), and VPNs."},
+  {c:'Cryptography',q:"HTTPS uses which protocol to secure connections?",o:["Two-factor authentication tokens","IP filtering and access lists","Firewall deep packet inspection","TLS (Transport Layer Security)"],a:3,e:"HTTPS = HTTP + TLS. TLS replaced the older SSL protocol (now deprecated). It provides encryption, authentication (via certificates), and integrity. The padlock icon in your browser indicates TLS is active."},
+  {c:'Cryptography',q:"A hash function produces:",o:["A fixed-size fingerprint of the input data","Encrypted output that can be decrypted","An asymmetric key pair for signing","A timestamped audit of file changes"],a:0,e:"Hash functions (SHA-256, MD5) produce a fixed-length digest. The same input always produces the same hash. Even one character change completely alters the output (avalanche effect). Hashes verify file integrity and store passwords."},
+  {c:'Cryptography',q:"PKI (Public Key Infrastructure) relies on:",o:["Shared passwords between parties","Hardware tokens for key generation","Certificate Authorities to issue and validate certificates","Biometric authentication for key binding"],a:2,e:"PKI is the system of digital certificates, Certificate Authorities (CAs), and protocols that enable trusted key exchange at internet scale. When your browser trusts HTTPS, it is trusting a CA-issued certificate chain."},
+  {c:'Cryptography',q:"A known weakness of MD5 is that it is:",o:["Too slow for modern computing systems","Requires asymmetric key pairs to function","Only compatible with Windows platforms","Vulnerable to collision attacks"],a:3,e:"MD5 is cryptographically broken — two different inputs can produce the same hash (collision). Never use MD5 for security purposes. Use SHA-256 or SHA-3. MD5 is still useful for non-security checksums (file transfer verification)."},
+  {c:'Cryptography',q:"End-to-end encryption (E2EE) ensures:",o:["Only the sender and recipient can read the message","Messages are encrypted while stored on the provider's servers","The ISP cannot see packet routing metadata","All traffic is encrypted at the network router"],a:0,e:"E2EE means only endpoints hold decryption keys — the service provider cannot read your messages even if compelled. Signal, WhatsApp, and iMessage use E2EE. It protects against provider breaches and government data requests."},
+  {c:'Cryptography',q:"A digital signature provides:",o:["Password recovery and reset capability","Authentication and non-repudiation","File compression for secure transfers","Network traffic encryption between hosts"],a:1,e:"Digital signatures use asymmetric cryptography — sign with your private key, verify with your public key. They prove the message came from you (authentication) and that you cannot deny sending it (non-repudiation)."},
+  {c:'Cryptography',q:"RSA is an example of:",o:["A symmetric block cipher","A cryptographic hashing algorithm","Asymmetric (public key) encryption","A stream cipher for real-time data"],a:2,e:"RSA uses a mathematically linked public/private key pair. Encrypt with public key, decrypt with private key. RSA-2048 is still considered safe today. Used for key exchange in TLS and for digital signatures."},
+  {c:'Cryptography',q:"Salt in password hashing is used to:",o:["Speed up the hashing computation","Compress passwords before storage","Encrypt the resulting hash value","Prevent rainbow table and pre-computed hash attacks"],a:3,e:"A salt is random data added to a password before hashing. Even if two users have the same password, their hashes will differ. Salts defeat rainbow tables (precomputed hash lookups). bcrypt, Argon2, and PBKDF2 use salts automatically."},
+  // --- Access Control & Identity ---
+  {c:'Access Control',q:"RBAC stands for:",o:["Remote Backup Access Control","Role-Based Access Control","Risk-Based Authentication Control","Resource Bandwidth Allocation Control"],a:1,e:"RBAC assigns permissions to roles, not individuals. A 'SOC Analyst' role gets specific SIEM permissions. Users are assigned roles. This simplifies management — changing a role's permissions updates all users in that role instantly."},
+  {c:'Access Control',q:"Single Sign-On (SSO) allows a user to:",o:["Have one admin manage all company accounts","Share a single password across all systems","Log in once and access multiple applications","Bypass MFA requirements on trusted apps"],a:2,e:"SSO authenticates users once (often via SAML or OAuth) and grants access to all authorized applications without re-entering credentials. Reduces password fatigue and attack surface — but SSO account compromise grants broad access."},
+  {c:'Access Control',q:"Biometric authentication uses:",o:["Hardware security tokens","PINs and numeric codes","Smartcard chip certificates","Physical characteristics such as fingerprints or facial recognition"],a:3,e:"Biometrics authenticate using something you ARE — fingerprint, face, retina, or voice. Cannot be forgotten or lost (unlike passwords), but cannot be changed if compromised. Used as part of MFA, rarely as the sole factor."},
+  {c:'Access Control',q:"An Access Control List (ACL) is used to:",o:["Log all network traffic for forensics","Define which users or systems can access specific resources","Encrypt sensitive data at the file level","Monitor user behavior and detect anomalies"],a:1,e:"ACLs are rules attached to objects (files, network interfaces, API endpoints) specifying who is allowed or denied access. Network ACLs on routers control traffic flow. File system ACLs control which accounts can read, write, or execute."},
+  {c:'Access Control',q:"Privileged Access Management (PAM) focuses on:",o:["Controlling and auditing high-privilege accounts","Managing standard end-user passwords","Monitoring web application traffic patterns","Issuing SSL certificates to internal servers"],a:0,e:"PAM solutions (CyberArk, BeyondTrust) vault, rotate, and audit credentials for admin, root, and service accounts. Privileged accounts are the #1 target post-breach — PAM limits their exposure and creates a full audit trail."},
+  {c:'Access Control',q:"A password manager is recommended primarily because it:",o:["Auto-fills passwords without user awareness","Stores passwords in a readable local file","Enables unique strong passwords for every site","Eliminates the need for multi-factor authentication"],a:2,e:"Password managers (Bitwarden, 1Password) generate and store unique, complex passwords per site. This prevents credential stuffing — if one site is breached, attackers cannot use that password elsewhere. Use with MFA for maximum protection."},
+  {c:'Access Control',q:"Account lockout policies protect against:",o:["Phishing email attacks","Brute-force automated login attempts","Man-in-the-middle network attacks","SQL injection on login forms"],a:1,e:"Lockout policies temporarily lock an account after N failed attempts, defeating brute-force and credential stuffing attacks. Balance security with usability — too aggressive and attackers can lock out legitimate users (DoS on accounts)."},
+  {c:'Access Control',q:"LDAP is used for:",o:["Encrypting email messages end-to-end","Scanning networks for open ports","Routing internet packets between AS networks","Querying directory services such as Active Directory"],a:3,e:"LDAP (Lightweight Directory Access Protocol) queries and modifies directory services. Microsoft Active Directory uses LDAP. Attackers abuse LDAP after gaining initial access to enumerate users, groups, and machines for lateral movement."},
+  {c:'Access Control',q:"Time-based One-Time Passwords (TOTP) are:",o:["Passwords set to never expire","Short-lived codes valid only within a time window","Biometric authentication templates","Hardware-only token authentication"],a:1,e:"TOTP generates a new code every 30 seconds using a shared secret and the current time. Apps like Google Authenticator and Authy implement TOTP. Even if an attacker sees your code, it expires before they can reuse it."},
+  {c:'Access Control',q:"Identity federation allows:",o:["Multiple organizations to share and trust identity verification","Users to maintain multiple separate identities","Admins to remotely reset user passwords","Systems to merge their user databases"],a:0,e:"Federation lets Organization A trust identities from Organization B without maintaining separate accounts. SAML, OAuth, and OIDC enable federation. Common in B2B scenarios and when using cloud services with corporate credentials."},
+  // --- Cloud Security ---
+  {c:'Cloud Security',q:"The shared responsibility model means:",o:["The cloud vendor handles all security responsibilities","The customer handles all security responsibilities","Security is divided between cloud provider and customer","Government agencies oversee cloud security compliance"],a:2,e:"In IaaS, the customer secures OS, apps, and data. The provider secures physical infrastructure, hypervisor, and networking. In SaaS, the provider handles most security and the customer configures settings and manages user access."},
+  {c:'Cloud Security',q:"IaaS, PaaS, and SaaS are:",o:["Network security protocol families","Cloud service delivery models","Cybersecurity compliance frameworks","Encryption algorithm categories"],a:1,e:"IaaS (Infrastructure as a Service) provides virtual machines. PaaS (Platform) provides a development runtime. SaaS (Software) delivers complete applications. Each shifts more responsibility to the provider and affects the security boundary."},
+  {c:'Cloud Security',q:"A misconfigured S3 bucket most commonly leads to:",o:["Slower application loading times","Failed authentication attempts","Higher monthly cloud infrastructure costs","Unauthorized public access to stored data"],a:3,e:"S3 misconfiguration is one of the most common cloud breaches. Buckets set to public accidentally expose millions of records. Capital One (2019) exposed 100M records via a misconfigured WAF role, not a bucket — but bucket misconfigs are the #1 cloud data leak vector."},
+  {c:'Cloud Security',q:"CASB stands for:",o:["Cloud Access Security Broker","Centralized Authentication Security Bridge","Content Availability Scan Bot","Cloud Application Security Baseline"],a:0,e:"CASBs (Netskope, Microsoft Defender for Cloud Apps) sit between users and cloud services to enforce security policies — discovering shadow IT, applying DLP rules, and monitoring for data exfiltration from SaaS applications."},
+  {c:'Cloud Security',q:"Multi-tenancy in cloud computing means:",o:["One customer occupies one dedicated server","Multiple customers share the same underlying infrastructure","Data is automatically replicated across regions","Admins manage accounts across multiple cloud platforms"],a:1,e:"Multi-tenancy means your workload runs on the same physical hardware as other customers, with logical isolation (hypervisor, containers). A hypervisor escape vulnerability could theoretically break this isolation — a key cloud risk."},
+  {c:'Cloud Security',q:"Encryption at rest in cloud storage protects data:",o:["While it travels across the internet","When accessed by remote authenticated users","While stored on cloud provider storage media","During API calls between microservices"],a:2,e:"Encryption at rest protects data stored on disks from physical theft or unauthorized access at the storage layer. Most cloud providers offer server-side encryption. Customer-managed keys (CMK) give you control over key lifecycle and rotation."},
+  {c:'Cloud Security',q:"Infrastructure as Code (IaC) security scanning helps:",o:["Patch operating system vulnerabilities automatically","Monitor running application behavior in production","Manage cloud service provider contracts","Detect security misconfigurations before deployment"],a:3,e:"IaC tools (Terraform, CloudFormation) define infrastructure in code. Scanning tools like Checkov, tfsec, and Snyk analyze IaC templates for security misconfigurations (open security groups, public S3 buckets) before resources are deployed."},
+  {c:'Cloud Security',q:"DevSecOps integrates security:",o:["Only during the final deployment stage","Throughout the entire software development lifecycle","Only during the code review phase","Only after user acceptance testing"],a:1,e:"DevSecOps shifts security left — incorporating it from design through development, testing, and deployment rather than bolting it on at the end. Automated security testing in CI/CD pipelines catches issues when they are cheapest to fix."},
+  {c:'Cloud Security',q:"Zero Trust in cloud environments means:",o:["Trust all services running inside the cloud VPC","Only use cloud providers with government certification","Verify every access request regardless of origin or location","Disable all external-facing cloud APIs by default"],a:2,e:"Zero Trust rejects the 'trusted internal network' assumption. In cloud, workloads communicate across public infrastructure — every request must be authenticated, authorized, and encrypted. Service mesh tools like Istio enforce Zero Trust between microservices."},
+  {c:'Cloud Security',q:"Cloud Security Posture Management (CSPM) tools are used to:",o:["Monitor end-user device compliance","Continuously audit cloud configurations for security risks","Manage cloud billing and cost optimization","Deploy security patches to cloud-hosted VMs"],a:1,e:"CSPM tools (Prisma Cloud, AWS Security Hub) continuously monitor cloud accounts for misconfigurations, compliance violations, and excessive permissions. They provide a real-time security posture score across multi-cloud environments."},
+  // --- Web Application Security ---
+  {c:'Web App Security',q:"SQL injection exploits:",o:["Weak administrator password policies","Unencrypted database network connections","Unsanitized user input in database queries","Outdated SSL/TLS certificate configurations"],a:2,e:"SQLi inserts malicious SQL code into input fields. ' OR '1'='1 in a login form might return all records. Can expose databases, bypass authentication, or delete data. Parameterized queries and stored procedures are the fix."},
+  {c:'Web App Security',q:"XSS (Cross-Site Scripting) attacks inject:",o:["SQL commands into backend databases","Malicious scripts into web pages viewed by other users","Fake DNS responses to redirect traffic","Encrypted payloads into network packets"],a:1,e:"XSS injects malicious JavaScript into a trusted site, executed by victims' browsers. Stored XSS persists in the database. Reflected XSS is in a URL link. DOM-based XSS manipulates the page without server interaction. Output encoding prevents it."},
+  {c:'Web App Security',q:"CSRF (Cross-Site Request Forgery) tricks a user into:",o:["Downloading a malicious executable","Entering credentials on a fake login page","Submitting unauthorized requests they did not intend","Revealing their session token in a phishing email"],a:2,e:"CSRF abuses a logged-in user's session — a malicious page sends a request to your bank while you are authenticated. Anti-CSRF tokens (unique, validated per request) and SameSite cookie attributes prevent CSRF attacks."},
+  {c:'Web App Security',q:"The OWASP Top 10 is a list of:",o:["Top 10 cybersecurity certifications worldwide","Standard firewall configuration best practices","Penetration testing step-by-step methodologies","Most critical web application vulnerability categories"],a:3,e:"OWASP (Open Web Application Security Project) publishes the Top 10 most critical web risks. Current entries include Broken Access Control, Cryptographic Failures, Injection, and Insecure Design. Essential reading for any developer or security professional."},
+  {c:'Web App Security',q:"HTTPS most directly prevents which type of attack?",o:["SQL injection on login forms","Man-in-the-middle traffic interception","Cross-site scripting on web pages","Brute-force password guessing"],a:1,e:"HTTPS encrypts traffic between client and server, preventing MitM attackers from reading or modifying data in transit. It does not protect against SQLi, XSS, or brute force — those require different controls at the application layer."},
+  {c:'Web App Security',q:"Input validation is the primary defense against:",o:["Injection attacks like SQLi and command injection","Volumetric DDoS attacks on web servers","Stolen session cookies via network sniffing","Clickjacking attacks that overlay UI elements"],a:0,e:"Input validation (allowlist what is expected, reject everything else) prevents injections by ensuring malicious characters never reach interpreters. Combine with parameterized queries for database inputs and output encoding for HTML rendering."},
+  {c:'Web App Security',q:"The HttpOnly cookie attribute prevents:",o:["Cross-site request forgery","Cookies from being sent over HTTP","JavaScript from accessing the cookie","Session fixation attacks"],a:2,e:"HttpOnly cookies cannot be accessed by JavaScript — document.cookie returns nothing. This prevents XSS attacks from stealing session cookies even if script injection occurs. Always set HttpOnly on session and authentication cookies."},
+  {c:'Web App Security',q:"Directory traversal attacks attempt to:",o:["Overflow memory buffers in web servers","Steal session authentication tokens","Inject JavaScript into rendered web pages","Access files outside the intended web root directory"],a:3,e:"Directory traversal uses sequences like ../../etc/passwd to escape the web root and read sensitive system files. Input validation that rejects ../ sequences and server configuration that jails the web process to its directory prevent this."},
+  {c:'Web App Security',q:"API keys and secrets should be stored in:",o:["Embedded directly in client-side JavaScript","Shared in team group chats for easy access","Rotated only when a known compromise occurs","Environment variables or dedicated secrets vaults"],a:3,e:"Hard-coded credentials in source code are a top vulnerability — GitHub scans find thousands of exposed keys daily. Use environment variables, AWS Secrets Manager, HashiCorp Vault, or Azure Key Vault. Rotate keys regularly, not just after breaches."},
+  {c:'Web App Security',q:"A Content Security Policy (CSP) header helps prevent:",o:["SQL injection attacks on databases","Brute-force authentication attempts","Cross-site scripting (XSS) attacks","Server-side request forgery (SSRF)"],a:2,e:"CSP headers tell the browser which content sources are trusted. A strict policy blocks inline scripts and restricts external script sources, preventing most XSS attacks even if an attacker injects content into the page."},
+  // --- Risk & Compliance ---
+  {c:'Risk & Compliance',q:"NIST SP 800-53 provides:",o:["Incident response templates for enterprises","Security and privacy controls for federal information systems","Cloud security architecture benchmarks","Penetration testing methodology guidance"],a:1,e:"NIST SP 800-53 defines a comprehensive catalog of security and privacy controls for US federal systems. Widely adopted beyond government as a security control framework alongside ISO 27001 and CIS Controls."},
+  {c:'Risk & Compliance',q:"PCI DSS applies to organizations that:",o:["Process, store, or transmit credit card data","Contract with the federal government","Maintain medical patient health records","Operate critical national infrastructure"],a:0,e:"PCI DSS (Payment Card Industry Data Security Standard) applies to any entity handling cardholder data. Requirements include network segmentation, encryption, access control, and regular penetration testing. Non-compliance risks fines and card processing revocation."},
+  {c:'Risk & Compliance',q:"HIPAA is a US law that protects:",o:["Financial transaction and payment records","Government classified national security information","Payment card processing industry data","Protected Health Information (PHI) of patients"],a:3,e:"HIPAA (Health Insurance Portability and Accountability Act) protects PHI — any information linking an individual to their health status. Covered entities (providers, insurers) and business associates must implement administrative, physical, and technical safeguards."},
+  {c:'Risk & Compliance',q:"A risk assessment identifies:",o:["The total cost of security tool purchases","Employee security awareness quiz scores","Assets, threats, vulnerabilities, and risk levels","Vendor compliance certifications and ratings"],a:2,e:"Risk assessments map assets to threats and vulnerabilities, calculate likelihood and impact, and produce a risk register. This drives control selection — you apply controls proportional to risk level, not uniformly to everything."},
+  {c:'Risk & Compliance',q:"Risk acceptance means:",o:["Transferring risk to an insurance carrier","Eliminating the underlying vulnerability","Reducing risk by applying security controls","Acknowledging and choosing to tolerate a risk"],a:3,e:"Risk responses: Accept (tolerate it), Avoid (eliminate the activity), Transfer (insure it), Mitigate (apply controls). Risk acceptance is documented and approved by management — it is not the same as ignoring risk."},
+  {c:'Risk & Compliance',q:"ISO 27001 is an international standard for:",o:["Physical facility security requirements","Information Security Management Systems (ISMS)","Network infrastructure design and architecture","Software development lifecycle practices"],a:1,e:"ISO 27001 specifies requirements for establishing, implementing, and maintaining an ISMS. Organizations can achieve ISO 27001 certification through a third-party audit. It is technology-neutral and widely recognized globally."},
+  {c:'Risk & Compliance',q:"A Business Continuity Plan (BCP) ensures:",o:["All breached data is encrypted before recovery","Attackers are identified and prosecuted","Business operations continue during and after a disruption","All staff complete annual security awareness training"],a:2,e:"BCP covers how the business continues operating during power outages, natural disasters, cyberattacks, or pandemics. It encompasses DR (technical recovery) but also addresses people, processes, communications, and alternate facilities."},
+  {c:'Risk & Compliance',q:"RPO (Recovery Point Objective) defines:",o:["How long systems can remain offline","The cost budget for incident recovery","The maximum tolerable data loss measured in time","The team responsible for recovery operations"],a:2,e:"RPO is the maximum acceptable data loss — if your RPO is 4 hours, backups must occur at least every 4 hours. RTO (Recovery Time Objective) is how long systems can be down. Both drive backup frequency and DR architecture decisions."},
+  {c:'Risk & Compliance',q:"Cyber liability insurance typically covers:",o:["All physical security equipment costs","Developer security training programs","Network hardware replacement costs only","Breach response costs, legal fees, and ransom payments"],a:3,e:"Cyber insurance covers first-party costs (breach notification, forensics, ransom) and third-party liability (lawsuits from affected customers). Insurers now require evidence of controls (MFA, EDR, backups) before issuing policies."},
+  {c:'Risk & Compliance',q:"A security audit differs from a penetration test because:",o:["Audits actively exploit discovered vulnerabilities","Penetration tests review documentation and policies only","They are identical in scope and objectives","Audits assess compliance; pentests find exploitable vulnerabilities"],a:3,e:"Audits check whether controls exist and meet standards (compliance-focused). Pentests actively attempt to exploit vulnerabilities to prove real-world risk (adversarial). Both are essential — audits without pentests miss exploitable gaps."},
+  // --- Security Operations ---
+  {c:'Security Operations',q:"A SOC (Security Operations Center) is primarily responsible for:",o:["Writing corporate security policies","Managing IT service desk tickets","Monitoring, detecting, and responding to security events","Conducting penetration tests on production systems"],a:2,e:"SOC analysts monitor SIEM alerts, investigate suspicious activity, respond to incidents, and hunt for threats that bypassed automated detection. Tier 1 triages alerts; Tier 2 investigates; Tier 3 leads complex incidents and threat hunting."},
+  {c:'Security Operations',q:"Log correlation in a SIEM helps analysts:",o:["Compress old log files to save storage","Identify attack patterns across multiple data sources","Automatically delete outdated log entries","Encrypt archived logs for compliance"],a:1,e:"Correlation rules link related events across sources — a failed login (Windows), then a VPN connection (firewall), then database access (SQL server) might indicate credential stuffing. No single log reveals the full picture; correlation does."},
+  {c:'Security Operations',q:"Threat intelligence feeds provide:",o:["Employee security training content","Software patch release announcements","Compliance audit schedules and deadlines","Information about active threats, IOCs, and attacker behavior"],a:3,e:"Threat intel feeds (STIX/TAXII, ISACs, commercial feeds) deliver IOCs, TTPs, and adversary profiles. SIEM rules consume these feeds to alert when traffic matches known malicious IPs, domains, or file hashes in real time."},
+  {c:'Security Operations',q:"A false positive in security monitoring is:",o:["An undetected real attack","A correctly identified threat","A legitimate activity incorrectly flagged as malicious","A misconfigured firewall blocking valid traffic"],a:2,e:"False positives waste analyst time and cause alert fatigue — leading to missed real attacks. Tuning SIEM rules to reduce false positives without introducing false negatives is an ongoing, critical SOC function."},
+  {c:'Security Operations',q:"IR playbooks are used to:",o:["Document known attacker techniques and TTPs","Standardize and automate response procedures","Train new SOC analysts on tool usage","Configure SIEM alert thresholds and tuning"],a:1,e:"Playbooks define step-by-step response procedures for specific incident types (phishing, ransomware, insider threat). They ensure consistent, complete responses regardless of which analyst is on duty and reduce response time significantly."},
+  {c:'Security Operations',q:"Splunk is an example of a:",o:["Vulnerability management scanner","SIEM (Security Information and Event Management) platform","Endpoint detection and response tool","Next-generation network firewall"],a:1,e:"Splunk ingests, indexes, and analyzes machine data from any source. Its search processing language (SPL) enables powerful queries across billions of log events. Microsoft Sentinel, QRadar, and Elastic SIEM are competitors."},
+  {c:'Security Operations',q:"The Cyber Kill Chain model helps analysts:",o:["Manage firewall rule complexity","Prioritize which CVEs to patch first","Track attacker progression through attack stages","Configure intrusion detection system signatures"],a:2,e:"Lockheed Martin's Kill Chain defines 7 attack stages: Reconnaissance, Weaponization, Delivery, Exploitation, Installation, C2, Actions on Objectives. Defenders aim to detect and disrupt attacks as early in the chain as possible."},
+  {c:'Security Operations',q:"SOAR platforms are designed to:",o:["Generate executive compliance reports","Replace all human SOC analysts with automation","Manage software license procurement","Automate repetitive SOC tasks and orchestrate responses"],a:3,e:"SOAR (Security Orchestration, Automation and Response) platforms automate tier-1 tasks — enriching alerts, quarantining hosts, blocking IPs — letting analysts focus on complex investigations. They reduce MTTR and analyst burnout."},
+  {c:'Security Operations',q:"Alert enrichment in a SOC means:",o:["Escalating the alert to senior management","Archiving the alert with a disposition note","Assigning a severity level and closing the ticket","Adding context like threat intel, asset owner, and related events"],a:3,e:"Enrichment adds context that makes triage faster — is this IP on a threat feed? Who owns this host? Is this user's behavior anomalous? SOAR platforms automate enrichment, giving analysts a complete picture before they begin investigation."},
+  {c:'Security Operations',q:"Mean Time To Detect (MTTD) measures:",o:["Average time to deploy security patches","How long attackers remain undetected on average","Time to recover systems after an incident","Average firewall rule processing latency"],a:1,e:"MTTD is the average time from attacker entry to detection. The industry average MTTD was 207 days in 2020 (IBM Cost of a Data Breach). Shorter MTTD limits attacker dwell time and reduces breach impact significantly."},
+  // --- Careers & Certifications ---
+  {c:'Careers & Certs',q:"CompTIA Security+ is considered:",o:["An advanced enterprise security certification","A networking-only certification","An entry-level cybersecurity certification","A cloud security specialization credential"],a:2,e:"Security+ is widely recognized as the entry-level baseline for cybersecurity roles. It is DoD 8570 compliant, vendor-neutral, and covers threats, cryptography, identity, PKI, and incident response. A great first cert for MCCoE graduates."},
+  {c:'Careers & Certs',q:"A penetration tester's primary role is to:",o:["Monitor SIEM dashboards for security alerts","Simulate real attacker techniques with authorization","Author security compliance policies and procedures","Deploy and manage endpoint protection tools"],a:1,e:"Penetration testers (ethical hackers) are hired to attack systems — with written permission — to find vulnerabilities before real attackers do. They report findings with proof of exploitation and remediation guidance. CEH and OSCP certify this role."},
+  {c:'Careers & Certs',q:"A GRC (Governance, Risk, and Compliance) analyst focuses on:",o:["Scanning systems for technical vulnerabilities","Performing digital forensics and IR","Hunting threats inside SIEM environments","Managing policies, risk registers, and compliance audits"],a:3,e:"GRC analysts bridge business and security — maintaining security policies, conducting risk assessments, managing audit evidence, and ensuring compliance with frameworks like ISO 27001, NIST, HIPAA, and PCI DSS. CRISC and CISA certify this path."},
+  {c:'Careers & Certs',q:"Which certification specifically focuses on ethical hacking?",o:["CISSP","CEH (Certified Ethical Hacker)","CISM","CPA"],a:1,e:"CEH (EC-Council) covers hacking techniques from an attacker's perspective — reconnaissance, scanning, exploitation, and evasion. OSCP (Offensive Security) is more hands-on and highly respected in the offensive security community."},
+  {c:'Careers & Certs',q:"A SOC Tier 1 analyst primarily:",o:["Leads complex breach investigations","Manages security tool vendor relationships","Monitors alerts and performs initial event triage","Conducts penetration tests on client systems"],a:2,e:"Tier 1 SOC analysts are the first line of response — monitoring dashboards, triaging alerts, and escalating confirmed incidents to Tier 2. This is often the entry point into a security career. Speed, accuracy, and documentation are key skills."},
+  {c:'Careers & Certs',q:"Bug bounty programs reward security researchers for:",o:["Writing security awareness training content","Completing vendor security certifications","Building open-source security tools","Responsibly disclosing vulnerabilities to the organization"],a:3,e:"Bug bounties (HackerOne, Bugcrowd) pay researchers to find and report vulnerabilities before attackers do. Responsible disclosure means notifying the vendor privately before going public. Major companies pay six figures for critical findings."},
+  {c:'Careers & Certs',q:"The CISM certification is designed for:",o:["Entry-level network security administrators","Security managers and program leaders","Cloud infrastructure platform engineers","Active penetration testing practitioners"],a:1,e:"CISM (Certified Information Security Manager, ISACA) targets security managers overseeing enterprise security programs — governance, risk management, incident management, and program development. Requires 5 years of security management experience."},
+  {c:'Careers & Certs',q:"CISSP certification requires:",o:["No prior work experience","One year of general IT experience","Five years of experience across 2 or more security domains","A computer science bachelor's degree"],a:2,e:"CISSP (ISC2) requires 5 years of paid work experience in 2+ of the 8 CBK domains. It is regarded as the gold standard for senior security professionals. Without the experience, you earn an Associate of ISC2 designation until qualified."},
+  {c:'Careers & Certs',q:"A threat intelligence analyst primarily studies:",o:["Attacker behaviors, TTPs, and threat actor profiles","Security tool vendor pricing and contract terms","Employee training completion rates and scores","Physical building access logs and badge data"],a:0,e:"Threat intel analysts track adversary groups, analyze malware samples, produce intelligence reports, and brief SOC teams on emerging threats. Tools include Maltego, VirusTotal, MISP, and commercial platforms like Recorded Future."},
+  {c:'Careers & Certs',q:"The 'blue team' in cybersecurity refers to:",o:["The offensive penetration testing team","The security compliance and audit team","The external consulting engagement team","The defensive security operations team"],a:3,e:"Blue team = defense (SOC, IR, threat hunters). Red team = offense (pentesters, adversary simulators). Purple team = collaboration between red and blue to improve detections. Understanding all three perspectives makes you a stronger security professional."},
+  {c:'Careers & Certs',q:"Which skill is most important for a cybersecurity career?",o:["Memorizing every CVE number","Continuous learning and adapting to new threats","Using only one operating system","Avoiding all coding and scripting skills"],a:1,e:"Cybersecurity evolves faster than any other field — new CVEs, new attack techniques, new tools emerge daily. The most successful professionals are lifelong learners. Scripting (Python, PowerShell, Bash), networking fundamentals, and curiosity are force multipliers."}
+];
+var activeCategory = 'All';
+var QS = QS_ALL.slice();
+
+function buildCatFilter() {
+  var el = document.getElementById('q-cats');
+  if (!el) return;
+  var cats = ['All'];
+  QS_ALL.forEach(function(q){ if(cats.indexOf(q.c)<0) cats.push(q.c); });
+  el.innerHTML = cats.map(function(c){
+    var on = c===activeCategory;
+    return '<button onclick="setCategory(\''+c+'\')" style="font-size:10px;padding:3px 9px;background:'+(on?'var(--g)':'transparent')+';color:'+(on?'#000':'var(--g)')+';border:1px solid var(--g);cursor:pointer;font-family:monospace;margin:2px;letter-spacing:1px">'+(on?'▶ ':'')+c+'</button>';
+  }).join('');
+}
+function setCategory(c) {
+  activeCategory = c;
+  QS = c==='All' ? QS_ALL.slice() : QS_ALL.filter(function(q){ return q.c===c; });
+  qi = 0;
+  buildCatFilter();
+  renderQ();
+}
+
+var qi = 0, answered = false;
+
+function initQuiz() {
+  qi = 0;
+  QS = QS_ALL.slice();
+  activeCategory = 'All';
+  buildCatFilter();
+  renderQ();
+}
+
+function renderQ() {
+  var q = QS[qi];
+  var tot = QS.length;
+  document.getElementById('qn').textContent = qi+1;
+  document.getElementById('qt').textContent = tot;
+  document.getElementById('qpf').style.width = ((qi+1)/tot*100)+'%';
+  document.getElementById('q-text').textContent = 'Q'+(qi+1)+'. '+q.q;
+  var el = document.getElementById('q-opts');
+  el.innerHTML = '';
+  q.o.forEach(function(opt, i) {
+    var btn = document.createElement('button');
+    btn.className = 'qopt';
+    btn.textContent = String.fromCharCode(65+i)+') '+opt;
+    btn.onclick = function(){ answerQ(i); };
+    el.appendChild(btn);
+  });
+  document.getElementById('q-fb').style.display = 'none';
+  document.getElementById('q-nxt').style.display = 'none';
+  document.getElementById('q-nxt').textContent = qi === QS.length-1 ? '[ RESTART QUIZ ]' : '[ NEXT QUESTION >> ]';
+  answered = false;
+}
+
+function answerQ(i) {
+  if (answered) return;
+  answered = true;
+  var q = QS[qi];
+  var opts = document.querySelectorAll('.qopt');
+  opts.forEach(function(b){ b.disabled = true; });
+  opts[q.a].classList.add('ok');
+  var fb = document.getElementById('q-fb');
+  fb.style.display = 'block';
+  if (i === q.a) {
+    opts[i].classList.add('ok');
+    addScore(10, 'quiz');
+    fb.className = '';
+    fb.style.cssText = 'display:block;margin-top:14px;padding:12px;font-size:13px;line-height:1.6;color:var(--text);border-left:3px solid var(--g);background:rgba(0,255,65,.04)';
+    fb.innerHTML = '<span style="color:var(--g);font-size:11px;letter-spacing:2px">✔ CORRECT! +10 PTS</span><br><br>'+q.e;
+  } else {
+    opts[i].classList.add('ng');
+    fb.style.cssText = 'display:block;margin-top:14px;padding:12px;font-size:13px;line-height:1.6;color:#ffaaaa;border-left:3px solid var(--red);background:rgba(255,50,50,.05)';
+    fb.innerHTML = '<span style="color:var(--red);font-size:11px;letter-spacing:2px">✘ INCORRECT</span><br><br>'+q.e;
+  }
+  document.getElementById('q-nxt').style.display = 'inline-block';
+}
+
+function nextQ() {
+  qi = (qi+1) % QS.length;
+  renderQ();
+}
+
+// ===== SOC DATA =====
+var SCENS = [
+  {
+    name:'⚠ RANSOMWARE',
+    steps:[
+      {
+        text:'SIEM ALERT — CRITICAL SEVERITY\n════════════════════════════════════════\nRule:   Mass File Encryption Detected\nHosts:  7 endpoints (Finance + HR segments)\nDetail: Files renamed with .LOCKED extension\n        Ransom note READ_ME_NOW.txt deployed\n        C2 beaconing to 185.220.xx.xx (Tor)\n════════════════════════════════════════\n\nYou are the on-call SOC Analyst. Ransomware is actively encrypting files across 7 endpoints. You have minutes before it spreads to domain controllers.\n\nWhat is your FIRST action?',
+        opts:[
+          {t:'Shut down ALL company systems immediately',r:'bad',f:'Shutting down destroys forensic evidence (volatile memory, running processes) and has massive business impact. Always isolate, never nuke wholesale. Ransomware in memory is lost forever. Score: 0',p:0},
+          {t:'Isolate affected endpoints from the network without shutting them down',r:'good',f:'CORRECT. Network isolation (disable NIC, VLAN quarantine) stops lateral spread while preserving volatile memory for forensics. The machines stay powered on so you can capture the running process. Score: +20',p:20},
+          {t:'Call the media to warn other companies',r:'bad',f:'Never disclose before containment. Premature disclosure causes panic, enables insider trading, triggers regulatory issues, and tips off the attacker. Follow your IR plan — contain first, communicate through proper channels later. Score: 0',p:0},
+          {t:'Monitor silently to gather more intelligence before acting',r:'bad',f:'Ransomware spreads in minutes. WannaCry infected 230,000 machines in hours. Every second of delay equals more encrypted files and higher chance of domain controller compromise. Act immediately. Score: 0',p:0}
+        ]
+      },
+      {
+        text:'CONTAINMENT ACHIEVED\n════════════════════════════════════════\nAffected endpoints isolated. Encryption stopped.\n3 hosts remain unaffected and operational.\nDomain controllers: CLEAN (so far).\n════════════════════════════════════════\n\nYou need to find Patient Zero — the first host compromised. Which approach do you use?',
+        opts:[
+          {t:'Query SIEM for the earliest endpoint showing file encryption events',r:'good',f:'CORRECT. SIEM aggregates timestamps across all hosts. Sorting by earliest encryption event identifies patient zero reliably. Then correlate with process creation logs and network connections to trace the initial infection vector. Score: +20',p:20},
+          {t:'Walk around and ask employees which one clicked something weird',r:'ok',f:'Useful for context but slow and unreliable — people don\'t admit mistakes under pressure. Use SIEM/EDR for technical root cause first, then interview the user for timeline details. Score: +5',p:5},
+          {t:'Run antivirus scan on all remaining hosts',r:'ok',f:'Good practice for the clean hosts, but AV won\'t identify patient zero on already-encrypted machines. You need log analysis for attribution. Do both — but SIEM first for speed. Score: +5',p:5}
+        ]
+      },
+      {
+        text:'PATIENT ZERO IDENTIFIED\n════════════════════════════════════════\nHost:   WS-FINANCE-014\nUser:   j.martinez@yourcompany.com\nVector: Phishing email attachment\n  From:    noreply@invoice-secure-pay.ru\n  Subject: URGENT: Invoice #INV-2024-8847\n  File:    Invoice_8847.pdf.exe (double ext)\n\nThe .exe masqueraded as a PDF. User double-clicked it. Malware then used EternalBlue (MS17-010) to spread laterally to 6 more hosts.\n════════════════════════════════════════\n\nWhat remediation steps do you recommend?',
+        opts:[
+          {t:'Block .exe email attachments, apply MS17-010 patch, conduct phishing awareness training',r:'good',f:'PERFECT. Block the attack vector (email filtering), patch the lateral movement exploit (EternalBlue/WannaCry used this same bug), and address the human layer with training. This is defense-in-depth. Score: +20',p:20},
+          {t:'Terminate the employee who clicked the attachment',r:'bad',f:'Punishing victims creates a culture of fear where people hide security incidents. The real failure was a lack of email filtering, missing patches, and absent security training. Fix the system, not the person. Score: 0',p:0},
+          {t:'Disable email company-wide until further notice',r:'bad',f:'The business impact would be severe. Email filtering (block .exe attachments), sandboxing (detonate suspicious files), and SPF/DKIM/DMARC authentication solve this without disabling communication. Score: 0',p:0}
+        ]
+      }
+    ]
+  },
+  {
+    name:'⚑ SUSPICIOUS LOGIN',
+    steps:[
+      {
+        text:'SIEM ALERT — HIGH SEVERITY\n════════════════════════════════════════\nRule:   Impossible Travel Detected\nUser:   cfo@company.com (Sarah Chen)\nLogin1: 22:45 CST from Chicago, IL, USA\nLogin2: 03:17 UTC from Moscow, Russia\nDelta:  4h 32min (physically impossible)\nIP:     91.108.4.x (Tor exit node)\nActions: 847 files downloaded from SharePoint\n         in 12 minutes\n════════════════════════════════════════\n\nCFO account accessed from Russia 4.5 hours after a Chicago login — impossible. 847 files already downloaded.\n\nWhat do you do FIRST?',
+        opts:[
+          {t:'Force-logout the active session and lock the account immediately',r:'good',f:'CORRECT. The session is almost certainly a breach. Terminating it stops active exfiltration. Lock the account to prevent re-entry. Speed matters — 847 files are already gone but you can stop more. Score: +20',p:20},
+          {t:'Send an email to the CFO asking if that\'s her',r:'bad',f:'Email is too slow and the CFO is likely asleep at 3am. Also, if the attacker has email access too, this tips them off. Call her phone directly — but TERMINATE the session first, then call. Score: 0',p:0},
+          {t:'Passively monitor to gather more forensic evidence',r:'ok',f:'Evidence collection is important, but 847 files are already exfiltrated and every minute of delay means more data loss. Contain first, investigate second. You can still collect evidence from logs after locking. Score: +5',p:5},
+          {t:'Block the Russian IP address in the firewall',r:'ok',f:'Blocking the IP is a good quick action, but the attacker can rotate to a different Tor exit node in seconds. Account lockout is far more effective. Do both, but prioritize account action. Score: +5',p:5}
+        ]
+      },
+      {
+        text:'SESSION TERMINATED — ACCOUNT LOCKED\n════════════════════════════════════════\nNo further downloads. CFO confirmed she did NOT\nlog in — her credentials were stolen.\n\nEMAIL FORENSICS: 6 days prior, CFO received:\n  From:    it-helpdesk@company-support.net\n           (NOT company.com — different domain!)\n  Subject: Password Reset Required\n  Link:    http://company-support.net/reset\n           (credential harvesting site)\n════════════════════════════════════════\n\nThe attacker phished the CFO\'s credentials via a fake IT helpdesk email. What single control would have PREVENTED this login?',
+        opts:[
+          {t:'MFA on the CFO account — even with stolen password, attacker has no second factor',r:'good',f:'EXACTLY. This was a credential theft + replay attack. With MFA enabled, the correct password alone cannot authenticate. The attacker in Russia would need the CFO\'s phone for the OTP. MFA stops this cold. It\'s the single highest-impact control against phishing. Score: +20',p:20},
+          {t:'Require more frequent password changes',r:'ok',f:'Password rotation has limited value here — the attacker used a freshly stolen password. NIST SP 800-63 actually recommends against forced rotation as it leads to predictable, weak passwords. MFA is far more effective. Score: +5',p:5},
+          {t:'Block all external email from .net domains',r:'bad',f:'Far too aggressive. Countless legitimate businesses use .net. The right controls: DMARC to prevent domain spoofing, email security filtering, and user training to verify sender domains carefully. Score: 0',p:0}
+        ]
+      }
+    ]
+  },
+  {
+    name:'⚡ INSIDER THREAT',
+    steps:[
+      {
+        text:'DLP ALERT — HIGH SEVERITY\n════════════════════════════════════════\nRule:   Abnormal Data Exfiltration Pattern\nUser:   m.torres@company.com (Sr. Dev Engineer)\nToday\'s activity timeline:\n  15:00 — Cloned 2.1 GB source code repository\n  15:30 — Zipped contents: "vacation_photos.zip"\n  16:00 — Uploaded to personal Dropbox account\n  16:30 — Submitted resignation email to HR\n════════════════════════════════════════\n\nDeveloper resigned today and immediately downloaded 2.1GB of source code to personal cloud storage. Classic insider threat pattern.\n\nWhat is your FIRST response?',
+        opts:[
+          {t:'Immediately revoke all system access and preserve forensic evidence (do not alert the user)',r:'good',f:'CORRECT. Insider threats require immediate, silent access revocation before the employee has any indication. Simultaneously: image the workstation, place a legal hold on all email/logs, and notify HR + Legal. Do NOT confront Mike yet. Score: +20',p:20},
+          {t:'Pull Mike aside and ask him what he downloaded',r:'bad',f:'Tipping off the insider gives him time to cover tracks, delete evidence, or exfiltrate more data. Forensic preservation must come FIRST. HR and Legal conduct all conversations after systems are secured. Score: 0',p:0},
+          {t:'Wait until his official last day in 2 weeks',r:'bad',f:'The source code is already in his personal Dropbox. He has 2 weeks to share it with a competitor or further exfiltrate data. Insider threats require immediate action — every hour of delay is risk. Score: 0',p:0},
+          {t:'Block all personal cloud storage company-wide',r:'ok',f:'Blocking cloud storage retrospectively doesn\'t recover the stolen data. Better: DLP should have blocked the upload in real time. Retroactive blocking helps prevent future incidents but doesn\'t address this one. Score: +5',p:5}
+        ]
+      },
+      {
+        text:'ACCESS REVOKED — FORENSICS PRESERVED\n════════════════════════════════════════\nAll access terminated. Workstation imaged.\nLegal hold placed on email and DLP logs.\nHR + Legal notified. Law enforcement consulted.\n\nDLP caught this, but barely — it detected AFTER\nthe upload was complete. What process changes\nwould PREVENT this next time?\n════════════════════════════════════════',
+        opts:[
+          {t:'DLP rules to BLOCK (not just alert) bulk uploads for departing employees + enhanced offboarding checklist',r:'good',f:'EXCELLENT. Departing employees are highest-risk in the notice period. DLP should BLOCK large uploads, not just alert. Offboarding checklists should trigger immediate access reviews. Behavioral analytics (UEBA) can flag sudden bulk downloads as anomalies. Score: +20',p:20},
+          {t:'Require employees to sign stronger NDAs',r:'ok',f:'NDAs are a legal deterrent, not a technical control. They help in court after the fact, but do nothing to prevent exfiltration. Technical controls (DLP blocking, least privilege, UEBA) are what actually stop the behavior. Score: +5',p:5},
+          {t:'Implement Zero Trust architecture with continuous verification',r:'good',f:'GREAT. Zero Trust (\'never trust, always verify\') requires continuous authentication and authorization checks — even for insiders. Combined with DLP enforcement and behavioral analytics, it significantly limits what any single user can exfiltrate. Score: +20',p:20}
+        ]
+      }
+    ]
+  }
+];
+
+var si = 0, step = 0;
+
+function initSOC() {
+  var el = document.getElementById('soc-chips');
+  el.innerHTML = '';
+  SCENS.forEach(function(s, i) {
+    var b = document.createElement('button');
+    b.className = 'chip'+(i===0?' on':'');
+    b.textContent = s.name;
+    (function(idx, btn){ btn.onclick = function(){
+      si = idx; step = 0;
+      document.querySelectorAll('.chip').forEach(function(c){c.classList.remove('on')});
+      btn.classList.add('on');
+      renderSOC();
+    }; })(i, b);
+    el.appendChild(b);
+  });
+  renderSOC();
+}
+
+function renderSOC() {
+  var s = SCENS[si].steps[step];
+  document.getElementById('soc-text').textContent = s.text;
+  var el = document.getElementById('soc-opts');
+  el.innerHTML = '';
+  s.opts.forEach(function(opt) {
+    var b = document.createElement('button');
+    b.className = 'sopt';
+    b.textContent = opt.t;
+    (function(o){ b.onclick = function(){ pickSOC(o); }; })(opt);
+    el.appendChild(b);
+  });
+  document.getElementById('soc-res').style.display = 'none';
+  document.getElementById('soc-nxt').style.display = 'none';
+}
+
+function pickSOC(opt) {
+  document.querySelectorAll('.sopt').forEach(function(b){b.disabled=true});
+  var el = document.getElementById('soc-res');
+  el.style.display = 'block';
+  var cls = opt.r==='good'?'r-good':opt.r==='bad'?'r-bad':'r-ok';
+  var lbl = opt.r==='good'?'<span style="color:var(--g);font-size:11px;letter-spacing:2px">▶ CORRECT RESPONSE</span>':opt.r==='bad'?'<span style="color:var(--red);font-size:11px;letter-spacing:2px">▶ CRITICAL ERROR</span>':'<span style="color:var(--amber);font-size:11px;letter-spacing:2px">▶ PARTIAL CREDIT</span>';
+  el.className = cls;
+  el.innerHTML = lbl+'<br><br>'+opt.f;
+  addScore(opt.p, 'soc');
+  var nxt = document.getElementById('soc-nxt');
+  nxt.style.display = 'inline-block';
+  var total = SCENS[si].steps.length;
+  nxt.textContent = step >= total-1 ? '[ NEXT SCENARIO ]' : '[ NEXT DECISION >> ]';
+}
+
+function socNext() {
+  if (step >= SCENS[si].steps.length-1) {
+    si = (si+1) % SCENS.length;
+    step = 0;
+    document.querySelectorAll('.chip').forEach(function(c,i){c.classList.toggle('on',i===si)});
+  } else {
+    step++;
+  }
+  renderSOC();
+}
+
+// ===== PASSWORD =====
+var COMMON = ['password','password1','password123','123456','1234567890','qwerty','abc123','letmein','admin','welcome','monkey','dragon','master','iloveyou','sunshine','princess','football','baseball','soccer','superman'];
+
+function checkPW() {
+  var pw = document.getElementById('pw-in').value;
+  var fill = document.getElementById('pwf');
+  var str = document.getElementById('pw-str');
+  var checks = document.getElementById('pw-checks');
+  var crack = document.getElementById('pw-crack');
+  if (!pw) {
+    fill.style.width='0%'; str.textContent='—'; checks.innerHTML=''; crack.innerHTML=''; return;
+  }
+  var c = [
+    {l:'At least 8 characters',p:pw.length>=8},
+    {l:'At least 12 characters (recommended)',p:pw.length>=12},
+    {l:'Uppercase letters (A-Z)',p:/[A-Z]/.test(pw)},
+    {l:'Lowercase letters (a-z)',p:/[a-z]/.test(pw)},
+    {l:'Numbers (0-9)',p:/[0-9]/.test(pw)},
+    {l:'Special characters (!@#$%...)',p:/[^A-Za-z0-9]/.test(pw)},
+    {l:'Not a known common password',p:!COMMON.includes(pw.toLowerCase())},
+    {l:'No repeated chars (aaa, 111)',p:!/(.)\1{2,}/.test(pw)}
+  ];
+  var pass = c.filter(function(x){return x.p}).length;
+  var pct = Math.round(pass/c.length*100);
+  var cs = 0;
+  if (/[a-z]/.test(pw)) cs+=26;
+  if (/[A-Z]/.test(pw)) cs+=26;
+  if (/[0-9]/.test(pw)) cs+=10;
+  if (/[^A-Za-z0-9]/.test(pw)) cs+=32;
+  var ent = Math.round(pw.length * Math.log2(Math.max(cs,1)));
+  var combos = Math.pow(cs, pw.length);
+  var secs = combos / 1e10 / 2;
+  function fmt(s) {
+    if (s<1) return 'Instantly (< 1 second)';
+    if (s<60) return Math.round(s)+' seconds';
+    if (s<3600) return Math.round(s/60)+' minutes';
+    if (s<86400) return Math.round(s/3600)+' hours';
+    if (s<31536000) return Math.round(s/86400)+' days';
+    if (s<3.154e9) return Math.round(s/31536000)+' years';
+    if (s<3.154e12) return Math.round(s/3.154e9)+' thousand years';
+    return 'Longer than the age of the universe';
+  }
+  var strength, color;
+  if (pct<25||COMMON.includes(pw.toLowerCase())) {strength='CRITICAL — CHANGE NOW';color='#ff3a3a';}
+  else if (pct<50) {strength='WEAK';color='#ff6b00';}
+  else if (pct<75) {strength='MODERATE';color='#ffb700';}
+  else if (pct<90) {strength='STRONG';color='#7fff00';}
+  else {strength='EXCELLENT';color='var(--g)';}
+  fill.style.width=pct+'%';
+  fill.style.background=color;
+  fill.style.boxShadow='0 0 6px '+color;
+  str.textContent=strength; str.style.color=color;
+  checks.innerHTML=c.map(function(x){return '<div class="pc '+(x.p?'y':'n')+'">'+(x.p?'✔':'✘')+' '+x.l+'</div>';}).join('');
+  crack.innerHTML='<div style="color:var(--gd);font-size:11px;letter-spacing:1px;margin-bottom:4px">ESTIMATED CRACK TIME (offline, 10B hashes/sec):</div><div style="color:'+color+';font-size:14px;margin-bottom:4px">'+fmt(secs)+'</div><div style="color:var(--gd);font-size:11px">Entropy: '+ent+' bits | Charset size: '+cs+'</div>';
+}
+
+// ===== PHISHING =====
+var EMAILS = [
+  {
+    name:'Email 1: PayPal',
+    flagCount:6,
+    html:function(){return '<div class="ph-hdr"><div><b>From:</b> <span class="pf" data-tip="Sender domain is \'paypa1.com\' — the letter \'l\' is replaced with the number \'1\'. This is typosquatting, a common phishing technique." data-fi="0">security@paypa1-accounts.com</span></div><div><b>To:</b> you@yourcompany.com</div><div><b>Subject:</b> <span class="pf" data-tip="Extreme urgency language (\'URGENT\', \'IMMEDIATELY\') is designed to create panic and bypass your critical thinking." data-fi="1">URGENT: Your PayPal account will be suspended IMMEDIATELY</span></div><div><b>Date:</b> Mon, 20 Jul 2026 03:14:22 +0000</div></div><p>Dear <span class="pf" data-tip="Generic greeting \'Valued Customer\' instead of your name. Phishers blast millions of emails without knowing recipients\' names." data-fi="2">Valued Customer</span>,</p><br><p>We have detected <span class="pf" data-tip="Vague claim of \'suspicious activity\' with zero specifics. This is designed to scare you into acting without verifying." data-fi="3">suspicious activity on your account</span>. To prevent unauthorized access, you must verify your information within 24 hours or your account will be permanently suspended.</p><br><p>Verify your account here: <span class="pf" data-tip="The URL is \'secure-paypal-verify.ru\' — a .ru (Russian) domain. PayPal\'s real website is always paypal.com." data-fi="4">http://secure-paypal-verify.ru/confirm</span></p><br><p>Failure to comply will result in <span class="pf" data-tip="Threats of legal consequences or account closure are pressure tactics to make you act without thinking." data-fi="5">permanent account closure and report of suspicious activity to the authorities</span>.</p><br><p>Regards,<br>PayPal Security Team</p>';}
+  },
+  {
+    name:'Email 2: IT Helpdesk',
+    flagCount:5,
+    html:function(){return '<div class="ph-hdr"><div><b>From:</b> <span class="pf" data-tip="Domain is \'company-it-helpdesk.net\' — attacker registered a lookalike domain. Your real IT department uses company.com." data-fi="0">it.support@company-it-helpdesk.net</span></div><div><b>To:</b> all-staff@yourcompany.com</div><div><b>Subject:</b> <span class="pf" data-tip="Real IT departments use secure portals or Active Directory policies for resets — not email links requiring your current password." data-fi="1">Mandatory Password Reset — All Staff Action Required Today</span></div><div><b>Date:</b> Tue, 21 Jul 2026 08:33:17 +0000</div></div><p>Hello Team,</p><br><p>Due to a recent security audit, all employees must reset their passwords by <span class="pf" data-tip="Artificial deadline (\'today\', \'5:00 PM\') prevents you from pausing to verify the request with IT before acting." data-fi="2">5:00 PM today</span>. Accounts that do not comply will be locked automatically.</p><br><p>Click below and enter your <span class="pf" data-tip="Legitimate IT never asks you to type your current password to reset it. That IS the credential harvesting." data-fi="3">current username and password to begin the reset process</span>:</p><br><p><span class="pf" data-tip="\'company-secure-reset.info\' is NOT your company\'s domain. Real password resets use your company\'s actual domain." data-fi="4">http://company-secure-reset.info/pw-reset</span></p><br><p>This link expires in 2 hours. Please act promptly to avoid disruption to your account.</p><br><p>IT Help Desk</p>';}
+  },
+  {
+    name:'Email 3: FedEx Package',
+    flagCount:5,
+    html:function(){return '<div class="ph-hdr"><div><b>From:</b> <span class="pf" data-tip="FedEx only uses @fedex.com. \'fedex-tracking.delivery-notify.com\' is an attacker-registered domain designed to look official." data-fi="0">noreply@fedex-tracking.delivery-notify.com</span></div><div><b>To:</b> you@yourcompany.com</div><div><b>Subject:</b> <span class="pf" data-tip="Fake tracking numbers exploit our habit of expecting packages. This triggers curiosity even when you\'re not expecting anything." data-fi="1">Your package #FX-2847291 could not be delivered — action required</span></div><div><b>Date:</b> Wed, 22 Jul 2026 11:22:05 +0000</div></div><p>Dear Customer,</p><br><p>We attempted to deliver your package but were unable to complete delivery. To reschedule, please pay a small redelivery fee of <span class="pf" data-tip="FedEx, UPS, and USPS never request payment via email links. The \'$2.99\' is bait — they want your full credit card number." data-fi="2">$2.99 using our secure payment link</span>.</p><br><p>Reschedule delivery: <span class="pf" data-tip="\'fedex-redelivery.ru\' is a .ru (Russian) domain with no connection to FedEx. Entering payment here sends your card to attackers." data-fi="3">http://fedex-redelivery.ru/pay?id=FX2847291</span></p><br><p>Your package will be returned to sender if no action is taken within 48 hours.</p><br><p><span class="pf" data-tip="Unsubscribe links in phishing emails often confirm your address is active to spammers, or lead to another malicious page." data-fi="4">Click here to unsubscribe from delivery notifications.</span></p><br><p>FedEx Delivery Services</p>';}
+  }
+];
+
+var pi = 0, phFound = new Set();
+
+function initPH() {
+  var nav = document.getElementById('ph-nav');
+  nav.innerHTML = '';
+  EMAILS.forEach(function(e, i) {
+    var b = document.createElement('button');
+    b.className = 'pchip'+(i===0?' on':'');
+    b.textContent = e.name;
+    (function(idx, btn){ btn.onclick = function(){
+      pi = idx;
+      document.querySelectorAll('.pchip').forEach(function(c){c.classList.remove('on')});
+      btn.classList.add('on');
+      renderPH();
+    }; })(i, b);
+    nav.appendChild(b);
+  });
+  renderPH();
+}
+
+function renderPH() {
+  phFound = new Set();
+  var e = EMAILS[pi];
+  document.getElementById('ph-cnt').textContent = '0';
+  document.getElementById('ph-tot').textContent = e.flagCount;
+  document.getElementById('ph-res').style.display = 'none';
+  var el = document.getElementById('ph-email');
+  el.innerHTML = e.html();
+  el.querySelectorAll('.pf').forEach(function(flag) {
+    flag.addEventListener('click', function() {
+      var fi = flag.dataset.fi;
+      if (!phFound.has(fi)) {
+        phFound.add(fi);
+        flag.classList.add('found');
+        document.getElementById('ph-cnt').textContent = phFound.size;
+        addScore(5, 'phish');
+      }
+      showTip(flag, flag.dataset.tip);
+    });
+  });
+}
+
+function showTip(el, tip) {
+  var tt = document.getElementById('phtooltip');
+  tt.innerHTML = '<span style="color:var(--amber);font-size:11px;letter-spacing:1px">⚠ RED FLAG FOUND</span><br><br>'+tip;
+  tt.style.display = 'block';
+  var r = el.getBoundingClientRect();
+  var ttH = tt.offsetHeight || 130;
+  var left = Math.min(r.left + window.scrollX, window.innerWidth - 325);
+  var spaceBelow = window.innerHeight - r.bottom;
+  var top = spaceBelow >= ttH + 14
+    ? r.bottom + window.scrollY + 6
+    : r.top + window.scrollY - ttH - 8;
+  tt.style.top = top+'px';
+  tt.style.left = left+'px';
+  clearTimeout(tt._t);
+  tt._t = setTimeout(function(){ tt.style.display='none'; }, 3500);
+}
+
+// ===== CURRICULUM =====
+var WEEKS = [
+  {
+    num:1, title:'Cybersecurity Foundations', topics:'CIA Triad | DAD Triad', nist:'Identify',
+    overview:'The CIA Triad is the foundational framework of all information security. Every control, policy, and best practice maps to at least one of its three elements. The DAD Triad is the attacker\'s mirror image — understanding both gives you the lens to analyze any security incident.',
+    objectives:['Define Confidentiality, Integrity, and Availability with real-world examples','Define Disclosure, Alteration, and Denial and map each to a CIA violation','Identify which CIA element is violated in a given security incident','Name two security controls that address each CIA element'],
+    concepts:'<table class="ct"><tr><th>CIA Element</th><th>Definition</th><th>Example Attack</th><th>Key Controls</th></tr><tr><td>Confidentiality</td><td>Only authorized parties can access data</td><td>Equifax breach — 147M records exposed</td><td>Encryption, MFA, access controls</td></tr><tr><td>Integrity</td><td>Data is accurate, complete, unmodified</td><td>SolarWinds — malicious code in trusted update</td><td>Hashing (SHA-256), digital signatures</td></tr><tr><td>Availability</td><td>Systems accessible when needed</td><td>Colonial Pipeline — ransomware halted fuel supply</td><td>Redundancy, backups, DDoS mitigation</td></tr></table><table class="ct"><tr><th>DAD Element</th><th>CIA It Breaks</th><th>Example</th></tr><tr><td>Disclosure</td><td>Confidentiality</td><td>Data breach exposing customer records</td></tr><tr><td>Alteration</td><td>Integrity</td><td>DNS cache poisoning redirects users to fake sites</td></tr><tr><td>Denial</td><td>Availability</td><td>DDoS attack crashing a web service</td></tr></table>',
+    resources:[['Pre-Security Path','TryHackMe','Free'],['Intro to Cybersecurity','Cisco NetAcad','Free'],['Security+ Videos','Professor Messer','Free'],['NIST SP 800-12','nist.gov','Free'],['Quiz Module','CyberSec Academy (this tool)','Free']],
+    activities:['Research 5 real incidents (Equifax, WannaCry, SolarWinds, Colonial Pipeline, Target 2013) and map each to a CIA/DAD violation','Complete the CIA Triad questions in the Quiz tab of this tool','Write a 1-paragraph reflection: which CIA element is hardest to protect and why'],
+    assessment:'Quiz: Define all 6 CIA/DAD elements from memory. Case Study: Given an incident scenario, identify the element violated and name one preventive and one detective control.'
+  },
+  {
+    num:2, title:'Network Fundamentals', topics:'OSI Model (All 7 Layers)', nist:'Identify / Protect',
+    overview:'The OSI (Open Systems Interconnection) model describes how data moves across a network in 7 layers. Security professionals use it to pinpoint exactly where an attack occurs and which defensive control applies. Every attack from MAC spoofing to SQL injection targets a specific layer.',
+    objectives:['Name all 7 OSI layers and describe the primary function of each','Identify at least 2 protocols at each layer','Map 7 common attack types to the correct OSI layer','Explain data encapsulation (sending) and decapsulation (receiving)'],
+    concepts:'<table class="ct"><tr><th>Layer</th><th>Name</th><th>Key Protocols</th><th>Common Attacks</th></tr><tr><td>7</td><td>Application</td><td>HTTP, HTTPS, DNS, FTP, SMTP</td><td>SQL Injection, XSS, Phishing</td></tr><tr><td>6</td><td>Presentation</td><td>TLS/SSL, JPEG, ASCII</td><td>SSL Stripping</td></tr><tr><td>5</td><td>Session</td><td>NetBIOS, RPC, PPTP</td><td>Session Hijacking</td></tr><tr><td>4</td><td>Transport</td><td>TCP, UDP</td><td>SYN Flood, Port Scanning</td></tr><tr><td>3</td><td>Network</td><td>IP, ICMP, OSPF, BGP</td><td>IP Spoofing, ICMP Flood</td></tr><tr><td>2</td><td>Data Link</td><td>Ethernet, MAC, ARP, 802.11</td><td>MAC Spoofing, ARP Poisoning</td></tr><tr><td>1</td><td>Physical</td><td>Cables, Hubs, Wi-Fi signals</td><td>Signal Jamming, Tap</td></tr></table><p style="font-size:12px;color:var(--amber);margin-top:8px">Memory Aid (7 to 1): <b>A</b>ll <b>P</b>eople <b>S</b>eem <b>T</b>o <b>N</b>eed <b>D</b>ata <b>P</b>rocessing<br>Memory Aid (1 to 7): <b>P</b>lease <b>D</b>o <b>N</b>ot <b>T</b>hrow <b>S</b>ausage <b>P</b>izza <b>A</b>way</p>',
+    resources:[['Networking Fundamentals rooms','TryHackMe','Free'],['OSI Model videos','Professor Messer','Free'],['Networking Basics','Cisco NetAcad','Free'],['OSI & TCP/IP videos','NetworkChuck (YouTube)','Free']],
+    activities:['Draw and label all 7 OSI layers from memory, then verify against the table','Sort 15 protocols (Telnet, ARP, TCP, HTTP, DNS, SMTP, IP, 802.11, TLS, FTP, ICMP, SSH, UDP, BGP, NetBIOS) into the correct layer','For each attack type in the table, explain in one sentence why it targets that specific layer'],
+    assessment:'Layer Quiz: Given 10 attack scenarios, identify the OSI layer targeted. Protocol Sort: Place 15 protocols into the correct layer without references.'
+  },
+  {
+    num:3, title:'Threat Landscape', topics:'Threat Intelligence | Malicious Code', nist:'Identify / Detect',
+    overview:'Threat intelligence transforms raw data about attackers into actionable knowledge defenders can use. Malware is the primary weapon in the threat actor toolkit. Recognizing malware types, behaviors, and indicators is a core skill for SOC analysts, incident responders, and penetration testers.',
+    objectives:['Distinguish between strategic, tactical, operational, and technical threat intelligence','Identify and describe 9 types of malware and their behaviors','Navigate the MITRE ATT&CK framework and find techniques for a given tactic','Define IOC (Indicator of Compromise) and list 4 examples'],
+    concepts:'<table class="ct"><tr><th>Intel Type</th><th>Audience</th><th>Example</th></tr><tr><td>Strategic</td><td>Executives</td><td>Ransomware attacks on healthcare rose 125% last year</td></tr><tr><td>Tactical</td><td>Security architects</td><td>Attackers use spear phishing for initial access, then EternalBlue to spread</td></tr><tr><td>Operational</td><td>SOC teams</td><td>Threat actor group X is targeting Midwest financial firms this quarter</td></tr><tr><td>Technical</td><td>SIEM engineers</td><td>IOCs: IP 185.220.x.x, hash 4a5f6b..., domain evil-update.ru</td></tr></table><table class="ct" style="margin-top:10px"><tr><th>Malware Type</th><th>Behavior</th><th>Example</th></tr><tr><td>Virus</td><td>Attaches to files; spreads when host is executed</td><td>ILOVEYOU (2000)</td></tr><tr><td>Worm</td><td>Self-replicates across networks, no user action needed</td><td>WannaCry (2017)</td></tr><tr><td>Trojan</td><td>Disguised as legitimate software</td><td>Emotet banking trojan</td></tr><tr><td>Ransomware</td><td>Encrypts files, demands payment for decryption key</td><td>Colonial Pipeline (2021)</td></tr><tr><td>Spyware</td><td>Silently monitors and exfiltrates user activity</td><td>Pegasus spyware</td></tr><tr><td>Rootkit</td><td>Hides attacker presence deep in the OS</td><td>Stuxnet rootkit</td></tr><tr><td>Keylogger</td><td>Records all keystrokes to steal credentials</td><td>Bundled in most RATs</td></tr><tr><td>RAT</td><td>Remote Access Trojan — full remote control of machine</td><td>DarkComet, AsyncRAT</td></tr><tr><td>Botnet Agent</td><td>Joins device to attacker-controlled zombie network</td><td>Mirai IoT botnet (2016)</td></tr></table>',
+    resources:[['MITRE ATT&CK Navigator','attack.mitre.org','Free'],['Threat Intelligence rooms','TryHackMe','Free'],['CISA Cybersecurity Advisories','cisa.gov','Free'],['VirusTotal scanner','virustotal.com','Free'],['Any.Run sandbox','any.run','Free (limited)'],['SOC Simulator','CyberSec Academy (this tool)','Free']],
+    activities:['Find a recent CISA advisory at cisa.gov and list all IOCs provided','Visit attack.mitre.org, search T1486 (Data Encrypted for Impact), and find 3 detection opportunities','Complete all 3 SOC Simulator scenarios in this tool from the defender perspective','Submit a renamed .txt file to VirusTotal and explore the Detection and Behavior tabs'],
+    assessment:'Malware ID: Match 9 behavior descriptions to the correct malware type. ATT&CK Mapping: Given a described attack chain, map each phase to a MITRE Tactic and one Technique.'
+  },
+  {
+    num:4, title:'Human Factors', topics:'Social Engineering | Password Attacks', nist:'Protect',
+    overview:'The most advanced firewall cannot stop an employee who hands over their password to someone claiming to be IT support. Social engineering and password attacks exploit people — the most persistently vulnerable element in any security program. Building recognition and resistance is foundational.',
+    objectives:['Identify and describe 8 types of social engineering attacks','Explain 5 types of password attacks and what makes each effective','Evaluate password strength using entropy and complexity principles','Implement MFA, password managers, and phishing-resistant habits'],
+    concepts:'<table class="ct"><tr><th>Attack</th><th>Method</th><th>Example</th></tr><tr><td>Phishing</td><td>Mass email impersonating legitimate entity</td><td>Fake PayPal email to harvest credentials</td></tr><tr><td>Spear Phishing</td><td>Targeted phishing using personal details</td><td>Email using victim\'s name, employer, manager</td></tr><tr><td>Whaling</td><td>Phishing targeting C-suite executives</td><td>Fake legal notice to CEO for wire transfer</td></tr><tr><td>Vishing</td><td>Voice/phone-based social engineering</td><td>Caller impersonates IT, asks for password</td></tr><tr><td>Smishing</td><td>SMS-based phishing</td><td>Fake USPS text with malicious tracking link</td></tr><tr><td>Pretexting</td><td>Fabricated scenario to extract information</td><td>Attacker claims to be auditor needing access</td></tr><tr><td>Tailgating</td><td>Following authorized person through secure door</td><td>Attacker carries boxes, employees hold door open</td></tr><tr><td>Baiting</td><td>Infected USB or enticing digital offer</td><td>USB labeled "Payroll 2026" left in parking lot</td></tr></table><table class="ct" style="margin-top:10px"><tr><th>Password Attack</th><th>Method</th><th>Defense</th></tr><tr><td>Brute Force</td><td>Try every possible character combination</td><td>Long passwords + account lockout</td></tr><tr><td>Dictionary</td><td>Wordlist of common passwords tried in order</td><td>Avoid common words; use passphrases</td></tr><tr><td>Credential Stuffing</td><td>Use leaked credentials from one breach on other sites</td><td>Unique password per site + MFA</td></tr><tr><td>Password Spraying</td><td>One common password tried against many accounts</td><td>Block common passwords; monitor distributed failures</td></tr><tr><td>Rainbow Table</td><td>Precomputed hash-to-password lookups</td><td>Salted hashes (bcrypt, Argon2) defeat this</td></tr></table>',
+    resources:[['Phishing analysis rooms','TryHackMe','Free'],['Have I Been Pwned','haveibeenpwned.com','Free'],['Phishing Spotter game','CyberSec Academy (this tool)','Free'],['Password Checker','CyberSec Academy (this tool)','Free'],['Google Phishing Quiz','phishingquiz.withgoogle.com','Free']],
+    activities:['Check your work email domain at haveibeenpwned.com; document any breaches found','Complete all 3 phishing emails in the Phish Spot tab — aim for 100% before moving on','Test 5 different password strategies in the PW Check tab; document what improved each score','Find a real phishing email from news coverage and list every red flag'],
+    assessment:'Attack ID: Match 8 scenarios to the correct social engineering or password attack type. Phishing Analysis: Given a suspicious email, list every red flag and explain why each element is suspicious.'
+  },
+  {
+    num:5, title:'Kali Linux Basics', topics:'Linux CLI | Kali Environment | Tool Overview', nist:'Protect / Detect',
+    overview:'Kali Linux is the industry-standard platform for penetration testing and security research, maintained by Offensive Security with 600+ pre-installed tools. Linux command line fluency is a prerequisite for every tool in the Kali arsenal. This week establishes the working environment used through Week 8.',
+    objectives:['Install Kali Linux as a virtual machine using VirtualBox (free)','Navigate the Linux filesystem and execute 15 essential terminal commands','Identify the 7 major Kali tool categories and name 3 tools from each','Understand the legal requirements for using Kali Linux'],
+    concepts:'<table class="ct"><tr><th>Command</th><th>Function</th><th>Example</th></tr><tr><td>ls -la</td><td>List all files including hidden, with permissions</td><td>ls -la /etc</td></tr><tr><td>cd / pwd</td><td>Change directory / print current location</td><td>cd /var/log</td></tr><tr><td>cat / grep</td><td>Display file / search for text patterns</td><td>grep \'root\' /etc/passwd</td></tr><tr><td>find</td><td>Search filesystem by name or type</td><td>find / -name \'*.conf\'</td></tr><tr><td>chmod / sudo</td><td>Change permissions / run as admin</td><td>sudo apt install nmap</td></tr><tr><td>ifconfig / ip a</td><td>Show network interface information</td><td>ip addr show</td></tr><tr><td>netstat -tulpn</td><td>Show listening ports and connections</td><td>sudo netstat -tulpn</td></tr><tr><td>ps aux</td><td>List all running processes</td><td>ps aux | grep apache</td></tr><tr><td>history</td><td>Show previously run commands</td><td>history | grep nmap</td></tr><tr><td>man</td><td>Display the manual page for any command</td><td>man nmap</td></tr></table><table class="ct" style="margin-top:10px"><tr><th>Kali Category</th><th>Purpose</th><th>Key Tools</th></tr><tr><td>Information Gathering</td><td>Reconnaissance</td><td>Nmap, theHarvester, Maltego</td></tr><tr><td>Vulnerability Analysis</td><td>Find system weaknesses</td><td>Nikto, OpenVAS, Lynis</td></tr><tr><td>Web Application</td><td>Test web app vulnerabilities</td><td>Burp Suite, OWASP ZAP, SQLmap</td></tr><tr><td>Password Attacks</td><td>Crack or brute-force credentials</td><td>Hydra, John the Ripper, Hashcat</td></tr><tr><td>Wireless Attacks</td><td>Test wireless security</td><td>Aircrack-ng, Kismet, Wifite</td></tr><tr><td>Exploitation Tools</td><td>Execute attacks on vulnerabilities</td><td>Metasploit Framework, BeEF</td></tr><tr><td>Forensics</td><td>Analyze disk images and memory</td><td>Autopsy, Volatility, Binwalk</td></tr></table><p style="color:var(--red);font-size:12px;margin-top:8px">LEGAL: Kali tools must ONLY be used on systems you own or have explicit written authorization to test. Unauthorized use is a federal crime under the CFAA.</p>',
+    resources:[['Linux Fundamentals Parts 1-3','TryHackMe','Free'],['Bandit wargame','OverTheWire (overthewire.org)','Free'],['Kali documentation','kali.org/docs','Free'],['Kali Linux Basics videos','NetworkChuck (YouTube)','Free'],['VirtualBox','virtualbox.org','Free']],
+    activities:['Install VirtualBox and create a Kali Linux VM; document each installation step','Complete all 10 commands from the table above in the Kali terminal; screenshot each result','Open Kali Applications menu and list 3 tools from each of the 7 categories','Complete at least 5 levels of OverTheWire Bandit to build terminal fluency'],
+    assessment:'Command Quiz: Given a task in plain English, write the correct terminal command. Tool Matching: Match 14 security tasks to the correct Kali tool and category.'
+  },
+  {
+    num:6, title:'Network Reconnaissance', topics:'Nmap (Network Mapper)', nist:'Identify / Detect',
+    overview:'Nmap is the most widely used network scanning tool in both offensive and defensive security. Created in 1997 and continuously updated, it is the gold standard for host discovery, port scanning, service version detection, and OS fingerprinting. Reading Nmap output is a core SOC analyst and penetration tester skill.',
+    objectives:['Execute 7 different Nmap scan types from the command line','Interpret Nmap output: ports, services, versions, OS guess','Explain the difference between open, closed, and filtered port states','Use Nmap Scripting Engine (NSE) for basic vulnerability detection'],
+    concepts:'<table class="ct"><tr><th>Command</th><th>Scan Type</th><th>Best Used For</th></tr><tr><td>nmap [target]</td><td>Default (top 1000 TCP ports)</td><td>Quick first look</td></tr><tr><td>nmap -sS [target]</td><td>SYN / Stealth scan</td><td>Standard pentest scan — fast, less noisy</td></tr><tr><td>nmap -sV [target]</td><td>Service version detection</td><td>Identify software running on each port</td></tr><tr><td>nmap -sC [target]</td><td>Default NSE scripts</td><td>Gather extra service info automatically</td></tr><tr><td>nmap -A [target]</td><td>Aggressive (OS+version+scripts+traceroute)</td><td>Full picture on authorized tests</td></tr><tr><td>nmap -p- [target]</td><td>All 65,535 ports</td><td>Find services on non-standard ports</td></tr><tr><td>nmap -sU [target]</td><td>UDP scan</td><td>Find DNS, SNMP, DHCP services</td></tr><tr><td>nmap -oN out.txt [t]</td><td>Save to text file</td><td>Documentation and reporting</td></tr><tr><td>nmap --script vuln [t]</td><td>Vulnerability scripts</td><td>Quick vuln check on authorized targets</td></tr></table><table class="ct" style="margin-top:10px"><tr><th>Port State</th><th>Meaning</th><th>Implication</th></tr><tr><td>Open</td><td>Service actively listening and accepting connections</td><td>Primary finding — investigate service version</td></tr><tr><td>Closed</td><td>Port reachable, no service listening</td><td>Useful for OS fingerprinting</td></tr><tr><td>Filtered</td><td>Firewall blocking scan — state unknown</td><td>Firewall present; try different scan types</td></tr></table><p style="color:var(--red);font-size:12px;margin-top:8px">LEGAL: Only scan systems you own or have explicit written permission to test. Unauthorized scanning violates the CFAA.</p>',
+    resources:[['Nmap room','TryHackMe','Free'],['Nmap: The Network Mapper (full book)','nmap.org/book','Free'],['Nmap tutorial videos','NetworkChuck (YouTube)','Free'],['Starting Point labs','Hack The Box (hackthebox.com)','Free'],['Metasploitable 2 (vulnerable VM)','Rapid7 / SourceForge','Free']],
+    activities:['Scan your Metasploitable 2 VM from Kali using 5 different scan types; compare results','Run nmap --script vuln against your lab VM; document every finding','Interpret a printed Nmap output: list all open ports, services, versions, and OS','Write a one-page scanning report with port, service, version, risk level, and recommended fix'],
+    assessment:'Command Writing: Given 5 scanning scenarios, write the correct Nmap command. Output Interpretation: Given a Nmap result, answer 10 questions about the target.'
+  },
+  {
+    num:7, title:'Secure Development', topics:'Secure Coding | Software Development Life Cycle (SDLC)', nist:'Protect',
+    overview:'Approximately 90% of security incidents exploit software vulnerabilities. Integrating security into every SDLC phase — the DevSecOps "shift left" approach — prevents vulnerabilities from reaching production. This module is essential for developers, analysts, and anyone working with software teams.',
+    objectives:['Identify and describe each OWASP Top 10 vulnerability','Apply at least one security activity to each SDLC phase','Recognize vulnerable code patterns and describe the secure alternative','Explain the DevSecOps shift-left concept and its business value'],
+    concepts:'<table class="ct"><tr><th>#</th><th>OWASP Top 10 Vulnerability</th><th>Key Prevention</th></tr><tr><td>A01</td><td>Broken Access Control</td><td>RBAC, deny by default, test all access paths</td></tr><tr><td>A02</td><td>Cryptographic Failures</td><td>TLS 1.2+, AES-256, bcrypt for passwords</td></tr><tr><td>A03</td><td>Injection (SQL, OS, LDAP)</td><td>Parameterized queries, input validation, WAF</td></tr><tr><td>A04</td><td>Insecure Design</td><td>Threat modeling, security requirements, design review</td></tr><tr><td>A05</td><td>Security Misconfiguration</td><td>Hardening guides, config management, automated scans</td></tr><tr><td>A06</td><td>Vulnerable & Outdated Components</td><td>SCA tools, patch management, software inventory</td></tr><tr><td>A07</td><td>Identification & Auth Failures</td><td>MFA, secure session tokens, lockout policies</td></tr><tr><td>A08</td><td>Software & Data Integrity Failures</td><td>Digital signatures, signed packages, SBOM</td></tr><tr><td>A09</td><td>Security Logging & Monitoring Failures</td><td>Log all auth events, SIEM integration, 90+ day retention</td></tr><tr><td>A10</td><td>Server-Side Request Forgery (SSRF)</td><td>Allowlist valid URLs, block internal network requests</td></tr></table><table class="ct" style="margin-top:10px"><tr><th>SDLC Phase</th><th>Security Activity</th></tr><tr><td>Planning</td><td>Risk assessment, security requirements, compliance mapping</td></tr><tr><td>Requirements</td><td>Abuse cases, security acceptance criteria</td></tr><tr><td>Design</td><td>Threat modeling (STRIDE), security architecture review</td></tr><tr><td>Development</td><td>Secure coding standards, code review, SAST scanning</td></tr><tr><td>Testing</td><td>DAST, penetration testing, OWASP ZAP scanning</td></tr><tr><td>Deployment</td><td>Server hardening, secrets management, least privilege</td></tr><tr><td>Maintenance</td><td>Patch management, vulnerability scanning, IR planning</td></tr></table>',
+    resources:[['OWASP Top 10','owasp.org','Free'],['OWASP WebGoat (vulnerable practice app)','owasp.org/WebGoat','Free'],['Secure coding rooms','TryHackMe','Free'],['NIST SP 800-64','nist.gov','Free']],
+    activities:['Review owasp.org Top 10 and find one real CVE example for each vulnerability category','Install OWASP WebGoat and complete the SQL Injection module — exploit then fix','Draw the SDLC as a cycle and annotate one security tool or activity at each of the 7 phases','Review 3 vulnerable code snippets (from instructor) and write the corrected secure version'],
+    assessment:'Vulnerability Matching: Match 10 scenario descriptions to the correct OWASP category. SDLC Security: For 5 phases, name two security activities and one tool that supports each.'
+  },
+  {
+    num:8, title:'Penetration Testing Methodology', topics:'The 5 Steps of Pentesting | Capstone', nist:'Identify / Respond',
+    overview:'Penetration testing is the authorized simulation of a cyberattack to identify and demonstrate vulnerabilities before malicious actors do. The 5-step methodology is a repeatable, professional framework used by security firms globally. This capstone week integrates all 8 modules into a complete simulated engagement.',
+    objectives:['Execute all 5 pentesting phases in an authorized lab environment','Explain the legal and ethical framework governing penetration testing','Write a professional pentest report with executive and technical sections','Integrate skills from all 8 modules into a cohesive engagement'],
+    concepts:'<table class="ct"><tr><th>Phase</th><th>Name</th><th>Activities</th><th>Key Tools</th></tr><tr><td>1</td><td>Reconnaissance</td><td>Passive OSINT (WHOIS, Shodan, LinkedIn); Active info gathering</td><td>theHarvester, Maltego, Shodan</td></tr><tr><td>2</td><td>Scanning</td><td>Port/service enumeration, vulnerability scanning, map attack surface</td><td>Nmap, Nikto, OpenVAS</td></tr><tr><td>3</td><td>Gaining Access</td><td>Exploit vulnerabilities, obtain initial shell/foothold</td><td>Metasploit, SQLmap, Burp Suite</td></tr><tr><td>4</td><td>Maintaining Access</td><td>Privilege escalation, lateral movement, demonstrate dwell time</td><td>Metasploit post-modules</td></tr><tr><td>5</td><td>Reporting</td><td>Executive summary, technical findings, remediation roadmap</td><td>Word/PDF, Dradis, Faraday</td></tr></table><table class="ct" style="margin-top:10px"><tr><th>Report Section</th><th>Content</th><th>Audience</th></tr><tr><td>Executive Summary</td><td>Business risk, overall rating, top 3 findings in plain language</td><td>Leadership / Board</td></tr><tr><td>Technical Findings</td><td>Per-finding: title, CVSS severity, description, evidence, remediation</td><td>Security team</td></tr><tr><td>Remediation Roadmap</td><td>Prioritized fix list with effort estimate and business impact</td><td>IT / DevOps</td></tr><tr><td>Appendix</td><td>Raw Nmap output, full command history, tool configs</td><td>Technical reviewers</td></tr></table><p style="color:var(--red);font-size:12px;margin-top:8px">LEGAL: Written authorization (Rules of Engagement) is required before any test. Unauthorized pentesting is a federal felony under the CFAA.</p>',
+    resources:[['Jr Penetration Tester path','TryHackMe','Free (some rooms)'],['Starting Point machines','Hack The Box (hackthebox.com)','Free'],['Metasploitable 2 (vulnerable VM)','Rapid7 / SourceForge','Free'],['HackTricks reference','book.hacktricks.xyz','Free'],['Pentest report templates','GitHub (search: pentest report template)','Free']],
+    activities:['Full pentest: perform all 5 phases against your Metasploitable 2 VM using Kali Linux','Document every command run and capture screenshots throughout the engagement','Write a complete professional report: executive summary + 3 technical findings + remediation plan','Capstone: present findings to the group as if presenting to a client (15 minutes)','Bonus: Complete a TryHackMe or Hack The Box machine and document it using the 5-step framework'],
+    assessment:'Practical: Authorized pentest against lab VM + submit professional report. Written: Match 10 activities to correct phase. Oral: 15-minute client-style debrief presentation.'
+  }
+];
+
+var wkCurrent = 0;
+
+function initCurriculum() {
+  var el = document.getElementById('wk-chips');
+  el.innerHTML = '';
+  WEEKS.forEach(function(w, i) {
+    var b = document.createElement('button');
+    b.className = 'wk-chip' + (i === 0 ? ' on' : '');
+    b.textContent = 'WK ' + w.num;
+    (function(idx, btn) {
+      btn.onclick = function() {
+        wkCurrent = idx;
+        document.querySelectorAll('.wk-chip').forEach(function(c) { c.classList.remove('on'); });
+        btn.classList.add('on');
+        renderWeek();
+      };
+    })(i, b);
+    el.appendChild(b);
+  });
+  renderWeek();
+}
+
+function renderWeek() {
+  var w = WEEKS[wkCurrent];
+  var res = w.resources.map(function(r) {
+    return '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td style="color:var(--g)">' + r[2] + '</td></tr>';
+  }).join('');
+  var acts = w.activities.map(function(a) {
+    return '<span class="wk-li">' + a + '</span>';
+  }).join('');
+  var objs = w.objectives.map(function(o) {
+    return '<span class="wk-li">' + o + '</span>';
+  }).join('');
+  document.getElementById('wk-content').innerHTML =
+    '<div class="wk-title">WEEK ' + w.num + ' — ' + w.title.toUpperCase() + '</div>' +
+    '<div class="wk-topics">Topics: ' + w.topics + '</div>' +
+    '<div class="wk-nist">NIST CSF Function: ' + w.nist + '</div>' +
+    '<div class="wk-body">' + w.overview + '</div>' +
+    '<div class="wk-sec">// LEARNING OBJECTIVES</div>' + objs +
+    '<div class="wk-sec">// KEY CONCEPTS</div>' + w.concepts +
+    '<div class="wk-sec">// FREE RESOURCES</div>' +
+    '<table class="ct"><tr><th>Resource</th><th>Platform</th><th>Cost</th></tr>' + res + '</table>' +
+    '<div class="wk-sec">// HANDS-ON ACTIVITIES</div>' + acts +
+    '<div class="wk-sec">// WEEKLY ASSESSMENT</div>' +
+    '<div class="wk-body">' + w.assessment + '</div>';
+}
+
+// ===== FLASH CARDS DATA =====
+var FC_DATA = [
+  {a:'AAA',d:'Authentication, Authorization, and Accounting'},
+  {a:'ACL',d:'Access Control List'},
+  {a:'AES',d:'Advanced Encryption Standard'},
+  {a:'AH',d:'Authentication Header'},
+  {a:'AI',d:'Artificial Intelligence'},
+  {a:'AIS',d:'Automated Indicator Sharing'},
+  {a:'ALE',d:'Annualized Loss Expectancy'},
+  {a:'APT',d:'Advanced Persistent Threat'},
+  {a:'ARO',d:'Annualized Rate of Occurrence'},
+  {a:'ARP',d:'Address Resolution Protocol'},
+  {a:'ASLR',d:'Address Space Layout Randomization'},
+  {a:'ATT&CK',d:'Adversarial Tactics, Techniques, and Common Knowledge'},
+  {a:'AUP',d:'Acceptable Use Policy'},
+  {a:'AV',d:'Antivirus / Asset Value'},
+  {a:'AVI',d:'Audio Video Interleave'},
+  {a:'AWS',d:'Amazon Web Services'},
+  {a:'BAC',d:'Business Availability Center'},
+  {a:'BCP',d:'Business Continuity Plan'},
+  {a:'BGP',d:'Border Gateway Protocol'},
+  {a:'BIA',d:'Business Impact Analysis'},
+  {a:'BIOS',d:'Basic Input/Output System'},
+  {a:'BPA',d:'Business Partnership Agreement'},
+  {a:'BPDU',d:'Bridge Protocol Data Unit'},
+  {a:'BYOD',d:'Bring Your Own Device'},
+  {a:'CA',d:'Certificate Authority'},
+  {a:'CAC',d:'Common Access Card'},
+  {a:'CAPTCHA',d:'Completely Automated Public Turing Test to Tell Computers and Humans Apart'},
+  {a:'CAR',d:'Corrective Action Report'},
+  {a:'CASB',d:'Cloud Access Security Broker'},
+  {a:'CBC',d:'Cipher Block Chaining'},
+  {a:'CCMP',d:'Counter Mode with Cipher Block Chaining Message Authentication Code Protocol'},
+  {a:'CCTV',d:'Closed-Circuit Television'},
+  {a:'CERT',d:'Computer Emergency Response Team'},
+  {a:'CFB',d:'Cipher Feedback'},
+  {a:'CHAP',d:'Challenge Handshake Authentication Protocol'},
+  {a:'CIA',d:'Confidentiality, Integrity, and Availability'},
+  {a:'CIS',d:'Center for Internet Security'},
+  {a:'CISA',d:'Cybersecurity and Infrastructure Security Agency'},
+  {a:'CMS',d:'Content Management System'},
+  {a:'COOP',d:'Continuity of Operations Plan'},
+  {a:'COPE',d:'Corporate-Owned, Personally Enabled'},
+  {a:'CPU',d:'Central Processing Unit'},
+  {a:'CRC',d:'Cyclic Redundancy Check'},
+  {a:'CRL',d:'Certificate Revocation List'},
+  {a:'CSP',d:'Cloud Service Provider / Content Security Policy'},
+  {a:'CSR',d:'Certificate Signing Request'},
+  {a:'CSRF',d:'Cross-Site Request Forgery'},
+  {a:'CTI',d:'Cyber Threat Intelligence'},
+  {a:'CVE',d:'Common Vulnerabilities and Exposures'},
+  {a:'CVSS',d:'Common Vulnerability Scoring System'},
+  {a:'CYOD',d:'Choose Your Own Device'},
+  {a:'DAC',d:'Discretionary Access Control'},
+  {a:'DaaS',d:'Desktop as a Service'},
+  {a:'DB',d:'Database'},
+  {a:'DBA',d:'Database Administrator'},
+  {a:'DBMS',d:'Database Management System'},
+  {a:'DDoS',d:'Distributed Denial of Service'},
+  {a:'DEP',d:'Data Execution Prevention'},
+  {a:'DES',d:'Digital Encryption Standard'},
+  {a:'DHCP',d:'Dynamic Host Configuration Protocol'},
+  {a:'DHE',d:'Diffie-Hellman Ephemeral'},
+  {a:'DKIM',d:'DomainKeys Identified Mail'},
+  {a:'DLL',d:'Dynamic-Link Library'},
+  {a:'DLP',d:'Data Loss Prevention'},
+  {a:'DMARC',d:'Domain-Based Message Authentication, Reporting, and Conformance'},
+  {a:'DMZ',d:'Demilitarized Zone'},
+  {a:'DNS',d:'Domain Name System'},
+  {a:'DNSSEC',d:'Domain Name System Security Extensions'},
+  {a:'DoS',d:'Denial of Service'},
+  {a:'DPO',d:'Data Protection Officer'},
+  {a:'DR',d:'Disaster Recovery'},
+  {a:'DRP',d:'Disaster Recovery Plan'},
+  {a:'DSA',d:'Digital Signature Algorithm'},
+  {a:'DSGVO',d:'Datenschutz-Grundverordnung (German GDPR)'},
+  {a:'EAP',d:'Extensible Authentication Protocol'},
+  {a:'ECB',d:'Electronic Code Book'},
+  {a:'ECDHE',d:'Elliptic Curve Diffie-Hellman Ephemeral'},
+  {a:'ECDSA',d:'Elliptic Curve Digital Signature Algorithm'},
+  {a:'EDR',d:'Endpoint Detection and Response'},
+  {a:'EFS',d:'Encrypted File System'},
+  {a:'ELK',d:'Elasticsearch, Logstash, and Kibana'},
+  {a:'EMM',d:'Enterprise Mobility Management'},
+  {a:'EMP',d:'Electromagnetic Pulse'},
+  {a:'ESP',d:'Encapsulating Security Payload'},
+  {a:'EV',d:'Extended Validation'},
+  {a:'FDE',d:'Full-Disk Encryption'},
+  {a:'FIM',d:'File Integrity Monitoring'},
+  {a:'FIPS',d:'Federal Information Processing Standards'},
+  {a:'FISMA',d:'Federal Information Security Management Act'},
+  {a:'FTP',d:'File Transfer Protocol'},
+  {a:'FTPS',d:'File Transfer Protocol Secure'},
+  {a:'GCP',d:'Google Cloud Platform'},
+  {a:'GDPR',d:'General Data Protection Regulation'},
+  {a:'GPG',d:'GNU Privacy Guard'},
+  {a:'GPO',d:'Group Policy Object'},
+  {a:'GPS',d:'Global Positioning System'},
+  {a:'GPU',d:'Graphics Processing Unit'},
+  {a:'GRE',d:'Generic Routing Encapsulation'},
+  {a:'HA',d:'High Availability'},
+  {a:'HDD',d:'Hard Disk Drive'},
+  {a:'HIDS',d:'Host-Based Intrusion Detection System'},
+  {a:'HIPS',d:'Host-Based Intrusion Prevention System'},
+  {a:'HMAC',d:'Hash-Based Message Authentication Code'},
+  {a:'HOTP',d:'HMAC-Based One-Time Password'},
+  {a:'HSM',d:'Hardware Security Module'},
+  {a:'HTML',d:'Hypertext Markup Language'},
+  {a:'HTTP',d:'Hypertext Transfer Protocol'},
+  {a:'HTTPS',d:'Hypertext Transfer Protocol Secure'},
+  {a:'HVAC',d:'Heating, Ventilation, and Air Conditioning'},
+  {a:'IaaS',d:'Infrastructure as a Service'},
+  {a:'IAM',d:'Identity and Access Management'},
+  {a:'ICMP',d:'Internet Control Message Protocol'},
+  {a:'ICS',d:'Industrial Control System'},
+  {a:'IdP',d:'Identity Provider'},
+  {a:'IDS',d:'Intrusion Detection System'},
+  {a:'IEEE',d:'Institute of Electrical and Electronics Engineers'},
+  {a:'IKE',d:'Internet Key Exchange'},
+  {a:'IM',d:'Instant Messaging'},
+  {a:'IMAP',d:'Internet Message Access Protocol'},
+  {a:'IoC',d:'Indicator of Compromise'},
+  {a:'IoT',d:'Internet of Things'},
+  {a:'IP',d:'Internet Protocol'},
+  {a:'IPS',d:'Intrusion Prevention System'},
+  {a:'IPSec',d:'Internet Protocol Security'},
+  {a:'IR',d:'Incident Response'},
+  {a:'IRP',d:'Incident Response Plan'},
+  {a:'ISA',d:'Interconnection Security Agreement'},
+  {a:'ISP',d:'Internet Service Provider'},
+  {a:'ISSO',d:'Information Systems Security Officer'},
+  {a:'IV',d:'Initialization Vector'},
+  {a:'KDC',d:'Key Distribution Center'},
+  {a:'KEK',d:'Key Encryption Key'},
+  {a:'L2TP',d:'Layer 2 Tunneling Protocol'},
+  {a:'LDAP',d:'Lightweight Directory Access Protocol'},
+  {a:'LDAPS',d:'Lightweight Directory Access Protocol Secure'},
+  {a:'LEAP',d:'Lightweight Extensible Authentication Protocol'},
+  {a:'MaaS',d:'Malware as a Service'},
+  {a:'MAC',d:'Mandatory Access Control / Media Access Control / Message Authentication Code'},
+  {a:'MAN',d:'Metropolitan Area Network'},
+  {a:'MBR',d:'Master Boot Record'},
+  {a:'MD5',d:'Message Digest 5'},
+  {a:'MFA',d:'Multifactor Authentication'},
+  {a:'MFD',d:'Multifunction Device'},
+  {a:'MFP',d:'Multifunction Printer'},
+  {a:'ML',d:'Machine Learning'},
+  {a:'MOU',d:'Memorandum of Understanding'},
+  {a:'MPLS',d:'Multiprotocol Label Switching'},
+  {a:'MSA',d:'Master Service Agreement'},
+  {a:'MSCHAP',d:'Microsoft Challenge Handshake Authentication Protocol'},
+  {a:'MSP',d:'Managed Service Provider'},
+  {a:'MSSP',d:'Managed Security Service Provider'},
+  {a:'MTBF',d:'Mean Time Between Failures'},
+  {a:'MTTF',d:'Mean Time to Failure'},
+  {a:'MTTR',d:'Mean Time to Repair'},
+  {a:'MTU',d:'Maximum Transmission Unit'},
+  {a:'NAC',d:'Network Access Control'},
+  {a:'NAT',d:'Network Address Translation'},
+  {a:'NDA',d:'Non-Disclosure Agreement'},
+  {a:'NFC',d:'Near-Field Communication'},
+  {a:'NGFW',d:'Next-Generation Firewall'},
+  {a:'NIDS',d:'Network-Based Intrusion Detection System'},
+  {a:'NIPS',d:'Network-Based Intrusion Prevention System'},
+  {a:'NIST',d:'National Institute of Standards and Technology'},
+  {a:'NTFS',d:'New Technology File System'},
+  {a:'NTLM',d:'New Technology LAN Manager'},
+  {a:'NTP',d:'Network Time Protocol'},
+  {a:'OAuth',d:'Open Authorization'},
+  {a:'OCSP',d:'Online Certificate Status Protocol'},
+  {a:'OID',d:'Object Identifier'},
+  {a:'OS',d:'Operating System'},
+  {a:'OSINT',d:'Open-Source Intelligence'},
+  {a:'OT',d:'Operational Technology'},
+  {a:'OTP',d:'One-Time Password'},
+  {a:'OVAL',d:'Open Vulnerability and Assessment Language'},
+  {a:'P12',d:'PKCS #12'},
+  {a:'P2P',d:'Peer to Peer'},
+  {a:'PaaS',d:'Platform as a Service'},
+  {a:'PAM',d:'Privileged Access Management'},
+  {a:'PAP',d:'Password Authentication Protocol'},
+  {a:'PAT',d:'Port Address Translation'},
+  {a:'PBKDF2',d:'Password-Based Key Derivation Function 2'},
+  {a:'PCI DSS',d:'Payment Card Industry Data Security Standard'},
+  {a:'PDU',d:'Protocol Data Unit'},
+  {a:'PEAP',d:'Protected Extensible Authentication Protocol'},
+  {a:'PED',d:'Personal Electronic Device'},
+  {a:'PEM',d:'Privacy Enhanced Mail'},
+  {a:'PFS',d:'Perfect Forward Secrecy'},
+  {a:'PGP',d:'Pretty Good Privacy'},
+  {a:'PHI',d:'Protected Health Information'},
+  {a:'PII',d:'Personally Identifiable Information'},
+  {a:'PIV',d:'Personal Identity Verification'},
+  {a:'PKI',d:'Public Key Infrastructure'},
+  {a:'PKCS',d:'Public Key Cryptography Standards'},
+  {a:'POP',d:'Post Office Protocol'},
+  {a:'POTS',d:'Plain Old Telephone Service'},
+  {a:'PPP',d:'Point-to-Point Protocol'},
+  {a:'PPTP',d:'Point-to-Point Tunneling Protocol'},
+  {a:'PSK',d:'Pre-Shared Key'},
+  {a:'PTZ',d:'Pan-Tilt-Zoom'},
+  {a:'RA',d:'Registration Authority / Risk Assessment'},
+  {a:'RACE',d:'Research and Development in Advanced Communications in Europe'},
+  {a:'RAD',d:'Rapid Application Development'},
+  {a:'RADIUS',d:'Remote Authentication Dial-In User Service'},
+  {a:'RAID',d:'Redundant Array of Inexpensive Disks'},
+  {a:'RAM',d:'Random Access Memory'},
+  {a:'RAS',d:'Remote Access Server'},
+  {a:'RAT',d:'Remote Access Trojan'},
+  {a:'RBAC',d:'Role-Based Access Control'},
+  {a:'RC4',d:'Rivest Cipher 4'},
+  {a:'RDP',d:'Remote Desktop Protocol'},
+  {a:'RFID',d:'Radio Frequency Identification'},
+  {a:'RIPEMD',d:'RACE Integrity Primitives Evaluation Message Digest'},
+  {a:'ROI',d:'Return on Investment'},
+  {a:'RPO',d:'Recovery Point Objective'},
+  {a:'RSA',d:'Rivest, Shamir, and Adleman'},
+  {a:'RTBH',d:'Remotely Triggered Black Hole'},
+  {a:'RTO',d:'Recovery Time Objective'},
+  {a:'RTOS',d:'Real-Time Operating System'},
+  {a:'RTP',d:'Real-Time Transport Protocol'},
+  {a:'S/MIME',d:'Secure/Multipurpose Internet Mail Extensions'},
+  {a:'SaaS',d:'Software as a Service'},
+  {a:'SAML',d:'Security Assertions Markup Language'},
+  {a:'SAN',d:'Storage Area Network / Subject Alternative Name'},
+  {a:'SCADA',d:'Supervisory Control and Data Acquisition'},
+  {a:'SCAP',d:'Security Content Automation Protocol'},
+  {a:'SCEP',d:'Simple Certificate Enrollment Protocol'},
+  {a:'SD-WAN',d:'Software-Defined Wide Area Network'},
+  {a:'SDN',d:'Software-Defined Networking'},
+  {a:'SEAndroid',d:'Security-Enhanced Android'},
+  {a:'SELinux',d:'Security-Enhanced Linux'},
+  {a:'SHA',d:'Secure Hashing Algorithm'},
+  {a:'SIEM',d:'Security Information and Event Management'},
+  {a:'SIM',d:'Subscriber Identity Module'},
+  {a:'SLA',d:'Service-Level Agreement'},
+  {a:'SLE',d:'Single Loss Expectancy'},
+  {a:'SMB',d:'Server Message Block'},
+  {a:'SMS',d:'Short Message Service'},
+  {a:'SMTP',d:'Simple Mail Transfer Protocol'},
+  {a:'SMTPS',d:'Simple Mail Transfer Protocol Secure'},
+  {a:'SNMP',d:'Simple Network Management Protocol'},
+  {a:'SOAP',d:'Simple Object Access Protocol'},
+  {a:'SOC',d:'Security Operations Center'},
+  {a:'SOW',d:'Statement of Work'},
+  {a:'SPF',d:'Sender Policy Framework'},
+  {a:'SQL',d:'Structured Query Language'},
+  {a:'SQLi',d:'SQL Injection'},
+  {a:'SSH',d:'Secure Shell'},
+  {a:'SSID',d:'Service Set Identifier'},
+  {a:'SSL',d:'Secure Sockets Layer'},
+  {a:'SSO',d:'Single Sign-On'},
+  {a:'STP',d:'Spanning Tree Protocol'},
+  {a:'TACACS+',d:'Terminal Access Controller Access Control System Plus'},
+  {a:'TCP',d:'Transmission Control Protocol'},
+  {a:'TGT',d:'Ticket Granting Ticket'},
+  {a:'TKIP',d:'Temporal Key Integrity Protocol'},
+  {a:'TLS',d:'Transport Layer Security'},
+  {a:'TOTP',d:'Time-Based One-Time Password'},
+  {a:'TPM',d:'Trusted Platform Module'},
+  {a:'TTP',d:'Tactics, Techniques, and Procedures'},
+  {a:'UAT',d:'User Acceptance Testing'},
+  {a:'UAV',d:'Unmanned Aerial Vehicle'},
+  {a:'UDP',d:'User Datagram Protocol'},
+  {a:'UEFI',d:'Unified Extensible Firmware Interface'},
+  {a:'UPS',d:'Uninterruptible Power Supply'},
+  {a:'URI',d:'Uniform Resource Identifier'},
+  {a:'URL',d:'Uniform Resource Locator'},
+  {a:'USB',d:'Universal Serial Bus'},
+  {a:'UTM',d:'Unified Threat Management'},
+  {a:'UTP',d:'Unshielded Twisted Pair'},
+  {a:'VBA',d:'Visual Basic for Applications'},
+  {a:'VDE',d:'Virtual Desktop Environment'},
+  {a:'VDI',d:'Virtual Desktop Infrastructure'},
+  {a:'VLAN',d:'Virtual Local Area Network'},
+  {a:'VLSM',d:'Variable Length Subnet Masking'},
+  {a:'VM',d:'Virtual Machine'},
+  {a:'VoIP',d:'Voice over Internet Protocol'},
+  {a:'VPN',d:'Virtual Private Network'},
+  {a:'VTC',d:'Video Teleconferencing'},
+  {a:'WAF',d:'Web Application Firewall'},
+  {a:'WAP',d:'Wireless Access Point'},
+  {a:'WEP',d:'Wired Equivalent Privacy'},
+  {a:'WIDS',d:'Wireless Intrusion Detection System'},
+  {a:'WIPS',d:'Wireless Intrusion Prevention System'},
+  {a:'WPA',d:'Wi-Fi Protected Access'},
+  {a:'WPA2',d:'Wi-Fi Protected Access 2'},
+  {a:'WPA3',d:'Wi-Fi Protected Access 3'},
+  {a:'WPS',d:'Wi-Fi Protected Setup'},
+  {a:'XDR',d:'Extended Detection and Response'},
+  {a:'XML',d:'Extensible Markup Language'},
+  {a:'XOR',d:'Exclusive Or'},
+  {a:'XSS',d:'Cross-Site Scripting'},
+  {a:'XSRF',d:'Cross-Site Request Forgery'},
+  {a:'ZTA',d:'Zero Trust Architecture'}
+];
+
+// ===== FLASH CARDS LOGIC =====
+var fcDeck = [];
+var fcIdx = 0;
+var fcFlipped = false;
+var fcLearned = {};
+var fcLetterFilter = 'ALL';
+
+function initFC() {
+  fcDeck = FC_DATA.slice();
+  var letters = ['ALL'];
+  var seen = {};
+  FC_DATA.forEach(function(c) {
+    var l = c.a[0].toUpperCase();
+    if (!seen[l]) { seen[l] = true; letters.push(l); }
+  });
+  var el = document.getElementById('fc-alpha');
+  el.innerHTML = '';
+  letters.forEach(function(l) {
+    var b = document.createElement('button');
+    b.className = 'fc-alph' + (l === 'ALL' ? ' on' : '');
+    b.textContent = l;
+    (function(letter, btn) {
+      btn.onclick = function() {
+        document.querySelectorAll('.fc-alph').forEach(function(x) { x.classList.remove('on'); });
+        btn.classList.add('on');
+        fcLetterFilter = letter;
+        fcDeck = letter === 'ALL'
+          ? FC_DATA.slice()
+          : FC_DATA.filter(function(c) { return c.a[0].toUpperCase() === letter; });
+        fcIdx = 0;
+        fcRender();
+      };
+    })(l, b);
+    el.appendChild(b);
+  });
+  fcRender();
+}
+
+function fcRender() {
+  if (!fcDeck.length) return;
+  var card = fcDeck[fcIdx];
+  var cardEl = document.getElementById('fc-card');
+  cardEl.classList.remove('flipped');
+  fcFlipped = false;
+  document.getElementById('fc-acr').textContent = card.a;
+  document.getElementById('fc-def').textContent = card.d;
+  document.getElementById('fc-def-acr').textContent = card.a;
+  var btn = document.getElementById('fc-learn-btn');
+  if (fcLearned[card.a]) {
+    btn.textContent = '[ ✓ LEARNED ]';
+    btn.style.borderColor = 'var(--g)';
+    btn.style.color = 'var(--g)';
+  } else {
+    btn.textContent = '[ MARK LEARNED ]';
+    btn.style.borderColor = 'var(--amber)';
+    btn.style.color = 'var(--amber)';
+  }
+  fcUpdateStatus();
+}
+
+function fcFlip() {
+  var cardEl = document.getElementById('fc-card');
+  fcFlipped = !fcFlipped;
+  if (fcFlipped) cardEl.classList.add('flipped');
+  else cardEl.classList.remove('flipped');
+}
+
+function fcNext() {
+  fcIdx = fcIdx < fcDeck.length - 1 ? fcIdx + 1 : 0;
+  fcRender();
+}
+
+function fcPrev() {
+  fcIdx = fcIdx > 0 ? fcIdx - 1 : fcDeck.length - 1;
+  fcRender();
+}
+
+function fcMarkLearned() {
+  var card = fcDeck[fcIdx];
+  if (!fcLearned[card.a]) {
+    fcLearned[card.a] = true;
+    addScore(1, 'flash');
+    var allDone = fcDeck.every(function(c) { return fcLearned[c.a]; });
+    if (allDone && fcLetterFilter !== 'ALL') addScore(10, 'flash');
+    if (Object.keys(fcLearned).length === FC_DATA.length) addScore(50, 'flash');
+  }
+  fcRender();
+  if (fcIdx < fcDeck.length - 1) setTimeout(fcNext, 350);
+}
+
+function fcShuffle() {
+  for (var i = fcDeck.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = fcDeck[i]; fcDeck[i] = fcDeck[j]; fcDeck[j] = t;
+  }
+  fcIdx = 0;
+  fcRender();
+}
+
+function fcResetLearned() {
+  fcLearned = {};
+  fcRender();
+}
+
+function loadCustomContent() {
+  if (!_fbDb) return;
+  _fbDb.ref('mccoe_content').once('value', function(snap) {
+    var d = snap.val();
+    if (!d) return;
+    var quizAdded = 0, flashAdded = 0;
+    if (d.quiz) {
+      Object.values(d.quiz).forEach(function(q) {
+        QS_ALL.push({c: q.category, q: q.question, o: [q.opt0, q.opt1, q.opt2, q.opt3], a: q.answer, e: q.explanation});
+        quizAdded++;
+      });
+    }
+    if (d.flashcards) {
+      Object.values(d.flashcards).forEach(function(f) {
+        if (!FC_DATA.find(function(x) { return x.a === f.acronym; })) {
+          FC_DATA.push({a: f.acronym, d: f.definition});
+          flashAdded++;
+        }
+      });
+      if (flashAdded > 0) initFC();
+    }
+  });
+}
+
+function fcUpdateStatus() {
+  var learned = Object.keys(fcLearned).length;
+  var total = FC_DATA.length;
+  var pct = Math.round(learned / total * 100);
+  document.getElementById('fc-status').textContent =
+    'Card ' + (fcIdx + 1) + ' of ' + fcDeck.length +
+    (fcLetterFilter !== 'ALL' ? ' (' + fcLetterFilter + ')' : '') +
+    ' · ' + learned + ' / ' + total + ' learned';
+  document.getElementById('fc-pf').style.width = pct + '%';
+  document.getElementById('fc-prog-label').textContent =
+    'Progress: ' + learned + ' / ' + total + ' terms learned (' + pct + '%)';
+}
+
+function submitPH() {
+  var e = EMAILS[pi];
+  var res = document.getElementById('ph-res');
+  document.querySelectorAll('.pf').forEach(function(f) {
+    if (!phFound.has(f.dataset.fi)) f.classList.add('missed');
+  });
+  var pct = Math.round(phFound.size / e.flagCount * 100);
+  var grade, col;
+  if (pct===100){grade='EXPERT ANALYST — Perfect detection!';col='var(--g)';}
+  else if (pct>=80){grade='STRONG — Good eye for red flags';col='#7fff00';}
+  else if (pct>=60){grade='DEVELOPING — Keep practicing';col='var(--amber)';}
+  else{grade='TRAINEE — Review the highlighted misses in orange';col='var(--red)';}
+  res.style.display = 'block';
+  res.innerHTML = '<div style="border-left:3px solid '+col+';padding:12px;background:rgba(0,0,0,.3)"><div style="color:'+col+';font-size:13px;letter-spacing:1px;margin-bottom:6px">'+grade+'</div><div style="color:var(--text)">Found '+phFound.size+' of '+e.flagCount+' red flags ('+pct+'%)</div><div style="color:var(--gd);margin-top:6px;font-size:12px">Missed flags highlighted in orange above — click them to learn why they are suspicious.</div></div>';
+  document.querySelectorAll('.pf.missed').forEach(function(f){
+    f.addEventListener('click', function(){ showTip(f, f.dataset.tip); });
+  });
+}
+</script>
+</body>
+</html>

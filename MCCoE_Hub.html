@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MCCoE — Cybersecurity Apprenticeship Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --red:   #EE2207;
+  --dark:  #c0392b;
+  --navy:  #050510;
+  --navy2: #0d0d1f;
+  --cyan:  #00f5ff;
+  --text:  #e8e8e8;
+  --muted: rgba(255,255,255,0.45);
+  --glow-red:  0 0 10px #EE2207, 0 0 30px rgba(238,34,7,0.4);
+  --glow-cyan: 0 0 10px #00f5ff, 0 0 30px rgba(0,245,255,0.3);
+  --card-bg: rgba(13,13,31,0.92);
+  --border:  rgba(238,34,7,0.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+  font-weight: 500;
+  background: var(--navy);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Animated grid background ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(238,34,7,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(238,34,7,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Scan-line overlay ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ════════════════ HEADER ════════════════ */
+header {
+  position: relative;
+  z-index: 10;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(5,5,16,0.98) 0%, rgba(5,5,16,0.85) 100%);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.logo-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo-icon {
+  width: 40px; height: 40px;
+  border: 2px solid var(--red);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  box-shadow: var(--glow-red);
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 14px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 2px;
+  line-height: 1.2;
+}
+
+.logo-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: rgba(0,245,255,0.55);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.header-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: rgba(238,34,7,0.7);
+  letter-spacing: 2px;
+  border: 1px solid rgba(238,34,7,0.3);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+/* ════════════════ HERO ════════════════ */
+.hero {
+  position: relative;
+  z-index: 5;
+  text-align: center;
+  padding: 70px 2rem 40px;
+}
+
+.hero-eyebrow {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  opacity: 0.8;
+}
+
+.hero-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+.hero-title span.red  { color: var(--red); text-shadow: var(--glow-red); }
+.hero-title span.white { color: #fff; }
+
+.hero-sub {
+  font-size: 16px;
+  color: var(--muted);
+  max-width: 540px;
+  margin: 0 auto 20px;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+}
+
+.hero-divider {
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--red), transparent);
+  margin: 0 auto 50px;
+  box-shadow: var(--glow-red);
+}
+
+/* ════════════════ 2x2 GRID LAYOUT ════════════════ */
+.triangle-wrapper {
+  position: relative;
+  z-index: 5;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 2rem 80px;
+}
+
+.pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  position: relative;
+  z-index: 5;
+}
+
+/* Keep these for backward compat but unused */
+.pillar-top { display: flex; justify-content: center; margin-bottom: 40px; position: relative; z-index: 5; }
+.pillar-bottom { display: flex; justify-content: space-between; gap: 24px; position: relative; z-index: 5; }
+
+/* ── Pillar Card ── */
+.pillar-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 36px 28px 32px;
+  width: 100%;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  text-decoration: none;
+  display: block;
+  backdrop-filter: blur(8px);
+}
+
+.pillar-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--red);
+  box-shadow: var(--glow-red), 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.pillar-card.p2:hover { border-color: var(--cyan); box-shadow: var(--glow-cyan), 0 20px 60px rgba(0,0,0,0.5); }
+.pillar-card.p3:hover { border-color: #a78bfa; box-shadow: 0 0 10px #a78bfa, 0 0 30px rgba(167,139,250,0.3), 0 20px 60px rgba(0,0,0,0.5); }
+.pillar-card.p4:hover { border-color: #00ff41; box-shadow: 0 0 10px #00ff41, 0 0 30px rgba(0,255,65,0.3), 0 20px 60px rgba(0,0,0,0.5); }
+
+/* Corner accent */
+.pillar-card::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: -1px;
+  width: 24px; height: 24px;
+  border-top: 2px solid var(--red);
+  border-left: 2px solid var(--red);
+  border-radius: 12px 0 0 0;
+  transition: width 0.3s, height 0.3s;
+}
+.pillar-card.p2::before { border-color: var(--cyan); }
+.pillar-card.p3::before { border-color: #a78bfa; }
+.pillar-card.p4::before { border-color: #00ff41; }
+
+.pillar-card:hover::before { width: 40px; height: 40px; }
+
+/* Bottom right corner */
+.pillar-card::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; right: -1px;
+  width: 24px; height: 24px;
+  border-bottom: 2px solid var(--red);
+  border-right: 2px solid var(--red);
+  border-radius: 0 0 12px 0;
+  transition: width 0.3s, height 0.3s;
+}
+.pillar-card.p2::after { border-color: var(--cyan); }
+.pillar-card.p3::after { border-color: #a78bfa; }
+.pillar-card.p4::after { border-color: #00ff41; }
+.pillar-card:hover::after { width: 40px; height: 40px; }
+
+/* Pillar number badge */
+.pillar-num {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--red);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pillar-num.c2 { color: var(--cyan); }
+.pillar-num.c3 { color: #a78bfa; }
+.pillar-num.c4 { color: #00ff41; }
+
+.pillar-num::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, currentColor, transparent);
+  opacity: 0.4;
+}
+
+/* Icon */
+.pillar-icon {
+  font-size: 42px;
+  margin-bottom: 14px;
+  line-height: 1;
+  display: block;
+}
+
+/* Card text */
+.pillar-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1.5px;
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+.pillar-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.65;
+  margin-bottom: 24px;
+}
+
+.pillar-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+.tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+.tag.r  { border-color: rgba(238,34,7,0.5);    color: #ff6b6b; background: rgba(238,34,7,0.08); }
+.tag.c  { border-color: rgba(0,245,255,0.4);   color: var(--cyan); background: rgba(0,245,255,0.06); }
+.tag.p  { border-color: rgba(167,139,250,0.4); color: #a78bfa; background: rgba(167,139,250,0.06); }
+.tag.g4 { border-color: rgba(0,255,65,0.4);    color: #00ff41; background: rgba(0,255,65,0.06); }
+
+/* Launch button */
+.launch-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 0;
+  border-radius: 6px;
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: linear-gradient(135deg, rgba(238,34,7,0.2), rgba(238,34,7,0.05));
+  color: var(--red);
+  border: 1px solid rgba(238,34,7,0.4);
+  text-decoration: none;
+}
+.launch-btn:hover {
+  background: linear-gradient(135deg, rgba(238,34,7,0.35), rgba(238,34,7,0.15));
+  box-shadow: var(--glow-red);
+}
+.launch-btn.b2 {
+  background: linear-gradient(135deg, rgba(0,245,255,0.15), rgba(0,245,255,0.03));
+  color: var(--cyan);
+  border-color: rgba(0,245,255,0.35);
+}
+.launch-btn.b2:hover { background: linear-gradient(135deg, rgba(0,245,255,0.28), rgba(0,245,255,0.1)); box-shadow: var(--glow-cyan); }
+.launch-btn.b3 {
+  background: linear-gradient(135deg, rgba(167,139,250,0.15), rgba(167,139,250,0.03));
+  color: #a78bfa;
+  border-color: rgba(167,139,250,0.35);
+}
+.launch-btn.b3:hover { background: linear-gradient(135deg, rgba(167,139,250,0.28), rgba(167,139,250,0.1)); box-shadow: 0 0 10px #a78bfa, 0 0 30px rgba(167,139,250,0.3); }
+.launch-btn.b4 {
+  background: linear-gradient(135deg, rgba(0,255,65,0.15), rgba(0,255,65,0.03));
+  color: #00ff41;
+  border-color: rgba(0,255,65,0.35);
+}
+.launch-btn.b4:hover { background: linear-gradient(135deg, rgba(0,255,65,0.28), rgba(0,255,65,0.1)); box-shadow: 0 0 10px #00ff41, 0 0 30px rgba(0,255,65,0.3); }
+
+/* ── Triangle SVG connectors ── */
+.connector-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+
+/* ════════════════ STATS BAR ════════════════ */
+.stats-bar {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: rgba(13,13,31,0.7);
+  margin: 0 0 0;
+}
+
+.stat-item {
+  padding: 18px 40px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+}
+.stat-item:last-child { border-right: none; }
+
+.stat-num {
+  font-family: 'Orbitron', monospace;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--red);
+  text-shadow: var(--glow-red);
+  display: block;
+  line-height: 1;
+}
+
+.stat-lbl {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 4px;
+  display: block;
+}
+
+/* ════════════════ FOOTER ════════════════ */
+footer {
+  position: relative;
+  z-index: 5;
+  text-align: center;
+  padding: 28px 2rem;
+  border-top: 1px solid var(--border);
+  background: rgba(5,5,16,0.9);
+}
+
+footer p {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+footer strong {
+  color: var(--red);
+}
+
+/* ════════════════ PULSE ANIMATION ════════════════ */
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.pulse-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: var(--glow-red);
+  animation: pulse-red 2s ease-in-out infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+/* ════════════════ RESPONSIVE ════════════════ */
+@media (max-width: 700px) {
+  .pillar-grid   { grid-template-columns: 1fr; }
+  .pillar-card   { width: 100%; }
+  .stat-item     { padding: 14px 20px; }
+  .stat-num      { font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<header>
+  <div class="logo-block">
+    <div class="logo-icon">🛡️</div>
+    <div>
+      <div class="logo-text">MCCoE</div>
+      <div class="logo-sub">Missouri Cybersecurity Center of Excellence</div>
+    </div>
+  </div>
+  <div style="display:flex; align-items:center; gap:16px;">
+    <div class="header-badge">▶ APPRENTICESHIP HUB v1.0</div>
+    <a href="MCCoE_Student_Platform.html" target="_blank" style="font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:2px; color:#fff; background:var(--red); padding:8px 18px; border-radius:5px; text-decoration:none; box-shadow:0 0 14px rgba(238,34,7,0.5); transition:all .2s; white-space:nowrap;" onmouseover="this.style.boxShadow='0 0 24px rgba(238,34,7,0.85)'; this.style.transform='scale(1.04)'" onmouseout="this.style.boxShadow='0 0 14px rgba(238,34,7,0.5)'; this.style.transform='scale(1)'">⚡ STUDENT LOGIN</a>
+    <a href="MCCoE_Student_Tracker.html" target="_blank" style="font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:2px; color:#fff; background:rgba(0,245,255,0.15); padding:8px 18px; border-radius:5px; text-decoration:none; border:1px solid rgba(0,245,255,0.5); box-shadow:0 0 14px rgba(0,245,255,0.25); transition:all .2s; white-space:nowrap;" onmouseover="this.style.boxShadow='0 0 24px rgba(0,245,255,0.6)'; this.style.transform='scale(1.04)'" onmouseout="this.style.boxShadow='0 0 14px rgba(0,245,255,0.25)'; this.style.transform='scale(1)'">🔒 ADMIN LOGIN</a>
+  </div>
+</header>
+
+<!-- ══════════ STATS BAR ══════════ -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <span class="stat-num">4</span>
+    <span class="stat-lbl">Pillars</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">8</span>
+    <span class="stat-lbl">Projects</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">5</span>
+    <span class="stat-lbl">Pentest Phases</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">750</span>
+    <span class="stat-lbl">Total Points</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">9</span>
+    <span class="stat-lbl">Weeks</span>
+  </div>
+</div>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero">
+  <div class="hero-eyebrow"><span class="pulse-dot"></span>System Online — All 4 Pillars Active</div>
+  <h1 class="hero-title">
+    <span class="red">MCCoE</span><br/>
+    <span class="white">Cybersecurity Apprenticeship</span>
+  </h1>
+  <p class="hero-sub">
+    Four pillars. One mission. Real-world cybersecurity training built for the next generation of defenders.
+  </p>
+  <div class="hero-divider"></div>
+</section>
+
+<!-- ══════════ 2x2 PILLAR GRID ══════════ -->
+<div class="triangle-wrapper" id="triangleWrapper">
+  <div class="pillar-grid">
+
+    <!-- Pillar 1 — Student Platform -->
+    <a class="pillar-card p1" id="card-p1" href="https://kingchrischris23-eng.github.io/mccoe-platform/MCCoE_Student_Platform.html" target="_blank">
+      <div class="pillar-num">PILLAR 01 — CORE PLATFORM</div>
+      <span class="pillar-icon">🎓</span>
+      <div class="pillar-name">Student Learning Platform</div>
+      <p class="pillar-desc">
+        The central hub for student progress. Login, complete weekly modules, earn XP, unlock badges, and climb the leaderboard. Tracks everything — quizzes, streaks, Security+ readiness.
+      </p>
+      <div class="pillar-tags">
+        <span class="tag r">Login &amp; Profiles</span>
+        <span class="tag r">9 Weeks</span>
+        <span class="tag r">XP &amp; Badges</span>
+        <span class="tag r">Leaderboard</span>
+        <span class="tag r">Security+ Quizzes</span>
+      </div>
+      <div class="launch-btn">▶ &nbsp; Launch Platform</div>
+    </a>
+
+    <!-- Pillar 2 — CyberSec Academy -->
+    <a class="pillar-card p2" id="card-p2" href="CyberSec_Academy.html" target="_blank">
+      <div class="pillar-num c2">PILLAR 02 — INTERACTIVE TRAINING</div>
+      <span class="pillar-icon">🎮</span>
+      <div class="pillar-name">CyberSec Academy</div>
+      <p class="pillar-desc">
+        Hands-on cybersecurity simulations. A 150-question knowledge quiz across 15 categories, live SOC incident simulator, password strength analyzer, and phishing email spotter — all in one tool.
+      </p>
+      <div class="pillar-tags">
+        <span class="tag c">150-Q Quiz</span>
+        <span class="tag c">SOC Simulator</span>
+        <span class="tag c">Password Checker</span>
+        <span class="tag c">Phishing Spotter</span>
+      </div>
+      <div class="launch-btn b2">▶ &nbsp; Launch Academy</div>
+    </a>
+
+    <!-- Pillar 3 — Curriculum Docs -->
+    <a class="pillar-card p3" id="card-p3" href="#curriculum" onclick="openCurriculum(event)">
+      <div class="pillar-num c3">PILLAR 03 — CURRICULUM</div>
+      <span class="pillar-icon">📁</span>
+      <div class="pillar-name">Incident Case Studies</div>
+      <p class="pillar-desc">
+        Eight deep-dive projects across four real-world breaches — Target, Colonial Pipeline, SolarWinds, and Equifax. Part 1 dissects the attack. Part 2 builds your defensive response and executive summary.
+      </p>
+      <div class="pillar-tags">
+        <span class="tag p">8 Projects</span>
+        <span class="tag p">4 Incidents</span>
+        <span class="tag p">NIST CSF</span>
+        <span class="tag p">MITRE ATT&amp;CK</span>
+        <span class="tag p">Exec Summary</span>
+      </div>
+      <div class="launch-btn b3">▶ &nbsp; View Curriculum</div>
+    </a>
+
+    <!-- Pillar 4 — Ethical Hacking Lab -->
+    <a class="pillar-card p4" id="card-p4" href="Pillar4_EthicalHacking.html" target="_blank">
+      <div class="pillar-num c4">PILLAR 04 — ETHICAL HACKING LAB</div>
+      <span class="pillar-icon">🔓</span>
+      <div class="pillar-name">Ethical Hacking Lab</div>
+      <p class="pillar-desc">
+        Experience all 5 phases of a real penetration test — Recon, Scanning, Exploitation, Persistence, and Reporting. Authorized platforms, real tools, professional pentest report as your capstone deliverable.
+      </p>
+      <div class="pillar-tags">
+        <span class="tag g4">5 Phases</span>
+        <span class="tag g4">5 Exercises</span>
+        <span class="tag g4">TryHackMe</span>
+        <span class="tag g4">Kali Linux</span>
+        <span class="tag g4">Capstone</span>
+      </div>
+      <div class="launch-btn b4">▶ &nbsp; Enter the Lab</div>
+    </a>
+
+  </div>
+</div><!-- /triangle-wrapper -->
+
+<!-- ══════════ CURRICULUM MODAL ══════════ -->
+<div id="curriculumModal" style="display:none; position:fixed; inset:0; z-index:1000; background:rgba(5,5,16,0.92); backdrop-filter:blur(8px); overflow-y:auto;">
+  <div style="max-width:700px; margin:60px auto; padding:0 20px 60px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+      <div style="font-family:'Orbitron',monospace; font-size:14px; font-weight:700; color:#a78bfa; letter-spacing:2px;">PILLAR 03 — CURRICULUM DOCUMENTS</div>
+      <button onclick="closeCurriculum()" style="background:none; border:1px solid rgba(238,34,7,0.4); color:var(--red); font-family:'Orbitron',monospace; font-size:10px; padding:8px 16px; cursor:pointer; border-radius:4px; letter-spacing:2px;">✕ CLOSE</button>
+    </div>
+
+    <!-- Incident blocks -->
+    <div id="incidentList">
+
+      <div class="inc-block" style="border:1px solid rgba(167,139,250,0.25); border-radius:10px; padding:22px; margin-bottom:16px; background:rgba(13,13,31,0.8);">
+        <div style="font-family:'Orbitron',monospace; font-size:12px; color:#a78bfa; letter-spacing:2px; margin-bottom:8px;">PROJECT 1–2 &nbsp;|&nbsp; TARGET DATA BREACH (2013)</div>
+        <div style="font-size:13px; color:var(--muted); margin-bottom:16px; line-height:1.6;">110M customer records compromised via third-party HVAC vendor. CIA Triad, Kill Chain, MITRE ATT&amp;CK, NIST CSF, Executive Summary.</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="Project1_Target_Data_Breach_2013_Part1_Deep_Dive.docx" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; text-decoration:none; background:rgba(167,139,250,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(167,139,250,0.2)'" onmouseout="this.style.background='rgba(167,139,250,0.08)'">▶ Project 1 — Deep Dive</a>
+          <a href="Project2_Target_Data_Breach_2013_Part2_Executive_Summary.docx" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; text-decoration:none; background:rgba(167,139,250,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(167,139,250,0.2)'" onmouseout="this.style.background='rgba(167,139,250,0.08)'">▶ Project 2 — Exec Summary</a>
+        </div>
+      </div>
+
+      <div class="inc-block" style="border:1px solid rgba(167,139,250,0.25); border-radius:10px; padding:22px; margin-bottom:16px; background:rgba(13,13,31,0.8);">
+        <div style="font-family:'Orbitron',monospace; font-size:12px; color:#a78bfa; letter-spacing:2px; margin-bottom:8px;">PROJECT 3–4 &nbsp;|&nbsp; COLONIAL PIPELINE (2021)</div>
+        <div style="font-size:13px; color:var(--muted); margin-bottom:16px; line-height:1.6;">Ransomware shut down fuel supply to 17 states. Single compromised password with no MFA. OT/IT convergence failure analysis.</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="Project3_Colonial_Pipeline_Ransomware_2021_Part1_Deep_Dive.docx" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; text-decoration:none; background:rgba(167,139,250,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(167,139,250,0.2)'" onmouseout="this.style.background='rgba(167,139,250,0.08)'">▶ Project 3 — Deep Dive</a>
+          <a href="Project4_Colonial_Pipeline_Ransomware_2021_Part2_Executive_Summary.docx" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; text-decoration:none; background:rgba(167,139,250,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(167,139,250,0.2)'" onmouseout="this.style.background='rgba(167,139,250,0.08)'">▶ Project 4 — Exec Summary</a>
+        </div>
+      </div>
+
+      <div class="inc-block" style="border:1px solid rgba(167,139,250,0.25); border-radius:10px; padding:22px; margin-bottom:16px; background:rgba(13,13,31,0.8);">
+        <div style="font-family:'Orbitron',monospace; font-size:12px; color:#a78bfa; letter-spacing:2px; margin-bottom:8px;">PROJECT 5–6 &nbsp;|&nbsp; SOLARWINDS (2020)</div>
+        <div style="font-size:13px; color:var(--muted); margin-bottom:16px; line-height:1.6;">Nation-state supply chain attack. Malicious code in legitimate software updates delivered to 18,000 organizations including US federal agencies.</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="Project5_SolarWinds_Supply_Chain_Attack_2020_Part1_Deep_Dive.docx" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; text-decoration:none; background:rgba(167,139,250,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(167,139,250,0.2)'" onmouseout="this.style.background='rgba(167,139,250,0.08)'">▶ Project 5 — Deep Dive</a>
+          <a href="Project6_SolarWinds_Supply_Chain_Attack_2020_Part2_Executive_Summary.docx" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; text-decoration:none; background:rgba(167,139,250,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(167,139,250,0.2)'" onmouseout="this.style.background='rgba(167,139,250,0.08)'">▶ Project 6 — Exec Summary</a>
+        </div>
+      </div>
+
+      <div class="inc-block" style="border:1px solid rgba(167,139,250,0.25); border-radius:10px; padding:22px; margin-bottom:16px; background:rgba(13,13,31,0.8);">
+        <div style="font-family:'Orbitron',monospace; font-size:12px; color:#a78bfa; letter-spacing:2px; margin-bottom:8px;">PROJECT 7–8 &nbsp;|&nbsp; EQUIFAX DATA BREACH (2017)</div>
+        <div style="font-size:13px; color:var(--muted); margin-bottom:16px; line-height:1.6;">147M SSNs stolen via an unpatched Apache Struts vulnerability (CVSS 10.0). Patch was available 69 days before exploitation began.</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="Project7_Equifax_Data_Breach_2017_Part1_Deep_Dive.docx" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; text-decoration:none; background:rgba(167,139,250,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(167,139,250,0.2)'" onmouseout="this.style.background='rgba(167,139,250,0.08)'">▶ Project 7 — Deep Dive</a>
+          <a href="Project8_Equifax_Data_Breach_2017_Part2_Executive_Summary.docx" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; text-decoration:none; background:rgba(167,139,250,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(167,139,250,0.2)'" onmouseout="this.style.background='rgba(167,139,250,0.08)'">▶ Project 8 — Exec Summary</a>
+        </div>
+      </div>
+
+      <!-- Course docs -->
+      <div style="border:1px solid rgba(238,34,7,0.25); border-radius:10px; padding:22px; background:rgba(13,13,31,0.8);">
+        <div style="font-family:'Orbitron',monospace; font-size:12px; color:var(--red); letter-spacing:2px; margin-bottom:12px;">COURSE DOCUMENTS</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="MCCoE_Course_Syllabus_8Week.docx" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(238,34,7,0.5); border-radius:4px; color:#ff6b6b; text-decoration:none; background:rgba(238,34,7,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(238,34,7,0.2)'" onmouseout="this.style.background='rgba(238,34,7,0.08)'">▶ Course Syllabus</a>
+        </div>
+        <div style="margin-top:10px; font-family:'Share Tech Mono',monospace; font-size:9px; color:rgba(255,255,255,0.3); letter-spacing:1px;">Additional instructor documents available in the Admin Tracker (Pillar 1)</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <p>Missouri Cybersecurity Center of Excellence &nbsp;|&nbsp; <strong>MCCoE Apprenticeship Program</strong> &nbsp;|&nbsp; Mr. King &nbsp;·&nbsp; cking@mccoe.org</p>
+</footer>
+
+<script>
+// ── Curriculum Modal ──
+function openCurriculum(e) {
+  e.preventDefault();
+  document.getElementById('curriculumModal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+function closeCurriculum() {
+  document.getElementById('curriculumModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.getElementById('curriculumModal').addEventListener('click', function(e) {
+  if (e.target === this) closeCurriculum();
+});
+
+// 2x2 grid — no connector lines needed
+</script>
+</body>
+</html>
