@@ -628,6 +628,9 @@ select option { background:var(--surface); color:var(--text); }
   <button class="nav-btn" onclick="showView('academy',this)">
     <span class="nav-icon">🎮</span> Academy Scores
   </button>
+  <button class="nav-btn" onclick="showView('pentest',this)">
+    <span class="nav-icon">💻</span> Pentest Lab
+  </button>
   <div class="nav-section">Admin Tools</div>
   <button class="nav-btn" onclick="showView('content',this)">
     <span class="nav-icon">⚙️</span> Content Manager
@@ -990,6 +993,26 @@ select option { background:var(--surface); color:var(--text); }
     <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase;">Student Leaderboard</div>
     <div id="academy-table-wrap">
       <div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0;">Loading scores...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ PENTEST LAB ═══ -->
+<div id="view-pentest" class="view">
+  <div class="page-header">
+    <div>
+      <h2>💻 Pentest Lab Scores</h2>
+      <p>Pillar 4 — Ethical Hacking Lab phase completions per student</p>
+    </div>
+    <button class="btn btn-outline" onclick="loadPentestScores()">↻ Refresh</button>
+  </div>
+
+  <div id="pentest-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;"></div>
+
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;">
+    <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase;">Phase Completion by Student</div>
+    <div id="pentest-table-wrap">
+      <div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0;">Loading...</div>
     </div>
   </div>
 </div>
@@ -1659,6 +1682,7 @@ function showView(name, btn) {
   if(name==='submissions')  renderSubmissionsView();
   if(name==='library')      renderLibraryAdmin();
   if(name==='academy')      loadAcademyScores();
+  if(name==='pentest')      loadPentestScores();
   if(name==='content')      loadContentManager();
 }
 
@@ -1747,6 +1771,86 @@ function loadAcademyScores() {
               <td style="padding:10px 8px;text-align:center;"><span style="font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(0,245,255,.1);color:var(--cyan);letter-spacing:.5px;">${rankLabel(r)}</span></td>
               <td style="padding:10px 8px;text-align:center;color:rgba(200,216,232,0.5);">${r.sessions||1}</td>
               <td style="padding:10px 8px;color:rgba(200,216,232,0.5);">${lp}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+      </div>`;
+  });
+}
+
+// ════════════════════════════════════════════
+//  PENTEST LAB SCORES
+// ════════════════════════════════════════════
+function loadPentestScores() {
+  const wrap = document.getElementById('pentest-table-wrap');
+  const kpis = document.getElementById('pentest-kpis');
+  wrap.innerHTML = '<div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0;">Loading...</div>';
+
+  if (!_fbDb) {
+    wrap.innerHTML = '<div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0;">Firebase not connected.</div>';
+    return;
+  }
+
+  _fbDb.ref('mccoe_pentest').once('value', snap => {
+    const rows = [];
+    snap.forEach(child => { rows.push(child.val()); });
+    rows.sort((a, b) => (b.phasesCompleted || 0) - (a.phasesCompleted || 0));
+
+    if (!rows.length) {
+      wrap.innerHTML = '<div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0;">No Pentest Lab activity yet. Students launch from their dashboard.</div>';
+      kpis.innerHTML = '';
+      return;
+    }
+
+    const phaseNames = ['Recon','Scanning','Exploit','Persist','Report','Capstone'];
+    const totalStudents = rows.length;
+    const avgPhases = (rows.reduce((a, r) => a + (r.phasesCompleted || 0), 0) / totalStudents).toFixed(1);
+    const topStudent = rows[0].name || '—';
+    const lastAct = rows.reduce((a, r) => r.lastActivity > a ? r.lastActivity : a, '');
+    const lastDate = lastAct ? new Date(lastAct).toLocaleDateString() : '—';
+
+    kpis.innerHTML = [
+      ['👥', totalStudents, 'Students Active'],
+      ['📊', avgPhases + ' / 6', 'Avg Phases Done'],
+      ['🏆', topStudent, 'Most Advanced'],
+      ['🕒', lastDate, 'Last Activity'],
+    ].map(([icon, val, lbl]) => `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;">
+        <div style="font-size:22px;margin-bottom:6px;">${icon}</div>
+        <div style="font-size:1.2rem;font-weight:900;color:var(--cyan);word-break:break-word;">${val}</div>
+        <div style="font-size:.7rem;color:rgba(200,216,232,0.5);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">${lbl}</div>
+      </div>`).join('');
+
+    const phaseCheck = val => val
+      ? '<span style="color:#00ff41;font-weight:700;">✓</span>'
+      : '<span style="color:rgba(200,216,232,0.2);">○</span>';
+
+    wrap.innerHTML = `
+      <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+        <thead><tr style="border-bottom:1px solid var(--border);">
+          <th style="text-align:left;padding:10px 8px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">#</th>
+          <th style="text-align:left;padding:10px 8px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Student</th>
+          <th style="text-align:center;padding:10px 8px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Progress</th>
+          ${phaseNames.map(n => `<th style="text-align:center;padding:10px 8px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">${n}</th>`).join('')}
+          <th style="text-align:left;padding:10px 8px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Last Active</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map((r, i) => {
+            const done = r.phasesCompleted || 0;
+            const barW = Math.round((done / 6) * 100);
+            const la = r.lastActivity ? new Date(r.lastActivity).toLocaleDateString() : '—';
+            const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+            return `<tr style="border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s;" onmouseover="this.style.background='rgba(0,255,65,.03)'" onmouseout="this.style.background=''">
+              <td style="padding:10px 8px;color:rgba(200,216,232,0.4);font-weight:700;">${medal||i+1}</td>
+              <td style="padding:10px 8px;font-weight:700;color:var(--text);">${r.name||'—'}</td>
+              <td style="padding:10px 8px;text-align:center;min-width:100px;">
+                <div style="font-weight:900;color:#00ff41;font-size:.95rem;">${done}/6</div>
+                <div style="height:3px;background:rgba(0,255,65,.1);border-radius:2px;margin-top:4px;"><div style="height:3px;background:#00ff41;border-radius:2px;width:${barW}%;"></div></div>
+              </td>
+              ${[0,1,2,3,4,5].map(idx => `<td style="padding:10px 8px;text-align:center;">${phaseCheck(r['phase'+idx])}</td>`).join('')}
+              <td style="padding:10px 8px;color:rgba(200,216,232,0.5);">${la}</td>
             </tr>`;
           }).join('')}
         </tbody>

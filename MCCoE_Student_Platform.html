@@ -2407,6 +2407,21 @@ function renderStudentDashboard() {
       </a>
     </div>
 
+    <div style="background:#fff;border-radius:12px;padding:20px 24px;border:2px solid #003d10;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;box-shadow:0 2px 8px rgba(0,61,16,.08);">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <div style="font-size:32px;">💻</div>
+        <div>
+          <div style="font-size:14px;font-weight:800;color:#003d10;letter-spacing:.5px;">Ethical Hacking Lab</div>
+          <div style="font-size:12px;color:#555;margin-top:2px;">5 Phases of Pentesting — exercises, tools, and capstone challenge</div>
+        </div>
+      </div>
+      <a href="Pillar4_EthicalHacking.html?name=${encodeURIComponent(s.name)}&id=${encodeURIComponent(s.tempId||s.name)}" target="_blank"
+         style="background:#003d10;color:#00ff41;font-size:12px;font-weight:800;padding:10px 22px;border-radius:6px;text-decoration:none;letter-spacing:.5px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,61,16,.4);transition:all .2s;border:1px solid #00aa2a;"
+         onmouseover="this.style.background='#002808'" onmouseout="this.style.background='#003d10'">
+        ▶ LAUNCH LAB
+      </a>
+    </div>
+
     ${renderGamePanel()}
 
     <!-- STAT CARDS -->

@@ -174,6 +174,13 @@ footer p{font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2
 footer strong{color:var(--green)}
 
 @media(max-width:700px){.phase-banner{flex-direction:column;text-align:center}.phase-nav{gap:6px}.phase-btn{font-size:8px;padding:8px 12px}.rubric-hdr,.rubric-row,.total-row{grid-template-columns:1fr;gap:4px}}
+
+/* FIREBASE PROGRESS */
+.mark-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 28px;border-radius:6px;font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border:2px solid rgba(0,255,65,0.5);background:rgba(0,255,65,0.06);color:var(--green);cursor:pointer;transition:all .2s;margin:8px 6px}
+.mark-btn:hover{background:rgba(0,255,65,0.22);box-shadow:var(--glow-green)}
+.mark-btn:disabled{opacity:.45;cursor:default;box-shadow:none}
+.done-badge{font-family:'Share Tech Mono',monospace;font-size:11px;color:#00ff41;letter-spacing:1px;padding:8px 16px;border:1px solid rgba(0,255,65,0.45);border-radius:4px;background:rgba(0,255,65,0.08);display:inline-block;margin:8px 6px;vertical-align:middle}
+.student-banner{position:relative;z-index:5;text-align:center;padding:9px 2rem;background:rgba(0,255,65,0.06);border-bottom:1px solid rgba(0,255,65,0.18);font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--green);letter-spacing:2px}
 </style>
 </head>
 <body>
@@ -201,6 +208,8 @@ footer strong{color:var(--green)}
   <div class="stat-item"><span class="stat-num">100</span><span class="stat-lbl">Points</span></div>
   <div class="stat-item"><span class="stat-num">FREE</span><span class="stat-lbl">All Platforms</span></div>
 </div>
+
+<div id="student-banner" class="student-banner" style="display:none"></div>
 
 <!-- HERO -->
 <section class="hero">
@@ -320,6 +329,10 @@ footer strong{color:var(--green)}
       </div>
     </div>
 
+    <div style="text-align:center;margin-top:18px">
+      <button class="mark-btn" id="mark0" onclick="markPhaseComplete(0)">✓ &nbsp; Mark Recon Complete</button>
+      <span class="done-badge" id="done0" style="display:none">✓ Phase 1 Saved!</span>
+    </div>
     <div style="text-align:center;margin-top:10px">
       <button class="btn-green" onclick="showPhase(1)">▶ &nbsp; Next: Scanning</button>
     </div>
@@ -395,6 +408,10 @@ footer strong{color:var(--green)}
       </div>
     </div>
 
+    <div style="text-align:center;margin-top:18px">
+      <button class="mark-btn" id="mark1" onclick="markPhaseComplete(1)">✓ &nbsp; Mark Scanning Complete</button>
+      <span class="done-badge" id="done1" style="display:none">✓ Phase 2 Saved!</span>
+    </div>
     <div style="text-align:center;margin-top:10px">
       <button class="btn-outline" onclick="showPhase(0)">← Recon</button>
       <button class="btn-green" onclick="showPhase(2)">▶ &nbsp; Next: Exploitation</button>
@@ -468,6 +485,10 @@ footer strong{color:var(--green)}
       </div>
     </div>
 
+    <div style="text-align:center;margin-top:18px">
+      <button class="mark-btn" id="mark2" onclick="markPhaseComplete(2)">✓ &nbsp; Mark Exploitation Complete</button>
+      <span class="done-badge" id="done2" style="display:none">✓ Phase 3 Saved!</span>
+    </div>
     <div style="text-align:center;margin-top:10px">
       <button class="btn-outline" onclick="showPhase(1)">← Scanning</button>
       <button class="btn-green" onclick="showPhase(3)">▶ &nbsp; Next: Persistence</button>
@@ -526,6 +547,10 @@ footer strong{color:var(--green)}
       </div>
     </div>
 
+    <div style="text-align:center;margin-top:18px">
+      <button class="mark-btn" id="mark3" onclick="markPhaseComplete(3)">✓ &nbsp; Mark Persistence Complete</button>
+      <span class="done-badge" id="done3" style="display:none">✓ Phase 4 Saved!</span>
+    </div>
     <div style="text-align:center;margin-top:10px">
       <button class="btn-outline" onclick="showPhase(2)">← Exploitation</button>
       <button class="btn-green" onclick="showPhase(4)">▶ &nbsp; Next: Reporting</button>
@@ -590,6 +615,10 @@ footer strong{color:var(--green)}
       </div>
     </div>
 
+    <div style="text-align:center;margin-top:18px">
+      <button class="mark-btn" id="mark4" onclick="markPhaseComplete(4)">✓ &nbsp; Mark Reporting Complete</button>
+      <span class="done-badge" id="done4" style="display:none">✓ Phase 5 Saved!</span>
+    </div>
     <div style="text-align:center;margin-top:10px">
       <button class="btn-outline" onclick="showPhase(3)">← Persistence</button>
       <button class="btn-green" onclick="showPhase(5)">🏁 &nbsp; Go to Capstone</button>
@@ -686,6 +715,10 @@ footer strong{color:var(--green)}
       </div>
     </div>
 
+    <div style="text-align:center;margin-top:18px">
+      <button class="mark-btn" id="mark5" onclick="markPhaseComplete(5)">🏁 &nbsp; Mark Capstone Complete</button>
+      <span class="done-badge" id="done5" style="display:none">✓ Capstone Complete — Lab Finished!</span>
+    </div>
     <div style="text-align:center;margin-top:10px">
       <button class="btn-outline" onclick="showPhase(4)">← Reporting</button>
       <a href="MCCoE_Hub.html" class="btn-green">🏠 &nbsp; Back to Hub</a>
@@ -698,36 +731,105 @@ footer strong{color:var(--green)}
   <p>Missouri Cybersecurity Center of Excellence &nbsp;|&nbsp; <strong>Pillar 4 — Ethical Hacking Lab</strong> &nbsp;|&nbsp; Mr. King &nbsp;·&nbsp; cking@mccoe.org</p>
 </footer>
 
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
-const panels = document.querySelectorAll('.phase-panel');
-const btns   = document.querySelectorAll('.phase-btn');
+// Firebase
+firebase.initializeApp({
+  apiKey: "AIzaSyBpK8uLCD0_m83a1xFiOQVaS1PKWSGcEc8",
+  authDomain: "mccoe-platform-a9710.firebaseapp.com",
+  databaseURL: "https://mccoe-platform-a9710-default-rtdb.firebaseio.com",
+  projectId: "mccoe-platform-a9710",
+  storageBucket: "mccoe-platform-a9710.firebasestorage.app",
+  messagingSenderId: "435411134511",
+  appId: "1:435411134511:web:face8dfcc670df20f1beda"
+});
+const _db = firebase.database();
+
+// Student identity from URL params (passed by student platform)
+const _params      = new URLSearchParams(window.location.search);
+const _studentName = _params.get('name') || '';
+const _studentId   = _params.get('id')   || '';
+const _fbKey       = _studentId ? _studentId.replace(/[.#$[\]]/g, '_') : null;
+
+const panels    = document.querySelectorAll('.phase-panel');
+const btns      = document.querySelectorAll('.phase-btn');
 const completed = new Set();
 
-function showPhase(idx) {
-  panels.forEach((p,i) => p.classList.toggle('active', i === idx));
-  btns.forEach((b,i)   => b.classList.toggle('active', i === idx));
+// Show student identity banner when launched from platform
+if (_studentName) {
+  const banner = document.getElementById('student-banner');
+  if (banner) {
+    banner.textContent = '▶ ' + _studentName + '  —  Progress synced to Admin Tracker';
+    banner.style.display = 'block';
+  }
+}
 
-  // Mark previous phases as done in progress tracker
+function showPhase(idx) {
+  panels.forEach((p, i) => p.classList.toggle('active', i === idx));
+  btns.forEach((b, i)   => b.classList.toggle('active', i === idx));
+  updateProgressUI(idx);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgressUI(currentIdx) {
   for (let i = 0; i < 6; i++) {
     const circle = document.getElementById('pc' + i);
     const label  = document.getElementById('pl' + i);
     if (!circle || !label) continue;
-    if (i < idx) {
-      circle.classList.add('done'); circle.classList.remove('active');
-      label.classList.remove('active');
-    } else if (i === idx) {
-      circle.classList.add('active'); circle.classList.remove('done');
-      label.classList.add('active');
-    } else {
-      circle.classList.remove('active','done');
-      label.classList.remove('active');
-    }
-    // Lines
+    const isDone   = completed.has(i);
+    const isActive = (i === currentIdx);
+    circle.classList.toggle('done',   isDone && !isActive);
+    circle.classList.toggle('active', isActive);
+    label.classList.toggle('active',  isActive);
+    // Checkmark for completed circles, number otherwise
+    if (isDone && !isActive) circle.textContent = '✓';
+    else circle.textContent = i < 5 ? String(i + 1) : '🏁';
+    // Connecting lines glow green when that phase is done
     const line = document.getElementById('pline' + i);
-    if (line) line.classList.toggle('done', i < idx);
+    if (line) line.classList.toggle('done', completed.has(i));
   }
-  window.scrollTo({top:0, behavior:'smooth'});
 }
+
+function markPhaseComplete(idx) {
+  completed.add(idx);
+  const btn  = document.getElementById('mark' + idx);
+  const done = document.getElementById('done' + idx);
+  if (btn)  { btn.disabled = true; btn.textContent = '✓  Saved!'; }
+  if (done) done.style.display = 'inline-block';
+  const currentActive = Array.from(panels).findIndex(p => p.classList.contains('active'));
+  updateProgressUI(currentActive);
+  savePentestProgress();
+}
+
+function savePentestProgress() {
+  if (!_fbKey) return;
+  const data = { name: _studentName, id: _studentId, lastActivity: new Date().toISOString() };
+  for (let i = 0; i < 6; i++) data['phase' + i] = completed.has(i);
+  data.phasesCompleted = completed.size;
+  _db.ref('mccoe_pentest/' + _fbKey).set(data);
+}
+
+function loadProgress() {
+  if (!_fbKey) { updateProgressUI(0); return; }
+  _db.ref('mccoe_pentest/' + _fbKey).once('value', snap => {
+    const d = snap.val();
+    if (d) {
+      for (let i = 0; i < 6; i++) {
+        if (d['phase' + i]) {
+          completed.add(i);
+          const btn  = document.getElementById('mark' + i);
+          const done = document.getElementById('done' + i);
+          if (btn)  { btn.disabled = true; btn.textContent = '✓  Saved!'; }
+          if (done) done.style.display = 'inline-block';
+        }
+      }
+    }
+    updateProgressUI(0);
+  });
+}
+
+loadProgress();
 </script>
 </body>
 </html>
