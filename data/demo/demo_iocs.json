@@ -1,0 +1,502 @@
+{
+  "title": "MCCoE Cyber Dashboard Demo IOC Catalog",
+  "generated_at": "2026-06-11T12:00:00+00:00",
+  "count": 55,
+  "iocs": [
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2026-10520",
+      "severity": "critical",
+      "source": "CISA KEV",
+      "tags": "kev;exploit;demo",
+      "description": "Ivanti Sentry OS command injection \u2014 actively exploited",
+      "first_seen": "2026-06-10T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2026-11645",
+      "severity": "critical",
+      "source": "CISA KEV",
+      "tags": "kev;exploit;demo",
+      "description": "Google Chromium V8 out-of-bounds R/W \u2014 remote code execution",
+      "first_seen": "2026-06-09T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2026-7473",
+      "severity": "critical",
+      "source": "CISA KEV",
+      "tags": "kev;exploit;demo",
+      "description": "Arista EOS tunnel decapsulation flaw \u2014 network appliance exposure",
+      "first_seen": "2026-06-08T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2026-20245",
+      "severity": "critical",
+      "source": "CISA KEV",
+      "tags": "kev;exploit;demo",
+      "description": "Cisco ASA/FTD VPN web service RCE under active exploitation",
+      "first_seen": "2026-06-07T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2025-54236",
+      "severity": "critical",
+      "source": "CISA KEV",
+      "tags": "kev;exploit;demo",
+      "description": "Adobe Commerce/Magento sessionReaper \u2014 unauthenticated RCE",
+      "first_seen": "2026-06-06T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2024-3400",
+      "severity": "critical",
+      "source": "CISA KEV",
+      "tags": "kev;exploit;demo",
+      "description": "Palo Alto PAN-OS GlobalProtect command injection \u2014 KEV priority",
+      "first_seen": "2026-05-30T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2024-21762",
+      "severity": "critical",
+      "source": "CISA KEV",
+      "tags": "kev;exploit;demo",
+      "description": "Fortinet FortiOS out-of-bound write \u2014 edge device exposure",
+      "first_seen": "2026-05-24T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2023-4966",
+      "severity": "critical",
+      "source": "CISA KEV",
+      "tags": "kev;exploit;demo",
+      "description": "Citrix Bleed \u2014 session token leak enabling bypass",
+      "first_seen": "2026-05-17T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2023-34362",
+      "severity": "critical",
+      "source": "CISA KEV",
+      "tags": "kev;exploit;demo",
+      "description": "Progress MOVEit Transfer SQL injection \u2014 widespread exploitation",
+      "first_seen": "2026-05-02T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2022-26134",
+      "severity": "critical",
+      "source": "CISA KEV",
+      "tags": "kev;exploit;demo",
+      "description": "Atlassian Confluence OGNL injection \u2014 unauthenticated RCE",
+      "first_seen": "2026-04-17T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2021-44228",
+      "severity": "critical",
+      "source": "CISA KEV",
+      "tags": "kev;exploit;demo",
+      "description": "Log4Shell \u2014 JNDI injection in Java logging libraries",
+      "first_seen": "2026-03-13T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2020-1472",
+      "severity": "critical",
+      "source": "CISA KEV",
+      "tags": "kev;exploit;demo",
+      "description": "Zerologon \u2014 Netlogon elevation of privilege",
+      "first_seen": "2026-02-11T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2018-14558",
+      "severity": "critical",
+      "source": "CISA KEV",
+      "tags": "kev;exploit;demo",
+      "description": "Totolink router command injection \u2014 legacy edge device risk",
+      "first_seen": "2025-11-23T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2017-0144",
+      "severity": "critical",
+      "source": "CISA KEV",
+      "tags": "kev;exploit;demo",
+      "description": "EternalBlue \u2014 SMBv1 remote code execution",
+      "first_seen": "2025-08-15T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2014-0160",
+      "severity": "high",
+      "source": "CISA KEV",
+      "tags": "kev;exploit;demo",
+      "description": "Heartbleed \u2014 OpenSSL TLS heartbeat information disclosure",
+      "first_seen": "2025-03-18T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2016-6129",
+      "severity": "high",
+      "source": "NIST NVD",
+      "tags": "nvd;cve;demo",
+      "description": "CVSS 7.5: LibTomCrypt RSA verify hash validation flaw",
+      "first_seen": "2026-06-05T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2017-2784",
+      "severity": "critical",
+      "source": "NIST NVD",
+      "tags": "nvd;cve;demo",
+      "description": "CVSS 9.8: ARM mbed TLS x509 stack pointer free vulnerability",
+      "first_seen": "2026-06-03T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2017-7563",
+      "severity": "high",
+      "source": "NIST NVD",
+      "tags": "nvd;cve;demo",
+      "description": "CVSS 8.1: ARM Trusted Firmware executable RO memory mapping",
+      "first_seen": "2026-05-28T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2015-5291",
+      "severity": "low",
+      "source": "NIST NVD",
+      "tags": "nvd;cve;demo",
+      "description": "CVSS 0.0: PolarSSL/mbed TLS heap buffer overflow",
+      "first_seen": "2026-05-20T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2019-0708",
+      "severity": "critical",
+      "source": "NIST NVD",
+      "tags": "nvd;cve;demo",
+      "description": "CVSS 9.8: Windows RDP BlueKeep remote code execution",
+      "first_seen": "2026-05-07T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2024-3094",
+      "severity": "critical",
+      "source": "NIST NVD",
+      "tags": "nvd;cve;demo",
+      "description": "XZ Utils backdoor \u2014 supply chain compromise in liblzma",
+      "first_seen": "2026-06-02T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2023-22515",
+      "severity": "critical",
+      "source": "NIST NVD",
+      "tags": "nvd;cve;demo",
+      "description": "Atlassian Confluence broken access control \u2014 privilege escalation",
+      "first_seen": "2026-05-26T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2022-41082",
+      "severity": "high",
+      "source": "NIST NVD",
+      "tags": "nvd;cve;demo",
+      "description": "Microsoft Exchange Server SSRF leading to remote code execution",
+      "first_seen": "2026-05-14T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2026-90001",
+      "severity": "critical",
+      "source": "MCCoE Lab Feed",
+      "tags": "lab;training;demo",
+      "description": "MCCoE scenario: unauthenticated VPN portal RCE on border firewall",
+      "first_seen": "2026-06-09T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2026-90002",
+      "severity": "high",
+      "source": "MCCoE Lab Feed",
+      "tags": "lab;training;demo",
+      "description": "MCCoE scenario: ADCS template misconfiguration enables domain escalation",
+      "first_seen": "2026-06-04T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2026-90003",
+      "severity": "high",
+      "source": "MCCoE Lab Feed",
+      "tags": "lab;training;demo",
+      "description": "MCCoE scenario: public-facing Jenkins script console exposed",
+      "first_seen": "2026-05-27T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2026-90004",
+      "severity": "medium",
+      "source": "MCCoE Lab Feed",
+      "tags": "lab;training;demo",
+      "description": "MCCoE scenario: outdated Apache Tomcat manager interface reachable",
+      "first_seen": "2026-05-21T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "cve",
+      "value": "CVE-2026-90005",
+      "severity": "medium",
+      "source": "MCCoE Lab Feed",
+      "tags": "lab;training;demo",
+      "description": "MCCoE scenario: SNMP default community on network management platform",
+      "first_seen": "2026-05-09T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "ip",
+      "value": "198.51.100.42",
+      "severity": "high",
+      "source": "MCCoE Lab Feed",
+      "tags": "bruteforce;auth",
+      "description": "Repeated SSH and web login failures from residential ISP range",
+      "first_seen": "2026-06-08T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "ip",
+      "value": "203.0.113.77",
+      "severity": "medium",
+      "source": "MCCoE Lab Feed",
+      "tags": "scanner;recon",
+      "description": "Multi-port HTTP probe activity across /admin and /api paths",
+      "first_seen": "2026-06-01T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "ip",
+      "value": "192.0.2.58",
+      "severity": "critical",
+      "source": "MCCoE Lab Feed",
+      "tags": "malware;dropper",
+      "description": "Host serving follow-up payloads after phishing click",
+      "first_seen": "2026-06-10T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "ip",
+      "value": "198.18.0.44",
+      "severity": "high",
+      "source": "MCCoE Lab Feed",
+      "tags": "c2;beacon",
+      "description": "Short-interval HTTPS beaconing consistent with Cobalt Strike staging",
+      "first_seen": "2026-06-07T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "ip",
+      "value": "203.0.113.201",
+      "severity": "high",
+      "source": "MCCoE Lab Feed",
+      "tags": "c2;emotet",
+      "description": "Emotet epoch C2 node observed in emulated enterprise traffic",
+      "first_seen": "2026-05-31T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "ip",
+      "value": "198.51.100.88",
+      "severity": "medium",
+      "source": "MCCoE Lab Feed",
+      "tags": "scanner;shodan",
+      "description": "Internet-wide scanning for exposed RDP services",
+      "first_seen": "2026-05-23T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "ip",
+      "value": "192.0.2.101",
+      "severity": "critical",
+      "source": "MCCoE Lab Feed",
+      "tags": "ransomware;exfil",
+      "description": "Staging server for double-extortion data exfiltration drill",
+      "first_seen": "2026-06-09T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "ip",
+      "value": "203.0.113.55",
+      "severity": "low",
+      "source": "MCCoE Lab Feed",
+      "tags": "noise;scan",
+      "description": "Low-volume UDP probe activity on DNS resolvers",
+      "first_seen": "2026-05-15T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "domain",
+      "value": "secure-login-missouri.example",
+      "severity": "critical",
+      "source": "MCCoE Lab Feed",
+      "tags": "phishing;bec",
+      "description": "Typosquat domain impersonating university SSO portal",
+      "first_seen": "2026-06-09T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "domain",
+      "value": "cdn-updates-service.example",
+      "severity": "high",
+      "source": "MCCoE Lab Feed",
+      "tags": "malware;downloader",
+      "description": "Parked domain rotating A records to bulletproof hosting",
+      "first_seen": "2026-06-05T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "domain",
+      "value": "mail-delivery-alert.example",
+      "severity": "medium",
+      "source": "MCCoE Lab Feed",
+      "tags": "spam;credential",
+      "description": "SMTP HELO mismatch and suspicious attachment patterns",
+      "first_seen": "2026-05-29T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "domain",
+      "value": "vpn-access-portal.example",
+      "severity": "critical",
+      "source": "MCCoE Lab Feed",
+      "tags": "phishing;mfa",
+      "description": "Fake MFA portal harvesting Okta-style session cookies",
+      "first_seen": "2026-06-08T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "domain",
+      "value": "patch-windows-update.example",
+      "severity": "high",
+      "source": "MCCoE Lab Feed",
+      "tags": "malware;dropper",
+      "description": "Domain mimicking software update channel for DLL sideload",
+      "first_seen": "2026-06-02T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "domain",
+      "value": "hr-benefits-portal.example",
+      "severity": "medium",
+      "source": "MCCoE Lab Feed",
+      "tags": "phishing;hr",
+      "description": "HR-themed lure domain used in finance payroll drill",
+      "first_seen": "2026-05-25T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "url",
+      "value": "http://malware-lab.example/payload.exe",
+      "severity": "high",
+      "source": "MCCoE Lab Feed",
+      "tags": "malware;exe",
+      "description": "Direct EXE download linked to Emotet-style campaigns",
+      "first_seen": "2026-06-06T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "url",
+      "value": "https://cdn-updates-service.example/update.dll",
+      "severity": "high",
+      "source": "MCCoE Lab Feed",
+      "tags": "malware;dll",
+      "description": "DLL sideloading artifact masquerading as software update",
+      "first_seen": "2026-06-03T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "url",
+      "value": "http://198.18.0.44/gate.php",
+      "severity": "critical",
+      "source": "MCCoE Lab Feed",
+      "tags": "c2;webshell",
+      "description": "Web shell callback endpoint with encoded POST bodies",
+      "first_seen": "2026-06-10T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "url",
+      "value": "https://vpn-access-portal.example/auth/login",
+      "severity": "critical",
+      "source": "MCCoE Lab Feed",
+      "tags": "phishing;credential",
+      "description": "Credential harvesting page cloned from legitimate VPN vendor",
+      "first_seen": "2026-06-09T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "url",
+      "value": "http://203.0.113.201/beacon",
+      "severity": "high",
+      "source": "MCCoE Lab Feed",
+      "tags": "c2;https",
+      "description": "HTTPS C2 callback with jittered 90-second intervals",
+      "first_seen": "2026-06-07T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "hash",
+      "value": "9b1c7f4e2a8d6c0b5e3f1a9c7d2e4b6a",
+      "severity": "critical",
+      "source": "MCCoE Lab Feed",
+      "tags": "ransomware;lockbit",
+      "description": "LockBit-variant loader from healthcare tabletop exercise",
+      "first_seen": "2026-06-08T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "hash",
+      "value": "a3f5c8d1e7b2094f6c2d8a1e5b0c9f3d",
+      "severity": "high",
+      "source": "MCCoE Lab Feed",
+      "tags": "trojan;dropper",
+      "description": "PDF dropper hash from simulated spear-phishing exercise",
+      "first_seen": "2026-06-04T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "hash",
+      "value": "5d41402abc4b2a76b9719d911017c592",
+      "severity": "medium",
+      "source": "MCCoE Lab Feed",
+      "tags": "sample;md5",
+      "description": "Legacy MD5 sample used for hash-lookup training labs",
+      "first_seen": "2026-05-22T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "hash",
+      "value": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "severity": "low",
+      "source": "MCCoE Lab Feed",
+      "tags": "sample;sha256",
+      "description": "Benign empty-file hash for negative-control hunting drills",
+      "first_seen": "2026-05-12T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "email",
+      "value": "alerts@secure-login-missouri.example",
+      "severity": "high",
+      "source": "MCCoE Lab Feed",
+      "tags": "phishing;bec",
+      "description": "Sender aligned with credential harvesting landing page",
+      "first_seen": "2026-06-05T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "email",
+      "value": "it-helpdesk@vpn-access-portal.example",
+      "severity": "critical",
+      "source": "MCCoE Lab Feed",
+      "tags": "phishing;urgent",
+      "description": "Urgent password-reset lure impersonating campus IT",
+      "first_seen": "2026-06-09T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "filename",
+      "value": "invoice_Q2_2026_macro.xlsm",
+      "severity": "medium",
+      "source": "MCCoE Lab Feed",
+      "tags": "malware;office",
+      "description": "Macro-enabled spreadsheet from finance-themed lure",
+      "first_seen": "2026-05-31T10:00:00+00:00"
+    },
+    {
+      "ioc_type": "filename",
+      "value": "benefits_update_2026.pdf.exe",
+      "severity": "high",
+      "source": "MCCoE Lab Feed",
+      "tags": "malware;doubleext",
+      "description": "Double-extension payload from HR phishing simulation",
+      "first_seen": "2026-06-06T10:00:00+00:00"
+    }
+  ]
+}

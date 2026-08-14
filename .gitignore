@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+db/dashboard.db
+data/cache/
+data/scans/*.json
+data/reports/*.pdf
+.pytest_cache/

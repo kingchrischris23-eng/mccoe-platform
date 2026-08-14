@@ -1,0 +1,62 @@
+{
+  "CVE-2026-90001": {
+    "cveID": "CVE-2026-90001",
+    "vendorProject": "BorderGuard",
+    "product": "SSL VPN Gateway",
+    "vulnerabilityName": "BorderGuard SSL VPN Unauthenticated Remote Code Execution (Lab Scenario)",
+    "dateAdded": "2026-06-09",
+    "shortDescription": "MCCoE training scenario: unauthenticated remote code execution in an internet-exposed SSL VPN appliance allows full device compromise and lateral movement into the management zone.",
+    "requiredAction": "Apply vendor hotfix BG-2026.06 or disconnect the appliance from the internet until patched. Restrict VPN portal access to managed jump hosts only and enable MFA for all remote access paths.",
+    "dueDate": "2026-06-18",
+    "knownRansomwareCampaignUse": "Unknown",
+    "notes": "MCCoE lab-only CVE for mitigation workflow training. Demonstrates KEV-style required actions without live exploitation."
+  },
+  "CVE-2026-90002": {
+    "cveID": "CVE-2026-90002",
+    "vendorProject": "Microsoft",
+    "product": "Active Directory Certificate Services",
+    "vulnerabilityName": "ADCS Misconfigured Template Domain Escalation (Lab Scenario)",
+    "dateAdded": "2026-06-04",
+    "shortDescription": "MCCoE training scenario: misconfigured ADCS certificate templates permit low-privileged users to request certificates that enable domain administrator impersonation.",
+    "requiredAction": "Audit and harden ADCS templates per ESC1/ESC8 guidance. Remove enrollment rights for non-administrative principals, enable manager approval, and monitor for suspicious certificate requests.",
+    "dueDate": "2026-06-25",
+    "knownRansomwareCampaignUse": "Unknown",
+    "notes": "Lab scenario aligned with Certified Pre-Owned attack paths. Use for privilege-escalation mitigation drills."
+  },
+  "CVE-2026-90003": {
+    "cveID": "CVE-2026-90003",
+    "vendorProject": "Jenkins",
+    "product": "CI/CD Controller",
+    "vulnerabilityName": "Exposed Jenkins Script Console (Lab Scenario)",
+    "dateAdded": "2026-05-28",
+    "shortDescription": "MCCoE training scenario: Jenkins script console reachable without authentication on a build server allows arbitrary Groovy execution and credential theft from pipeline secrets.",
+    "requiredAction": "Disable script console for anonymous users, enforce SSO with role-based access, rotate all pipeline credentials, and move build infrastructure behind private network segments.",
+    "dueDate": "2026-06-20",
+    "knownRansomwareCampaignUse": "Unknown",
+    "notes": "Demonstrates service-disable and credential-rotation mitigations."
+  },
+  "CVE-2026-90004": {
+    "cveID": "CVE-2026-90004",
+    "vendorProject": "Apache",
+    "product": "Tomcat Manager",
+    "vulnerabilityName": "Public Tomcat Manager Interface (Lab Scenario)",
+    "dateAdded": "2026-05-20",
+    "shortDescription": "MCCoE training scenario: outdated Apache Tomcat manager interface exposed to the internet with weak credentials enables WAR deployment and remote code execution.",
+    "requiredAction": "Upgrade Tomcat to the latest supported release, remove public manager endpoints, enforce strong credentials, and restrict administrative interfaces to management VLANs.",
+    "dueDate": "2026-07-01",
+    "knownRansomwareCampaignUse": "Unknown",
+    "notes": "Use for firmware/software update and network segmentation recommendations."
+  },
+  "CVE-2026-90005": {
+    "cveID": "CVE-2026-90005",
+    "vendorProject": "NetManage",
+    "product": "NMS Platform",
+    "vulnerabilityName": "SNMP Default Community Strings (Lab Scenario)",
+    "dateAdded": "2026-05-08",
+    "shortDescription": "MCCoE training scenario: network management platform exposes SNMP v2c with default community strings, enabling configuration read/write and device manipulation.",
+    "requiredAction": "Change default SNMP communities, migrate to SNMPv3 with authentication and encryption, update firmware on affected appliances, and block UDP/161 from untrusted networks at the firewall.",
+    "dueDate": "2026-06-30",
+    "knownRansomwareCampaignUse": "Unknown",
+    "notes": "Highlights firewall rules and firmware update mitigation steps."
+  }
+}

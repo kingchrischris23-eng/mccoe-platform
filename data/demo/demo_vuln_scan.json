@@ -1,0 +1,36 @@
+{
+  "target": "127.0.0.1",
+  "open_ports": [
+    {"port": 22, "service": "ssh"},
+    {"port": 80, "service": "http"},
+    {"port": 443, "service": "https"},
+    {"port": 8080, "service": "http-alt"}
+  ],
+  "header_issues": [
+    {"header": "Strict-Transport-Security", "issue": "Missing HSTS header on HTTPS listener"},
+    {"header": "X-Frame-Options", "issue": "Missing clickjacking protection"},
+    {"header": "X-Content-Type-Options", "issue": "Missing MIME-sniffing protection"},
+    {"header": "Server", "issue": "Outdated server banner: Apache/2.2.15 (Unix)"}
+  ],
+  "cve_findings": [
+    {
+      "cve_id": "CVE-2024-38475",
+      "score": 7.5,
+      "vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N",
+      "description": "Apache HTTP Server mod_rewrite vulnerability — training sample for web stack risk review."
+    },
+    {
+      "cve_id": "CVE-2023-48795",
+      "score": 5.9,
+      "vector": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:H/I:N/A:N",
+      "description": "Terrapin SSH attack — training sample for SSH service exposure discussion."
+    },
+    {
+      "cve_id": "CVE-2024-0002",
+      "score": 4.3,
+      "vector": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:L/I:N/A:N",
+      "description": "Administrative interface information disclosure on alternate HTTP port."
+    }
+  ],
+  "risk_score": 58.4
+}
