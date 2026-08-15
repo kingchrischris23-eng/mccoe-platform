@@ -2285,6 +2285,7 @@ function enterApp() {
   renderStudentDashboard();
   initLibraryFromFirebase();
   updateStreak();
+  setTimeout(() => { loadJobReadiness(); loadDueDates(); }, 400);
 }
 
 function doLogout() {
@@ -2455,6 +2456,12 @@ function renderStudentDashboard() {
     </div>
 
     ${renderGamePanel()}
+
+    <!-- JOB READINESS + CERTIFICATE -->
+    <div id="job-readiness-wrap" style="margin-bottom:18px"></div>
+
+    <!-- DUE DATE COUNTDOWNS -->
+    <div id="due-dates-wrap" style="margin-bottom:18px"></div>
 
     <!-- STAT CARDS -->
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;">
@@ -4183,5 +4190,119 @@ else showLoginTab('register');
     </button>
   </div>
 </div>
+
+<script>
+// ══════════════════════════════════════════════
+// JOB READINESS SCORE
+// ══════════════════════════════════════════════
+function loadJobReadiness() {
+  const wrap = document.getElementById('job-readiness-wrap');
+  if (!wrap) return;
+  if (!_fbDb || !state.student) { renderJobReadiness(wrap, 0, []); return; }
+  const key = state.student.tempId ? state.student.tempId.replace(/[.#$[\]]/g,'_') : null;
+  if (!key) { renderJobReadiness(wrap, 0, []); return; }
+  Promise.all([
+    _fbDb.ref('mccoe_xp/'+key).once('value'),
+    _fbDb.ref('mccoe_pentest/'+key).once('value'),
+    _fbDb.ref('mccoe_blueteam/'+key).once('value'),
+    _fbDb.ref('mccoe_ctf/'+key).once('value'),
+    _fbDb.ref('mccoe_academy/'+key).once('value'),
+  ]).then(([xpSnap, ptSnap, btSnap, ctfSnap, acSnap]) => {
+    const xp  = (xpSnap.val()  || {}).xp  || 0;
+    const pt  = (ptSnap.val()  || {}).phasesCompleted || 0;
+    const bt  = (btSnap.val()  || {}).phasesCompleted || 0;
+    const ctf = (ctfSnap.val() || {}).flagsCaptured || 0;
+    const ac  = acSnap.val() || {};
+    const acScore = ((ac.quiz||0)+(ac.soc||0)+(ac.phish||0));
+
+    const quizAvg = state.student.scores && state.student.scores.length
+      ? state.student.scores.reduce((a,b)=>a+b,0)/state.student.scores.length : 0;
+
+    // Weighted score components (each out of 100)
+    const domains = [
+      { name:'Threats & Attacks',     score: Math.min(100, Math.round((pt/6)*100)),        color:'#EE2207' },
+      { name:'Tools & Technologies',  score: Math.min(100, Math.round((ctf/12)*100)),       color:'#ff8c00' },
+      { name:'Defensive Operations',  score: Math.min(100, Math.round((bt/5)*100)),         color:'#00f5ff' },
+      { name:'Architecture & IR',     score: Math.min(100, Math.round((acScore/150)*100)), color:'#a78bfa' },
+      { name:'Concepts & GRC',        score: Math.min(100, Math.round((quizAvg/100)*100)), color:'#00ff41' },
+    ];
+    const overall = Math.round(domains.reduce((a,d)=>a+d.score,0)/domains.length);
+    renderJobReadiness(wrap, overall, domains, xp, pt, bt, ctf, state.student.tempId);
+  });
+}
+
+function renderJobReadiness(wrap, score, domains, xp, pt, bt, ctf, id) {
+  const color = score >= 80 ? '#00ff41' : score >= 60 ? '#ffd700' : score >= 40 ? '#ff8c00' : '#EE2207';
+  const label = score >= 80 ? 'Job Ready' : score >= 60 ? 'On Track' : score >= 40 ? 'In Progress' : 'Getting Started';
+  wrap.innerHTML = `
+    <div style="background:linear-gradient(135deg,#0a0f0a,#111820);border:2px solid ${color};border-radius:14px;padding:22px 24px;display:flex;gap:24px;align-items:center;flex-wrap:wrap">
+      <div style="text-align:center;flex-shrink:0">
+        <div style="font-family:'Orbitron',sans-serif;font-size:2.8rem;font-weight:900;color:${color};line-height:1">${score}%</div>
+        <div style="font-size:.75rem;color:rgba(255,255,255,0.5);margin-top:4px;letter-spacing:1px;text-transform:uppercase">${label}</div>
+        <div style="font-size:.7rem;color:rgba(255,255,255,0.3);margin-top:2px">SOC Analyst Readiness</div>
+      </div>
+      <div style="flex:1;min-width:200px">
+        <div style="font-family:'Orbitron',sans-serif;font-size:.65rem;letter-spacing:2px;color:rgba(255,255,255,0.4);margin-bottom:10px">CompTIA Security+ Domain Mapping</div>
+        ${domains.map(d=>`
+          <div style="margin-bottom:7px">
+            <div style="display:flex;justify-content:space-between;font-size:.78rem;color:rgba(255,255,255,0.7);margin-bottom:3px">
+              <span>${d.name}</span><span style="color:${d.color};font-weight:700">${d.score}%</span>
+            </div>
+            <div style="height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden">
+              <div style="height:5px;background:${d.color};border-radius:3px;width:${d.score}%;transition:width .6s ease"></div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;flex-shrink:0">
+        <a href="MCCoE_Certificate.html?name=${encodeURIComponent(state.student.name)}&id=${encodeURIComponent(id||state.student.name)}" target="_blank"
+           style="background:#1a1100;border:1px solid #b8860b;color:#ffd700;font-size:.75rem;font-weight:700;padding:10px 18px;border-radius:6px;text-decoration:none;text-align:center;white-space:nowrap;font-family:'Orbitron',sans-serif;letter-spacing:1px">
+          &#x1F3C6; My Certificate
+        </a>
+        <a href="MCCoE_Scoreboard.html" target="_blank"
+           style="background:#001a00;border:1px solid rgba(0,255,65,0.4);color:#00ff41;font-size:.75rem;font-weight:700;padding:10px 18px;border-radius:6px;text-decoration:none;text-align:center;white-space:nowrap;font-family:'Orbitron',sans-serif;letter-spacing:1px">
+          &#x1F4CA; Scoreboard
+        </a>
+      </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════
+// DUE DATE COUNTDOWNS
+// ══════════════════════════════════════════════
+function loadDueDates() {
+  const wrap = document.getElementById('due-dates-wrap');
+  if (!wrap || !_fbDb) return;
+  _fbDb.ref('mccoe_schedule').once('value', snap => {
+    const data = snap.val();
+    if (!data) return;
+    const now = Date.now();
+    const items = Object.entries(data).map(([k,v]) => ({
+      label: v.label || k,
+      due: new Date(v.due).getTime(),
+      pillar: v.pillar || ''
+    })).filter(d => d.due).sort((a,b)=>a.due-b.due);
+    if (!items.length) return;
+    const html = items.map(item => {
+      const diff = item.due - now;
+      const days = Math.floor(diff / 86400000);
+      const overdue = diff < 0;
+      const color = overdue ? '#EE2207' : days <= 2 ? '#ff8c00' : days <= 5 ? '#ffd700' : '#00ff41';
+      const label = overdue ? `${Math.abs(days)}d OVERDUE` : days === 0 ? 'DUE TODAY' : `${days}d left`;
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 14px;background:rgba(0,0,0,0.3);border-radius:6px;border-left:3px solid ${color}">
+        <div>
+          <div style="font-size:.85rem;font-weight:700;color:#fff">${item.label}</div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,0.4)">${new Date(item.due).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div>
+        </div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:.7rem;font-weight:900;color:${color}">${label}</div>
+      </div>`;
+    }).join('');
+    wrap.innerHTML = `<div style="background:rgba(10,15,10,0.9);border:1px solid rgba(0,255,65,0.2);border-radius:10px;padding:14px 16px">
+      <div style="font-family:'Orbitron',sans-serif;font-size:.65rem;letter-spacing:2px;color:rgba(0,255,65,0.5);margin-bottom:10px">&#x1F4C5; UPCOMING DEADLINES</div>
+      <div style="display:flex;flex-direction:column;gap:6px">${html}</div>
+    </div>`;
+  });
+}
+</script>
+
 </body>
 </html>

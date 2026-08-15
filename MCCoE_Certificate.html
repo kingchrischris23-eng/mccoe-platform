@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MCCoE Certificate of Completion</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Rajdhani',sans-serif;background:#0a0a0a;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px}
+.screen-controls{display:flex;gap:12px;margin-bottom:32px;flex-wrap:wrap;justify-content:center}
+.btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:#fff;font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;padding:10px 24px;border-radius:6px;cursor:pointer;transition:all .2s}
+.btn:hover{background:rgba(255,255,255,0.15)}
+.btn-print{background:#003d10;border-color:#00aa2a;color:#00ff41}
+.btn-print:hover{background:#002808}
+.student-banner{background:rgba(0,255,65,0.06);border:1px solid rgba(0,255,65,0.2);border-radius:8px;padding:12px 24px;margin-bottom:24px;font-family:'Share Tech Mono',monospace;font-size:.8rem;color:#00ff41;display:none;text-align:center}
+
+/* CERTIFICATE */
+.cert-wrap{width:100%;max-width:900px}
+.certificate{
+  background:linear-gradient(135deg,#0d1117 0%,#111820 50%,#0d1117 100%);
+  border:3px solid #b8860b;
+  border-radius:4px;
+  padding:60px 80px;
+  position:relative;
+  box-shadow:0 0 60px rgba(184,134,11,0.3),0 0 120px rgba(0,0,0,0.8);
+  min-height:640px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+}
+.certificate::before{content:'';position:absolute;inset:10px;border:1px solid rgba(184,134,11,0.3);border-radius:2px;pointer-events:none}
+.certificate::after{content:'';position:absolute;inset:14px;border:1px solid rgba(184,134,11,0.15);border-radius:2px;pointer-events:none}
+.corner{position:absolute;width:40px;height:40px;border-color:#b8860b;border-style:solid}
+.corner-tl{top:8px;left:8px;border-width:2px 0 0 2px}
+.corner-tr{top:8px;right:8px;border-width:2px 2px 0 0}
+.corner-bl{bottom:8px;left:8px;border-width:0 0 2px 2px}
+.corner-br{bottom:8px;right:8px;border-width:0 2px 2px 0}
+.cert-seal{width:80px;height:80px;border-radius:50%;background:radial-gradient(circle,#b8860b,#8b6914);display:flex;align-items:center;justify-content:center;font-size:36px;margin-bottom:20px;box-shadow:0 0 20px rgba(184,134,11,0.5)}
+.cert-org{font-family:'Cinzel',serif;font-size:.75rem;letter-spacing:6px;color:#b8860b;text-transform:uppercase;margin-bottom:6px}
+.cert-title{font-family:'Cinzel',serif;font-size:2.2rem;font-weight:900;color:#ffd700;text-shadow:0 0 20px rgba(255,215,0,0.4);margin-bottom:6px;line-height:1.2}
+.cert-subtitle{font-family:'Cinzel',serif;font-size:.8rem;letter-spacing:4px;color:rgba(184,134,11,0.7);margin-bottom:40px}
+.cert-presents{font-size:.9rem;color:rgba(255,255,255,0.5);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px}
+.cert-name{font-family:'Cinzel',serif;font-size:2.8rem;font-weight:900;color:#fff;text-shadow:0 0 30px rgba(255,255,255,0.3);margin-bottom:16px;border-bottom:2px solid rgba(184,134,11,0.4);padding-bottom:16px;min-width:400px}
+.cert-body{font-size:.95rem;color:rgba(255,255,255,0.7);line-height:1.8;max-width:620px;margin-bottom:30px}
+.cert-pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:36px;width:100%}
+.pillar-badge{background:rgba(184,134,11,0.08);border:1px solid rgba(184,134,11,0.3);border-radius:6px;padding:10px 8px;text-align:center}
+.pillar-badge .icon{font-size:20px;display:block;margin-bottom:4px}
+.pillar-badge .name{font-size:.7rem;color:#b8860b;font-weight:700;letter-spacing:.5px}
+.cert-sigs{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:auto;width:100%;padding-top:30px}
+.sig-line{border-top:1px solid rgba(184,134,11,0.4);padding-top:10px}
+.sig-name{font-family:'Cinzel',serif;font-size:.85rem;color:#ffd700;margin-bottom:2px}
+.sig-title{font-size:.72rem;color:rgba(255,255,255,0.45);letter-spacing:1px}
+.cert-footer{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:16px;border-top:1px solid rgba(184,134,11,0.2);width:100%;font-size:.7rem;color:rgba(255,255,255,0.3);font-family:'Share Tech Mono',monospace}
+.not-completed{text-align:center;padding:60px 40px;color:rgba(255,255,255,0.4)}
+.not-completed .icon{font-size:48px;margin-bottom:16px}
+.not-completed h2{font-family:'Cinzel',serif;color:rgba(255,255,255,0.6);margin-bottom:12px}
+.not-completed p{font-size:.9rem;line-height:1.7}
+.progress-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:24px;text-align:left;max-width:400px;margin-inline:auto}
+.prog-item{display:flex;align-items:center;gap:10px;font-size:.85rem}
+.prog-item .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.dot-done{background:#00ff41}
+.dot-todo{background:rgba(255,255,255,0.15)}
+
+@media print {
+  body{background:#fff;padding:0}
+  .screen-controls,.student-banner{display:none!important}
+  .certificate{background:white;border-color:#8b6914;box-shadow:none;color:#000;page-break-inside:avoid}
+  .cert-title,.cert-name{color:#4a3200;text-shadow:none}
+  .cert-org,.cert-subtitle,.cert-footer .cert-id{color:#8b6914}
+  .cert-body,.cert-presents,.sig-title{color:#555}
+  .pillar-badge{background:#f9f5e8;border-color:#c9a227}
+  .pillar-badge .name{color:#8b6914}
+  .sig-name{color:#4a3200}
+  .cert-footer{color:#aaa;border-top-color:#c9a227}
+  .sig-line{border-top-color:#c9a227}
+  .cert-seal{background:radial-gradient(circle,#c9a227,#8b6914)}
+  .corner{border-color:#8b6914}
+  .certificate::before,.certificate::after{border-color:#c9a227}
+}
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyBQN4m_Q_example_replace_with_real",
+  authDomain:"mccoe-platform.firebaseapp.com",
+  databaseURL:"https://mccoe-platform-default-rtdb.firebaseio.com",
+  projectId:"mccoe-platform",
+  storageBucket:"mccoe-platform.appspot.com",
+  messagingSenderId:"000000000000",
+  appId:"1:000000000000:web:0000000000000000"
+});
+const _db = firebase.database();
+</script>
+</head>
+<body>
+
+<div class="screen-controls">
+  <button class="btn" onclick="history.back()">&#8592; Back</button>
+  <button class="btn btn-print" onclick="window.print()">&#x1F5A8; Print / Save PDF</button>
+</div>
+
+<div id="student-banner" class="student-banner"></div>
+
+<div class="cert-wrap" id="cert-wrap">
+  <div style="text-align:center;color:rgba(255,255,255,0.4);padding:60px">Loading...</div>
+</div>
+
+<script>
+const _params      = new URLSearchParams(window.location.search);
+const _studentName = _params.get('name') || '';
+const _studentId   = _params.get('id')   || '';
+const _fbKey       = _studentId ? _studentId.replace(/[.#$[\]]/g,'_') : null;
+
+if (_studentName) {
+  const b = document.getElementById('student-banner');
+  b.textContent = 'Certificate for: ' + _studentName;
+  b.style.display = 'block';
+}
+
+const PILLAR_DEFS = [
+  { icon: '&#x1F393;', name: 'Learning Platform',    key: 'xp',        check: d => (d && d.xp > 0) },
+  { icon: '&#x1F3AE;', name: 'CyberSec Academy',     key: 'academy',   check: d => (d && (d.quiz||0)+(d.soc||0)+(d.phish||0) > 0) },
+  { icon: '&#x1F4C1;', name: 'Incident Case Studies', key: null,        check: () => true },
+  { icon: '&#x1F513;', name: 'Ethical Hacking Lab',   key: 'pentest',   check: d => (d && (d.phasesCompleted||0) >= 4) },
+  { icon: '&#x1F6E1;', name: 'Blue Team Defense Lab', key: 'blueteam',  check: d => (d && (d.phasesCompleted||0) >= 3) },
+];
+
+async function load() {
+  if (!_fbKey) { renderManual(_studentName || 'Student Name'); return; }
+  const paths = ['mccoe_xp','mccoe_academy','mccoe_pentest','mccoe_blueteam','mccoe_ctf'];
+  const results = {};
+  await Promise.all(paths.map(p =>
+    _db.ref(p+'/'+_fbKey).once('value').then(s => { results[p.replace('mccoe_','')] = s.val(); })
+  ));
+  const pillarsStatus = PILLAR_DEFS.map(p => ({
+    ...p,
+    done: p.key ? p.check(results[p.key]) : true
+  }));
+  const allDone = pillarsStatus.every(p => p.done);
+  const ctfData = results['ctf'];
+  const ctfDone = ctfData && (ctfData.flagsCaptured||0) >= 6;
+  render(_studentName, pillarsStatus, allDone, results, ctfDone);
+}
+
+function render(name, pillars, allDone, results, ctfDone) {
+  const today = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const certId = 'MCCoE-' + (new Date().getFullYear()) + '-' + (_fbKey||'XXXX').toUpperCase().slice(0,6);
+  const xpData = results['xp'];
+  const pentestPhases = results['pentest'] ? (results['pentest'].phasesCompleted||0) : 0;
+  const bluePhases    = results['blueteam'] ? (results['blueteam'].phasesCompleted||0) : 0;
+  const ctfPoints     = results['ctf'] ? (results['ctf'].points||0) : 0;
+
+  if (!allDone) {
+    const wrap = document.getElementById('cert-wrap');
+    wrap.innerHTML = `
+      <div class="not-completed">
+        <div class="icon">&#x1F3C6;</div>
+        <h2>Certificate Not Yet Earned</h2>
+        <p>Complete at least 4 phases of the Ethical Hacking Lab and 3 phases of the Blue Team Lab to unlock your certificate, ${name||'student'}.</p>
+        <div class="progress-grid">
+          ${pillars.map(p=>`<div class="prog-item"><div class="dot ${p.done?'dot-done':'dot-todo'}"></div><span>${p.icon} ${p.name}</span></div>`).join('')}
+        </div>
+        <div style="margin-top:32px;padding:16px 24px;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.2);border-radius:8px;font-size:.85rem;color:rgba(255,255,255,0.6)">
+          Keep going! Once all pillars are complete your certificate will auto-generate here.
+        </div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('cert-wrap').innerHTML = `
+  <div class="certificate">
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+    <div class="cert-seal">&#x1F6E1;</div>
+    <div class="cert-org">Missouri Cybersecurity Center of Excellence</div>
+    <div class="cert-title">Certificate of Completion</div>
+    <div class="cert-subtitle">Cybersecurity Workforce Development Program</div>
+    <div class="cert-presents">This certifies that</div>
+    <div class="cert-name">${name || 'Student Name'}</div>
+    <div class="cert-body">
+      has successfully completed all requirements of the MCCoE Cybersecurity Workforce Development Program,
+      demonstrating proficiency in offensive security, defensive operations, incident response,
+      and real-world cybersecurity analysis across all program pillars.
+    </div>
+    <div class="cert-pillars">
+      ${pillars.map(p=>`<div class="pillar-badge"><span class="icon">${p.icon}</span><span class="name">${p.name}</span></div>`).join('')}
+      <div class="pillar-badge"><span class="icon">&#x1F6A9;</span><span class="name">CTF Challenges</span></div>
+    </div>
+    <div style="font-size:.8rem;color:rgba(184,134,11,0.7);margin-bottom:20px">
+      Ethical Hacking: ${pentestPhases}/6 phases &nbsp;&#x2022;&nbsp;
+      Blue Team: ${bluePhases}/5 phases &nbsp;&#x2022;&nbsp;
+      CTF Score: ${ctfPoints} pts
+    </div>
+    <div class="cert-sigs">
+      <div>
+        <div class="sig-line">
+          <div class="cert-name" style="font-size:1.1rem;border:none;padding:0;min-width:0">Chris King</div>
+          <div class="sig-title">Director, MCCoE</div>
+        </div>
+      </div>
+      <div>
+        <div class="sig-line">
+          <div class="cert-name" style="font-size:1.1rem;border:none;padding:0;min-width:0">${today}</div>
+          <div class="sig-title">Date of Completion</div>
+        </div>
+      </div>
+    </div>
+    <div class="cert-footer">
+      <span class="cert-id">ID: ${certId}</span>
+      <span>Missouri Cybersecurity Center of Excellence &nbsp;|&nbsp; mccoe.org</span>
+      <span>Issued: ${today}</span>
+    </div>
+  </div>`;
+}
+
+function renderManual(name) {
+  const today = new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'});
+  const certId = 'MCCoE-' + new Date().getFullYear() + '-DEMO';
+  document.getElementById('cert-wrap').innerHTML = `
+  <div class="certificate">
+    <div class="corner corner-tl"></div><div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div><div class="corner corner-br"></div>
+    <div class="cert-seal">&#x1F6E1;</div>
+    <div class="cert-org">Missouri Cybersecurity Center of Excellence</div>
+    <div class="cert-title">Certificate of Completion</div>
+    <div class="cert-subtitle">Cybersecurity Workforce Development Program</div>
+    <div class="cert-presents">This certifies that</div>
+    <div class="cert-name">${name || 'Student Name'}</div>
+    <div class="cert-body">has successfully completed all requirements of the MCCoE Cybersecurity Workforce Development Program, demonstrating proficiency in offensive security, defensive operations, incident response, and real-world cybersecurity analysis.</div>
+    <div class="cert-pillars">
+      <div class="pillar-badge"><span class="icon">&#x1F393;</span><span class="name">Learning Platform</span></div>
+      <div class="pillar-badge"><span class="icon">&#x1F3AE;</span><span class="name">CyberSec Academy</span></div>
+      <div class="pillar-badge"><span class="icon">&#x1F4C1;</span><span class="name">Case Studies</span></div>
+      <div class="pillar-badge"><span class="icon">&#x1F513;</span><span class="name">Ethical Hacking Lab</span></div>
+      <div class="pillar-badge"><span class="icon">&#x1F6E1;</span><span class="name">Blue Team Lab</span></div>
+      <div class="pillar-badge"><span class="icon">&#x1F6A9;</span><span class="name">CTF Challenges</span></div>
+    </div>
+    <div class="cert-sigs">
+      <div><div class="sig-line"><div class="cert-name" style="font-size:1.1rem;border:none;padding:0;min-width:0">Chris King</div><div class="sig-title">Director, MCCoE</div></div></div>
+      <div><div class="sig-line"><div class="cert-name" style="font-size:1.1rem;border:none;padding:0;min-width:0">${today}</div><div class="sig-title">Date of Completion</div></div></div>
+    </div>
+    <div class="cert-footer"><span>${certId}</span><span>Missouri Cybersecurity Center of Excellence</span><span>${today}</span></div>
+  </div>`;
+}
+
+load();
+</script>
+</body>
+</html>

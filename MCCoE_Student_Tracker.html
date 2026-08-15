@@ -641,6 +641,12 @@ select option { background:var(--surface); color:var(--text); }
   <button class="nav-btn" onclick="showView('cheatsheet',this)">
     <span class="nav-icon">📋</span> Cheat Sheet
   </button>
+  <button class="nav-btn" onclick="showView('schedule',this)">
+    <span class="nav-icon">📅</span> Due Dates
+  </button>
+  <a href="MCCoE_Scoreboard.html" target="_blank" class="nav-btn" style="text-decoration:none;display:flex;align-items:center;gap:8px">
+    <span class="nav-icon">📊</span> Live Scoreboard
+  </a>
   <div class="nav-section">Admin Tools</div>
   <button class="nav-btn" onclick="showView('content',this)">
     <span class="nav-icon">⚙️</span> Content Manager
@@ -1146,6 +1152,31 @@ select option { background:var(--surface); color:var(--text); }
       </table>
     </div>
   </div>
+</div>
+
+<!-- ═══ DUE DATE SCHEDULER ═══ -->
+<div id="view-schedule" class="view">
+  <div class="page-header">
+    <div><h2>📅 Assignment Due Dates</h2><p>Set deadlines for each pillar phase — students see countdown timers on their dashboard</p></div>
+    <button class="btn btn-outline" onclick="loadSchedule()">↻ Refresh</button>
+  </div>
+
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:24px;margin-bottom:20px">
+    <div style="font-size:.7rem;letter-spacing:2px;color:var(--cyan);font-weight:700;margin-bottom:16px">ADD / UPDATE DEADLINE</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;flex-wrap:wrap">
+      <div>
+        <label style="font-size:.75rem;color:rgba(200,216,232,0.5);display:block;margin-bottom:4px">Assignment Name</label>
+        <input id="sched-label" placeholder="e.g. Pentest Phase 1 Due" style="width:100%;background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:#fff;font-size:.85rem;outline:none"/>
+      </div>
+      <div>
+        <label style="font-size:.75rem;color:rgba(200,216,232,0.5);display:block;margin-bottom:4px">Due Date</label>
+        <input id="sched-date" type="date" style="width:100%;background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:6px;padding:9px 12px;color:#fff;font-size:.85rem;outline:none"/>
+      </div>
+      <button class="btn btn-red" onclick="addDeadline()" style="white-space:nowrap">+ Add Deadline</button>
+    </div>
+  </div>
+
+  <div id="schedule-list"><div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0">No deadlines set yet. Add one above.</div></div>
 </div>
 
 <!-- ═══ CONTENT MANAGER ═══ -->
@@ -1816,6 +1847,7 @@ function showView(name, btn) {
   if(name==='pentest')      loadPentestScores();
   if(name==='blueteam')     loadBlueTeamScores();
   if(name==='ctf')          loadCTFScores();
+  if(name==='schedule')     loadSchedule();
   if(name==='content')      loadContentManager();
 }
 
@@ -2092,6 +2124,58 @@ function loadCTFScores() {
           <td style="padding:10px 8px;text-align:center;">${sc(scenario3,3)}</td>
         </tr>`;}).join('')}</tbody></table></div>`;
   });
+}
+
+// ════════════════════════════════════════════
+//  DUE DATE SCHEDULER
+// ════════════════════════════════════════════
+function loadSchedule() {
+  const wrap = document.getElementById('schedule-list');
+  if (!_fbDb) { wrap.innerHTML='<div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0">Firebase not connected.</div>'; return; }
+  _fbDb.ref('mccoe_schedule').once('value', snap => {
+    const data = snap.val();
+    if (!data) { wrap.innerHTML='<div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0">No deadlines set yet.</div>'; return; }
+    const items = Object.entries(data).sort((a,b)=>new Date(a[1].due)-new Date(b[1].due));
+    const now = Date.now();
+    wrap.innerHTML = `<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.85rem">
+      <thead><tr style="border-bottom:1px solid var(--border)">
+        <th style="text-align:left;padding:10px 12px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700">Assignment</th>
+        <th style="text-align:left;padding:10px 12px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700">Due Date</th>
+        <th style="text-align:center;padding:10px 12px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700">Status</th>
+        <th style="text-align:center;padding:10px 12px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700">Action</th>
+      </tr></thead>
+      <tbody>${items.map(([k,v])=>{
+        const diff = new Date(v.due).getTime() - now;
+        const days = Math.floor(diff/86400000);
+        const overdue = diff < 0;
+        const color = overdue?'#EE2207':days<=2?'#ff8c00':days<=5?'#ffd700':'#00ff41';
+        const status = overdue?`${Math.abs(days)}d OVERDUE`:days===0?'DUE TODAY':`${days} days left`;
+        return `<tr style="border-bottom:1px solid rgba(255,255,255,.04)" onmouseover="this.style.background='rgba(255,255,255,.02)'" onmouseout="this.style.background=''">
+          <td style="padding:10px 12px;font-weight:700;color:var(--text)">${v.label||k}</td>
+          <td style="padding:10px 12px;color:rgba(200,216,232,0.7)">${new Date(v.due).toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'})}</td>
+          <td style="padding:10px 12px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:.75rem;font-weight:700;color:${color}">${status}</td>
+          <td style="padding:10px 12px;text-align:center"><button onclick="deleteDeadline('${k}')" style="background:none;border:1px solid rgba(238,34,7,0.3);color:var(--red);font-size:.72rem;padding:4px 10px;border-radius:4px;cursor:pointer">Remove</button></td>
+        </tr>`;}).join('')}
+      </tbody></table></div>`;
+  });
+}
+
+function addDeadline() {
+  const label = document.getElementById('sched-label').value.trim();
+  const due   = document.getElementById('sched-date').value;
+  if (!label || !due) { alert('Enter both a name and a due date.'); return; }
+  if (!_fbDb) { alert('Firebase not connected.'); return; }
+  const key = label.toLowerCase().replace(/[^a-z0-9]/g,'_').slice(0,30) + '_' + Date.now();
+  _fbDb.ref('mccoe_schedule/'+key).set({ label, due, created: new Date().toISOString() }, () => {
+    document.getElementById('sched-label').value = '';
+    document.getElementById('sched-date').value  = '';
+    loadSchedule();
+  });
+}
+
+function deleteDeadline(key) {
+  if (!_fbDb || !confirm('Remove this deadline?')) return;
+  _fbDb.ref('mccoe_schedule/'+key).remove(() => loadSchedule());
 }
 
 // ════════════════════════════════════════════

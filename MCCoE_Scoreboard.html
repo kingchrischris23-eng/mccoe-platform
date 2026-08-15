@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MCCoE Live Class Scoreboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root{--green:#00ff41;--cyan:#00f5ff;--gold:#ffd700;--red:#EE2207;--navy:#050510;--navy2:#0a0f0a;--border:rgba(0,255,65,0.2)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Rajdhani',sans-serif;background:var(--navy2);color:#fff;min-height:100vh;overflow:hidden;display:flex;flex-direction:column}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,65,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,0.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none}
+
+header{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;border-bottom:1px solid var(--border);background:rgba(5,10,5,0.95);flex-shrink:0;z-index:10;position:relative}
+.hdr-logo{font-family:'Orbitron',sans-serif;font-size:1.1rem;font-weight:900;color:var(--green);letter-spacing:2px}
+.hdr-title{font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:900;color:#fff;letter-spacing:4px}
+.hdr-right{display:flex;align-items:center;gap:20px}
+.live-dot{width:10px;height:10px;border-radius:50%;background:var(--green);animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,255,65,0.5)}50%{box-shadow:0 0 0 8px rgba(0,255,65,0)}}
+.live-label{font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--green);display:flex;align-items:center;gap:8px}
+.last-update{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:rgba(0,255,65,0.4)}
+.fullscreen-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:6px 12px;border-radius:4px;cursor:pointer;font-size:.75rem;color:rgba(0,255,65,0.5)}
+
+.boards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;flex:1;position:relative;z-index:5}
+.board{border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden}
+.board:last-child{border-right:none}
+.board-header{padding:16px 24px;border-bottom:1px solid var(--border);background:rgba(5,10,5,0.8);flex-shrink:0}
+.board-title{font-family:'Orbitron',sans-serif;font-size:.75rem;letter-spacing:3px;margin-bottom:4px}
+.board-subtitle{font-size:.78rem;color:rgba(255,255,255,0.35)}
+.board-list{flex:1;overflow-y:auto;padding:8px 0}
+.board-list::-webkit-scrollbar{width:4px}
+.board-list::-webkit-scrollbar-track{background:transparent}
+.board-list::-webkit-scrollbar-thumb{background:rgba(0,255,65,0.2);border-radius:2px}
+
+.entry{display:grid;align-items:center;padding:10px 24px;border-bottom:1px solid rgba(255,255,255,0.04);transition:background .2s;animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.entry:hover{background:rgba(255,255,255,0.03)}
+.entry.rank-1{background:rgba(255,215,0,0.06);border-left:3px solid var(--gold)}
+.entry.rank-2{background:rgba(192,192,192,0.04);border-left:3px solid #c0c0c0}
+.entry.rank-3{background:rgba(205,127,50,0.04);border-left:3px solid #cd7f32}
+
+/* XP Board */
+.xp-entry{grid-template-columns:40px 1fr 80px 60px}
+.xp-rank{font-family:'Orbitron',sans-serif;font-size:.9rem;font-weight:900;color:rgba(255,255,255,0.3)}
+.xp-name{font-weight:700;font-size:.95rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xp-level{font-family:'Share Tech Mono',monospace;font-size:.7rem;color:var(--green);background:rgba(0,255,65,0.08);border:1px solid rgba(0,255,65,0.2);padding:2px 6px;border-radius:3px;text-align:center}
+.xp-val{font-family:'Orbitron',sans-serif;font-size:.9rem;font-weight:900;color:var(--green);text-align:right}
+
+/* CTF Board */
+.ctf-entry{grid-template-columns:40px 1fr 60px 50px}
+.ctf-name{font-weight:700;font-size:.95rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctf-flags{font-size:.78rem;color:rgba(255,215,0,0.6);text-align:center}
+.ctf-pts{font-family:'Orbitron',sans-serif;font-size:.9rem;font-weight:900;color:var(--gold);text-align:right}
+
+/* Phases Board */
+.ph-entry{grid-template-columns:40px 1fr 40px 40px 60px}
+.ph-name{font-weight:700;font-size:.95rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ph-pentest{font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--green);text-align:center}
+.ph-blue{font-family:'Share Tech Mono',monospace;font-size:.78rem;color:var(--cyan);text-align:center}
+.ph-total{font-family:'Orbitron',sans-serif;font-size:.85rem;font-weight:900;color:rgba(255,255,255,0.7);text-align:right}
+
+.medal{font-size:1rem}
+.empty-state{padding:40px 24px;text-align:center;color:rgba(255,255,255,0.2);font-size:.85rem}
+
+.ticker-bar{position:relative;z-index:10;background:rgba(0,255,65,0.04);border-top:1px solid var(--border);padding:8px 32px;font-family:'Share Tech Mono',monospace;font-size:.72rem;color:rgba(0,255,65,0.5);white-space:nowrap;overflow:hidden;flex-shrink:0}
+.ticker-inner{display:inline-block;animation:ticker 30s linear infinite}
+@keyframes ticker{0%{transform:translateX(100vw)}100%{transform:translateX(-100%)}}
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyBQN4m_Q_example_replace_with_real",
+  authDomain:"mccoe-platform.firebaseapp.com",
+  databaseURL:"https://mccoe-platform-default-rtdb.firebaseio.com",
+  projectId:"mccoe-platform",
+  storageBucket:"mccoe-platform.appspot.com",
+  messagingSenderId:"000000000000",
+  appId:"1:000000000000:web:0000000000000000"
+});
+const _db = firebase.database();
+</script>
+</head>
+<body>
+
+<header>
+  <div class="hdr-logo">MCCoE</div>
+  <div class="hdr-title">LIVE CLASS SCOREBOARD</div>
+  <div class="hdr-right">
+    <div class="live-label"><div class="live-dot"></div>LIVE</div>
+    <div class="last-update" id="last-update">Connecting...</div>
+    <button class="fullscreen-btn" onclick="toggleFullscreen()">&#x26F6; Fullscreen</button>
+  </div>
+</header>
+
+<div class="boards">
+
+  <!-- XP LEADERBOARD -->
+  <div class="board">
+    <div class="board-header">
+      <div class="board-title" style="color:var(--green)">&#x26A1; XP LEADERBOARD</div>
+      <div class="board-subtitle">Experience points earned across all activities</div>
+    </div>
+    <div class="board-list" id="xp-list"><div class="empty-state">Loading...</div></div>
+  </div>
+
+  <!-- CTF RANKINGS -->
+  <div class="board">
+    <div class="board-header">
+      <div class="board-title" style="color:var(--gold)">&#x1F6A9; CTF RANKINGS</div>
+      <div class="board-subtitle">Capture The Flag — 600 pts / 12 flags total</div>
+    </div>
+    <div class="board-list" id="ctf-list"><div class="empty-state">Loading...</div></div>
+  </div>
+
+  <!-- PHASES COMPLETED -->
+  <div class="board">
+    <div class="board-header">
+      <div class="board-title" style="color:var(--cyan)">&#x2714; PHASES COMPLETED</div>
+      <div class="board-subtitle"><span style="color:var(--green)">Green</span> = Pentest &nbsp;|&nbsp; <span style="color:var(--cyan)">Cyan</span> = Blue Team</div>
+    </div>
+    <div class="board-list" id="phase-list"><div class="empty-state">Loading...</div></div>
+  </div>
+
+</div>
+
+<div class="ticker-bar">
+  <span class="ticker-inner" id="ticker">MCCoE Cybersecurity Workforce Development Program &nbsp;&mdash;&nbsp; Pillars: Student Platform &bull; CyberSec Academy &bull; Incident Case Studies &bull; Ethical Hacking Lab &bull; Blue Team Defense Lab &bull; CTF Challenges &nbsp;&mdash;&nbsp; Real tools. Real skills. Real careers.</span>
+</div>
+
+<script>
+const LEVELS = [
+  {name:'ROOKIE',    min:0,    color:'#888'},
+  {name:'ANALYST',  min:500,  color:'#4fc3f7'},
+  {name:'HUNTER',   min:1500, color:'#81c784'},
+  {name:'HACKER',   min:3000, color:'#00ff41'},
+  {name:'EXPERT',   min:5000, color:'#ffd700'},
+  {name:'ELITE',    min:8000, color:'#ff6b6b'},
+];
+function getLevel(xp) {
+  let lv = LEVELS[0];
+  for (const l of LEVELS) { if (xp >= l.min) lv = l; }
+  return lv;
+}
+function medal(i) {
+  return i===0?'&#x1F947;':i===1?'&#x1F948;':i===2?'&#x1F949;':`<span style="color:rgba(255,255,255,0.25);font-family:'Share Tech Mono',monospace;font-size:.8rem">${String(i+1).padStart(2,'0')}</span>`;
+}
+function rankClass(i) { return i<3?`rank-${i+1}`:''; }
+
+let xpData={}, ctfData={}, pentestData={}, blueteamData={};
+
+function renderXP() {
+  const rows = Object.values(xpData).sort((a,b)=>(b.xp||0)-(a.xp||0)).slice(0,15);
+  if (!rows.length) { document.getElementById('xp-list').innerHTML='<div class="empty-state">No activity yet</div>'; return; }
+  document.getElementById('xp-list').innerHTML = rows.map((r,i)=>{
+    const lv = getLevel(r.xp||0);
+    return `<div class="entry xp-entry ${rankClass(i)}">
+      <div class="xp-rank">${medal(i)}</div>
+      <div class="xp-name">${r.name||'—'}</div>
+      <div class="xp-level" style="border-color:${lv.color};color:${lv.color}">${lv.name}</div>
+      <div class="xp-val">${(r.xp||0).toLocaleString()}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderCTF() {
+  const rows = Object.values(ctfData).sort((a,b)=>(b.points||0)-(a.points||0)).slice(0,15);
+  if (!rows.length) { document.getElementById('ctf-list').innerHTML='<div class="empty-state">No CTF activity yet</div>'; return; }
+  document.getElementById('ctf-list').innerHTML = rows.map((r,i)=>
+    `<div class="entry ctf-entry ${rankClass(i)}">
+      <div class="xp-rank">${medal(i)}</div>
+      <div class="ctf-name">${r.name||'—'}</div>
+      <div class="ctf-flags">&#x1F6A9; ${r.flagsCaptured||0}/12</div>
+      <div class="ctf-pts">${r.points||0}</div>
+    </div>`).join('');
+}
+
+function renderPhases() {
+  const names = new Set([
+    ...Object.values(pentestData).map(r=>r.name),
+    ...Object.values(blueteamData).map(r=>r.name),
+  ]);
+  const rows = [...names].map(name=>{
+    const p = Object.values(pentestData).find(r=>r.name===name)||{};
+    const b = Object.values(blueteamData).find(r=>r.name===name)||{};
+    return { name, pentest:p.phasesCompleted||0, blue:b.phasesCompleted||0, total:(p.phasesCompleted||0)+(b.phasesCompleted||0) };
+  }).sort((a,b)=>b.total-a.total).slice(0,15);
+  if (!rows.length) { document.getElementById('phase-list').innerHTML='<div class="empty-state">No phases completed yet</div>'; return; }
+  document.getElementById('phase-list').innerHTML = rows.map((r,i)=>
+    `<div class="entry ph-entry ${rankClass(i)}">
+      <div class="xp-rank">${medal(i)}</div>
+      <div class="ph-name">${r.name}</div>
+      <div class="ph-pentest" style="color:var(--green)">${r.pentest}/6</div>
+      <div class="ph-blue" style="color:var(--cyan)">${r.blue}/5</div>
+      <div class="ph-total">${r.total}/11</div>
+    </div>`).join('');
+}
+
+function updateTimestamp() {
+  document.getElementById('last-update').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+}
+
+// Real-time Firebase listeners
+_db.ref('mccoe_xp').on('value', snap => {
+  xpData = snap.val() || {};
+  renderXP();
+  updateTimestamp();
+});
+_db.ref('mccoe_ctf').on('value', snap => {
+  ctfData = snap.val() || {};
+  renderCTF();
+  updateTimestamp();
+});
+_db.ref('mccoe_pentest').on('value', snap => {
+  pentestData = snap.val() || {};
+  renderPhases();
+  updateTimestamp();
+});
+_db.ref('mccoe_blueteam').on('value', snap => {
+  blueteamData = snap.val() || {};
+  renderPhases();
+  updateTimestamp();
+});
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+  else document.exitFullscreen();
+}
+document.addEventListener('keydown', e => { if(e.key==='Escape'&&document.fullscreenElement) document.exitFullscreen(); });
+</script>
+</body>
+</html>
