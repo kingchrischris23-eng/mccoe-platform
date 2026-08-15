@@ -234,12 +234,13 @@ footer strong{color:var(--green)}
     <span class="gr">Ethical Hacking</span><br/>
     <span class="wh">Hands-On Lab</span>
   </h1>
-  <p class="hero-sub">Work through all 5 phases of a real penetration test. Reconnaissance to reporting — on authorized platforms, with real tools, building a real portfolio.</p>
+  <p class="hero-sub">Work through all 5 phases of a real penetration test using the MCCoE Docker Lab — real Nmap scans, real Metasploit sessions, real shells. No external accounts required.</p>
   <div class="hero-divider"></div>
 </section>
 
 <!-- PHASE NAV -->
 <div class="phase-nav">
+  <button class="phase-btn" id="setup-nav-btn" onclick="showSetup()" style="border-color:rgba(0,245,255,0.5);color:var(--cyan);">⚙ Lab Setup</button>
   <button class="phase-btn active" onclick="showPhase(0)">01 — Recon</button>
   <button class="phase-btn" onclick="showPhase(1)">02 — Scanning</button>
   <button class="phase-btn" onclick="showPhase(2)">03 — Exploitation</button>
@@ -279,6 +280,103 @@ footer strong{color:var(--green)}
     <div class="prog-circle" id="pc5" onclick="showPhase(5)">🏁</div>
     <div class="prog-label" id="pl5">Capstone</div>
   </div>
+</div>
+
+<!-- LAB SETUP PANEL -->
+<div id="panel-setup" style="display:none;position:relative;z-index:5;max-width:960px;margin:0 auto;padding:0 2rem 60px">
+
+  <div class="phase-banner" style="border-color:rgba(0,245,255,0.4);background:linear-gradient(135deg,rgba(0,245,255,0.08),rgba(0,245,255,0.02))">
+    <div class="phase-icon">⚙</div>
+    <div>
+      <div class="phase-num-label" style="color:var(--cyan)">REQUIRED — COMPLETE BEFORE STARTING PHASES</div>
+      <div class="phase-title-large">MCCoE Docker Hacking Lab Setup</div>
+      <div class="phase-desc-short">Run a real Kali Linux attack machine and two vulnerable targets on your own computer. No external accounts. No shared platforms. All 5 phases, all real tools.</div>
+    </div>
+  </div>
+
+  <!-- WHAT YOU GET -->
+  <div class="sec-card">
+    <div class="sec-title" style="color:var(--cyan)">What the Lab Gives You</div>
+    <table class="data-table">
+      <tr><th>Container</th><th>IP Address</th><th>What It Is</th><th>Incident Scenario</th></tr>
+      <tr><td style="color:var(--green);font-weight:700">Kali Linux</td><td style="font-family:monospace">172.20.0.10</td><td>Your attack machine — all tools installed. Open in browser at <strong>localhost:7681</strong></td><td>Your workstation</td></tr>
+      <tr><td style="color:#ff8c00;font-weight:700">Metasploitable2</td><td style="font-family:monospace">172.20.0.20</td><td>Vulnerable Linux server — vsftpd, Samba, SSH, Apache, MySQL</td><td>Colonial Pipeline + SolarWinds</td></tr>
+      <tr><td style="color:#ff6b6b;font-weight:700">DVWA</td><td style="font-family:monospace">172.20.0.30</td><td>Damn Vulnerable Web App — SQL injection, command injection, XSS, file upload</td><td>Target Breach + Equifax</td></tr>
+    </table>
+  </div>
+
+  <!-- STEP 1: INSTALL DOCKER -->
+  <div class="sec-card">
+    <div class="sec-title" style="color:var(--cyan)">Step 1 — Install Docker Desktop (one-time)</div>
+    <div class="exercise-box">
+      <div class="step"><span class="step-num">01</span><span>Go to <a href="https://www.docker.com/products/docker-desktop/" target="_blank" style="color:var(--green)"><strong>docker.com/products/docker-desktop</strong></a> and download Docker Desktop for Windows</span></div>
+      <div class="step"><span class="step-num">02</span><span>Run the installer — accept all defaults. Restart your computer when prompted.</span></div>
+      <div class="step"><span class="step-num">03</span><span>After restart, open Docker Desktop and wait for it to show <strong>"Docker is running"</strong> (green dot in system tray)</span></div>
+      <div class="step"><span class="step-num">04</span><span>Open PowerShell and run: <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">docker --version</code> — you should see a version number</span></div>
+    </div>
+  </div>
+
+  <!-- STEP 2: DOWNLOAD LAB -->
+  <div class="sec-card">
+    <div class="sec-title" style="color:var(--cyan)">Step 2 — Download the Lab Files</div>
+    <div class="exercise-box">
+      <div class="step"><span class="step-num">01</span><span>Click the download button below to get the lab package</span></div>
+      <div class="step"><span class="step-num">02</span><span>Extract the zip file — you will get a <strong>lab</strong> folder containing <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">docker-compose.yml</code> and a <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">kali</code> folder</span></div>
+      <div class="step"><span class="step-num">03</span><span>Move the <strong>lab</strong> folder somewhere easy to find — Desktop or Documents</span></div>
+    </div>
+    <div style="text-align:center;margin-top:18px">
+      <a href="https://github.com/kingchrischris23-eng/mccoe-platform/raw/main/MCCoE-Hacking-Lab.zip" download class="btn-green" style="border-color:var(--cyan);color:var(--cyan);">⬇ &nbsp; Download MCCoE Hacking Lab</a>
+    </div>
+  </div>
+
+  <!-- STEP 3: START THE LAB -->
+  <div class="sec-card">
+    <div class="sec-title" style="color:var(--cyan)">Step 3 — Start the Lab</div>
+    <div class="warn-box">
+      <div class="warn-label">⏱ FIRST LAUNCH TAKES 10–20 MINUTES</div>
+      <div class="warn-text">Docker downloads Kali Linux, Metasploitable2, and DVWA the first time (~3–4 GB total). After that, the lab starts in under 30 seconds every time. Keep Docker Desktop open while using the lab.</div>
+    </div>
+    <div class="exercise-box" style="margin-top:14px">
+      <div class="step"><span class="step-num">01</span><span>Open PowerShell and navigate to the lab folder:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">cd C:\Users\YourName\Desktop\lab</code></span></div>
+      <div class="step"><span class="step-num">02</span><span>Start all containers:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">docker compose up -d --build</code></span></div>
+      <div class="step"><span class="step-num">03</span><span>Wait for the message: <strong>"Container mccoe-kali Started"</strong></span></div>
+      <div class="step"><span class="step-num">04</span><span>Open Chrome or Edge and go to: <a href="http://localhost:7681" target="_blank" style="color:var(--green)"><strong>http://localhost:7681</strong></a></span></div>
+      <div class="step"><span class="step-num">05</span><span>You should see a black terminal with the MCCoE banner — you are now inside Kali Linux</span></div>
+    </div>
+  </div>
+
+  <!-- STEP 4: VERIFY TARGETS -->
+  <div class="sec-card">
+    <div class="sec-title" style="color:var(--cyan)">Step 4 — Verify Targets Are Reachable</div>
+    <div class="exercise-box">
+      <div class="step"><span class="step-num">01</span><span>In your Kali terminal, run:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">ping -c 2 172.20.0.20 && ping -c 2 172.20.0.30</code></span></div>
+      <div class="step"><span class="step-num">02</span><span>Both should reply — if they do, your lab is fully set up and ready for Phase 1</span></div>
+      <div class="step"><span class="step-num">03</span><span>Also open <a href="http://localhost:80" target="_blank" style="color:var(--green)">http://172.20.0.30</a> in your browser — you should see the DVWA login page (admin / password)</span></div>
+    </div>
+    <div class="deliv-box" style="margin-top:14px">
+      <div class="deliv-label">🔧 QUICK REFERENCE — TARGET IPs</div>
+      <div class="deliv-item"><strong>172.20.0.10</strong> — You (Kali attacker)</div>
+      <div class="deliv-item"><strong>172.20.0.20</strong> — Metasploitable2 (Colonial Pipeline / SolarWinds scenarios)</div>
+      <div class="deliv-item"><strong>172.20.0.30</strong> — DVWA web app (Target Breach / Equifax scenarios)</div>
+    </div>
+  </div>
+
+  <!-- STOP LAB -->
+  <div class="sec-card">
+    <div class="sec-title" style="color:var(--cyan)">Stopping and Restarting the Lab</div>
+    <table class="data-table">
+      <tr><th>Action</th><th>Command</th></tr>
+      <tr><td>Stop all containers (keeps your work)</td><td><code style="font-family:monospace">docker compose down</code></td></tr>
+      <tr><td>Start again next session</td><td><code style="font-family:monospace">docker compose up -d</code> (fast — no rebuild)</td></tr>
+      <tr><td>Reset everything to factory</td><td><code style="font-family:monospace">docker compose down -v</code></td></tr>
+      <tr><td>Check container status</td><td><code style="font-family:monospace">docker compose ps</code></td></tr>
+    </table>
+  </div>
+
+  <div style="text-align:center;margin-top:20px">
+    <button class="btn-green" onclick="showPhase(0)">▶ &nbsp; Lab is Ready — Start Phase 1</button>
+  </div>
+
 </div>
 
 <!-- CONTENT AREA -->
@@ -940,7 +1038,16 @@ if (_studentName) {
   }
 }
 
+function showSetup() {
+  document.getElementById('panel-setup').style.display = 'block';
+  panels.forEach(p => p.classList.remove('active'));
+  btns.forEach(b => b.classList.remove('active'));
+  document.getElementById('setup-nav-btn').classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 function showPhase(idx) {
+  document.getElementById('panel-setup').style.display = 'none';
   panels.forEach((p, i) => p.classList.toggle('active', i === idx));
   btns.forEach((b, i)   => b.classList.toggle('active', i === idx));
   updateProgressUI(idx);

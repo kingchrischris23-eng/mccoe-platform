@@ -1,0 +1,86 @@
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║         MCCoE ETHICAL HACKING LAB — DOCKER ENVIRONMENT          ║
+# ║         Pillar 4: All 5 Phases of Pentesting                    ║
+# ║                                                                  ║
+# ║  SETUP:  docker compose up -d --build                           ║
+# ║  KALI:   Open http://localhost:7681 in your browser             ║
+# ║  STOP:   docker compose down                                     ║
+# ╚══════════════════════════════════════════════════════════════════╝
+
+version: '3.8'
+
+networks:
+  mccoe-lab:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
+
+services:
+
+  # ── KALI LINUX ────────────────────────────────────────────────────
+  # Your attack machine. Open http://localhost:7681 in Chrome/Edge.
+  # Tools: nmap, metasploit, hydra, sqlmap, nikto, gobuster, netcat
+  # Your IP inside the lab: 172.20.0.10
+  kali:
+    build:
+      context: ./kali
+    container_name: mccoe-kali
+    hostname: kali-attacker
+    ports:
+      - "7681:7681"
+    networks:
+      mccoe-lab:
+        ipv4_address: 172.20.0.10
+    restart: unless-stopped
+
+  # ── TARGET 1: METASPLOITABLE2 ─────────────────────────────────────
+  # IP: 172.20.0.20
+  # ─────────────────────────────────────────────────────────────────
+  # SCENARIO: Colonial Pipeline (Phase 2 scan → Phase 3 vsftpd exploit)
+  #   Port 21  — vsftpd 2.3.4   CVE-2011-2523  (backdoor command exec)
+  #   Port 22  — OpenSSH 4.7    weak creds: msfadmin/msfadmin
+  #   Port 23  — Telnet         weak creds: msfadmin/msfadmin
+  #
+  # SCENARIO: SolarWinds (Phase 3 Samba → Phase 4 persistence)
+  #   Port 139 — Samba 3.0.20   CVE-2007-2447  (username map script)
+  #   Port 445 — Samba 3.0.20   same CVE — instant root
+  #
+  # OTHER SERVICES:
+  #   Port 80  — Apache + DVWA  (SQL injection, command injection)
+  #   Port 3306 — MySQL 5.0.51  weak creds: root/(empty)
+  #   Port 5900 — VNC            weak creds: password
+  #   Port 6667 — UnrealIRCd    CVE-2010-2075  (backdoor)
+  # ─────────────────────────────────────────────────────────────────
+  metasploitable:
+    image: tleemcjr/metasploitable2
+    container_name: mccoe-ms2
+    hostname: metasploitable
+    platform: linux/amd64
+    networks:
+      mccoe-lab:
+        ipv4_address: 172.20.0.20
+    restart: unless-stopped
+    tty: true
+
+  # ── TARGET 2: DVWA ────────────────────────────────────────────────
+  # IP: 172.20.0.30   Port 80
+  # ─────────────────────────────────────────────────────────────────
+  # SCENARIO: Target Breach (Phase 1 recon → Phase 3 SQLi/credential attack)
+  # SCENARIO: Equifax     (Phase 2 scan → Phase 3 command injection → RCE)
+  #
+  # Login: admin / password
+  # Set security level to LOW in DVWA Setup for full vulnerability access
+  #
+  # Modules: SQL Injection, Blind SQLi, Command Injection,
+  #          File Upload, XSS Reflected, XSS Stored, CSRF, Brute Force
+  # ─────────────────────────────────────────────────────────────────
+  dvwa:
+    image: vulnerables/web-dvwa
+    container_name: mccoe-dvwa
+    hostname: dvwa-target
+    platform: linux/amd64
+    networks:
+      mccoe-lab:
+        ipv4_address: 172.20.0.30
+    restart: unless-stopped

