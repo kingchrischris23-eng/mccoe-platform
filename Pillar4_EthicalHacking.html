@@ -289,91 +289,177 @@ footer strong{color:var(--green)}
     <div class="phase-icon">⚙</div>
     <div>
       <div class="phase-num-label" style="color:var(--cyan)">REQUIRED — COMPLETE BEFORE STARTING PHASES</div>
-      <div class="phase-title-large">MCCoE Docker Hacking Lab Setup</div>
-      <div class="phase-desc-short">Run a real Kali Linux attack machine and two vulnerable targets on your own computer. No external accounts. No shared platforms. All 5 phases, all real tools.</div>
+      <div class="phase-title-large">MCCoE Hacking Lab Setup</div>
+      <div class="phase-desc-short">Real targets. Real tools. No external accounts required. Choose how you want to work below.</div>
     </div>
   </div>
 
-  <!-- WHAT YOU GET -->
+  <!-- CHOOSE YOUR METHOD -->
   <div class="sec-card">
-    <div class="sec-title" style="color:var(--cyan)">What the Lab Gives You</div>
+    <div class="sec-title" style="color:var(--cyan)">Choose Your Setup Method</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px">
+
+      <div id="opt-docker-card" onclick="selectSetup('docker')" style="cursor:pointer;border:2px solid var(--cyan);border-radius:10px;padding:20px;background:rgba(0,245,255,0.07);transition:all .2s">
+        <div style="font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--cyan);margin-bottom:8px">OPTION A</div>
+        <div style="font-size:1.25rem;font-weight:700;color:#fff;margin-bottom:8px">Docker Desktop</div>
+        <div style="font-size:.92rem;color:rgba(200,255,200,0.8);line-height:1.5">No VM needed. Runs on your regular Windows laptop. Kali opens in your browser. <strong style="color:var(--green)">Recommended for most students.</strong></div>
+        <div style="margin-top:12px;font-size:.8rem;color:rgba(0,245,255,0.7)">Requires: Docker Desktop install (~1 min setup)</div>
+      </div>
+
+      <div id="opt-vm-card" onclick="selectSetup('vm')" style="cursor:pointer;border:2px solid rgba(0,255,65,0.3);border-radius:10px;padding:20px;background:rgba(0,255,65,0.03);transition:all .2s">
+        <div style="font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--muted);margin-bottom:8px">OPTION B</div>
+        <div style="font-size:1.25rem;font-weight:700;color:#fff;margin-bottom:8px">Own Kali / VM</div>
+        <div style="font-size:.92rem;color:rgba(200,255,200,0.8);line-height:1.5">Already have Kali Linux installed in VirtualBox, VMware, or natively? Use your own machine and connect to the lab targets.</div>
+        <div style="margin-top:12px;font-size:.8rem;color:rgba(0,255,65,0.5)">Requires: Docker Desktop on host to run targets</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- WHAT YOU GET (shared) -->
+  <div class="sec-card">
+    <div class="sec-title" style="color:var(--cyan)">Lab Targets (Both Options)</div>
     <table class="data-table">
-      <tr><th>Container</th><th>IP Address</th><th>What It Is</th><th>Incident Scenario</th></tr>
-      <tr><td style="color:var(--green);font-weight:700">Kali Linux</td><td style="font-family:monospace">172.20.0.10</td><td>Your attack machine — all tools installed. Open in browser at <strong>localhost:7681</strong></td><td>Your workstation</td></tr>
+      <tr><th>Target</th><th>Service</th><th>What It Is</th><th>Incident Scenario</th></tr>
       <tr><td style="color:#ff8c00;font-weight:700">Metasploitable2</td><td style="font-family:monospace">172.20.0.20</td><td>Vulnerable Linux server — vsftpd, Samba, SSH, Apache, MySQL</td><td>Colonial Pipeline + SolarWinds</td></tr>
-      <tr><td style="color:#ff6b6b;font-weight:700">DVWA</td><td style="font-family:monospace">172.20.0.30</td><td>Damn Vulnerable Web App — SQL injection, command injection, XSS, file upload</td><td>Target Breach + Equifax</td></tr>
+      <tr><td style="color:#ff6b6b;font-weight:700">DVWA</td><td style="font-family:monospace">172.20.0.30</td><td>Damn Vulnerable Web App — SQLi, command injection, XSS, file upload</td><td>Target Breach + Equifax</td></tr>
     </table>
   </div>
 
-  <!-- STEP 1: INSTALL DOCKER -->
-  <div class="sec-card">
-    <div class="sec-title" style="color:var(--cyan)">Step 1 — Install Docker Desktop (one-time)</div>
-    <div class="exercise-box">
-      <div class="step"><span class="step-num">01</span><span>Go to <a href="https://www.docker.com/products/docker-desktop/" target="_blank" style="color:var(--green)"><strong>docker.com/products/docker-desktop</strong></a> and download Docker Desktop for Windows</span></div>
-      <div class="step"><span class="step-num">02</span><span>Run the installer — accept all defaults. Restart your computer when prompted.</span></div>
-      <div class="step"><span class="step-num">03</span><span>After restart, open Docker Desktop and wait for it to show <strong>"Docker is running"</strong> (green dot in system tray)</span></div>
-      <div class="step"><span class="step-num">04</span><span>Open PowerShell and run: <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">docker --version</code> — you should see a version number</span></div>
+  <!-- ═══ OPTION A: DOCKER ═══ -->
+  <div id="setup-docker" style="display:none">
+
+    <div style="border-left:3px solid var(--cyan);padding:8px 16px;margin-bottom:16px;background:rgba(0,245,255,0.05);border-radius:0 6px 6px 0">
+      <span style="color:var(--cyan);font-weight:700;font-family:'Orbitron',sans-serif;font-size:.8rem">OPTION A — DOCKER SETUP</span>
+      <span style="color:var(--green);font-size:.8rem;margin-left:12px">Kali Linux runs in your browser at localhost:7681</span>
     </div>
+
+    <div class="sec-card">
+      <div class="sec-title" style="color:var(--cyan)">Step 1 — Install Docker Desktop (one-time)</div>
+      <div class="exercise-box">
+        <div class="step"><span class="step-num">01</span><span>Go to <a href="https://www.docker.com/products/docker-desktop/" target="_blank" style="color:var(--green)"><strong>docker.com/products/docker-desktop</strong></a> and download Docker Desktop for Windows</span></div>
+        <div class="step"><span class="step-num">02</span><span>Run the installer — accept all defaults. Restart when prompted.</span></div>
+        <div class="step"><span class="step-num">03</span><span>After restart, open Docker Desktop and wait for <strong>"Docker is running"</strong> (green dot in system tray)</span></div>
+        <div class="step"><span class="step-num">04</span><span>Open PowerShell and confirm: <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">docker --version</code></span></div>
+      </div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-title" style="color:var(--cyan)">Step 2 — Download the Lab Files</div>
+      <div class="exercise-box">
+        <div class="step"><span class="step-num">01</span><span>Download the lab package using the button below</span></div>
+        <div class="step"><span class="step-num">02</span><span>Extract the zip — you will get a <strong>lab</strong> folder with <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">docker-compose.yml</code> and a <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">kali</code> folder inside</span></div>
+        <div class="step"><span class="step-num">03</span><span>Move the <strong>lab</strong> folder to your Desktop or Documents</span></div>
+      </div>
+      <div style="text-align:center;margin-top:18px">
+        <a href="https://github.com/kingchrischris23-eng/mccoe-platform/raw/main/MCCoE-Hacking-Lab.zip" download class="btn-green" style="border-color:var(--cyan);color:var(--cyan);">⬇ &nbsp; Download MCCoE Hacking Lab</a>
+      </div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-title" style="color:var(--cyan)">Step 3 — Start the Lab</div>
+      <div class="warn-box">
+        <div class="warn-label">⏱ FIRST LAUNCH TAKES 10–20 MINUTES</div>
+        <div class="warn-text">Docker downloads Kali, Metasploitable2, and DVWA (~3–4 GB). After that, the lab starts in under 30 seconds every time.</div>
+      </div>
+      <div class="exercise-box" style="margin-top:14px">
+        <div class="step"><span class="step-num">01</span><span>Open PowerShell and navigate to the lab folder:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">cd C:\Users\YourName\Desktop\lab</code></span></div>
+        <div class="step"><span class="step-num">02</span><span>Start all three containers:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">docker compose up -d --build</code></span></div>
+        <div class="step"><span class="step-num">03</span><span>Wait for: <strong>"Container mccoe-kali Started"</strong></span></div>
+        <div class="step"><span class="step-num">04</span><span>Open your browser and go to: <a href="http://localhost:7681" target="_blank" style="color:var(--green)"><strong>http://localhost:7681</strong></a></span></div>
+        <div class="step"><span class="step-num">05</span><span>You should see a black terminal with the MCCoE banner — you are inside Kali Linux</span></div>
+      </div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-title" style="color:var(--cyan)">Step 4 — Verify Targets</div>
+      <div class="exercise-box">
+        <div class="step"><span class="step-num">01</span><span>In your Kali browser terminal, run:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">ping -c 2 172.20.0.20 && ping -c 2 172.20.0.30</code></span></div>
+        <div class="step"><span class="step-num">02</span><span>Both should reply. Lab is ready for Phase 1.</span></div>
+        <div class="step"><span class="step-num">03</span><span>Open <a href="http://172.20.0.30" target="_blank" style="color:var(--green)">http://172.20.0.30</a> — DVWA login page should appear (admin / password)</span></div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- STEP 2: DOWNLOAD LAB -->
-  <div class="sec-card">
-    <div class="sec-title" style="color:var(--cyan)">Step 2 — Download the Lab Files</div>
-    <div class="exercise-box">
-      <div class="step"><span class="step-num">01</span><span>Click the download button below to get the lab package</span></div>
-      <div class="step"><span class="step-num">02</span><span>Extract the zip file — you will get a <strong>lab</strong> folder containing <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">docker-compose.yml</code> and a <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">kali</code> folder</span></div>
-      <div class="step"><span class="step-num">03</span><span>Move the <strong>lab</strong> folder somewhere easy to find — Desktop or Documents</span></div>
+  <!-- ═══ OPTION B: OWN KALI / VM ═══ -->
+  <div id="setup-vm" style="display:none">
+
+    <div style="border-left:3px solid var(--green);padding:8px 16px;margin-bottom:16px;background:rgba(0,255,65,0.05);border-radius:0 6px 6px 0">
+      <span style="color:var(--green);font-weight:700;font-family:'Orbitron',sans-serif;font-size:.8rem">OPTION B — OWN KALI / VM SETUP</span>
+      <span style="color:var(--muted);font-size:.8rem;margin-left:12px">You attack from your own machine. Docker provides the targets.</span>
     </div>
-    <div style="text-align:center;margin-top:18px">
-      <a href="https://github.com/kingchrischris23-eng/mccoe-platform/raw/main/MCCoE-Hacking-Lab.zip" download class="btn-green" style="border-color:var(--cyan);color:var(--cyan);">⬇ &nbsp; Download MCCoE Hacking Lab</a>
+
+    <div class="sec-card">
+      <div class="sec-title" style="color:var(--green)">Step 1 — Install Docker Desktop on Your Windows Host (one-time)</div>
+      <div class="warn-box">
+        <div class="warn-label">WHY YOU STILL NEED DOCKER</div>
+        <div class="warn-text">Docker runs the two vulnerable targets (Metasploitable2 and DVWA) on your Windows machine. Your Kali VM attacks those targets over the network. You do NOT use the Docker Kali container — only the target containers.</div>
+      </div>
+      <div class="exercise-box" style="margin-top:14px">
+        <div class="step"><span class="step-num">01</span><span>On your <strong>Windows machine</strong>, install Docker Desktop: <a href="https://www.docker.com/products/docker-desktop/" target="_blank" style="color:var(--green)">docker.com/products/docker-desktop</a></span></div>
+        <div class="step"><span class="step-num">02</span><span>Confirm it is running (green dot in system tray)</span></div>
+      </div>
     </div>
+
+    <div class="sec-card">
+      <div class="sec-title" style="color:var(--green)">Step 2 — Download the Lab Files and Start Only the Targets</div>
+      <div class="exercise-box">
+        <div class="step"><span class="step-num">01</span><span>Download and extract the lab package on your Windows machine:</span></div>
+      </div>
+      <div style="text-align:center;margin:12px 0">
+        <a href="https://github.com/kingchrischris23-eng/mccoe-platform/raw/main/MCCoE-Hacking-Lab.zip" download class="btn-green" style="border-color:var(--green);">⬇ &nbsp; Download MCCoE Hacking Lab</a>
+      </div>
+      <div class="exercise-box">
+        <div class="step"><span class="step-num">02</span><span>Open PowerShell on Windows and navigate to the lab folder:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">cd C:\Users\YourName\Desktop\lab</code></span></div>
+        <div class="step"><span class="step-num">03</span><span>Start only the target containers (skip Kali — you have your own):<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">docker compose up -d metasploitable dvwa</code></span></div>
+        <div class="step"><span class="step-num">04</span><span>Wait for: <strong>"Container mccoe-ms2 Started"</strong> and <strong>"Container mccoe-dvwa Started"</strong></span></div>
+      </div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-title" style="color:var(--green)">Step 3 — Find Your Windows Host IP</div>
+      <div class="exercise-box">
+        <div class="step"><span class="step-num">01</span><span>On your Windows machine, open PowerShell and run:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">ipconfig</code></span></div>
+        <div class="step"><span class="step-num">02</span><span>Look for your <strong>IPv4 Address</strong> under Ethernet or Wi-Fi — example: <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">192.168.1.50</code></span></div>
+        <div class="step"><span class="step-num">03</span><span>Write that IP down — you will use it as the base to reach your targets from Kali</span></div>
+      </div>
+      <div class="deliv-box" style="margin-top:14px">
+        <div class="deliv-label">🔧 YOUR TARGET ADDRESSES FROM KALI</div>
+        <div class="deliv-item"><strong>Metasploitable2 FTP:</strong> &lt;your-windows-ip&gt;:2121</div>
+        <div class="deliv-item"><strong>Metasploitable2 SSH:</strong> &lt;your-windows-ip&gt;:2222</div>
+        <div class="deliv-item"><strong>Metasploitable2 HTTP:</strong> &lt;your-windows-ip&gt;:8080</div>
+        <div class="deliv-item"><strong>DVWA Web App:</strong> http://&lt;your-windows-ip&gt;:8081</div>
+        <div class="deliv-item" style="margin-top:8px;color:rgba(200,255,200,0.6);font-size:.85rem">Note: Samba exploits (CVE-2007-2447) require the Docker Kali terminal — use Option A for that specific exercise only.</div>
+      </div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-title" style="color:var(--green)">Step 4 — Verify From Your Kali Machine</div>
+      <div class="exercise-box">
+        <div class="step"><span class="step-num">01</span><span>Open a terminal in your Kali VM or native Kali</span></div>
+        <div class="step"><span class="step-num">02</span><span>Ping the targets (replace with your Windows IP):<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">ping -c 2 192.168.1.50</code></span></div>
+        <div class="step"><span class="step-num">03</span><span>Scan your Metasploitable target:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">nmap -p 2121,2222,8080 192.168.1.50</code></span></div>
+        <div class="step"><span class="step-num">04</span><span>Open DVWA in your Kali browser: <strong>http://&lt;your-windows-ip&gt;:8081</strong> — login: admin / password</span></div>
+        <div class="step"><span class="step-num">05</span><span>If all respond — your lab is ready. Use the port-mapped addresses instead of 172.20.0.x throughout the phases.</span></div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- STEP 3: START THE LAB -->
-  <div class="sec-card">
-    <div class="sec-title" style="color:var(--cyan)">Step 3 — Start the Lab</div>
-    <div class="warn-box">
-      <div class="warn-label">⏱ FIRST LAUNCH TAKES 10–20 MINUTES</div>
-      <div class="warn-text">Docker downloads Kali Linux, Metasploitable2, and DVWA the first time (~3–4 GB total). After that, the lab starts in under 30 seconds every time. Keep Docker Desktop open while using the lab.</div>
-    </div>
-    <div class="exercise-box" style="margin-top:14px">
-      <div class="step"><span class="step-num">01</span><span>Open PowerShell and navigate to the lab folder:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">cd C:\Users\YourName\Desktop\lab</code></span></div>
-      <div class="step"><span class="step-num">02</span><span>Start all containers:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">docker compose up -d --build</code></span></div>
-      <div class="step"><span class="step-num">03</span><span>Wait for the message: <strong>"Container mccoe-kali Started"</strong></span></div>
-      <div class="step"><span class="step-num">04</span><span>Open Chrome or Edge and go to: <a href="http://localhost:7681" target="_blank" style="color:var(--green)"><strong>http://localhost:7681</strong></a></span></div>
-      <div class="step"><span class="step-num">05</span><span>You should see a black terminal with the MCCoE banner — you are now inside Kali Linux</span></div>
-    </div>
-  </div>
-
-  <!-- STEP 4: VERIFY TARGETS -->
-  <div class="sec-card">
-    <div class="sec-title" style="color:var(--cyan)">Step 4 — Verify Targets Are Reachable</div>
-    <div class="exercise-box">
-      <div class="step"><span class="step-num">01</span><span>In your Kali terminal, run:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">ping -c 2 172.20.0.20 && ping -c 2 172.20.0.30</code></span></div>
-      <div class="step"><span class="step-num">02</span><span>Both should reply — if they do, your lab is fully set up and ready for Phase 1</span></div>
-      <div class="step"><span class="step-num">03</span><span>Also open <a href="http://localhost:80" target="_blank" style="color:var(--green)">http://172.20.0.30</a> in your browser — you should see the DVWA login page (admin / password)</span></div>
-    </div>
-    <div class="deliv-box" style="margin-top:14px">
-      <div class="deliv-label">🔧 QUICK REFERENCE — TARGET IPs</div>
-      <div class="deliv-item"><strong>172.20.0.10</strong> — You (Kali attacker)</div>
-      <div class="deliv-item"><strong>172.20.0.20</strong> — Metasploitable2 (Colonial Pipeline / SolarWinds scenarios)</div>
-      <div class="deliv-item"><strong>172.20.0.30</strong> — DVWA web app (Target Breach / Equifax scenarios)</div>
-    </div>
-  </div>
-
-  <!-- STOP LAB -->
-  <div class="sec-card">
+  <!-- STOP/RESTART (shared) -->
+  <div class="sec-card" id="stop-card" style="display:none">
     <div class="sec-title" style="color:var(--cyan)">Stopping and Restarting the Lab</div>
     <table class="data-table">
-      <tr><th>Action</th><th>Command</th></tr>
-      <tr><td>Stop all containers (keeps your work)</td><td><code style="font-family:monospace">docker compose down</code></td></tr>
+      <tr><th>Action</th><th>Command (run on Windows)</th></tr>
+      <tr><td>Stop all containers</td><td><code style="font-family:monospace">docker compose down</code></td></tr>
       <tr><td>Start again next session</td><td><code style="font-family:monospace">docker compose up -d</code> (fast — no rebuild)</td></tr>
-      <tr><td>Reset everything to factory</td><td><code style="font-family:monospace">docker compose down -v</code></td></tr>
-      <tr><td>Check container status</td><td><code style="font-family:monospace">docker compose ps</code></td></tr>
+      <tr><td>Reset everything</td><td><code style="font-family:monospace">docker compose down -v</code></td></tr>
+      <tr><td>Check status</td><td><code style="font-family:monospace">docker compose ps</code></td></tr>
     </table>
   </div>
 
-  <div style="text-align:center;margin-top:20px">
+  <div id="start-btn-wrap" style="display:none;text-align:center;margin-top:20px">
     <button class="btn-green" onclick="showPhase(0)">▶ &nbsp; Lab is Ready — Start Phase 1</button>
   </div>
 
@@ -1036,6 +1122,33 @@ if (_studentName) {
     banner.textContent = '▶ ' + _studentName + '  —  Progress synced to Admin Tracker';
     banner.style.display = 'block';
   }
+}
+
+function selectSetup(method) {
+  const dockerCard = document.getElementById('opt-docker-card');
+  const vmCard     = document.getElementById('opt-vm-card');
+  const dockerSec  = document.getElementById('setup-docker');
+  const vmSec      = document.getElementById('setup-vm');
+  const stopCard   = document.getElementById('stop-card');
+  const startBtn   = document.getElementById('start-btn-wrap');
+
+  if (method === 'docker') {
+    dockerCard.style.borderColor  = 'var(--cyan)';
+    dockerCard.style.background   = 'rgba(0,245,255,0.10)';
+    vmCard.style.borderColor      = 'rgba(0,255,65,0.3)';
+    vmCard.style.background       = 'rgba(0,255,65,0.03)';
+    dockerSec.style.display = 'block';
+    vmSec.style.display     = 'none';
+  } else {
+    vmCard.style.borderColor      = 'var(--green)';
+    vmCard.style.background       = 'rgba(0,255,65,0.10)';
+    dockerCard.style.borderColor  = 'rgba(0,245,255,0.3)';
+    dockerCard.style.background   = 'rgba(0,245,255,0.03)';
+    dockerSec.style.display = 'none';
+    vmSec.style.display     = 'block';
+  }
+  stopCard.style.display  = 'block';
+  startBtn.style.display  = 'block';
 }
 
 function showSetup() {

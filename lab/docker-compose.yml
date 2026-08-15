@@ -2,9 +2,15 @@
 # ║         MCCoE ETHICAL HACKING LAB — DOCKER ENVIRONMENT          ║
 # ║         Pillar 4: All 5 Phases of Pentesting                    ║
 # ║                                                                  ║
-# ║  SETUP:  docker compose up -d --build                           ║
-# ║  KALI:   Open http://localhost:7681 in your browser             ║
-# ║  STOP:   docker compose down                                     ║
+# ║  OPTION A (Docker Kali):  docker compose up -d --build          ║
+# ║    Open http://localhost:7681 in your browser                   ║
+# ║                                                                  ║
+# ║  OPTION B (Own Kali/VM):  docker compose up -d metasploitable dvwa
+# ║    Attack from your Kali using your Windows host IP             ║
+# ║    Metasploitable: <host-ip>:2121 (FTP) :2222 (SSH) :8080 (HTTP)║
+# ║    DVWA:           <host-ip>:8081                               ║
+# ║                                                                  ║
+# ║  STOP:  docker compose down                                      ║
 # ╚══════════════════════════════════════════════════════════════════╝
 
 version: '3.8'
@@ -19,7 +25,8 @@ networks:
 services:
 
   # ── KALI LINUX ────────────────────────────────────────────────────
-  # Your attack machine. Open http://localhost:7681 in Chrome/Edge.
+  # OPTION A only — your attack machine in the browser.
+  # Open http://localhost:7681 in Chrome or Edge.
   # Tools: nmap, metasploit, hydra, sqlmap, nikto, gobuster, netcat
   # Your IP inside the lab: 172.20.0.10
   kali:
@@ -35,7 +42,8 @@ services:
     restart: unless-stopped
 
   # ── TARGET 1: METASPLOITABLE2 ─────────────────────────────────────
-  # IP: 172.20.0.20
+  # Docker Kali (Option A):  172.20.0.20
+  # Own Kali/VM (Option B):  <your-windows-ip>:2121 / :2222 / :8080
   # ─────────────────────────────────────────────────────────────────
   # SCENARIO: Colonial Pipeline (Phase 2 scan → Phase 3 vsftpd exploit)
   #   Port 21  — vsftpd 2.3.4   CVE-2011-2523  (backdoor command exec)
@@ -57,6 +65,11 @@ services:
     container_name: mccoe-ms2
     hostname: metasploitable
     platform: linux/amd64
+    ports:
+      - "2121:21"    # FTP  — vsftpd CVE-2011-2523 (Option B external access)
+      - "2222:22"    # SSH  — weak creds msfadmin/msfadmin
+      - "2323:23"    # Telnet
+      - "8080:80"    # HTTP — Apache / DVWA on Metasploitable
     networks:
       mccoe-lab:
         ipv4_address: 172.20.0.20
@@ -64,7 +77,8 @@ services:
     tty: true
 
   # ── TARGET 2: DVWA ────────────────────────────────────────────────
-  # IP: 172.20.0.30   Port 80
+  # Docker Kali (Option A):  172.20.0.30
+  # Own Kali/VM (Option B):  http://<your-windows-ip>:8081
   # ─────────────────────────────────────────────────────────────────
   # SCENARIO: Target Breach (Phase 1 recon → Phase 3 SQLi/credential attack)
   # SCENARIO: Equifax     (Phase 2 scan → Phase 3 command injection → RCE)
@@ -80,6 +94,8 @@ services:
     container_name: mccoe-dvwa
     hostname: dvwa-target
     platform: linux/amd64
+    ports:
+      - "8081:80"    # DVWA web app (Option B external access)
     networks:
       mccoe-lab:
         ipv4_address: 172.20.0.30
