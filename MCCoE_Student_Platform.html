@@ -2422,6 +2422,38 @@ function renderStudentDashboard() {
       </a>
     </div>
 
+    <!-- Blue Team Lab Card -->
+    <div style="background:#fff;border-radius:12px;padding:20px 24px;border:2px solid #003d55;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="font-size:28px">🛡</div>
+        <div>
+          <div style="font-size:14px;font-weight:800;color:#003d55;letter-spacing:.5px;">Blue Team Defense Lab</div>
+          <div style="font-size:12px;color:#555;margin-top:2px;">Log Analysis, Wireshark, IOC Hunting, Incident Response</div>
+        </div>
+      </div>
+      <a href="Pillar5_BlueTeam.html?name=${encodeURIComponent(s.name)}&id=${encodeURIComponent(s.tempId||s.name)}" target="_blank"
+         style="background:#003d55;color:#00f5ff;font-size:12px;font-weight:800;padding:10px 22px;border-radius:6px;text-decoration:none;letter-spacing:.5px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,61,85,.4);transition:all .2s;border:1px solid #006b8f;"
+         onmouseover="this.style.background='#002a3d'" onmouseout="this.style.background='#003d55'">
+        🛡 ENTER LAB
+      </a>
+    </div>
+
+    <!-- CTF Card -->
+    <div style="background:#fff;border-radius:12px;padding:20px 24px;border:2px solid #4d3d00;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="font-size:28px">🚩</div>
+        <div>
+          <div style="font-size:14px;font-weight:800;color:#4d3d00;letter-spacing:.5px;">Capture The Flag</div>
+          <div style="font-size:12px;color:#555;margin-top:2px;">12 real-world puzzles across 4 incident scenarios — 600 pts total</div>
+        </div>
+      </div>
+      <a href="MCCoE_CTF.html?name=${encodeURIComponent(s.name)}&id=${encodeURIComponent(s.tempId||s.name)}" target="_blank"
+         style="background:#4d3d00;color:#ffd700;font-size:12px;font-weight:800;padding:10px 22px;border-radius:6px;text-decoration:none;letter-spacing:.5px;white-space:nowrap;box-shadow:0 2px 6px rgba(77,61,0,.4);transition:all .2s;border:1px solid #8a6e00;"
+         onmouseover="this.style.background='#332900'" onmouseout="this.style.background='#4d3d00'">
+        🚩 START CTF
+      </a>
+    </div>
+
     ${renderGamePanel()}
 
     <!-- STAT CARDS -->

