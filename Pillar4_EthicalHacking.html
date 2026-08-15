@@ -175,6 +175,11 @@ footer strong{color:var(--green)}
 
 @media(max-width:700px){.phase-banner{flex-direction:column;text-align:center}.phase-nav{gap:6px}.phase-btn{font-size:8px;padding:8px 12px}.rubric-hdr,.rubric-row,.total-row{grid-template-columns:1fr;gap:4px}}
 
+/* SAMPLE DELIVERABLE BOX */
+.sample-box{background:rgba(0,245,255,0.03);border:1px dashed rgba(0,245,255,0.22);border-radius:8px;padding:16px;margin-top:10px}
+.sample-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:2px;margin-bottom:10px}
+.sample-item{font-size:12px;color:rgba(180,240,255,0.65);line-height:1.65;margin-bottom:7px;padding-left:14px;border-left:2px solid rgba(0,245,255,0.22)}
+
 /* FIREBASE PROGRESS */
 .mark-btn{display:inline-flex;align-items:center;gap:8px;padding:11px 28px;border-radius:6px;font-family:'Orbitron',monospace;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;border:2px solid rgba(0,255,65,0.5);background:rgba(0,255,65,0.06);color:var(--green);cursor:pointer;transition:all .2s;margin:8px 6px}
 .mark-btn:hover{background:rgba(0,255,65,0.22);box-shadow:var(--glow-green)}
@@ -280,6 +285,18 @@ footer strong{color:var(--green)}
     </div>
 
     <div class="sec-card">
+      <div class="sec-title">⚠ Legal &amp; Ethical Boundaries — Read Before You Start</div>
+      <div class="legal-box">
+        <div class="legal-item">You may NEVER scan, probe, or exploit any system without explicit written permission</div>
+        <div class="legal-item">You may NEVER use these tools on school, workplace, or public networks without authorization</div>
+        <div class="legal-item">ALWAYS use <a href="https://tryhackme.com" target="_blank" style="color:#ffb700;">TryHackMe</a> or <a href="https://hackthebox.com" target="_blank" style="color:#ffb700;">HackTheBox</a> authorized machines — or your own isolated VirtualBox VM</div>
+        <div class="legal-item">ALWAYS document your authorization before beginning any real-world penetration test</div>
+        <div class="legal-item">Report every vulnerability you find — withholding findings is unethical and potentially illegal</div>
+        <div class="legal-item">Responsible disclosure: if you find a real vulnerability, report it to the organization privately — not on social media</div>
+      </div>
+    </div>
+
+    <div class="sec-card">
       <div class="sec-title">Passive vs. Active Recon</div>
       <table class="data-table">
         <tr><th>Type</th><th>Description</th><th>Detection Risk</th></tr>
@@ -313,11 +330,17 @@ footer strong{color:var(--green)}
       <div class="sec-title">Exercise 1 — OSINT Challenge</div>
       <div class="exercise-box">
         <div class="exercise-label">🎯 Objective: Build an intelligence profile using public sources only</div>
-        <div class="step"><span class="step-num">01</span><span>Go to <strong>tryhackme.com</strong> — create a free account if you haven't already</span></div>
-        <div class="step"><span class="step-num">02</span><span>Complete the <strong>"Passive Recon"</strong> room or the <strong>"OSINT"</strong> room (both free)</span></div>
-        <div class="step"><span class="step-num">03</span><span>Practice Google Dorking: use the <strong>site:</strong> and <strong>filetype:</strong> operators on the TryHackMe practice target</span></div>
-        <div class="step"><span class="step-num">04</span><span>Use <strong>who.is</strong> to look up a domain and examine what registration records reveal</span></div>
-        <div class="step"><span class="step-num">05</span><span>Search <strong>Shodan free tier</strong> for a publicly known vulnerable device type</span></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option A — TryHackMe (Beginner Recommended)</div>
+        <div class="step"><span class="step-num">01</span><span>Create a free account at <a href="https://tryhackme.com" target="_blank" style="color:var(--green);">tryhackme.com</a></span></div>
+        <div class="step"><span class="step-num">02</span><span>Complete the <a href="https://tryhackme.com/room/passiverecon" target="_blank" style="color:var(--green);"><strong>"Passive Recon"</strong></a> room or the <a href="https://tryhackme.com/room/ohsint" target="_blank" style="color:var(--green);"><strong>"OhSINT"</strong></a> room (both free)</span></div>
+        <div class="step"><span class="step-num">03</span><span>Practice Google Dorking: use the <strong>site:</strong> and <strong>filetype:</strong> operators to surface exposed files or login pages</span></div>
+        <div class="step"><span class="step-num">04</span><span>Use <a href="https://who.is" target="_blank" style="color:var(--green);"><strong>who.is</strong></a> to look up a domain and examine registration records</span></div>
+        <div class="step"><span class="step-num">05</span><span>Search <a href="https://www.shodan.io" target="_blank" style="color:var(--green);"><strong>Shodan</strong></a> (free tier) for a publicly known vulnerable device type</span></div>
+        <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option B — HackTheBox Starting Point</div>
+        <div class="step"><span class="step-num">06</span><span>Create a free account at <a href="https://hackthebox.com" target="_blank" style="color:var(--green);">hackthebox.com</a></span></div>
+        <div class="step"><span class="step-num">07</span><span>Navigate to <strong>Starting Point → Tier 0</strong> and complete the <strong>"Meow"</strong> machine — guided walkthrough included</span></div>
+        <div class="step"><span class="step-num">08</span><span>Read the walkthrough questions carefully — they teach you what information to gather during recon</span></div>
       </div>
       <div class="deliv-box">
         <div class="deliv-label">📋 DELIVERABLE — OSINT REPORT</div>
@@ -326,6 +349,14 @@ footer strong{color:var(--green)}
         <div class="deliv-item">Technology Stack — software or platforms identified from job postings or page metadata</div>
         <div class="deliv-item">Exposed Assets — files, login pages, or devices found via Dorking or Shodan</div>
         <div class="deliv-item">Attack Surface Summary — one paragraph: which findings pose the highest risk and why</div>
+      </div>
+      <div class="sample-box">
+        <div class="sample-label">📝 SAMPLE SUBMISSION — OSINT REPORT</div>
+        <div class="sample-item"><strong>Target:</strong> TryHackMe OhSINT target — "OWoodflint" persona</div>
+        <div class="sample-item"><strong>Employee Intel:</strong> Found Twitter handle @OWoodflint via Google search. LinkedIn showed job title "Software Developer" at a UK firm. GitHub profile revealed real name Oliver Woodflint.</div>
+        <div class="sample-item"><strong>Technology Stack:</strong> WordPress blog identified via page source meta tag. BSSID found in Wigle.net — geolocated to New York City area.</div>
+        <div class="sample-item"><strong>Exposed Asset:</strong> Personal email address found in a public GitHub commit (owoodflint@gmail.com). Password hint found in WordPress blog HTML source.</div>
+        <div class="sample-item"><strong>Attack Surface Summary:</strong> The target's OSINT footprint is extremely high. A real attacker could launch a targeted phishing campaign using the email, craft a convincing spear-phishing message referencing the target's employer, and attempt credential stuffing using the GitHub password hint. Highest risk: exposed email combined with reused password patterns.</div>
       </div>
     </div>
 
@@ -387,15 +418,22 @@ footer strong{color:var(--green)}
       <div class="sec-title">Exercise 2 — Nmap Scanning Lab</div>
       <div class="warn-box">
         <div class="warn-label">⚠ LEGAL REQUIREMENT</div>
-        <div class="warn-text">Only scan systems you own or have explicit written permission to scan. All practice must use TryHackMe authorized targets or your own isolated VirtualBox VM. Unauthorized scanning violates federal law.</div>
+        <div class="warn-text">Only scan systems you own or have explicit written permission to scan. All practice must use <a href="https://tryhackme.com" target="_blank" style="color:#ffb700;">TryHackMe</a>, <a href="https://hackthebox.com" target="_blank" style="color:#ffb700;">HackTheBox</a>, or your own isolated VirtualBox VM. Unauthorized scanning violates federal law.</div>
       </div>
       <div class="exercise-box" style="margin-top:14px">
         <div class="exercise-label">🎯 Objective: Scan an authorized target and produce a vulnerability findings report</div>
-        <div class="step"><span class="step-num">01</span><span>TryHackMe: complete the <strong>"Nmap"</strong> room — free and fully guided with authorized targets</span></div>
-        <div class="step"><span class="step-num">02</span><span>Advanced: use your <strong>Metasploitable2 VM</strong> running on a host-only isolated network in VirtualBox</span></div>
-        <div class="step"><span class="step-num">03</span><span>Run a full version and OS detection scan against the target</span></div>
-        <div class="step"><span class="step-num">04</span><span>For each open port, search <strong>nvd.nist.gov</strong> to check whether a CVE exists for that service version</span></div>
-        <div class="step"><span class="step-num">05</span><span>Rate each finding using its CVSS score: Critical, High, Medium, or Low</span></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option A — TryHackMe</div>
+        <div class="step"><span class="step-num">01</span><span>Complete the <a href="https://tryhackme.com/room/furthernmap" target="_blank" style="color:var(--green);"><strong>"Further Nmap"</strong></a> room — free, fully guided, authorized targets</span></div>
+        <div class="step"><span class="step-num">02</span><span>Also try the <a href="https://tryhackme.com/room/nmap01" target="_blank" style="color:var(--green);"><strong>"Nmap Live Host Discovery"</strong></a> room for deeper scanning techniques</span></div>
+        <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option B — HackTheBox Starting Point</div>
+        <div class="step"><span class="step-num">03</span><span>Complete <strong>"Fawn"</strong> (Tier 0) — Nmap scan reveals an open FTP port; guided questions teach you to interpret scan output</span></div>
+        <div class="step"><span class="step-num">04</span><span>Complete <strong>"Dancing"</strong> (Tier 0) — Nmap scan of SMB ports (445/TCP); identify the service and enumerate shares</span></div>
+        <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option C — Metasploitable2 Local VM (Advanced)</div>
+        <div class="step"><span class="step-num">05</span><span>Run a full version and OS detection scan against your <strong>Metasploitable2 VM</strong> (host-only network only)</span></div>
+        <div class="step"><span class="step-num">06</span><span>For each open port, search <a href="https://nvd.nist.gov/vuln/search" target="_blank" style="color:var(--green);"><strong>nvd.nist.gov</strong></a> to check whether a CVE exists for that version</span></div>
+        <div class="step"><span class="step-num">07</span><span>Rate each finding using its CVSS score: Critical, High, Medium, or Low</span></div>
       </div>
       <div class="deliv-box">
         <div class="deliv-label">📋 DELIVERABLE — SCANNING REPORT TABLE</div>
@@ -405,6 +443,14 @@ footer strong{color:var(--green)}
         <div class="deliv-item">CVSS Score — severity score from 0 to 10</div>
         <div class="deliv-item">Risk Rating — Critical, High, Medium, or Low</div>
         <div class="deliv-item">Recommended Fix — patch, disable, or reconfigure</div>
+      </div>
+      <div class="sample-box">
+        <div class="sample-label">📝 SAMPLE SUBMISSION — SCANNING REPORT</div>
+        <div class="sample-item"><strong>21/TCP</strong> — vsftpd 2.3.4 — CVE-2011-2523 — CVSS 10.0 — CRITICAL — Patch immediately: upgrade to vsftpd 3.0+</div>
+        <div class="sample-item"><strong>22/TCP</strong> — OpenSSH 4.7p1 — CVE-2008-0166 — CVSS 7.8 — HIGH — Replace with OpenSSH 8.9+; disable weak key algorithms</div>
+        <div class="sample-item"><strong>80/TCP</strong> — Apache 2.2.8 — CVE-2017-7679 — CVSS 9.8 — CRITICAL — Upgrade to Apache 2.4.54+; disable mod_mime</div>
+        <div class="sample-item"><strong>445/TCP</strong> — Samba 3.0.20 — CVE-2007-2447 — CVSS 10.0 — CRITICAL — Upgrade Samba immediately; restrict SMB access by firewall</div>
+        <div class="sample-item"><strong>3306/TCP</strong> — MySQL 5.0.51a — CVE-2008-0226 — CVSS 7.5 — HIGH — Patch to MySQL 8.0+; disable remote root login</div>
       </div>
     </div>
 
@@ -466,15 +512,19 @@ footer strong{color:var(--green)}
       <div class="sec-title">Exercise 3 — Exploitation Lab</div>
       <div class="exercise-box">
         <div class="exercise-label">🎯 Objective: Exploit a known vulnerability on an authorized target</div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option A — TryHackMe (Recommended for beginners)</div>
-        <div class="step"><span class="step-num">01</span><span>Complete the <strong>"Basic Pentesting"</strong> room at tryhackme.com — free, fully guided, authorized</span></div>
-        <div class="step"><span class="step-num">02</span><span>Complete the <strong>"OWASP Top 10"</strong> room for hands-on web application exploitation practice</span></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option A — TryHackMe (Beginner Recommended)</div>
+        <div class="step"><span class="step-num">01</span><span>Complete the <a href="https://tryhackme.com/room/basicpentestingjt" target="_blank" style="color:var(--green);"><strong>"Basic Pentesting"</strong></a> room — free, fully guided, authorized</span></div>
+        <div class="step"><span class="step-num">02</span><span>Complete the <a href="https://tryhackme.com/room/owasptop10" target="_blank" style="color:var(--green);"><strong>"OWASP Top 10"</strong></a> room for hands-on web application exploitation</span></div>
         <div class="step"><span class="step-num">03</span><span>Document every step — what you tried, what succeeded, and what failed, with screenshots</span></div>
-        <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0 14px;"></div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option B — Metasploitable2 Local VM (Advanced)</div>
-        <div class="step"><span class="step-num">04</span><span>Download <strong>Metasploitable2</strong> — run ONLY in VirtualBox on a host-only isolated network</span></div>
-        <div class="step"><span class="step-num">05</span><span>Launch the Metasploit console and select the <strong>vsftpd 2.3.4 backdoor</strong> exploit module</span></div>
-        <div class="step"><span class="step-num">06</span><span>Set the target IP address and run the exploit — document the full module name and CVE number</span></div>
+        <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option B — HackTheBox Starting Point</div>
+        <div class="step"><span class="step-num">04</span><span>Complete <strong>"Appointment"</strong> (Tier 1) — SQL injection exploitation against a login form; no Metasploit needed</span></div>
+        <div class="step"><span class="step-num">05</span><span>Complete <strong>"Sequel"</strong> (Tier 1) — MySQL exploitation with unauthenticated access; practice extracting database content</span></div>
+        <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option C — Metasploitable2 Local VM (Advanced)</div>
+        <div class="step"><span class="step-num">06</span><span>Download <strong>Metasploitable2</strong> — run ONLY in VirtualBox on a host-only isolated network</span></div>
+        <div class="step"><span class="step-num">07</span><span>Launch the Metasploit console and select the <strong>vsftpd 2.3.4 backdoor</strong> exploit module (CVE-2011-2523)</span></div>
+        <div class="step"><span class="step-num">08</span><span>Set the target IP address and run the exploit — document the full module name and CVE number</span></div>
       </div>
       <div class="deliv-box">
         <div class="deliv-label">📋 DELIVERABLE</div>
@@ -482,6 +532,13 @@ footer strong{color:var(--green)}
         <div class="deliv-item">Exploit used: name, CVE number, and plain-English explanation of the vulnerability</div>
         <div class="deliv-item">Access level gained: standard user, root, or administrator</div>
         <div class="deliv-item">One paragraph: what could a real attacker accomplish with this level of access?</div>
+      </div>
+      <div class="sample-box">
+        <div class="sample-label">📝 SAMPLE SUBMISSION — EXPLOITATION</div>
+        <div class="sample-item"><strong>Platform:</strong> TryHackMe — "Basic Pentesting" room</div>
+        <div class="sample-item"><strong>Exploit Used:</strong> SSH brute-force via Hydra against port 22. Username discovered from SMB enumeration (enum4linux). CVE: N/A — weak credential, not a software vulnerability.</div>
+        <div class="sample-item"><strong>Access Gained:</strong> Standard user shell as "jan". Ran "whoami" — output: jan. Ran "id" — output: uid=1000(jan) gid=1000(jan) groups=1000(jan).</div>
+        <div class="sample-item"><strong>Impact Analysis:</strong> A real attacker with this access level could read all files owned by the jan account, attempt privilege escalation to root, enumerate running services, and establish persistence via a cron job or SSH key. The weak password (123456) on an internet-facing SSH port would be discovered by an automated scanner within minutes of deployment.</div>
       </div>
     </div>
 
@@ -531,11 +588,18 @@ footer strong{color:var(--green)}
       <div class="sec-title">Exercise 4 — Post-Exploitation Lab</div>
       <div class="exercise-box">
         <div class="exercise-label">🎯 Objective: Demonstrate 2+ post-exploitation techniques from Exercise 3 access</div>
-        <div class="step"><span class="step-num">01</span><span>From your active session in Exercise 3, identify your current user account and exact permission level</span></div>
-        <div class="step"><span class="step-num">02</span><span>Attempt privilege escalation — use the Metasploit getsystem command or check available sudo permissions in Linux</span></div>
-        <div class="step"><span class="step-num">03</span><span>Enumerate the local network from inside the host — look for other IP addresses and running services</span></div>
-        <div class="step"><span class="step-num">04</span><span>Search for stored credentials or password hashes using the Metasploit hashdump module</span></div>
-        <div class="step"><span class="step-num">05</span><span>TryHackMe option: complete the <strong>"Post-Exploitation Basics"</strong> room for guided practice</span></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option A — TryHackMe</div>
+        <div class="step"><span class="step-num">01</span><span>Complete the <a href="https://tryhackme.com/room/postexploit" target="_blank" style="color:var(--green);"><strong>"Post-Exploitation Basics"</strong></a> room — covers hashdump, Mimikatz, persistence techniques</span></div>
+        <div class="step"><span class="step-num">02</span><span>Complete the <a href="https://tryhackme.com/room/linprivesc" target="_blank" style="color:var(--green);"><strong>"Linux Privilege Escalation"</strong></a> room for escalation techniques on Linux targets</span></div>
+        <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option B — HackTheBox</div>
+        <div class="step"><span class="step-num">03</span><span>Complete <a href="https://app.hackthebox.com/machines/Blue" target="_blank" style="color:var(--green);"><strong>"Blue"</strong></a> — EternalBlue (MS17-010) exploitation; post-exploit to dump hashes and escalate to SYSTEM</span></div>
+        <div class="step"><span class="step-num">04</span><span>Complete <strong>"Unified"</strong> (Starting Point Tier 2) — demonstrates persistence via a planted SSH key after initial access</span></div>
+        <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option C — From Exercise 3 Session (Advanced)</div>
+        <div class="step"><span class="step-num">05</span><span>From your active session, run <strong>whoami</strong> and <strong>id</strong> — document your current user and permission level exactly</span></div>
+        <div class="step"><span class="step-num">06</span><span>Attempt privilege escalation — Metasploit <strong>getsystem</strong> or check <strong>sudo -l</strong> for available sudo permissions</span></div>
+        <div class="step"><span class="step-num">07</span><span>Search for stored credentials using the Metasploit <strong>hashdump</strong> module — document only, do not crack</span></div>
       </div>
       <div class="deliv-box">
         <div class="deliv-label">📋 DELIVERABLE</div>
@@ -544,6 +608,14 @@ footer strong{color:var(--green)}
         <div class="deliv-item">Network Discovery — what other hosts or services were visible from inside the system?</div>
         <div class="deliv-item">Credentials Found — any usernames or hashes discovered (document only — do not crack)</div>
         <div class="deliv-item">Persistence Plan — what method would a real attacker use to guarantee return access? Describe it.</div>
+      </div>
+      <div class="sample-box">
+        <div class="sample-label">📝 SAMPLE SUBMISSION — POST-EXPLOITATION</div>
+        <div class="sample-item"><strong>Initial Access:</strong> Standard user "jan" via SSH brute-force. uid=1000, no sudo permissions initially.</div>
+        <div class="sample-item"><strong>Privilege Escalation:</strong> Ran "sudo -l" — discovered jan can run /bin/cat as root with no password. Used this to read /etc/shadow and retrieve root password hash. Escalated to root using the cracked hash. Final level: root (uid=0).</div>
+        <div class="sample-item"><strong>Network Discovery:</strong> Ran "arp -a" from root shell — found 3 additional hosts on 192.168.1.0/24. Identified a Windows host at 192.168.1.50 running SMB on port 445.</div>
+        <div class="sample-item"><strong>Credentials Found:</strong> /etc/shadow retrieved — 4 password hashes documented. Not cracked. Hashes saved to notes for reporting only.</div>
+        <div class="sample-item"><strong>Persistence Plan:</strong> A real attacker would add an SSH public key to /root/.ssh/authorized_keys for keyless re-entry. This method survives password changes and persists across reboots with no new open ports or services that would trigger alerts.</div>
       </div>
     </div>
 
@@ -598,11 +670,12 @@ footer strong{color:var(--green)}
       <div class="sec-title">Exercise 5 — Write Your Pentest Report</div>
       <div class="exercise-box">
         <div class="exercise-label">🎯 Objective: Turn Exercises 1–4 into a professional client-ready report</div>
-        <div class="step"><span class="step-num">01</span><span>Use the <strong>MCCoE Executive Summary Template</strong> as your starting document</span></div>
+        <div class="step"><span class="step-num">01</span><span>Use the <strong>MCCoE Executive Summary Template</strong> as your starting document (download below)</span></div>
         <div class="step"><span class="step-num">02</span><span>Write an Executive Summary — one page maximum, readable by a non-technical executive in two minutes</span></div>
         <div class="step"><span class="step-num">03</span><span>Create a Findings Summary Table ranking all vulnerabilities you discovered with severity ratings</span></div>
         <div class="step"><span class="step-num">04</span><span>Write a Detailed Finding for your highest-severity vulnerability: description, screenshot, CVSS score, business impact, and step-by-step remediation</span></div>
         <div class="step"><span class="step-num">05</span><span>Close with a prioritized Recommendations section — most critical fixes first</span></div>
+        <div class="step"><span class="step-num">06</span><span>Reference <a href="https://tryhackme.com/room/wreath" target="_blank" style="color:var(--green);"><strong>TryHackMe "Wreath"</strong></a> or <a href="https://tryhackme.com/room/reportwriting" target="_blank" style="color:var(--green);"><strong>"Report Writing for Pentesters"</strong></a> for professional report structure guidance</span></div>
       </div>
       <div class="rubric-card" style="margin-top:16px">
         <div class="rubric-hdr"><span>CRITERIA</span><span>FULL CREDIT</span><span>PARTIAL</span><span>POINTS</span></div>
@@ -612,6 +685,18 @@ footer strong{color:var(--green)}
         <div class="rubric-row"><span>Detailed Finding</span><span>Description, proof, impact, remediation</span><span>Missing one element</span><span class="points-badge">20</span></div>
         <div class="rubric-row"><span>Recommendations</span><span>Prioritized and actionable</span><span>Generic or unordered</span><span class="points-badge">15</span></div>
         <div class="total-row"><span>TOTAL</span><span></span><span></span><span>100 pts</span></div>
+      </div>
+      <div class="sample-box" style="margin-top:14px">
+        <div class="sample-label">📝 SAMPLE — EXECUTIVE SUMMARY PARAGRAPH</div>
+        <div class="sample-item"><strong>Overall Risk Rating: HIGH</strong></div>
+        <div class="sample-item">On August 14, 2026, an authorized penetration test was conducted against the Metasploitable2 training environment. Testing covered all five phases of a standard penetration test. Five vulnerabilities were discovered: two rated Critical, two High, and one Medium. The most severe finding was CVE-2011-2523 (vsftpd 2.3.4 backdoor) — a remotely exploitable vulnerability requiring no authentication that resulted in full root-level system access. An attacker exploiting this flaw would have complete control of the server and all data stored on it. Immediate patching of all Critical and High findings is strongly recommended before this system is connected to any production or campus network.</div>
+        <div class="sample-label" style="margin-top:12px">📝 SAMPLE — DETAILED FINDING ENTRY</div>
+        <div class="sample-item"><strong>Finding:</strong> vsftpd 2.3.4 Backdoor Command Execution</div>
+        <div class="sample-item"><strong>CVE:</strong> CVE-2011-2523 | <strong>CVSS Score:</strong> 10.0 | <strong>Severity:</strong> CRITICAL</div>
+        <div class="sample-item"><strong>Description:</strong> vsftpd version 2.3.4 contains a deliberately planted backdoor. When a username containing a smiley face string ":)" is sent, the server opens a command shell on port 6200. No password is required.</div>
+        <div class="sample-item"><strong>Evidence:</strong> [Screenshot of Metasploit session output showing root shell — see Appendix A]</div>
+        <div class="sample-item"><strong>Business Impact:</strong> Full root access to the server. An attacker could exfiltrate all data, install ransomware, pivot to other systems, or destroy the host entirely.</div>
+        <div class="sample-item"><strong>Remediation:</strong> Immediately upgrade vsftpd to version 3.0.5 or later. Verify package integrity before deployment. Block port 6200 at the firewall as a secondary control.</div>
       </div>
     </div>
 
@@ -667,6 +752,43 @@ footer strong{color:var(--green)}
           <span class="room-diff diff-beginner">BEGINNER</span>
           <div class="room-phases">Phases: 2, 3, 4</div>
           <div class="room-note">Experience the exact MS17-010 exploit used in the WannaCry ransomware attack.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-title">HackTheBox — Recommended Machines</div>
+      <div style="margin-bottom:12px;font-size:13px;color:var(--muted)">Create a free account at <a href="https://hackthebox.com" target="_blank" style="color:var(--green);">hackthebox.com</a> · Starting Point machines are fully guided and free</div>
+      <div class="room-grid">
+        <div class="room-card">
+          <div class="room-name">Meow / Fawn / Dancing</div>
+          <span class="room-diff diff-beginner">STARTING POINT</span>
+          <div class="room-phases">Phases: 1, 2</div>
+          <div class="room-note">Tier 0 guided machines. Teaches Telnet, FTP, and SMB scanning from scratch — perfect first HTB experience.</div>
+        </div>
+        <div class="room-card">
+          <div class="room-name">Appointment / Sequel</div>
+          <span class="room-diff diff-beginner">STARTING POINT</span>
+          <div class="room-phases">Phases: 2, 3</div>
+          <div class="room-note">Tier 1 machines covering SQL injection exploitation — no Metasploit needed. Great web app intro.</div>
+        </div>
+        <div class="room-card">
+          <div class="room-name">Blue (MS17-010)</div>
+          <span class="room-diff diff-beginner">BEGINNER</span>
+          <div class="room-phases">Phases: 2, 3, 4, 5</div>
+          <div class="room-note">EternalBlue exploit. Nmap scan → Metasploit exploit → hashdump → full report. All 5 phases in one machine.</div>
+        </div>
+        <div class="room-card">
+          <div class="room-name">Legacy</div>
+          <span class="room-diff diff-beginner">BEGINNER</span>
+          <div class="room-phases">Phases: 1, 2, 3, 5</div>
+          <div class="room-note">Classic Windows SMB vulnerabilities (MS08-067). Excellent for capstone — clear attack path and report structure.</div>
+        </div>
+        <div class="room-card">
+          <div class="room-name">Lame</div>
+          <span class="room-diff diff-beginner">BEGINNER</span>
+          <div class="room-phases">Phases: 2, 3, 4, 5</div>
+          <div class="room-note">Samba 3.0.20 exploit (CVE-2007-2447). Instant root via Metasploit. Great for practicing post-exploitation documentation.</div>
         </div>
       </div>
     </div>
