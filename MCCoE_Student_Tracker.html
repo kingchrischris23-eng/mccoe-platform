@@ -1822,9 +1822,11 @@ function loadPentestScores() {
         <div style="font-size:.7rem;color:rgba(200,216,232,0.5);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">${lbl}</div>
       </div>`).join('');
 
-    const phaseCheck = val => val
-      ? '<span style="color:#00ff41;font-weight:700;">✓</span>'
-      : '<span style="color:rgba(200,216,232,0.2);">○</span>';
+    const phaseCheck = (done, link) => {
+      if (done && link) return `<a href="${link}" target="_blank" title="View submission" style="color:#00ff41;font-weight:700;text-decoration:none;">✓🔗</a>`;
+      if (done)         return '<span style="color:#00ff41;font-weight:700;">✓</span>';
+      return '<span style="color:rgba(200,216,232,0.2);">○</span>';
+    };
 
     wrap.innerHTML = `
       <div style="overflow-x:auto;">
@@ -1849,7 +1851,7 @@ function loadPentestScores() {
                 <div style="font-weight:900;color:#00ff41;font-size:.95rem;">${done}/6</div>
                 <div style="height:3px;background:rgba(0,255,65,.1);border-radius:2px;margin-top:4px;"><div style="height:3px;background:#00ff41;border-radius:2px;width:${barW}%;"></div></div>
               </td>
-              ${[0,1,2,3,4,5].map(idx => `<td style="padding:10px 8px;text-align:center;">${phaseCheck(r['phase'+idx])}</td>`).join('')}
+              ${[0,1,2,3,4,5].map(idx => `<td style="padding:10px 8px;text-align:center;">${phaseCheck(r['phase'+idx], r['phase'+idx+'_link'])}</td>`).join('')}
               <td style="padding:10px 8px;color:rgba(200,216,232,0.5);">${la}</td>
             </tr>`;
           }).join('')}

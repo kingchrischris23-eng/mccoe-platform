@@ -175,6 +175,17 @@ footer strong{color:var(--green)}
 
 @media(max-width:700px){.phase-banner{flex-direction:column;text-align:center}.phase-nav{gap:6px}.phase-btn{font-size:8px;padding:8px 12px}.rubric-hdr,.rubric-row,.total-row{grid-template-columns:1fr;gap:4px}}
 
+/* SUBMISSION LINK FIELD */
+.submit-wrap{margin:18px 0 6px;background:rgba(0,255,65,0.04);border:1px solid rgba(0,255,65,0.25);border-radius:8px;padding:16px}
+.submit-wrap-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);letter-spacing:2px;margin-bottom:10px}
+.submit-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.submit-input{flex:1;min-width:220px;background:rgba(0,0,0,0.4);border:1px solid rgba(0,255,65,0.35);border-radius:6px;padding:10px 14px;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--green);outline:none;transition:border .2s}
+.submit-input:focus{border-color:var(--green);box-shadow:0 0 8px rgba(0,255,65,0.2)}
+.submit-input::placeholder{color:rgba(0,255,65,0.3)}
+.submit-input:disabled{opacity:.6;cursor:default}
+.saved-link-box{margin-top:10px;font-family:'Share Tech Mono',monospace;font-size:11px}
+.saved-link-box a{color:var(--cyan);word-break:break-all;text-decoration:underline}
+
 /* SAMPLE DELIVERABLE BOX */
 .sample-box{background:rgba(0,245,255,0.03);border:1px dashed rgba(0,245,255,0.22);border-radius:8px;padding:16px;margin-top:10px}
 .sample-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:2px;margin-bottom:10px}
@@ -360,8 +371,15 @@ footer strong{color:var(--green)}
       </div>
     </div>
 
-    <div style="text-align:center;margin-top:18px">
-      <button class="mark-btn" id="mark0" onclick="markPhaseComplete(0)">✓ &nbsp; Mark Recon Complete</button>
+    <div class="submit-wrap">
+      <div class="submit-wrap-label">📎 SUBMIT YOUR DELIVERABLE LINK — REQUIRED BEFORE MARKING COMPLETE</div>
+      <div class="submit-row">
+        <input class="submit-input" id="link0" type="url" placeholder="Paste your Google Doc, GitHub, or Drive link here..." oninput="toggleMarkBtn(0)"/>
+      </div>
+      <div class="saved-link-box" id="saved-link0" style="display:none"></div>
+    </div>
+    <div style="text-align:center;margin-top:10px">
+      <button class="mark-btn" id="mark0" onclick="markPhaseComplete(0)" disabled>✓ &nbsp; Mark Recon Complete</button>
       <span class="done-badge" id="done0" style="display:none">✓ Phase 1 Saved!</span>
     </div>
     <div style="text-align:center;margin-top:10px">
@@ -454,8 +472,15 @@ footer strong{color:var(--green)}
       </div>
     </div>
 
-    <div style="text-align:center;margin-top:18px">
-      <button class="mark-btn" id="mark1" onclick="markPhaseComplete(1)">✓ &nbsp; Mark Scanning Complete</button>
+    <div class="submit-wrap">
+      <div class="submit-wrap-label">📎 SUBMIT YOUR DELIVERABLE LINK — REQUIRED BEFORE MARKING COMPLETE</div>
+      <div class="submit-row">
+        <input class="submit-input" id="link1" type="url" placeholder="Paste your Google Doc, GitHub, or Drive link here..." oninput="toggleMarkBtn(1)"/>
+      </div>
+      <div class="saved-link-box" id="saved-link1" style="display:none"></div>
+    </div>
+    <div style="text-align:center;margin-top:10px">
+      <button class="mark-btn" id="mark1" onclick="markPhaseComplete(1)" disabled>✓ &nbsp; Mark Scanning Complete</button>
       <span class="done-badge" id="done1" style="display:none">✓ Phase 2 Saved!</span>
     </div>
     <div style="text-align:center;margin-top:10px">
@@ -542,8 +567,15 @@ footer strong{color:var(--green)}
       </div>
     </div>
 
-    <div style="text-align:center;margin-top:18px">
-      <button class="mark-btn" id="mark2" onclick="markPhaseComplete(2)">✓ &nbsp; Mark Exploitation Complete</button>
+    <div class="submit-wrap">
+      <div class="submit-wrap-label">📎 SUBMIT YOUR DELIVERABLE LINK — REQUIRED BEFORE MARKING COMPLETE</div>
+      <div class="submit-row">
+        <input class="submit-input" id="link2" type="url" placeholder="Paste your Google Doc, GitHub, or Drive link here..." oninput="toggleMarkBtn(2)"/>
+      </div>
+      <div class="saved-link-box" id="saved-link2" style="display:none"></div>
+    </div>
+    <div style="text-align:center;margin-top:10px">
+      <button class="mark-btn" id="mark2" onclick="markPhaseComplete(2)" disabled>✓ &nbsp; Mark Exploitation Complete</button>
       <span class="done-badge" id="done2" style="display:none">✓ Phase 3 Saved!</span>
     </div>
     <div style="text-align:center;margin-top:10px">
@@ -619,8 +651,15 @@ footer strong{color:var(--green)}
       </div>
     </div>
 
-    <div style="text-align:center;margin-top:18px">
-      <button class="mark-btn" id="mark3" onclick="markPhaseComplete(3)">✓ &nbsp; Mark Persistence Complete</button>
+    <div class="submit-wrap">
+      <div class="submit-wrap-label">📎 SUBMIT YOUR DELIVERABLE LINK — REQUIRED BEFORE MARKING COMPLETE</div>
+      <div class="submit-row">
+        <input class="submit-input" id="link3" type="url" placeholder="Paste your Google Doc, GitHub, or Drive link here..." oninput="toggleMarkBtn(3)"/>
+      </div>
+      <div class="saved-link-box" id="saved-link3" style="display:none"></div>
+    </div>
+    <div style="text-align:center;margin-top:10px">
+      <button class="mark-btn" id="mark3" onclick="markPhaseComplete(3)" disabled>✓ &nbsp; Mark Persistence Complete</button>
       <span class="done-badge" id="done3" style="display:none">✓ Phase 4 Saved!</span>
     </div>
     <div style="text-align:center;margin-top:10px">
@@ -700,8 +739,15 @@ footer strong{color:var(--green)}
       </div>
     </div>
 
-    <div style="text-align:center;margin-top:18px">
-      <button class="mark-btn" id="mark4" onclick="markPhaseComplete(4)">✓ &nbsp; Mark Reporting Complete</button>
+    <div class="submit-wrap">
+      <div class="submit-wrap-label">📎 SUBMIT YOUR PENTEST REPORT LINK — REQUIRED BEFORE MARKING COMPLETE</div>
+      <div class="submit-row">
+        <input class="submit-input" id="link4" type="url" placeholder="Paste your Google Doc, GitHub, or Drive link here..." oninput="toggleMarkBtn(4)"/>
+      </div>
+      <div class="saved-link-box" id="saved-link4" style="display:none"></div>
+    </div>
+    <div style="text-align:center;margin-top:10px">
+      <button class="mark-btn" id="mark4" onclick="markPhaseComplete(4)" disabled>✓ &nbsp; Mark Reporting Complete</button>
       <span class="done-badge" id="done4" style="display:none">✓ Phase 5 Saved!</span>
     </div>
     <div style="text-align:center;margin-top:10px">
@@ -837,8 +883,15 @@ footer strong{color:var(--green)}
       </div>
     </div>
 
-    <div style="text-align:center;margin-top:18px">
-      <button class="mark-btn" id="mark5" onclick="markPhaseComplete(5)">🏁 &nbsp; Mark Capstone Complete</button>
+    <div class="submit-wrap">
+      <div class="submit-wrap-label">📎 SUBMIT YOUR CAPSTONE REPORT LINK — REQUIRED BEFORE MARKING COMPLETE</div>
+      <div class="submit-row">
+        <input class="submit-input" id="link5" type="url" placeholder="Paste your Google Doc, GitHub, or Drive link here..." oninput="toggleMarkBtn(5)"/>
+      </div>
+      <div class="saved-link-box" id="saved-link5" style="display:none"></div>
+    </div>
+    <div style="text-align:center;margin-top:10px">
+      <button class="mark-btn" id="mark5" onclick="markPhaseComplete(5)" disabled>🏁 &nbsp; Mark Capstone Complete</button>
       <span class="done-badge" id="done5" style="display:none">✓ Capstone Complete — Lab Finished!</span>
     </div>
     <div style="text-align:center;margin-top:10px">
@@ -913,21 +966,44 @@ function updateProgressUI(currentIdx) {
   }
 }
 
+function toggleMarkBtn(idx) {
+  const input = document.getElementById('link' + idx);
+  const btn   = document.getElementById('mark' + idx);
+  if (!input || !btn) return;
+  btn.disabled = input.value.trim().length < 10;
+}
+
 function markPhaseComplete(idx) {
+  const input = document.getElementById('link' + idx);
+  const link  = input ? input.value.trim() : '';
+  if (link.length < 10) return;
   completed.add(idx);
   const btn  = document.getElementById('mark' + idx);
   const done = document.getElementById('done' + idx);
-  if (btn)  { btn.disabled = true; btn.textContent = '✓  Saved!'; }
-  if (done) done.style.display = 'inline-block';
+  if (btn)   { btn.disabled = true; btn.textContent = '✓  Saved!'; }
+  if (done)  done.style.display = 'inline-block';
+  if (input) { input.disabled = true; }
+  showSavedLink(idx, link);
   const currentActive = Array.from(panels).findIndex(p => p.classList.contains('active'));
   updateProgressUI(currentActive);
   savePentestProgress();
 }
 
+function showSavedLink(idx, link) {
+  const box = document.getElementById('saved-link' + idx);
+  if (!box) return;
+  box.style.display = 'block';
+  box.innerHTML = '✓ Submitted: <a href="' + link + '" target="_blank">' + link + '</a>';
+}
+
 function savePentestProgress() {
   if (!_fbKey) return;
   const data = { name: _studentName, id: _studentId, lastActivity: new Date().toISOString() };
-  for (let i = 0; i < 6; i++) data['phase' + i] = completed.has(i);
+  for (let i = 0; i < 6; i++) {
+    data['phase' + i] = completed.has(i);
+    const input = document.getElementById('link' + i);
+    data['phase' + i + '_link'] = (input && input.value.trim()) ? input.value.trim() : '';
+  }
   data.phasesCompleted = completed.size;
   _db.ref('mccoe_pentest/' + _fbKey).set(data);
 }
@@ -938,12 +1014,21 @@ function loadProgress() {
     const d = snap.val();
     if (d) {
       for (let i = 0; i < 6; i++) {
+        const savedLink = d['phase' + i + '_link'] || '';
+        const input = document.getElementById('link' + i);
+        const btn   = document.getElementById('mark' + i);
+        const done  = document.getElementById('done' + i);
+        if (savedLink && input) {
+          input.value = savedLink;
+          input.disabled = true;
+        }
         if (d['phase' + i]) {
           completed.add(i);
-          const btn  = document.getElementById('mark' + i);
-          const done = document.getElementById('done' + i);
           if (btn)  { btn.disabled = true; btn.textContent = '✓  Saved!'; }
           if (done) done.style.display = 'inline-block';
+          if (savedLink) showSavedLink(i, savedLink);
+        } else if (savedLink) {
+          toggleMarkBtn(i);
         }
       }
     }
