@@ -234,7 +234,7 @@ footer strong{color:var(--green)}
     <span class="gr">Ethical Hacking</span><br/>
     <span class="wh">Hands-On Lab</span>
   </h1>
-  <p class="hero-sub">Work through all 5 phases of a real penetration test using the MCCoE Docker Lab â€” real Nmap scans, real Metasploit sessions, real shells. No external accounts required.</p>
+  <p class="hero-sub">Work through all 5 phases of a real penetration test using Hack The Box -- real Nmap scans, real Metasploit sessions, real shells. No admin rights. No install. Just a browser.</p>
   <div class="hero-divider"></div>
 </section>
 
@@ -469,14 +469,14 @@ footer strong{color:var(--green)}
       <div class="sec-title">Exercise 1 â€” OSINT Challenge</div>
       <div class="exercise-box">
         <div class="exercise-label">ðŸŽ¯ Objective: Build an intelligence profile using public sources only</div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option A â€” TryHackMe (Beginner Recommended)</div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Alternative -- TryHackMe</div>
         <div class="step"><span class="step-num">01</span><span>Create a free account at <a href="https://tryhackme.com" target="_blank" style="color:var(--green);">tryhackme.com</a></span></div>
         <div class="step"><span class="step-num">02</span><span>Complete the <a href="https://tryhackme.com/room/passiverecon" target="_blank" style="color:var(--green);"><strong>"Passive Recon"</strong></a> room or the <a href="https://tryhackme.com/room/ohsint" target="_blank" style="color:var(--green);"><strong>"OhSINT"</strong></a> room (both free)</span></div>
         <div class="step"><span class="step-num">03</span><span>Practice Google Dorking: use the <strong>site:</strong> and <strong>filetype:</strong> operators to surface exposed files or login pages</span></div>
         <div class="step"><span class="step-num">04</span><span>Use <a href="https://who.is" target="_blank" style="color:var(--green);"><strong>who.is</strong></a> to look up a domain and examine registration records</span></div>
         <div class="step"><span class="step-num">05</span><span>Search <a href="https://www.shodan.io" target="_blank" style="color:var(--green);"><strong>Shodan</strong></a> (free tier) for a publicly known vulnerable device type</span></div>
         <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option B â€” HackTheBox Starting Point</div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--green);font-weight:700">&#11042; PRIMARY -- Hack The Box Pwnbox (Use This)</div>
         <div class="step"><span class="step-num">06</span><span>Create a free account at <a href="https://hackthebox.com" target="_blank" style="color:var(--green);">hackthebox.com</a></span></div>
         <div class="step"><span class="step-num">07</span><span>Navigate to <strong>Starting Point â†’ Tier 0</strong> and complete the <strong>"Meow"</strong> machine â€” guided walkthrough included</span></div>
         <div class="step"><span class="step-num">08</span><span>Read the walkthrough questions carefully â€” they teach you what information to gather during recon</span></div>
@@ -568,15 +568,15 @@ footer strong{color:var(--green)}
       </div>
       <div class="exercise-box" style="margin-top:14px">
         <div class="exercise-label">ðŸŽ¯ Objective: Scan an authorized target and produce a vulnerability findings report</div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option A â€” TryHackMe</div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Alternative -- TryHackMe</div>
         <div class="step"><span class="step-num">01</span><span>Complete the <a href="https://tryhackme.com/room/furthernmap" target="_blank" style="color:var(--green);"><strong>"Further Nmap"</strong></a> room â€” free, fully guided, authorized targets</span></div>
         <div class="step"><span class="step-num">02</span><span>Also try the <a href="https://tryhackme.com/room/nmap01" target="_blank" style="color:var(--green);"><strong>"Nmap Live Host Discovery"</strong></a> room for deeper scanning techniques</span></div>
         <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option B â€” HackTheBox Starting Point</div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--green);font-weight:700">&#11042; PRIMARY -- Hack The Box Pwnbox (Use This)</div>
         <div class="step"><span class="step-num">03</span><span>Complete <strong>"Fawn"</strong> (Tier 0) â€” Nmap scan reveals an open FTP port; guided questions teach you to interpret scan output</span></div>
         <div class="step"><span class="step-num">04</span><span>Complete <strong>"Dancing"</strong> (Tier 0) â€” Nmap scan of SMB ports (445/TCP); identify the service and enumerate shares</span></div>
         <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option C â€” Metasploitable2 Local VM (Advanced)</div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:rgba(200,200,200,0.4)">Advanced -- Requires local VM (not available on SOC computers)</div>
         <div class="step"><span class="step-num">05</span><span>Run a full version and OS detection scan against your <strong>Metasploitable2 VM</strong> (host-only network only)</span></div>
         <div class="step"><span class="step-num">06</span><span>For each open port, search <a href="https://nvd.nist.gov/vuln/search" target="_blank" style="color:var(--green);"><strong>nvd.nist.gov</strong></a> to check whether a CVE exists for that version</span></div>
         <div class="step"><span class="step-num">07</span><span>Rate each finding using its CVSS score: Critical, High, Medium, or Low</span></div>
@@ -665,16 +665,16 @@ footer strong{color:var(--green)}
       <div class="sec-title">Exercise 3 â€” Exploitation Lab</div>
       <div class="exercise-box">
         <div class="exercise-label">ðŸŽ¯ Objective: Exploit a known vulnerability on an authorized target</div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option A â€” TryHackMe (Beginner Recommended)</div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Alternative -- TryHackMe</div>
         <div class="step"><span class="step-num">01</span><span>Complete the <a href="https://tryhackme.com/room/basicpentestingjt" target="_blank" style="color:var(--green);"><strong>"Basic Pentesting"</strong></a> room â€” free, fully guided, authorized</span></div>
         <div class="step"><span class="step-num">02</span><span>Complete the <a href="https://tryhackme.com/room/owasptop10" target="_blank" style="color:var(--green);"><strong>"OWASP Top 10"</strong></a> room for hands-on web application exploitation</span></div>
         <div class="step"><span class="step-num">03</span><span>Document every step â€” what you tried, what succeeded, and what failed, with screenshots</span></div>
         <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option B â€” HackTheBox Starting Point</div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--green);font-weight:700">&#11042; PRIMARY -- Hack The Box Pwnbox (Use This)</div>
         <div class="step"><span class="step-num">04</span><span>Complete <strong>"Appointment"</strong> (Tier 1) â€” SQL injection exploitation against a login form; no Metasploit needed</span></div>
         <div class="step"><span class="step-num">05</span><span>Complete <strong>"Sequel"</strong> (Tier 1) â€” MySQL exploitation with unauthenticated access; practice extracting database content</span></div>
         <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option C â€” Metasploitable2 Local VM (Advanced)</div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:rgba(200,200,200,0.4)">Advanced -- Requires local VM (not available on SOC computers)</div>
         <div class="step"><span class="step-num">06</span><span>Download <strong>Metasploitable2</strong> â€” run ONLY in VirtualBox on a host-only isolated network</span></div>
         <div class="step"><span class="step-num">07</span><span>Launch the Metasploit console and select the <strong>vsftpd 2.3.4 backdoor</strong> exploit module (CVE-2011-2523)</span></div>
         <div class="step"><span class="step-num">08</span><span>Set the target IP address and run the exploit â€” document the full module name and CVE number</span></div>
@@ -748,15 +748,15 @@ footer strong{color:var(--green)}
       <div class="sec-title">Exercise 4 â€” Post-Exploitation Lab</div>
       <div class="exercise-box">
         <div class="exercise-label">ðŸŽ¯ Objective: Demonstrate 2+ post-exploitation techniques from Exercise 3 access</div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option A â€” TryHackMe</div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Alternative -- TryHackMe</div>
         <div class="step"><span class="step-num">01</span><span>Complete the <a href="https://tryhackme.com/room/postexploit" target="_blank" style="color:var(--green);"><strong>"Post-Exploitation Basics"</strong></a> room â€” covers hashdump, Mimikatz, persistence techniques</span></div>
         <div class="step"><span class="step-num">02</span><span>Complete the <a href="https://tryhackme.com/room/linprivesc" target="_blank" style="color:var(--green);"><strong>"Linux Privilege Escalation"</strong></a> room for escalation techniques on Linux targets</span></div>
         <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option B â€” HackTheBox</div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--green);font-weight:700">&#11042; PRIMARY -- Hack The Box Pwnbox (Use This)</div>
         <div class="step"><span class="step-num">03</span><span>Complete <a href="https://app.hackthebox.com/machines/Blue" target="_blank" style="color:var(--green);"><strong>"Blue"</strong></a> â€” EternalBlue (MS17-010) exploitation; post-exploit to dump hashes and escalate to SYSTEM</span></div>
         <div class="step"><span class="step-num">04</span><span>Complete <strong>"Unified"</strong> (Starting Point Tier 2) â€” demonstrates persistence via a planted SSH key after initial access</span></div>
         <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option C â€” From Exercise 3 Session (Advanced)</div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:rgba(200,200,200,0.4)">Advanced -- Requires local VM (not available on SOC computers)</div>
         <div class="step"><span class="step-num">05</span><span>From your active session, run <strong>whoami</strong> and <strong>id</strong> â€” document your current user and permission level exactly</span></div>
         <div class="step"><span class="step-num">06</span><span>Attempt privilege escalation â€” Metasploit <strong>getsystem</strong> or check <strong>sudo -l</strong> for available sudo permissions</span></div>
         <div class="step"><span class="step-num">07</span><span>Search for stored credentials using the Metasploit <strong>hashdump</strong> module â€” document only, do not crack</span></div>
@@ -1178,3 +1178,4 @@ loadProgress();
 </script>
 </body>
 </html>
+
