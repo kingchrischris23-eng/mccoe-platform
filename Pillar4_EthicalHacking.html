@@ -363,7 +363,7 @@ footer strong{color:var(--green)}
         <div class="warn-text">Docker downloads Kali, Metasploitable2, and DVWA (~3–4 GB). After that, the lab starts in under 30 seconds every time.</div>
       </div>
       <div class="exercise-box" style="margin-top:14px">
-        <div class="step"><span class="step-num">01</span><span>Open PowerShell and navigate to the lab folder:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">cd C:\Users\YourName\Desktop\lab</code></span></div>
+        <div class="step"><span class="step-num">01</span><span>Open PowerShell and navigate to the lab folder:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">cd "$env:USERPROFILE\Desktop\lab"</code></span></div>
         <div class="step"><span class="step-num">02</span><span>Start all three containers:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">docker compose up -d --build</code></span></div>
         <div class="step"><span class="step-num">03</span><span>Wait for: <strong>"Container mccoe-kali Started"</strong></span></div>
         <div class="step"><span class="step-num">04</span><span>Open your browser and go to: <a href="http://localhost:7681" target="_blank" style="color:var(--green)"><strong>http://localhost:7681</strong></a></span></div>
@@ -411,7 +411,7 @@ footer strong{color:var(--green)}
         <a href="https://github.com/kingchrischris23-eng/mccoe-platform/raw/main/MCCoE-Hacking-Lab.zip" download class="btn-green" style="border-color:var(--green);">⬇ &nbsp; Download MCCoE Hacking Lab</a>
       </div>
       <div class="exercise-box">
-        <div class="step"><span class="step-num">02</span><span>Open PowerShell on Windows and navigate to the lab folder:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">cd C:\Users\YourName\Desktop\lab</code></span></div>
+        <div class="step"><span class="step-num">02</span><span>Open PowerShell on Windows and navigate to the lab folder:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">cd "$env:USERPROFILE\Desktop\lab"</code></span></div>
         <div class="step"><span class="step-num">03</span><span>Start only the target containers (skip Kali — you have your own):<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">docker compose up -d metasploitable dvwa</code></span></div>
         <div class="step"><span class="step-num">04</span><span>Wait for: <strong>"Container mccoe-ms2 Started"</strong> and <strong>"Container mccoe-dvwa Started"</strong></span></div>
       </div>
