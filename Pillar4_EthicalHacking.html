@@ -234,7 +234,7 @@ footer strong{color:var(--green)}
     <span class="gr">Ethical Hacking</span><br/>
     <span class="wh">Hands-On Lab</span>
   </h1>
-  <p class="hero-sub">Work through all 5 phases of a real penetration test using the MCCoE Docker Lab — real Nmap scans, real Metasploit sessions, real shells. No external accounts required.</p>
+  <p class="hero-sub">Work through all 5 phases of a real penetration test using Hack The Box + your Kali Linux laptop — real Nmap scans, real Metasploit sessions, real shells. Your Kali laptop. Real HTB targets. Real VPN.</p>
   <div class="hero-divider"></div>
 </section>
 
@@ -294,173 +294,137 @@ footer strong{color:var(--green)}
     </div>
   </div>
 
-  <!-- CHOOSE YOUR METHOD -->
+  <!-- KALI LAPTOP SETUP -->
   <div class="sec-card">
-    <div class="sec-title" style="color:var(--cyan)">Choose Your Setup Method</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px">
-
-      <div id="opt-docker-card" onclick="selectSetup('docker')" style="cursor:pointer;border:2px solid var(--cyan);border-radius:10px;padding:20px;background:rgba(0,245,255,0.07);transition:all .2s">
-        <div style="font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--cyan);margin-bottom:8px">OPTION A</div>
-        <div style="font-size:1.25rem;font-weight:700;color:#fff;margin-bottom:8px">Docker Desktop</div>
-        <div style="font-size:.92rem;color:rgba(200,255,200,0.8);line-height:1.5">No VM needed. Runs on your regular Windows laptop. Kali opens in your browser. <strong style="color:var(--green)">Recommended for most students.</strong></div>
-        <div style="margin-top:12px;font-size:.8rem;color:rgba(0,245,255,0.7)">Requires: Docker Desktop install (~1 min setup)</div>
+    <div class="sec-title" style="color:var(--cyan)">Lab Setup &#8212; Your Kali Linux Laptop + Hack The Box</div>
+    <div style="font-size:.9rem;color:var(--muted);margin-bottom:16px">You have Kali Linux on your laptop. You will connect to real target machines on Hack The Box over a VPN tunnel &#8212; exactly how professional penetration testers work.</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px">
+      <div style="background:rgba(0,255,65,0.06);border:1px solid rgba(0,255,65,0.25);border-radius:8px;padding:16px;text-align:center">
+        <div style="font-size:1.5rem;margin-bottom:6px">&#128187;</div>
+        <div style="font-weight:700;color:var(--green);margin-bottom:4px">Your Kali Laptop</div>
+        <div style="font-size:.82rem;color:var(--muted)">Attacker machine &#8212; run all your tools from here</div>
       </div>
-
-      <div id="opt-vm-card" onclick="selectSetup('vm')" style="cursor:pointer;border:2px solid rgba(0,255,65,0.3);border-radius:10px;padding:20px;background:rgba(0,255,65,0.03);transition:all .2s">
-        <div style="font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--muted);margin-bottom:8px">OPTION B</div>
-        <div style="font-size:1.25rem;font-weight:700;color:#fff;margin-bottom:8px">Own Kali / VM</div>
-        <div style="font-size:.92rem;color:rgba(200,255,200,0.8);line-height:1.5">Already have Kali Linux installed in VirtualBox, VMware, or natively? Use your own machine and connect to the lab targets.</div>
-        <div style="margin-top:12px;font-size:.8rem;color:rgba(0,255,65,0.5)">Requires: Docker Desktop on host to run targets</div>
+      <div style="background:rgba(0,245,255,0.06);border:1px solid rgba(0,245,255,0.25);border-radius:8px;padding:16px;text-align:center">
+        <div style="font-size:1.5rem;margin-bottom:6px">&#128279;</div>
+        <div style="font-weight:700;color:var(--cyan);margin-bottom:4px">HTB VPN</div>
+        <div style="font-size:.82rem;color:var(--muted)">Secure tunnel connecting your Kali to HTB target machines</div>
       </div>
-
+      <div style="background:rgba(255,60,60,0.06);border:1px solid rgba(255,60,60,0.25);border-radius:8px;padding:16px;text-align:center">
+        <div style="font-size:1.5rem;margin-bottom:6px">&#127919;</div>
+        <div style="font-weight:700;color:#ff6060;margin-bottom:4px">HTB Target Machine</div>
+        <div style="font-size:.82rem;color:var(--muted)">Vulnerable machine in the cloud &#8212; your target for each phase</div>
+      </div>
     </div>
   </div>
 
-  <!-- WHAT YOU GET (shared) -->
+  <!-- STEP 1 -->
   <div class="sec-card">
-    <div class="sec-title" style="color:var(--cyan)">Lab Targets (Both Options)</div>
+    <div class="sec-title" style="color:var(--cyan)">Step 1 &#8212; Create Your Free HTB Account</div>
+    <div class="exercise-box">
+      <div class="step"><span class="step-num">01</span><span>Open a browser on your Kali laptop and go to <a href="https://www.hackthebox.com" target="_blank" style="color:var(--green)"><strong>hackthebox.com</strong></a></span></div>
+      <div class="step"><span class="step-num">02</span><span>Click <strong>Sign Up</strong> &#8212; use your personal email, free account is all you need</span></div>
+      <div class="step"><span class="step-num">03</span><span>Verify your email and log in</span></div>
+      <div class="step"><span class="step-num">04</span><span>Save your HTB username &#8212; you will submit it with each phase report</span></div>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="sec-card">
+    <div class="sec-title" style="color:var(--cyan)">Step 2 &#8212; Download the HTB VPN File</div>
+    <div class="warn-box">
+      <div class="warn-label">WHY VPN?</div>
+      <div class="warn-text">HTB target machines live on a private network. The VPN gives your Kali laptop a direct connection to that network so your tools (Nmap, Metasploit, etc.) can reach the target.</div>
+    </div>
+    <div class="exercise-box" style="margin-top:14px">
+      <div class="step"><span class="step-num">01</span><span>Log in to HTB and click <strong>Starting Point</strong> in the left sidebar</span></div>
+      <div class="step"><span class="step-num">02</span><span>Click <strong>Connect to HTB</strong> at the top right of the page</span></div>
+      <div class="step"><span class="step-num">03</span><span>Select <strong>OpenVPN</strong> as the connection type</span></div>
+      <div class="step"><span class="step-num">04</span><span>Select <strong>Starting Point</strong> server and click <strong>Download VPN</strong> &#8212; saves a <code>.ovpn</code> file to your Downloads folder</span></div>
+    </div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="sec-card">
+    <div class="sec-title" style="color:var(--cyan)">Step 3 &#8212; Connect to the HTB VPN from Kali</div>
+    <div style="font-size:.88rem;color:var(--muted);margin-bottom:12px">Open a terminal on your Kali laptop and run the command below. Keep this terminal open the entire time you are working &#8212; closing it disconnects the VPN.</div>
+    <div style="background:#0a0a0a;border:1px solid rgba(0,245,255,0.3);border-radius:8px;padding:16px;font-family:monospace;font-size:.9rem;position:relative">
+      <div style="color:#888;margin-bottom:6px"># Replace the filename with your actual .ovpn file name</div>
+      <div style="color:var(--green)">sudo openvpn ~/Downloads/starting_point_YourName.ovpn</div>
+      <button onclick="navigator.clipboard.writeText('sudo openvpn ~/Downloads/starting_point_YourName.ovpn')" style="position:absolute;top:10px;right:10px;background:rgba(0,245,255,0.15);border:1px solid var(--cyan);color:var(--cyan);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.75rem">Copy</button>
+    </div>
+    <div class="exercise-box" style="margin-top:14px">
+      <div class="step"><span class="step-num">01</span><span>Enter your Kali password when prompted (it will not show as you type &#8212; that is normal)</span></div>
+      <div class="step"><span class="step-num">02</span><span>Wait until you see <strong>Initialization Sequence Completed</strong> in the terminal &#8212; you are now connected</span></div>
+      <div class="step"><span class="step-num">03</span><span>Open a <strong>second terminal</strong> for running your tools &#8212; leave the VPN terminal running in the background</span></div>
+      <div class="step"><span class="step-num">04</span><span>Verify your connection: <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px">ip addr show tun0</code> &#8212; you should see a 10.x.x.x IP address</span></div>
+    </div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="sec-card">
+    <div class="sec-title" style="color:var(--cyan)">Step 4 &#8212; Spawn Your Target Machine on HTB</div>
+    <div class="exercise-box">
+      <div class="step"><span class="step-num">01</span><span>In HTB Starting Point, find your assigned machine for the current phase (see table below)</span></div>
+      <div class="step"><span class="step-num">02</span><span>Click <strong>Spawn Machine</strong> &#8212; HTB gives you a target IP (e.g. <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px">10.129.x.x</code>)</span></div>
+      <div class="step"><span class="step-num">03</span><span>Copy the target IP &#8212; use it in all your Kali commands instead of a generic hostname</span></div>
+      <div class="step"><span class="step-num">04</span><span>You are ready to start the phase exercises below</span></div>
+    </div>
+  </div>
+
+  <!-- PHASE MAP TABLE -->
+  <div class="sec-card">
+    <div class="sec-title" style="color:var(--cyan)">Machine Assignments by Phase</div>
+    <div style="font-size:.88rem;color:var(--muted);margin-bottom:14px">Spawn the machine for your current phase. All machines below are <strong>free tier</strong> on HTB Starting Point.</div>
     <table class="data-table">
-      <tr><th>Target</th><th>Service</th><th>What It Is</th><th>Incident Scenario</th></tr>
-      <tr><td style="color:#ff8c00;font-weight:700">Metasploitable2</td><td style="font-family:monospace">172.20.0.20</td><td>Vulnerable Linux server — vsftpd, Samba, SSH, Apache, MySQL</td><td>Colonial Pipeline + SolarWinds</td></tr>
-      <tr><td style="color:#ff6b6b;font-weight:700">DVWA</td><td style="font-family:monospace">172.20.0.30</td><td>Damn Vulnerable Web App — SQLi, command injection, XSS, file upload</td><td>Target Breach + Equifax</td></tr>
+      <tr><th>Phase</th><th>HTB Machine</th><th>Skills Practiced</th><th>Difficulty</th></tr>
+      <tr>
+        <td style="color:var(--cyan);font-weight:700">Phase 1 &#8212; Recon</td>
+        <td><strong>Meow + Fawn</strong></td>
+        <td>Nmap scanning, service ID, Telnet, FTP anonymous login</td>
+        <td><span style="color:var(--green)">Very Easy</span></td>
+      </tr>
+      <tr>
+        <td style="color:var(--cyan);font-weight:700">Phase 2 &#8212; Scanning</td>
+        <td><strong>Dancing + Redeemer</strong></td>
+        <td>SMB enumeration, smbclient, Redis enumeration</td>
+        <td><span style="color:var(--green)">Very Easy</span></td>
+      </tr>
+      <tr>
+        <td style="color:var(--cyan);font-weight:700">Phase 3 &#8212; Exploitation</td>
+        <td><strong>Preignition + Appointment</strong></td>
+        <td>Gobuster, default credentials, SQL injection login bypass</td>
+        <td><span style="color:#ffd700">Easy</span></td>
+      </tr>
+      <tr>
+        <td style="color:var(--cyan);font-weight:700">Phase 4 &#8212; Post-Exploitation</td>
+        <td><strong>Sequel + Mongod</strong></td>
+        <td>MySQL, database enumeration, MongoDB data exfiltration</td>
+        <td><span style="color:#ffd700">Easy</span></td>
+      </tr>
+      <tr>
+        <td style="color:var(--cyan);font-weight:700">Phase 5 &#8212; Reporting</td>
+        <td>Any completed machine</td>
+        <td>Professional pentest report covering all findings</td>
+        <td><span style="color:var(--cyan)">Written</span></td>
+      </tr>
     </table>
   </div>
 
-  <!-- ═══ OPTION A: DOCKER ═══ -->
-  <div id="setup-docker" style="display:none">
-
-    <div style="border-left:3px solid var(--cyan);padding:8px 16px;margin-bottom:16px;background:rgba(0,245,255,0.05);border-radius:0 6px 6px 0">
-      <span style="color:var(--cyan);font-weight:700;font-family:'Orbitron',sans-serif;font-size:.8rem">OPTION A — DOCKER SETUP</span>
-      <span style="color:var(--green);font-size:.8rem;margin-left:12px">Kali Linux runs in your browser at localhost:7681</span>
+  <!-- SUBMISSION -->
+  <div class="sec-card">
+    <div class="deliv-box">
+      <div class="deliv-label">WHAT TO SUBMIT FOR EACH PHASE</div>
+      <div class="deliv-item"><strong>Your HTB username</strong> &#8212; instructor will verify on your public HTB profile</div>
+      <div class="deliv-item"><strong>The flag you captured</strong> &#8212; format: <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px">HTB{...}</code></div>
+      <div class="deliv-item"><strong>A screenshot</strong> of your Kali terminal showing the completed exploit and captured flag</div>
+      <div class="deliv-item"><strong>3&#8211;5 sentences</strong> explaining what you did and what vulnerability you exploited</div>
     </div>
-
-    <div class="sec-card">
-      <div class="sec-title" style="color:var(--cyan)">Step 1 — Install Docker Desktop (one-time)</div>
-      <div class="exercise-box">
-        <div class="step"><span class="step-num">01</span><span>Go to <a href="https://www.docker.com/products/docker-desktop/" target="_blank" style="color:var(--green)"><strong>docker.com/products/docker-desktop</strong></a> and download Docker Desktop for Windows</span></div>
-        <div class="step"><span class="step-num">02</span><span>Run the installer — accept all defaults. Restart when prompted.</span></div>
-        <div class="step"><span class="step-num">03</span><span>After restart, open Docker Desktop and wait for <strong>"Docker is running"</strong> (green dot in system tray)</span></div>
-        <div class="step"><span class="step-num">04</span><span>Open PowerShell and confirm: <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">docker --version</code></span></div>
-      </div>
-    </div>
-
-    <div class="sec-card">
-      <div class="sec-title" style="color:var(--cyan)">Step 2 — Download the Lab Files</div>
-      <div class="exercise-box">
-        <div class="step"><span class="step-num">01</span><span>Download the lab package using the button below</span></div>
-        <div class="step"><span class="step-num">02</span><span>Extract the zip — you will get a <strong>lab</strong> folder with <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">docker-compose.yml</code> and a <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">kali</code> folder inside</span></div>
-        <div class="step"><span class="step-num">03</span><span>Move the <strong>lab</strong> folder to your Desktop or Documents</span></div>
-      </div>
-      <div style="text-align:center;margin-top:18px">
-        <a href="https://github.com/kingchrischris23-eng/mccoe-platform/raw/main/MCCoE-Hacking-Lab.zip" download class="btn-green" style="border-color:var(--cyan);color:var(--cyan);">⬇ &nbsp; Download MCCoE Hacking Lab</a>
-      </div>
-    </div>
-
-    <div class="sec-card">
-      <div class="sec-title" style="color:var(--cyan)">Step 3 — Start the Lab</div>
-      <div class="warn-box">
-        <div class="warn-label">⏱ FIRST LAUNCH TAKES 10–20 MINUTES</div>
-        <div class="warn-text">Docker downloads Kali, Metasploitable2, and DVWA (~3–4 GB). After that, the lab starts in under 30 seconds every time.</div>
-      </div>
-      <div class="exercise-box" style="margin-top:14px">
-        <div class="step"><span class="step-num">01</span><span>Open PowerShell and navigate to the lab folder:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">cd "$env:USERPROFILE\Desktop\lab"</code></span></div>
-        <div class="step"><span class="step-num">02</span><span>Start all three containers:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">docker compose up -d --build</code></span></div>
-        <div class="step"><span class="step-num">03</span><span>Wait for: <strong>"Container mccoe-kali Started"</strong></span></div>
-        <div class="step"><span class="step-num">04</span><span>Open your browser and go to: <a href="http://localhost:7681" target="_blank" style="color:var(--green)"><strong>http://localhost:7681</strong></a></span></div>
-        <div class="step"><span class="step-num">05</span><span>You should see a black terminal with the MCCoE banner — you are inside Kali Linux</span></div>
-      </div>
-    </div>
-
-    <div class="sec-card">
-      <div class="sec-title" style="color:var(--cyan)">Step 4 — Verify Targets</div>
-      <div class="exercise-box">
-        <div class="step"><span class="step-num">01</span><span>In your Kali browser terminal, run:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">ping -c 2 172.20.0.20 && ping -c 2 172.20.0.30</code></span></div>
-        <div class="step"><span class="step-num">02</span><span>Both should reply. Lab is ready for Phase 1.</span></div>
-        <div class="step"><span class="step-num">03</span><span>Open <a href="http://172.20.0.30" target="_blank" style="color:var(--green)">http://172.20.0.30</a> — DVWA login page should appear (admin / password)</span></div>
-      </div>
-    </div>
-
   </div>
 
-  <!-- ═══ OPTION B: OWN KALI / VM ═══ -->
-  <div id="setup-vm" style="display:none">
-
-    <div style="border-left:3px solid var(--green);padding:8px 16px;margin-bottom:16px;background:rgba(0,255,65,0.05);border-radius:0 6px 6px 0">
-      <span style="color:var(--green);font-weight:700;font-family:'Orbitron',sans-serif;font-size:.8rem">OPTION B — OWN KALI / VM SETUP</span>
-      <span style="color:var(--muted);font-size:.8rem;margin-left:12px">You attack from your own machine. Docker provides the targets.</span>
-    </div>
-
-    <div class="sec-card">
-      <div class="sec-title" style="color:var(--green)">Step 1 — Install Docker Desktop on Your Windows Host (one-time)</div>
-      <div class="warn-box">
-        <div class="warn-label">WHY YOU STILL NEED DOCKER</div>
-        <div class="warn-text">Docker runs the two vulnerable targets (Metasploitable2 and DVWA) on your Windows machine. Your Kali VM attacks those targets over the network. You do NOT use the Docker Kali container — only the target containers.</div>
-      </div>
-      <div class="exercise-box" style="margin-top:14px">
-        <div class="step"><span class="step-num">01</span><span>On your <strong>Windows machine</strong>, install Docker Desktop: <a href="https://www.docker.com/products/docker-desktop/" target="_blank" style="color:var(--green)">docker.com/products/docker-desktop</a></span></div>
-        <div class="step"><span class="step-num">02</span><span>Confirm it is running (green dot in system tray)</span></div>
-      </div>
-    </div>
-
-    <div class="sec-card">
-      <div class="sec-title" style="color:var(--green)">Step 2 — Download the Lab Files and Start Only the Targets</div>
-      <div class="exercise-box">
-        <div class="step"><span class="step-num">01</span><span>Download and extract the lab package on your Windows machine:</span></div>
-      </div>
-      <div style="text-align:center;margin:12px 0">
-        <a href="https://github.com/kingchrischris23-eng/mccoe-platform/raw/main/MCCoE-Hacking-Lab.zip" download class="btn-green" style="border-color:var(--green);">⬇ &nbsp; Download MCCoE Hacking Lab</a>
-      </div>
-      <div class="exercise-box">
-        <div class="step"><span class="step-num">02</span><span>Open PowerShell on Windows and navigate to the lab folder:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">cd "$env:USERPROFILE\Desktop\lab"</code></span></div>
-        <div class="step"><span class="step-num">03</span><span>Start only the target containers (skip Kali — you have your own):<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">docker compose up -d metasploitable dvwa</code></span></div>
-        <div class="step"><span class="step-num">04</span><span>Wait for: <strong>"Container mccoe-ms2 Started"</strong> and <strong>"Container mccoe-dvwa Started"</strong></span></div>
-      </div>
-    </div>
-
-    <div class="sec-card">
-      <div class="sec-title" style="color:var(--green)">Step 3 — Find Your Windows Host IP</div>
-      <div class="exercise-box">
-        <div class="step"><span class="step-num">01</span><span>On your Windows machine, open PowerShell and run:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">ipconfig</code></span></div>
-        <div class="step"><span class="step-num">02</span><span>Look for your <strong>IPv4 Address</strong> under Ethernet or Wi-Fi — example: <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">192.168.1.50</code></span></div>
-        <div class="step"><span class="step-num">03</span><span>Write that IP down — you will use it as the base to reach your targets from Kali</span></div>
-      </div>
-      <div class="deliv-box" style="margin-top:14px">
-        <div class="deliv-label">🔧 YOUR TARGET ADDRESSES FROM KALI</div>
-        <div class="deliv-item"><strong>Metasploitable2 FTP:</strong> &lt;your-windows-ip&gt;:2121</div>
-        <div class="deliv-item"><strong>Metasploitable2 SSH:</strong> &lt;your-windows-ip&gt;:2222</div>
-        <div class="deliv-item"><strong>Metasploitable2 HTTP:</strong> &lt;your-windows-ip&gt;:8080</div>
-        <div class="deliv-item"><strong>DVWA Web App:</strong> http://&lt;your-windows-ip&gt;:8081</div>
-        <div class="deliv-item" style="margin-top:8px;color:rgba(200,255,200,0.6);font-size:.85rem">Note: Samba exploits (CVE-2007-2447) require the Docker Kali terminal — use Option A for that specific exercise only.</div>
-      </div>
-    </div>
-
-    <div class="sec-card">
-      <div class="sec-title" style="color:var(--green)">Step 4 — Verify From Your Kali Machine</div>
-      <div class="exercise-box">
-        <div class="step"><span class="step-num">01</span><span>Open a terminal in your Kali VM or native Kali</span></div>
-        <div class="step"><span class="step-num">02</span><span>Ping the targets (replace with your Windows IP):<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">ping -c 2 192.168.1.50</code></span></div>
-        <div class="step"><span class="step-num">03</span><span>Scan your Metasploitable target:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">nmap -p 2121,2222,8080 192.168.1.50</code></span></div>
-        <div class="step"><span class="step-num">04</span><span>Open DVWA in your Kali browser: <strong>http://&lt;your-windows-ip&gt;:8081</strong> — login: admin / password</span></div>
-        <div class="step"><span class="step-num">05</span><span>If all respond — your lab is ready. Use the port-mapped addresses instead of 172.20.0.x throughout the phases.</span></div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- STOP/RESTART (shared) -->
-  <div class="sec-card" id="stop-card" style="display:none">
-    <div class="sec-title" style="color:var(--cyan)">Stopping and Restarting the Lab</div>
-    <table class="data-table">
-      <tr><th>Action</th><th>Command (run on Windows)</th></tr>
-      <tr><td>Stop all containers</td><td><code style="font-family:monospace">docker compose down</code></td></tr>
-      <tr><td>Start again next session</td><td><code style="font-family:monospace">docker compose up -d</code> (fast — no rebuild)</td></tr>
-      <tr><td>Reset everything</td><td><code style="font-family:monospace">docker compose down -v</code></td></tr>
-      <tr><td>Check status</td><td><code style="font-family:monospace">docker compose ps</code></td></tr>
-    </table>
-  </div>
-
-  <div id="start-btn-wrap" style="display:none;text-align:center;margin-top:20px">
-    <button class="btn-green" onclick="showPhase(0)">▶ &nbsp; Lab is Ready — Start Phase 1</button>
+  <div style="text-align:center;margin-top:20px;padding-bottom:10px">
+    <a href="https://app.hackthebox.com/starting-point" target="_blank" class="btn-green" style="border-color:var(--cyan);color:var(--cyan);display:inline-block;text-decoration:none;margin-bottom:16px">Open HTB Starting Point</a>
+    <br/>
+    <button class="btn-green" onclick="showPhase(0)" style="margin-top:8px">&#9654; VPN Connected &#8212; Go to Phase 1</button>
   </div>
 
 </div>
