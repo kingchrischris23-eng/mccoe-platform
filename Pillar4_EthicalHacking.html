@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>MCCoE ? Pillar 4: Ethical Hacking Lab</title>
+<title>MCCoE — Pillar 4: Ethical Hacking Lab</title>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
 <style>
 :root {
@@ -99,7 +99,7 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
 .deliv-box{background:rgba(0,245,255,0.04);border:1px solid rgba(0,245,255,0.2);border-radius:8px;padding:18px;margin-top:12px}
 .deliv-label{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--cyan);letter-spacing:2px;margin-bottom:12px}
 .deliv-item{display:flex;gap:10px;margin-bottom:8px;font-size:13px;color:var(--text);line-height:1.55}
-.deliv-item::before{content:'?';color:var(--cyan);flex-shrink:0;font-size:10px;margin-top:2px}
+.deliv-item::before{content:'▶';color:var(--cyan);flex-shrink:0;font-size:10px;margin-top:2px}
 
 /* WARNING BOX */
 .warn-box{background:rgba(255,183,0,0.05);border:1px solid rgba(255,183,0,0.3);border-radius:8px;padding:18px;margin-top:12px}
@@ -159,7 +159,7 @@ header{position:relative;z-index:10;border-bottom:1px solid var(--border);backgr
 .legal-box{background:rgba(255,183,0,0.04);border:1px solid rgba(255,183,0,0.25);border-radius:8px;padding:20px}
 .legal-item{display:flex;gap:10px;margin-bottom:10px;font-size:13px;color:#ffe0aa;line-height:1.55}
 .legal-item:last-child{margin-bottom:0}
-.legal-item::before{content:'?';flex-shrink:0;color:#ffb700}
+.legal-item::before{content:'⚠';flex-shrink:0;color:#ffb700}
 
 /* STATS BAR */
 .stats-bar{position:relative;z-index:5;display:flex;justify-content:center;border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:rgba(10,15,10,0.7);margin:0}
@@ -204,15 +204,15 @@ footer strong{color:var(--green)}
 <!-- HEADER -->
 <header>
   <div class="logo-block">
-    <div class="logo-icon">??</div>
+    <div class="logo-icon">🔓</div>
     <div>
       <div class="logo-text">MCCoE</div>
-      <div class="logo-sub">Pillar 4 ? Ethical Hacking Lab</div>
+      <div class="logo-sub">Pillar 4 — Ethical Hacking Lab</div>
     </div>
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
-    <div class="header-badge">? PILLAR 04 ? ACTIVE</div>
-    <a href="MCCoE_Hub.html" class="back-btn">? Hub</a>
+    <div class="header-badge">▶ PILLAR 04 — ACTIVE</div>
+    <a href="MCCoE_Hub.html" class="back-btn">← Hub</a>
   </div>
 </header>
 
@@ -229,24 +229,24 @@ footer strong{color:var(--green)}
 
 <!-- HERO -->
 <section class="hero">
-  <div class="hero-eyebrow"><span class="pulse-dot"></span>Lab Environment Ready ? Authorization Required</div>
+  <div class="hero-eyebrow"><span class="pulse-dot"></span>Lab Environment Ready — Authorization Required</div>
   <h1 class="hero-title">
     <span class="gr">Ethical Hacking</span><br/>
     <span class="wh">Hands-On Lab</span>
   </h1>
-  <p class="hero-sub">Work through all 5 phases of a real penetration test using Hack The Box ? real Nmap scans, real Metasploit sessions, real shells. No admin rights. No install. Just a browser.</p>
+  <p class="hero-sub">Work through all 5 phases of a real penetration test using the MCCoE Docker Lab — real Nmap scans, real Metasploit sessions, real shells. No external accounts required.</p>
   <div class="hero-divider"></div>
 </section>
 
 <!-- PHASE NAV -->
 <div class="phase-nav">
-  <button class="phase-btn" id="setup-nav-btn" onclick="showSetup()" style="border-color:rgba(0,245,255,0.5);color:var(--cyan);">? Lab Setup</button>
-  <button class="phase-btn active" onclick="showPhase(0)">01 ? Recon</button>
-  <button class="phase-btn" onclick="showPhase(1)">02 ? Scanning</button>
-  <button class="phase-btn" onclick="showPhase(2)">03 ? Exploitation</button>
-  <button class="phase-btn" onclick="showPhase(3)">04 ? Persistence</button>
-  <button class="phase-btn" onclick="showPhase(4)">05 ? Reporting</button>
-  <button class="phase-btn" onclick="showPhase(5)">?? Capstone</button>
+  <button class="phase-btn" id="setup-nav-btn" onclick="showSetup()" style="border-color:rgba(0,245,255,0.5);color:var(--cyan);">⚙ Lab Setup</button>
+  <button class="phase-btn active" onclick="showPhase(0)">01 — Recon</button>
+  <button class="phase-btn" onclick="showPhase(1)">02 — Scanning</button>
+  <button class="phase-btn" onclick="showPhase(2)">03 — Exploitation</button>
+  <button class="phase-btn" onclick="showPhase(3)">04 — Persistence</button>
+  <button class="phase-btn" onclick="showPhase(4)">05 — Reporting</button>
+  <button class="phase-btn" onclick="showPhase(5)">🏁 Capstone</button>
 </div>
 
 <!-- PROGRESS TRACKER -->
@@ -277,7 +277,7 @@ footer strong{color:var(--green)}
   </div>
   <div class="prog-line" id="pline4"></div>
   <div class="prog-step">
-    <div class="prog-circle" id="pc5" onclick="showPhase(5)">??</div>
+    <div class="prog-circle" id="pc5" onclick="showPhase(5)">🏁</div>
     <div class="prog-label" id="pl5">Capstone</div>
   </div>
 </div>
@@ -286,144 +286,192 @@ footer strong{color:var(--green)}
 <div id="panel-setup" style="display:none;position:relative;z-index:5;max-width:960px;margin:0 auto;padding:0 2rem 60px">
 
   <div class="phase-banner" style="border-color:rgba(0,245,255,0.4);background:linear-gradient(135deg,rgba(0,245,255,0.08),rgba(0,245,255,0.02))">
-    <div class="phase-icon">?</div>
+    <div class="phase-icon">⚙</div>
     <div>
-      <div class="phase-num-label" style="color:var(--cyan)">REQUIRED ? COMPLETE BEFORE STARTING PHASES</div>
+      <div class="phase-num-label" style="color:var(--cyan)">REQUIRED — COMPLETE BEFORE STARTING PHASES</div>
       <div class="phase-title-large">MCCoE Hacking Lab Setup</div>
       <div class="phase-desc-short">Real targets. Real tools. No external accounts required. Choose how you want to work below.</div>
     </div>
   </div>
 
-  <!-- WHY HTB -->
+  <!-- CHOOSE YOUR METHOD -->
   <div class="sec-card">
-    <div class="sec-title" style="color:var(--cyan)">Why Hack The Box?</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:12px">
-      <div style="background:rgba(0,245,255,0.05);border:1px solid rgba(0,245,255,0.2);border-radius:8px;padding:16px;text-align:center">
-        <div style="font-size:1.6rem;margin-bottom:8px">&#127758;</div>
-        <div style="font-weight:700;color:var(--cyan);margin-bottom:4px">100% Browser-Based</div>
-        <div style="font-size:.85rem;color:var(--muted)">Full Kali Linux in your browser via HTB Pwnbox. No install. No admin rights.</div>
+    <div class="sec-title" style="color:var(--cyan)">Choose Your Setup Method</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px">
+
+      <div id="opt-docker-card" onclick="selectSetup('docker')" style="cursor:pointer;border:2px solid var(--cyan);border-radius:10px;padding:20px;background:rgba(0,245,255,0.07);transition:all .2s">
+        <div style="font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--cyan);margin-bottom:8px">OPTION A</div>
+        <div style="font-size:1.25rem;font-weight:700;color:#fff;margin-bottom:8px">Docker Desktop</div>
+        <div style="font-size:.92rem;color:rgba(200,255,200,0.8);line-height:1.5">No VM needed. Runs on your regular Windows laptop. Kali opens in your browser. <strong style="color:var(--green)">Recommended for most students.</strong></div>
+        <div style="margin-top:12px;font-size:.8rem;color:rgba(0,245,255,0.7)">Requires: Docker Desktop install (~1 min setup)</div>
       </div>
-      <div style="background:rgba(0,255,65,0.05);border:1px solid rgba(0,255,65,0.2);border-radius:8px;padding:16px;text-align:center">
-        <div style="font-size:1.6rem;margin-bottom:8px">&#127358;</div>
-        <div style="font-weight:700;color:var(--green);margin-bottom:4px">Free Starting Point</div>
-        <div style="font-size:.85rem;color:var(--muted)">All machines used in this lab are free tier. No payment needed.</div>
+
+      <div id="opt-vm-card" onclick="selectSetup('vm')" style="cursor:pointer;border:2px solid rgba(0,255,65,0.3);border-radius:10px;padding:20px;background:rgba(0,255,65,0.03);transition:all .2s">
+        <div style="font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--muted);margin-bottom:8px">OPTION B</div>
+        <div style="font-size:1.25rem;font-weight:700;color:#fff;margin-bottom:8px">Own Kali / VM</div>
+        <div style="font-size:.92rem;color:rgba(200,255,200,0.8);line-height:1.5">Already have Kali Linux installed in VirtualBox, VMware, or natively? Use your own machine and connect to the lab targets.</div>
+        <div style="margin-top:12px;font-size:.8rem;color:rgba(0,255,65,0.5)">Requires: Docker Desktop on host to run targets</div>
       </div>
-      <div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.2);border-radius:8px;padding:16px;text-align:center">
-        <div style="font-size:1.6rem;margin-bottom:8px">&#128188;</div>
-        <div style="font-weight:700;color:#ffd700;margin-bottom:4px">Employer-Recognized</div>
-        <div style="font-size:.85rem;color:var(--muted)">Your HTB profile is a real resume item. Employers look for it.</div>
-      </div>
+
     </div>
   </div>
 
-  <!-- STEP 1 -->
+  <!-- WHAT YOU GET (shared) -->
   <div class="sec-card">
-    <div class="sec-title" style="color:var(--cyan)">Step 1 &#8212; Create Your Free HTB Account</div>
-    <div class="exercise-box">
-      <div class="step"><span class="step-num">01</span><span>Go to <a href="https://www.hackthebox.com" target="_blank" style="color:var(--green)"><strong>hackthebox.com</strong></a> and click <strong>Sign Up</strong></span></div>
-      <div class="step"><span class="step-num">02</span><span>Use your school email or personal email &#8212; free account is all you need</span></div>
-      <div class="step"><span class="step-num">03</span><span>Verify your email and log in</span></div>
-      <div class="step"><span class="step-num">04</span><span>Save your HTB username &#8212; you will submit it with your lab report</span></div>
-    </div>
-  </div>
-
-  <!-- STEP 2 -->
-  <div class="sec-card">
-    <div class="sec-title" style="color:var(--cyan)">Step 2 &#8212; Launch Your Pwnbox (Browser Kali)</div>
-    <div class="warn-box">
-      <div class="warn-label">PWNBOX = KALI LINUX IN YOUR BROWSER</div>
-      <div class="warn-text">HTB Pwnbox is a full Kali Linux desktop that runs entirely in your browser. No download. No admin. No VM. Free accounts get 2 hours of Pwnbox per day &#8212; enough for each phase.</div>
-    </div>
-    <div class="exercise-box" style="margin-top:14px">
-      <div class="step"><span class="step-num">01</span><span>Log in to HTB and click <strong>Starting Point</strong> in the left sidebar</span></div>
-      <div class="step"><span class="step-num">02</span><span>Click the <strong>Connect to HTB</strong> button at the top right</span></div>
-      <div class="step"><span class="step-num">03</span><span>Select <strong>Pwnbox</strong> as your connection method</span></div>
-      <div class="step"><span class="step-num">04</span><span>Choose the server closest to you and click <strong>Start Pwnbox</strong> &#8212; takes about 30 seconds</span></div>
-      <div class="step"><span class="step-num">05</span><span>A full Kali Linux desktop appears in your browser &#8212; open the terminal and you are ready</span></div>
-    </div>
-  </div>
-
-  <!-- PHASE MAP -->
-  <div class="sec-card">
-    <div class="sec-title" style="color:var(--cyan)">Step 3 &#8212; Your HTB Machine Assignments Per Phase</div>
-    <div style="font-size:.88rem;color:var(--muted);margin-bottom:14px">Each phase uses a specific HTB Starting Point machine. Spawn the machine for your current phase, then work through the exercises.</div>
+    <div class="sec-title" style="color:var(--cyan)">Lab Targets (Both Options)</div>
     <table class="data-table">
-      <tr><th>Phase</th><th>HTB Machine</th><th>Skills Practiced</th><th>Difficulty</th></tr>
-      <tr>
-        <td style="color:var(--cyan);font-weight:700">Phase 1 &#8212; Recon</td>
-        <td><strong>Meow + Fawn</strong></td>
-        <td>Nmap scanning, service identification, Telnet, FTP anonymous login</td>
-        <td><span style="color:var(--green)">Very Easy</span></td>
-      </tr>
-      <tr>
-        <td style="color:var(--cyan);font-weight:700">Phase 2 &#8212; Scanning</td>
-        <td><strong>Dancing + Redeemer</strong></td>
-        <td>SMB enumeration, smbclient, Redis enumeration, port scanning</td>
-        <td><span style="color:var(--green)">Very Easy</span></td>
-      </tr>
-      <tr>
-        <td style="color:var(--cyan);font-weight:700">Phase 3 &#8212; Exploitation</td>
-        <td><strong>Preignition + Appointment</strong></td>
-        <td>Gobuster directory brute force, default credentials, SQL injection login bypass</td>
-        <td><span style="color:#ffd700">Easy</span></td>
-      </tr>
-      <tr>
-        <td style="color:var(--cyan);font-weight:700">Phase 4 &#8212; Post-Exploitation</td>
-        <td><strong>Sequel + Mongod</strong></td>
-        <td>MySQL access, database enumeration, MongoDB data exfiltration, credential harvesting</td>
-        <td><span style="color:#ffd700">Easy</span></td>
-      </tr>
-      <tr>
-        <td style="color:var(--cyan);font-weight:700">Phase 5 &#8212; Reporting</td>
-        <td>Your choice of any completed machine</td>
-        <td>Professional pentest report documenting all findings from Phases 1-4</td>
-        <td><span style="color:var(--cyan)">Written</span></td>
-      </tr>
+      <tr><th>Target</th><th>Service</th><th>What It Is</th><th>Incident Scenario</th></tr>
+      <tr><td style="color:#ff8c00;font-weight:700">Metasploitable2</td><td style="font-family:monospace">172.20.0.20</td><td>Vulnerable Linux server — vsftpd, Samba, SSH, Apache, MySQL</td><td>Colonial Pipeline + SolarWinds</td></tr>
+      <tr><td style="color:#ff6b6b;font-weight:700">DVWA</td><td style="font-family:monospace">172.20.0.30</td><td>Damn Vulnerable Web App — SQLi, command injection, XSS, file upload</td><td>Target Breach + Equifax</td></tr>
     </table>
   </div>
 
-  <!-- STEP 4 -->
-  <div class="sec-card">
-    <div class="sec-title" style="color:var(--cyan)">Step 4 &#8212; Spawn a Machine and Start Hacking</div>
-    <div class="exercise-box">
-      <div class="step"><span class="step-num">01</span><span>In HTB Starting Point, find your assigned machine (e.g. <strong>Meow</strong> for Phase 1)</span></div>
-      <div class="step"><span class="step-num">02</span><span>Click <strong>Spawn Machine</strong> &#8212; HTB gives you a target IP address (e.g. 10.129.x.x)</span></div>
-      <div class="step"><span class="step-num">03</span><span>Switch to your Pwnbox tab, open the terminal, and start the phase exercises below</span></div>
-      <div class="step"><span class="step-num">04</span><span>Each machine has guided questions &#8212; answer them as you go to prove completion</span></div>
-      <div class="step"><span class="step-num">05</span><span>When you capture the flag, copy it &#8212; include it in your phase submission</span></div>
+  <!-- ═══ OPTION A: DOCKER ═══ -->
+  <div id="setup-docker" style="display:none">
+
+    <div style="border-left:3px solid var(--cyan);padding:8px 16px;margin-bottom:16px;background:rgba(0,245,255,0.05);border-radius:0 6px 6px 0">
+      <span style="color:var(--cyan);font-weight:700;font-family:'Orbitron',sans-serif;font-size:.8rem">OPTION A — DOCKER SETUP</span>
+      <span style="color:var(--green);font-size:.8rem;margin-left:12px">Kali Linux runs in your browser at localhost:7681</span>
     </div>
-    <div class="deliv-box" style="margin-top:14px">
-      <div class="deliv-label">WHAT TO SUBMIT FOR EACH PHASE</div>
-      <div class="deliv-item"><strong>Your HTB username</strong> &#8212; so your instructor can verify on your profile</div>
-      <div class="deliv-item"><strong>The flag you captured</strong> &#8212; format: HTB{...}</div>
-      <div class="deliv-item"><strong>A screenshot</strong> of your Pwnbox terminal showing the completed exploit</div>
-      <div class="deliv-item"><strong>3-5 sentences</strong> explaining what you did and what vulnerability you exploited</div>
+
+    <div class="sec-card">
+      <div class="sec-title" style="color:var(--cyan)">Step 1 — Install Docker Desktop (one-time)</div>
+      <div class="exercise-box">
+        <div class="step"><span class="step-num">01</span><span>Go to <a href="https://www.docker.com/products/docker-desktop/" target="_blank" style="color:var(--green)"><strong>docker.com/products/docker-desktop</strong></a> and download Docker Desktop for Windows</span></div>
+        <div class="step"><span class="step-num">02</span><span>Run the installer — accept all defaults. Restart when prompted.</span></div>
+        <div class="step"><span class="step-num">03</span><span>After restart, open Docker Desktop and wait for <strong>"Docker is running"</strong> (green dot in system tray)</span></div>
+        <div class="step"><span class="step-num">04</span><span>Open PowerShell and confirm: <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">docker --version</code></span></div>
+      </div>
     </div>
+
+    <div class="sec-card">
+      <div class="sec-title" style="color:var(--cyan)">Step 2 — Download the Lab Files</div>
+      <div class="exercise-box">
+        <div class="step"><span class="step-num">01</span><span>Download the lab package using the button below</span></div>
+        <div class="step"><span class="step-num">02</span><span>Extract the zip — you will get a <strong>lab</strong> folder with <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">docker-compose.yml</code> and a <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">kali</code> folder inside</span></div>
+        <div class="step"><span class="step-num">03</span><span>Move the <strong>lab</strong> folder to your Desktop or Documents</span></div>
+      </div>
+      <div style="text-align:center;margin-top:18px">
+        <a href="https://github.com/kingchrischris23-eng/mccoe-platform/raw/main/MCCoE-Hacking-Lab.zip" download class="btn-green" style="border-color:var(--cyan);color:var(--cyan);">⬇ &nbsp; Download MCCoE Hacking Lab</a>
+      </div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-title" style="color:var(--cyan)">Step 3 — Start the Lab</div>
+      <div class="warn-box">
+        <div class="warn-label">⏱ FIRST LAUNCH TAKES 10–20 MINUTES</div>
+        <div class="warn-text">Docker downloads Kali, Metasploitable2, and DVWA (~3–4 GB). After that, the lab starts in under 30 seconds every time.</div>
+      </div>
+      <div class="exercise-box" style="margin-top:14px">
+        <div class="step"><span class="step-num">01</span><span>Open PowerShell and navigate to the lab folder:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">cd C:\Users\YourName\Desktop\lab</code></span></div>
+        <div class="step"><span class="step-num">02</span><span>Start all three containers:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">docker compose up -d --build</code></span></div>
+        <div class="step"><span class="step-num">03</span><span>Wait for: <strong>"Container mccoe-kali Started"</strong></span></div>
+        <div class="step"><span class="step-num">04</span><span>Open your browser and go to: <a href="http://localhost:7681" target="_blank" style="color:var(--green)"><strong>http://localhost:7681</strong></a></span></div>
+        <div class="step"><span class="step-num">05</span><span>You should see a black terminal with the MCCoE banner — you are inside Kali Linux</span></div>
+      </div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-title" style="color:var(--cyan)">Step 4 — Verify Targets</div>
+      <div class="exercise-box">
+        <div class="step"><span class="step-num">01</span><span>In your Kali browser terminal, run:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">ping -c 2 172.20.0.20 && ping -c 2 172.20.0.30</code></span></div>
+        <div class="step"><span class="step-num">02</span><span>Both should reply. Lab is ready for Phase 1.</span></div>
+        <div class="step"><span class="step-num">03</span><span>Open <a href="http://172.20.0.30" target="_blank" style="color:var(--green)">http://172.20.0.30</a> — DVWA login page should appear (admin / password)</span></div>
+      </div>
+    </div>
+
   </div>
 
-  <div style="text-align:center;margin-top:20px;padding-bottom:10px">
-    <a href="https://app.hackthebox.com/starting-point" target="_blank" class="btn-green" style="border-color:var(--cyan);color:var(--cyan);display:inline-block;text-decoration:none;margin-bottom:16px">Open HTB Starting Point</a>
-    <br/>
-    <button class="btn-green" onclick="showPhase(0)" style="margin-top:8px">&#9654; Account Ready &#8212; Go to Phase 1</button>
+  <!-- ═══ OPTION B: OWN KALI / VM ═══ -->
+  <div id="setup-vm" style="display:none">
+
+    <div style="border-left:3px solid var(--green);padding:8px 16px;margin-bottom:16px;background:rgba(0,255,65,0.05);border-radius:0 6px 6px 0">
+      <span style="color:var(--green);font-weight:700;font-family:'Orbitron',sans-serif;font-size:.8rem">OPTION B — OWN KALI / VM SETUP</span>
+      <span style="color:var(--muted);font-size:.8rem;margin-left:12px">You attack from your own machine. Docker provides the targets.</span>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-title" style="color:var(--green)">Step 1 — Install Docker Desktop on Your Windows Host (one-time)</div>
+      <div class="warn-box">
+        <div class="warn-label">WHY YOU STILL NEED DOCKER</div>
+        <div class="warn-text">Docker runs the two vulnerable targets (Metasploitable2 and DVWA) on your Windows machine. Your Kali VM attacks those targets over the network. You do NOT use the Docker Kali container — only the target containers.</div>
+      </div>
+      <div class="exercise-box" style="margin-top:14px">
+        <div class="step"><span class="step-num">01</span><span>On your <strong>Windows machine</strong>, install Docker Desktop: <a href="https://www.docker.com/products/docker-desktop/" target="_blank" style="color:var(--green)">docker.com/products/docker-desktop</a></span></div>
+        <div class="step"><span class="step-num">02</span><span>Confirm it is running (green dot in system tray)</span></div>
+      </div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-title" style="color:var(--green)">Step 2 — Download the Lab Files and Start Only the Targets</div>
+      <div class="exercise-box">
+        <div class="step"><span class="step-num">01</span><span>Download and extract the lab package on your Windows machine:</span></div>
+      </div>
+      <div style="text-align:center;margin:12px 0">
+        <a href="https://github.com/kingchrischris23-eng/mccoe-platform/raw/main/MCCoE-Hacking-Lab.zip" download class="btn-green" style="border-color:var(--green);">⬇ &nbsp; Download MCCoE Hacking Lab</a>
+      </div>
+      <div class="exercise-box">
+        <div class="step"><span class="step-num">02</span><span>Open PowerShell on Windows and navigate to the lab folder:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">cd C:\Users\YourName\Desktop\lab</code></span></div>
+        <div class="step"><span class="step-num">03</span><span>Start only the target containers (skip Kali — you have your own):<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">docker compose up -d metasploitable dvwa</code></span></div>
+        <div class="step"><span class="step-num">04</span><span>Wait for: <strong>"Container mccoe-ms2 Started"</strong> and <strong>"Container mccoe-dvwa Started"</strong></span></div>
+      </div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-title" style="color:var(--green)">Step 3 — Find Your Windows Host IP</div>
+      <div class="exercise-box">
+        <div class="step"><span class="step-num">01</span><span>On your Windows machine, open PowerShell and run:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">ipconfig</code></span></div>
+        <div class="step"><span class="step-num">02</span><span>Look for your <strong>IPv4 Address</strong> under Ethernet or Wi-Fi — example: <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">192.168.1.50</code></span></div>
+        <div class="step"><span class="step-num">03</span><span>Write that IP down — you will use it as the base to reach your targets from Kali</span></div>
+      </div>
+      <div class="deliv-box" style="margin-top:14px">
+        <div class="deliv-label">🔧 YOUR TARGET ADDRESSES FROM KALI</div>
+        <div class="deliv-item"><strong>Metasploitable2 FTP:</strong> &lt;your-windows-ip&gt;:2121</div>
+        <div class="deliv-item"><strong>Metasploitable2 SSH:</strong> &lt;your-windows-ip&gt;:2222</div>
+        <div class="deliv-item"><strong>Metasploitable2 HTTP:</strong> &lt;your-windows-ip&gt;:8080</div>
+        <div class="deliv-item"><strong>DVWA Web App:</strong> http://&lt;your-windows-ip&gt;:8081</div>
+        <div class="deliv-item" style="margin-top:8px;color:rgba(200,255,200,0.6);font-size:.85rem">Note: Samba exploits (CVE-2007-2447) require the Docker Kali terminal — use Option A for that specific exercise only.</div>
+      </div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-title" style="color:var(--green)">Step 4 — Verify From Your Kali Machine</div>
+      <div class="exercise-box">
+        <div class="step"><span class="step-num">01</span><span>Open a terminal in your Kali VM or native Kali</span></div>
+        <div class="step"><span class="step-num">02</span><span>Ping the targets (replace with your Windows IP):<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">ping -c 2 192.168.1.50</code></span></div>
+        <div class="step"><span class="step-num">03</span><span>Scan your Metasploitable target:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">nmap -p 2121,2222,8080 192.168.1.50</code></span></div>
+        <div class="step"><span class="step-num">04</span><span>Open DVWA in your Kali browser: <strong>http://&lt;your-windows-ip&gt;:8081</strong> — login: admin / password</span></div>
+        <div class="step"><span class="step-num">05</span><span>If all respond — your lab is ready. Use the port-mapped addresses instead of 172.20.0.x throughout the phases.</span></div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- dummy elements so old JS refs dont error -->
-  <div id="opt-docker-card" style="display:none"></div>
-  <div id="opt-vm-card" style="display:none"></div>
-  <div id="setup-docker" style="display:none"></div>
-  <div id="setup-vm" style="display:none"></div>
-  <div id="stop-card" style="display:none"></div>
-  <div id="start-btn-wrap" style="display:none"></div>
+  <!-- STOP/RESTART (shared) -->
+  <div class="sec-card" id="stop-card" style="display:none">
+    <div class="sec-title" style="color:var(--cyan)">Stopping and Restarting the Lab</div>
+    <table class="data-table">
+      <tr><th>Action</th><th>Command (run on Windows)</th></tr>
+      <tr><td>Stop all containers</td><td><code style="font-family:monospace">docker compose down</code></td></tr>
+      <tr><td>Start again next session</td><td><code style="font-family:monospace">docker compose up -d</code> (fast — no rebuild)</td></tr>
+      <tr><td>Reset everything</td><td><code style="font-family:monospace">docker compose down -v</code></td></tr>
+      <tr><td>Check status</td><td><code style="font-family:monospace">docker compose ps</code></td></tr>
+    </table>
+  </div>
+
+  <div id="start-btn-wrap" style="display:none;text-align:center;margin-top:20px">
+    <button class="btn-green" onclick="showPhase(0)">▶ &nbsp; Lab is Ready — Start Phase 1</button>
+  </div>
 
 </div>
 
 <!-- CONTENT AREA -->
 <div class="content-area">
 
-  <!-- ?? PHASE 1: RECON ?? -->
+  <!-- ══ PHASE 1: RECON ══ -->
   <div class="phase-panel active" id="panel0">
     <div class="phase-banner">
-      <div class="phase-icon">??</div>
+      <div class="phase-icon">🔍</div>
       <div>
         <div class="phase-num-label">PHASE 01 OF 05</div>
         <div class="phase-title-large">Reconnaissance</div>
@@ -432,14 +480,14 @@ footer strong{color:var(--green)}
     </div>
 
     <div class="sec-card">
-      <div class="sec-title">? Legal &amp; Ethical Boundaries ? Read Before You Start</div>
+      <div class="sec-title">⚠ Legal &amp; Ethical Boundaries — Read Before You Start</div>
       <div class="legal-box">
         <div class="legal-item">You may NEVER scan, probe, or exploit any system without explicit written permission</div>
         <div class="legal-item">You may NEVER use these tools on school, workplace, or public networks without authorization</div>
-        <div class="legal-item">ALWAYS use <a href="https://tryhackme.com" target="_blank" style="color:#ffb700;">TryHackMe</a> or <a href="https://hackthebox.com" target="_blank" style="color:#ffb700;">HackTheBox</a> authorized machines ? or your own isolated VirtualBox VM</div>
+        <div class="legal-item">ALWAYS use <a href="https://tryhackme.com" target="_blank" style="color:#ffb700;">TryHackMe</a> or <a href="https://hackthebox.com" target="_blank" style="color:#ffb700;">HackTheBox</a> authorized machines — or your own isolated VirtualBox VM</div>
         <div class="legal-item">ALWAYS document your authorization before beginning any real-world penetration test</div>
-        <div class="legal-item">Report every vulnerability you find ? withholding findings is unethical and potentially illegal</div>
-        <div class="legal-item">Responsible disclosure: if you find a real vulnerability, report it to the organization privately ? not on social media</div>
+        <div class="legal-item">Report every vulnerability you find — withholding findings is unethical and potentially illegal</div>
+        <div class="legal-item">Responsible disclosure: if you find a real vulnerability, report it to the organization privately — not on social media</div>
       </div>
     </div>
 
@@ -448,7 +496,7 @@ footer strong{color:var(--green)}
       <table class="data-table">
         <tr><th>Type</th><th>Description</th><th>Detection Risk</th></tr>
         <tr><td><span class="tag-green">PASSIVE</span></td><td>Gather from public sources only. Zero contact with target systems.</td><td>Very Low</td></tr>
-        <tr><td><span class="tag-red">ACTIVE</span></td><td>Directly interact with the target ? DNS queries, ping sweeps, banner grabbing.</td><td>Medium ? may appear in logs</td></tr>
+        <tr><td><span class="tag-red">ACTIVE</span></td><td>Directly interact with the target — DNS queries, ping sweeps, banner grabbing.</td><td>Medium — may appear in logs</td></tr>
       </table>
     </div>
 
@@ -457,76 +505,76 @@ footer strong{color:var(--green)}
       <table class="data-table">
         <tr><th>Tool</th><th>Purpose</th><th>Free?</th></tr>
         <tr><td>Google Dorking</td><td>Advanced search operators to surface exposed files, login pages, and configs</td><td><span class="tag-green">YES</span></td></tr>
-        <tr><td>WHOIS Lookup</td><td>Domain registration records ? owner, registrar, nameservers, creation date</td><td><span class="tag-green">YES</span></td></tr>
-        <tr><td>theHarvester</td><td>Collects emails, subdomains, and IPs from public sources (Google, LinkedIn, Shodan)</td><td><span class="tag-green">YES ? in Kali</span></td></tr>
-        <tr><td>Shodan</td><td>Search engine for internet-connected devices and open services worldwide</td><td><span class="tag-green">YES ? free tier</span></td></tr>
-        <tr><td>Maltego Community</td><td>Visual OSINT mapping ? link people, domains, IPs, and organizations</td><td><span class="tag-green">YES ? free tier</span></td></tr>
-        <tr><td>LinkedIn / Social Media</td><td>Employee names, roles, tech stack ? social engineering preparation</td><td><span class="tag-green">YES</span></td></tr>
+        <tr><td>WHOIS Lookup</td><td>Domain registration records — owner, registrar, nameservers, creation date</td><td><span class="tag-green">YES</span></td></tr>
+        <tr><td>theHarvester</td><td>Collects emails, subdomains, and IPs from public sources (Google, LinkedIn, Shodan)</td><td><span class="tag-green">YES — in Kali</span></td></tr>
+        <tr><td>Shodan</td><td>Search engine for internet-connected devices and open services worldwide</td><td><span class="tag-green">YES — free tier</span></td></tr>
+        <tr><td>Maltego Community</td><td>Visual OSINT mapping — link people, domains, IPs, and organizations</td><td><span class="tag-green">YES — free tier</span></td></tr>
+        <tr><td>LinkedIn / Social Media</td><td>Employee names, roles, tech stack — social engineering preparation</td><td><span class="tag-green">YES</span></td></tr>
       </table>
     </div>
 
     <div class="sec-card">
       <div class="sec-title">Real-World Connection</div>
       <div class="breach-box">
-        <div class="breach-label">? TARGET BREACH 2013 ? RECON PHASE</div>
-        <div class="breach-text">Attackers identified Fazio Mechanical Services ? a small HVAC vendor with remote network access to Target's systems ? through public procurement records and LinkedIn profiles of Target facilities staff. No packets were sent to Target's network during this phase. The entire attack plan was assembled from publicly available information. Zero technical skills required. Zero detection risk.</div>
+        <div class="breach-label">⚡ TARGET BREACH 2013 — RECON PHASE</div>
+        <div class="breach-text">Attackers identified Fazio Mechanical Services — a small HVAC vendor with remote network access to Target's systems — through public procurement records and LinkedIn profiles of Target facilities staff. No packets were sent to Target's network during this phase. The entire attack plan was assembled from publicly available information. Zero technical skills required. Zero detection risk.</div>
       </div>
     </div>
 
     <div class="sec-card">
-      <div class="sec-title">Exercise 1 ? OSINT Challenge</div>
+      <div class="sec-title">Exercise 1 — OSINT Challenge</div>
       <div class="exercise-box">
-        <div class="exercise-label">?? Objective: Build an intelligence profile using public sources only</div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Alternative &mdash; TryHackMe</div>
+        <div class="exercise-label">🎯 Objective: Build an intelligence profile using public sources only</div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option A — TryHackMe (Beginner Recommended)</div>
         <div class="step"><span class="step-num">01</span><span>Create a free account at <a href="https://tryhackme.com" target="_blank" style="color:var(--green);">tryhackme.com</a></span></div>
         <div class="step"><span class="step-num">02</span><span>Complete the <a href="https://tryhackme.com/room/passiverecon" target="_blank" style="color:var(--green);"><strong>"Passive Recon"</strong></a> room or the <a href="https://tryhackme.com/room/ohsint" target="_blank" style="color:var(--green);"><strong>"OhSINT"</strong></a> room (both free)</span></div>
         <div class="step"><span class="step-num">03</span><span>Practice Google Dorking: use the <strong>site:</strong> and <strong>filetype:</strong> operators to surface exposed files or login pages</span></div>
         <div class="step"><span class="step-num">04</span><span>Use <a href="https://who.is" target="_blank" style="color:var(--green);"><strong>who.is</strong></a> to look up a domain and examine registration records</span></div>
         <div class="step"><span class="step-num">05</span><span>Search <a href="https://www.shodan.io" target="_blank" style="color:var(--green);"><strong>Shodan</strong></a> (free tier) for a publicly known vulnerable device type</span></div>
         <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)"><span style="color:var(--green);font-weight:700">&#11042; PRIMARY &mdash; Hack The Box Pwnbox (Use This)</span></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option B — HackTheBox Starting Point</div>
         <div class="step"><span class="step-num">06</span><span>Create a free account at <a href="https://hackthebox.com" target="_blank" style="color:var(--green);">hackthebox.com</a></span></div>
-        <div class="step"><span class="step-num">07</span><span>Navigate to <strong>Starting Point ? Tier 0</strong> and complete the <strong>"Meow"</strong> machine ? guided walkthrough included</span></div>
-        <div class="step"><span class="step-num">08</span><span>Read the walkthrough questions carefully ? they teach you what information to gather during recon</span></div>
+        <div class="step"><span class="step-num">07</span><span>Navigate to <strong>Starting Point → Tier 0</strong> and complete the <strong>"Meow"</strong> machine — guided walkthrough included</span></div>
+        <div class="step"><span class="step-num">08</span><span>Read the walkthrough questions carefully — they teach you what information to gather during recon</span></div>
       </div>
       <div class="deliv-box">
-        <div class="deliv-label">?? DELIVERABLE ? OSINT REPORT</div>
-        <div class="deliv-item">Target Summary ? name, domain, industry, estimated company size</div>
-        <div class="deliv-item">Employee Intelligence ? names, roles, departments found from public sources</div>
-        <div class="deliv-item">Technology Stack ? software or platforms identified from job postings or page metadata</div>
-        <div class="deliv-item">Exposed Assets ? files, login pages, or devices found via Dorking or Shodan</div>
-        <div class="deliv-item">Attack Surface Summary ? one paragraph: which findings pose the highest risk and why</div>
+        <div class="deliv-label">📋 DELIVERABLE — OSINT REPORT</div>
+        <div class="deliv-item">Target Summary — name, domain, industry, estimated company size</div>
+        <div class="deliv-item">Employee Intelligence — names, roles, departments found from public sources</div>
+        <div class="deliv-item">Technology Stack — software or platforms identified from job postings or page metadata</div>
+        <div class="deliv-item">Exposed Assets — files, login pages, or devices found via Dorking or Shodan</div>
+        <div class="deliv-item">Attack Surface Summary — one paragraph: which findings pose the highest risk and why</div>
       </div>
       <div class="sample-box">
-        <div class="sample-label">?? SAMPLE SUBMISSION ? OSINT REPORT</div>
-        <div class="sample-item"><strong>Target:</strong> TryHackMe OhSINT target ? "OWoodflint" persona</div>
+        <div class="sample-label">📝 SAMPLE SUBMISSION — OSINT REPORT</div>
+        <div class="sample-item"><strong>Target:</strong> TryHackMe OhSINT target — "OWoodflint" persona</div>
         <div class="sample-item"><strong>Employee Intel:</strong> Found Twitter handle @OWoodflint via Google search. LinkedIn showed job title "Software Developer" at a UK firm. GitHub profile revealed real name Oliver Woodflint.</div>
-        <div class="sample-item"><strong>Technology Stack:</strong> WordPress blog identified via page source meta tag. BSSID found in Wigle.net ? geolocated to New York City area.</div>
+        <div class="sample-item"><strong>Technology Stack:</strong> WordPress blog identified via page source meta tag. BSSID found in Wigle.net — geolocated to New York City area.</div>
         <div class="sample-item"><strong>Exposed Asset:</strong> Personal email address found in a public GitHub commit (owoodflint@gmail.com). Password hint found in WordPress blog HTML source.</div>
         <div class="sample-item"><strong>Attack Surface Summary:</strong> The target's OSINT footprint is extremely high. A real attacker could launch a targeted phishing campaign using the email, craft a convincing spear-phishing message referencing the target's employer, and attempt credential stuffing using the GitHub password hint. Highest risk: exposed email combined with reused password patterns.</div>
       </div>
     </div>
 
     <div class="submit-wrap">
-      <div class="submit-wrap-label">?? SUBMIT YOUR DELIVERABLE LINK ? REQUIRED BEFORE MARKING COMPLETE</div>
+      <div class="submit-wrap-label">📎 SUBMIT YOUR DELIVERABLE LINK — REQUIRED BEFORE MARKING COMPLETE</div>
       <div class="submit-row">
         <input class="submit-input" id="link0" type="url" placeholder="Paste your Google Doc, GitHub, or Drive link here..." oninput="toggleMarkBtn(0)"/>
       </div>
       <div class="saved-link-box" id="saved-link0" style="display:none"></div>
     </div>
     <div style="text-align:center;margin-top:10px">
-      <button class="mark-btn" id="mark0" onclick="markPhaseComplete(0)" disabled>? &nbsp; Mark Recon Complete</button>
-      <span class="done-badge" id="done0" style="display:none">? Phase 1 Saved!</span>
+      <button class="mark-btn" id="mark0" onclick="markPhaseComplete(0)" disabled>✓ &nbsp; Mark Recon Complete</button>
+      <span class="done-badge" id="done0" style="display:none">✓ Phase 1 Saved!</span>
     </div>
     <div style="text-align:center;margin-top:10px">
-      <button class="btn-green" onclick="showPhase(1)">? &nbsp; Next: Scanning</button>
+      <button class="btn-green" onclick="showPhase(1)">▶ &nbsp; Next: Scanning</button>
     </div>
   </div>
 
-  <!-- ?? PHASE 2: SCANNING ?? -->
+  <!-- ══ PHASE 2: SCANNING ══ -->
   <div class="phase-panel" id="panel1">
     <div class="phase-banner">
-      <div class="phase-icon">??</div>
+      <div class="phase-icon">📡</div>
       <div>
         <div class="phase-num-label">PHASE 02 OF 05</div>
         <div class="phase-title-large">Scanning & Enumeration</div>
@@ -554,8 +602,8 @@ footer strong{color:var(--green)}
         <tr><td>Basic port scan</td><td>Scans the 1,000 most common TCP ports on the target host</td></tr>
         <tr><td>Version detection (-sV)</td><td>Identifies software name and version on each open port</td></tr>
         <tr><td>OS detection (-O)</td><td>Attempts to fingerprint the operating system</td></tr>
-        <tr><td>Full pentest scan (-sV -O -sC)</td><td>Version, OS, and default NSE scripts ? standard starting point</td></tr>
-        <tr><td>All ports (-p-)</td><td>Scans all 65,535 TCP ports ? slower but thorough</td></tr>
+        <tr><td>Full pentest scan (-sV -O -sC)</td><td>Version, OS, and default NSE scripts — standard starting point</td></tr>
+        <tr><td>All ports (-p-)</td><td>Scans all 65,535 TCP ports — slower but thorough</td></tr>
         <tr><td>Ping sweep (-sn)</td><td>Finds all live hosts on a subnet without port scanning</td></tr>
       </table>
     </div>
@@ -563,76 +611,76 @@ footer strong{color:var(--green)}
     <div class="sec-card">
       <div class="sec-title">Real-World Connection</div>
       <div class="breach-box">
-        <div class="breach-label">? COLONIAL PIPELINE 2021 ? SCANNING PHASE</div>
-        <div class="breach-text">DarkSide affiliates scanned the internet for exposed VPN endpoints belonging to Colonial Pipeline. They found a legacy VPN account ? no MFA, password likely reused from a prior breach ? that was still active and reachable. That single open port and single weak credential was the entire entry point for a $4.4 million ransom attack that shut down fuel supplies to 17 states for six days.</div>
+        <div class="breach-label">⚡ COLONIAL PIPELINE 2021 — SCANNING PHASE</div>
+        <div class="breach-text">DarkSide affiliates scanned the internet for exposed VPN endpoints belonging to Colonial Pipeline. They found a legacy VPN account — no MFA, password likely reused from a prior breach — that was still active and reachable. That single open port and single weak credential was the entire entry point for a $4.4 million ransom attack that shut down fuel supplies to 17 states for six days.</div>
       </div>
     </div>
 
     <div class="sec-card">
-      <div class="sec-title">Exercise 2 ? Nmap Scanning Lab</div>
+      <div class="sec-title">Exercise 2 — Nmap Scanning Lab</div>
       <div class="warn-box">
-        <div class="warn-label">? LEGAL REQUIREMENT</div>
+        <div class="warn-label">⚠ LEGAL REQUIREMENT</div>
         <div class="warn-text">Only scan systems you own or have explicit written permission to scan. All practice must use <a href="https://tryhackme.com" target="_blank" style="color:#ffb700;">TryHackMe</a>, <a href="https://hackthebox.com" target="_blank" style="color:#ffb700;">HackTheBox</a>, or your own isolated VirtualBox VM. Unauthorized scanning violates federal law.</div>
       </div>
       <div class="exercise-box" style="margin-top:14px">
-        <div class="exercise-label">?? Objective: Scan an authorized target and produce a vulnerability findings report</div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Alternative &mdash; TryHackMe</div>
-        <div class="step"><span class="step-num">01</span><span>Complete the <a href="https://tryhackme.com/room/furthernmap" target="_blank" style="color:var(--green);"><strong>"Further Nmap"</strong></a> room ? free, fully guided, authorized targets</span></div>
+        <div class="exercise-label">🎯 Objective: Scan an authorized target and produce a vulnerability findings report</div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option A — TryHackMe</div>
+        <div class="step"><span class="step-num">01</span><span>Complete the <a href="https://tryhackme.com/room/furthernmap" target="_blank" style="color:var(--green);"><strong>"Further Nmap"</strong></a> room — free, fully guided, authorized targets</span></div>
         <div class="step"><span class="step-num">02</span><span>Also try the <a href="https://tryhackme.com/room/nmap01" target="_blank" style="color:var(--green);"><strong>"Nmap Live Host Discovery"</strong></a> room for deeper scanning techniques</span></div>
         <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)"><span style="color:var(--green);font-weight:700">&#11042; PRIMARY &mdash; Hack The Box Pwnbox (Use This)</span></div>
-        <div class="step"><span class="step-num">03</span><span>Complete <strong>"Fawn"</strong> (Tier 0) ? Nmap scan reveals an open FTP port; guided questions teach you to interpret scan output</span></div>
-        <div class="step"><span class="step-num">04</span><span>Complete <strong>"Dancing"</strong> (Tier 0) ? Nmap scan of SMB ports (445/TCP); identify the service and enumerate shares</span></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option B — HackTheBox Starting Point</div>
+        <div class="step"><span class="step-num">03</span><span>Complete <strong>"Fawn"</strong> (Tier 0) — Nmap scan reveals an open FTP port; guided questions teach you to interpret scan output</span></div>
+        <div class="step"><span class="step-num">04</span><span>Complete <strong>"Dancing"</strong> (Tier 0) — Nmap scan of SMB ports (445/TCP); identify the service and enumerate shares</span></div>
         <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)"><span style="color:rgba(200,200,200,0.35)">Advanced &mdash; Local VM (not available on SOC computers)</span></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option C — Metasploitable2 Local VM (Advanced)</div>
         <div class="step"><span class="step-num">05</span><span>Run a full version and OS detection scan against your <strong>Metasploitable2 VM</strong> (host-only network only)</span></div>
         <div class="step"><span class="step-num">06</span><span>For each open port, search <a href="https://nvd.nist.gov/vuln/search" target="_blank" style="color:var(--green);"><strong>nvd.nist.gov</strong></a> to check whether a CVE exists for that version</span></div>
         <div class="step"><span class="step-num">07</span><span>Rate each finding using its CVSS score: Critical, High, Medium, or Low</span></div>
       </div>
       <div class="deliv-box">
-        <div class="deliv-label">?? DELIVERABLE ? SCANNING REPORT TABLE</div>
+        <div class="deliv-label">📋 DELIVERABLE — SCANNING REPORT TABLE</div>
         <div class="deliv-item">Port and Protocol (example: 22 TCP, 80 TCP, 445 TCP)</div>
         <div class="deliv-item">Service and Version (example: OpenSSH 7.2, Apache 2.4.18)</div>
-        <div class="deliv-item">CVE found ? number from NVD if a known vulnerability exists</div>
-        <div class="deliv-item">CVSS Score ? severity score from 0 to 10</div>
-        <div class="deliv-item">Risk Rating ? Critical, High, Medium, or Low</div>
-        <div class="deliv-item">Recommended Fix ? patch, disable, or reconfigure</div>
+        <div class="deliv-item">CVE found — number from NVD if a known vulnerability exists</div>
+        <div class="deliv-item">CVSS Score — severity score from 0 to 10</div>
+        <div class="deliv-item">Risk Rating — Critical, High, Medium, or Low</div>
+        <div class="deliv-item">Recommended Fix — patch, disable, or reconfigure</div>
       </div>
       <div class="sample-box">
-        <div class="sample-label">?? SAMPLE SUBMISSION ? SCANNING REPORT</div>
-        <div class="sample-item"><strong>21/TCP</strong> ? vsftpd 2.3.4 ? CVE-2011-2523 ? CVSS 10.0 ? CRITICAL ? Patch immediately: upgrade to vsftpd 3.0+</div>
-        <div class="sample-item"><strong>22/TCP</strong> ? OpenSSH 4.7p1 ? CVE-2008-0166 ? CVSS 7.8 ? HIGH ? Replace with OpenSSH 8.9+; disable weak key algorithms</div>
-        <div class="sample-item"><strong>80/TCP</strong> ? Apache 2.2.8 ? CVE-2017-7679 ? CVSS 9.8 ? CRITICAL ? Upgrade to Apache 2.4.54+; disable mod_mime</div>
-        <div class="sample-item"><strong>445/TCP</strong> ? Samba 3.0.20 ? CVE-2007-2447 ? CVSS 10.0 ? CRITICAL ? Upgrade Samba immediately; restrict SMB access by firewall</div>
-        <div class="sample-item"><strong>3306/TCP</strong> ? MySQL 5.0.51a ? CVE-2008-0226 ? CVSS 7.5 ? HIGH ? Patch to MySQL 8.0+; disable remote root login</div>
+        <div class="sample-label">📝 SAMPLE SUBMISSION — SCANNING REPORT</div>
+        <div class="sample-item"><strong>21/TCP</strong> — vsftpd 2.3.4 — CVE-2011-2523 — CVSS 10.0 — CRITICAL — Patch immediately: upgrade to vsftpd 3.0+</div>
+        <div class="sample-item"><strong>22/TCP</strong> — OpenSSH 4.7p1 — CVE-2008-0166 — CVSS 7.8 — HIGH — Replace with OpenSSH 8.9+; disable weak key algorithms</div>
+        <div class="sample-item"><strong>80/TCP</strong> — Apache 2.2.8 — CVE-2017-7679 — CVSS 9.8 — CRITICAL — Upgrade to Apache 2.4.54+; disable mod_mime</div>
+        <div class="sample-item"><strong>445/TCP</strong> — Samba 3.0.20 — CVE-2007-2447 — CVSS 10.0 — CRITICAL — Upgrade Samba immediately; restrict SMB access by firewall</div>
+        <div class="sample-item"><strong>3306/TCP</strong> — MySQL 5.0.51a — CVE-2008-0226 — CVSS 7.5 — HIGH — Patch to MySQL 8.0+; disable remote root login</div>
       </div>
     </div>
 
     <div class="submit-wrap">
-      <div class="submit-wrap-label">?? SUBMIT YOUR DELIVERABLE LINK ? REQUIRED BEFORE MARKING COMPLETE</div>
+      <div class="submit-wrap-label">📎 SUBMIT YOUR DELIVERABLE LINK — REQUIRED BEFORE MARKING COMPLETE</div>
       <div class="submit-row">
         <input class="submit-input" id="link1" type="url" placeholder="Paste your Google Doc, GitHub, or Drive link here..." oninput="toggleMarkBtn(1)"/>
       </div>
       <div class="saved-link-box" id="saved-link1" style="display:none"></div>
     </div>
     <div style="text-align:center;margin-top:10px">
-      <button class="mark-btn" id="mark1" onclick="markPhaseComplete(1)" disabled>? &nbsp; Mark Scanning Complete</button>
-      <span class="done-badge" id="done1" style="display:none">? Phase 2 Saved!</span>
+      <button class="mark-btn" id="mark1" onclick="markPhaseComplete(1)" disabled>✓ &nbsp; Mark Scanning Complete</button>
+      <span class="done-badge" id="done1" style="display:none">✓ Phase 2 Saved!</span>
     </div>
     <div style="text-align:center;margin-top:10px">
-      <button class="btn-outline" onclick="showPhase(0)">? Recon</button>
-      <button class="btn-green" onclick="showPhase(2)">? &nbsp; Next: Exploitation</button>
+      <button class="btn-outline" onclick="showPhase(0)">← Recon</button>
+      <button class="btn-green" onclick="showPhase(2)">▶ &nbsp; Next: Exploitation</button>
     </div>
   </div>
 
-  <!-- ?? PHASE 3: EXPLOITATION ?? -->
+  <!-- ══ PHASE 3: EXPLOITATION ══ -->
   <div class="phase-panel" id="panel2">
     <div class="phase-banner">
-      <div class="phase-icon">??</div>
+      <div class="phase-icon">💥</div>
       <div>
         <div class="phase-num-label">PHASE 03 OF 05</div>
         <div class="phase-title-large">Gaining Access</div>
-        <div class="phase-desc-short">Use a discovered vulnerability to gain entry. In ethical hacking this proves a vulnerability is real ? not just theoretical. Gain access, don't cause damage.</div>
+        <div class="phase-desc-short">Use a discovered vulnerability to gain entry. In ethical hacking this proves a vulnerability is real — not just theoretical. Gain access, don't cause damage.</div>
       </div>
     </div>
 
@@ -640,7 +688,7 @@ footer strong{color:var(--green)}
       <div class="sec-title">Common Exploitation Techniques</div>
       <table class="data-table">
         <tr><th>Technique</th><th>Description</th><th>Example</th></tr>
-        <tr><td>CVE Exploitation</td><td>Exploit a known, unpatched software vulnerability</td><td>Equifax Apache Struts ? no authentication required</td></tr>
+        <tr><td>CVE Exploitation</td><td>Exploit a known, unpatched software vulnerability</td><td>Equifax Apache Struts — no authentication required</td></tr>
         <tr><td>Password Attacks</td><td>Brute force, credential stuffing, or dictionary attacks</td><td>Automated login attempts against SSH or web forms</td></tr>
         <tr><td>Social Engineering</td><td>Manipulate people into revealing credentials or clicking malicious links</td><td>Phishing emails, vishing phone calls</td></tr>
         <tr><td>SQL Injection</td><td>Insert malicious database code into input fields to access data</td><td>DVWA SQL injection practice lab</td></tr>
@@ -653,77 +701,77 @@ footer strong{color:var(--green)}
       <div class="sec-title">Key Exploitation Tools</div>
       <table class="data-table">
         <tr><th>Tool</th><th>Purpose</th><th>Free?</th></tr>
-        <tr><td>Metasploit Framework</td><td>Industry-standard exploit and post-exploitation platform</td><td><span class="tag-green">YES ? Community</span></td></tr>
-        <tr><td>Burp Suite Community</td><td>Web application proxy ? intercept and modify HTTP traffic</td><td><span class="tag-green">YES ? Community</span></td></tr>
-        <tr><td>Hydra</td><td>Fast multi-protocol password brute-force tool</td><td><span class="tag-green">YES ? in Kali</span></td></tr>
-        <tr><td>SQLmap</td><td>Automated SQL injection detection and database extraction</td><td><span class="tag-green">YES ? in Kali</span></td></tr>
-        <tr><td>DVWA</td><td>Damn Vulnerable Web Application ? safe local practice target</td><td><span class="tag-green">YES ? free download</span></td></tr>
+        <tr><td>Metasploit Framework</td><td>Industry-standard exploit and post-exploitation platform</td><td><span class="tag-green">YES — Community</span></td></tr>
+        <tr><td>Burp Suite Community</td><td>Web application proxy — intercept and modify HTTP traffic</td><td><span class="tag-green">YES — Community</span></td></tr>
+        <tr><td>Hydra</td><td>Fast multi-protocol password brute-force tool</td><td><span class="tag-green">YES — in Kali</span></td></tr>
+        <tr><td>SQLmap</td><td>Automated SQL injection detection and database extraction</td><td><span class="tag-green">YES — in Kali</span></td></tr>
+        <tr><td>DVWA</td><td>Damn Vulnerable Web Application — safe local practice target</td><td><span class="tag-green">YES — free download</span></td></tr>
       </table>
     </div>
 
     <div class="sec-card">
       <div class="sec-title">Real-World Connection</div>
       <div class="breach-box">
-        <div class="breach-label">? EQUIFAX 2017 ? EXPLOITATION PHASE</div>
-        <div class="breach-text">Attackers exploited CVE-2017-5638 ? a critical remote code execution flaw in Apache Struts. The CVE was published March 7, 2017 with a patch available the same day. Equifax was breached on May 13, 2017 ? 69 days after the patch was released. The exploit required zero authentication and could be triggered with a single crafted HTTP request. Result: 147 million Americans had their Social Security numbers, birthdates, and financial data stolen.</div>
+        <div class="breach-label">⚡ EQUIFAX 2017 — EXPLOITATION PHASE</div>
+        <div class="breach-text">Attackers exploited CVE-2017-5638 — a critical remote code execution flaw in Apache Struts. The CVE was published March 7, 2017 with a patch available the same day. Equifax was breached on May 13, 2017 — 69 days after the patch was released. The exploit required zero authentication and could be triggered with a single crafted HTTP request. Result: 147 million Americans had their Social Security numbers, birthdates, and financial data stolen.</div>
       </div>
     </div>
 
     <div class="sec-card">
-      <div class="sec-title">Exercise 3 ? Exploitation Lab</div>
+      <div class="sec-title">Exercise 3 — Exploitation Lab</div>
       <div class="exercise-box">
-        <div class="exercise-label">?? Objective: Exploit a known vulnerability on an authorized target</div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Alternative &mdash; TryHackMe</div>
-        <div class="step"><span class="step-num">01</span><span>Complete the <a href="https://tryhackme.com/room/basicpentestingjt" target="_blank" style="color:var(--green);"><strong>"Basic Pentesting"</strong></a> room ? free, fully guided, authorized</span></div>
+        <div class="exercise-label">🎯 Objective: Exploit a known vulnerability on an authorized target</div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option A — TryHackMe (Beginner Recommended)</div>
+        <div class="step"><span class="step-num">01</span><span>Complete the <a href="https://tryhackme.com/room/basicpentestingjt" target="_blank" style="color:var(--green);"><strong>"Basic Pentesting"</strong></a> room — free, fully guided, authorized</span></div>
         <div class="step"><span class="step-num">02</span><span>Complete the <a href="https://tryhackme.com/room/owasptop10" target="_blank" style="color:var(--green);"><strong>"OWASP Top 10"</strong></a> room for hands-on web application exploitation</span></div>
-        <div class="step"><span class="step-num">03</span><span>Document every step ? what you tried, what succeeded, and what failed, with screenshots</span></div>
+        <div class="step"><span class="step-num">03</span><span>Document every step — what you tried, what succeeded, and what failed, with screenshots</span></div>
         <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)"><span style="color:var(--green);font-weight:700">&#11042; PRIMARY &mdash; Hack The Box Pwnbox (Use This)</span></div>
-        <div class="step"><span class="step-num">04</span><span>Complete <strong>"Appointment"</strong> (Tier 1) ? SQL injection exploitation against a login form; no Metasploit needed</span></div>
-        <div class="step"><span class="step-num">05</span><span>Complete <strong>"Sequel"</strong> (Tier 1) ? MySQL exploitation with unauthenticated access; practice extracting database content</span></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option B — HackTheBox Starting Point</div>
+        <div class="step"><span class="step-num">04</span><span>Complete <strong>"Appointment"</strong> (Tier 1) — SQL injection exploitation against a login form; no Metasploit needed</span></div>
+        <div class="step"><span class="step-num">05</span><span>Complete <strong>"Sequel"</strong> (Tier 1) — MySQL exploitation with unauthenticated access; practice extracting database content</span></div>
         <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)"><span style="color:rgba(200,200,200,0.35)">Advanced &mdash; Local VM (not available on SOC computers)</span></div>
-        <div class="step"><span class="step-num">06</span><span>Download <strong>Metasploitable2</strong> ? run ONLY in VirtualBox on a host-only isolated network</span></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option C — Metasploitable2 Local VM (Advanced)</div>
+        <div class="step"><span class="step-num">06</span><span>Download <strong>Metasploitable2</strong> — run ONLY in VirtualBox on a host-only isolated network</span></div>
         <div class="step"><span class="step-num">07</span><span>Launch the Metasploit console and select the <strong>vsftpd 2.3.4 backdoor</strong> exploit module (CVE-2011-2523)</span></div>
-        <div class="step"><span class="step-num">08</span><span>Set the target IP address and run the exploit ? document the full module name and CVE number</span></div>
+        <div class="step"><span class="step-num">08</span><span>Set the target IP address and run the exploit — document the full module name and CVE number</span></div>
       </div>
       <div class="deliv-box">
-        <div class="deliv-label">?? DELIVERABLE</div>
-        <div class="deliv-item">Screenshot proof of successful access ? a command shell or Meterpreter session</div>
+        <div class="deliv-label">📋 DELIVERABLE</div>
+        <div class="deliv-item">Screenshot proof of successful access — a command shell or Meterpreter session</div>
         <div class="deliv-item">Exploit used: name, CVE number, and plain-English explanation of the vulnerability</div>
         <div class="deliv-item">Access level gained: standard user, root, or administrator</div>
         <div class="deliv-item">One paragraph: what could a real attacker accomplish with this level of access?</div>
       </div>
       <div class="sample-box">
-        <div class="sample-label">?? SAMPLE SUBMISSION ? EXPLOITATION</div>
-        <div class="sample-item"><strong>Platform:</strong> TryHackMe ? "Basic Pentesting" room</div>
-        <div class="sample-item"><strong>Exploit Used:</strong> SSH brute-force via Hydra against port 22. Username discovered from SMB enumeration (enum4linux). CVE: N/A ? weak credential, not a software vulnerability.</div>
-        <div class="sample-item"><strong>Access Gained:</strong> Standard user shell as "jan". Ran "whoami" ? output: jan. Ran "id" ? output: uid=1000(jan) gid=1000(jan) groups=1000(jan).</div>
+        <div class="sample-label">📝 SAMPLE SUBMISSION — EXPLOITATION</div>
+        <div class="sample-item"><strong>Platform:</strong> TryHackMe — "Basic Pentesting" room</div>
+        <div class="sample-item"><strong>Exploit Used:</strong> SSH brute-force via Hydra against port 22. Username discovered from SMB enumeration (enum4linux). CVE: N/A — weak credential, not a software vulnerability.</div>
+        <div class="sample-item"><strong>Access Gained:</strong> Standard user shell as "jan". Ran "whoami" — output: jan. Ran "id" — output: uid=1000(jan) gid=1000(jan) groups=1000(jan).</div>
         <div class="sample-item"><strong>Impact Analysis:</strong> A real attacker with this access level could read all files owned by the jan account, attempt privilege escalation to root, enumerate running services, and establish persistence via a cron job or SSH key. The weak password (123456) on an internet-facing SSH port would be discovered by an automated scanner within minutes of deployment.</div>
       </div>
     </div>
 
     <div class="submit-wrap">
-      <div class="submit-wrap-label">?? SUBMIT YOUR DELIVERABLE LINK ? REQUIRED BEFORE MARKING COMPLETE</div>
+      <div class="submit-wrap-label">📎 SUBMIT YOUR DELIVERABLE LINK — REQUIRED BEFORE MARKING COMPLETE</div>
       <div class="submit-row">
         <input class="submit-input" id="link2" type="url" placeholder="Paste your Google Doc, GitHub, or Drive link here..." oninput="toggleMarkBtn(2)"/>
       </div>
       <div class="saved-link-box" id="saved-link2" style="display:none"></div>
     </div>
     <div style="text-align:center;margin-top:10px">
-      <button class="mark-btn" id="mark2" onclick="markPhaseComplete(2)" disabled>? &nbsp; Mark Exploitation Complete</button>
-      <span class="done-badge" id="done2" style="display:none">? Phase 3 Saved!</span>
+      <button class="mark-btn" id="mark2" onclick="markPhaseComplete(2)" disabled>✓ &nbsp; Mark Exploitation Complete</button>
+      <span class="done-badge" id="done2" style="display:none">✓ Phase 3 Saved!</span>
     </div>
     <div style="text-align:center;margin-top:10px">
-      <button class="btn-outline" onclick="showPhase(1)">? Scanning</button>
-      <button class="btn-green" onclick="showPhase(3)">? &nbsp; Next: Persistence</button>
+      <button class="btn-outline" onclick="showPhase(1)">← Scanning</button>
+      <button class="btn-green" onclick="showPhase(3)">▶ &nbsp; Next: Persistence</button>
     </div>
   </div>
 
-  <!-- ?? PHASE 4: PERSISTENCE ?? -->
+  <!-- ══ PHASE 4: PERSISTENCE ══ -->
   <div class="phase-panel" id="panel3">
     <div class="phase-banner">
-      <div class="phase-icon">???</div>
+      <div class="phase-icon">🕷️</div>
       <div>
         <div class="phase-num-label">PHASE 04 OF 05</div>
         <div class="phase-title-large">Maintaining Access</div>
@@ -740,74 +788,74 @@ footer strong{color:var(--green)}
         <tr><td>Privilege Escalation</td><td>Gaining higher permissions than initially obtained</td><td>Escalating from standard user to root or SYSTEM</td></tr>
         <tr><td>Command and Control (C2)</td><td>Maintaining a communication channel for attacker instructions</td><td>Reverse shell, Metasploit multi-handler, Cobalt Strike</td></tr>
         <tr><td>Pivoting</td><td>Using a compromised host to reach otherwise inaccessible systems</td><td>Port forwarding through an active Meterpreter session</td></tr>
-        <tr><td>Living Off the Land</td><td>Using built-in OS tools instead of custom malware to avoid detection</td><td>PowerShell, WMI, certutil ? all built into Windows</td></tr>
+        <tr><td>Living Off the Land</td><td>Using built-in OS tools instead of custom malware to avoid detection</td><td>PowerShell, WMI, certutil — all built into Windows</td></tr>
       </table>
     </div>
 
     <div class="sec-card">
       <div class="sec-title">Real-World Connection</div>
       <div class="breach-box">
-        <div class="breach-label">? SOLARWINDS 2020 ? PERSISTENCE PHASE</div>
-        <div class="breach-text">After gaining initial access via the poisoned Orion software update, attackers maintained presence for 9 months across approximately 100 high-value targets including US Treasury, Commerce, and Homeland Security departments. They used SAML token forgery for persistent cloud access, scheduled tasks for local system persistence, and lived off the land ? using PowerShell, WMI, and other built-in Windows tools to avoid triggering antivirus. Some organizations did not discover the compromise for over a year.</div>
+        <div class="breach-label">⚡ SOLARWINDS 2020 — PERSISTENCE PHASE</div>
+        <div class="breach-text">After gaining initial access via the poisoned Orion software update, attackers maintained presence for 9 months across approximately 100 high-value targets including US Treasury, Commerce, and Homeland Security departments. They used SAML token forgery for persistent cloud access, scheduled tasks for local system persistence, and lived off the land — using PowerShell, WMI, and other built-in Windows tools to avoid triggering antivirus. Some organizations did not discover the compromise for over a year.</div>
       </div>
     </div>
 
     <div class="sec-card">
-      <div class="sec-title">Exercise 4 ? Post-Exploitation Lab</div>
+      <div class="sec-title">Exercise 4 — Post-Exploitation Lab</div>
       <div class="exercise-box">
-        <div class="exercise-label">?? Objective: Demonstrate 2+ post-exploitation techniques from Exercise 3 access</div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Alternative &mdash; TryHackMe</div>
-        <div class="step"><span class="step-num">01</span><span>Complete the <a href="https://tryhackme.com/room/postexploit" target="_blank" style="color:var(--green);"><strong>"Post-Exploitation Basics"</strong></a> room ? covers hashdump, Mimikatz, persistence techniques</span></div>
+        <div class="exercise-label">🎯 Objective: Demonstrate 2+ post-exploitation techniques from Exercise 3 access</div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option A — TryHackMe</div>
+        <div class="step"><span class="step-num">01</span><span>Complete the <a href="https://tryhackme.com/room/postexploit" target="_blank" style="color:var(--green);"><strong>"Post-Exploitation Basics"</strong></a> room — covers hashdump, Mimikatz, persistence techniques</span></div>
         <div class="step"><span class="step-num">02</span><span>Complete the <a href="https://tryhackme.com/room/linprivesc" target="_blank" style="color:var(--green);"><strong>"Linux Privilege Escalation"</strong></a> room for escalation techniques on Linux targets</span></div>
         <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)"><span style="color:var(--green);font-weight:700">&#11042; PRIMARY &mdash; Hack The Box Pwnbox (Use This)</span></div>
-        <div class="step"><span class="step-num">03</span><span>Complete <a href="https://app.hackthebox.com/machines/Blue" target="_blank" style="color:var(--green);"><strong>"Blue"</strong></a> ? EternalBlue (MS17-010) exploitation; post-exploit to dump hashes and escalate to SYSTEM</span></div>
-        <div class="step"><span class="step-num">04</span><span>Complete <strong>"Unified"</strong> (Starting Point Tier 2) ? demonstrates persistence via a planted SSH key after initial access</span></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option B — HackTheBox</div>
+        <div class="step"><span class="step-num">03</span><span>Complete <a href="https://app.hackthebox.com/machines/Blue" target="_blank" style="color:var(--green);"><strong>"Blue"</strong></a> — EternalBlue (MS17-010) exploitation; post-exploit to dump hashes and escalate to SYSTEM</span></div>
+        <div class="step"><span class="step-num">04</span><span>Complete <strong>"Unified"</strong> (Starting Point Tier 2) — demonstrates persistence via a planted SSH key after initial access</span></div>
         <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
-        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)"><span style="color:rgba(200,200,200,0.35)">Advanced &mdash; Local VM (not available on SOC computers)</span></div>
-        <div class="step"><span class="step-num">05</span><span>From your active session, run <strong>whoami</strong> and <strong>id</strong> ? document your current user and permission level exactly</span></div>
-        <div class="step"><span class="step-num">06</span><span>Attempt privilege escalation ? Metasploit <strong>getsystem</strong> or check <strong>sudo -l</strong> for available sudo permissions</span></div>
-        <div class="step"><span class="step-num">07</span><span>Search for stored credentials using the Metasploit <strong>hashdump</strong> module ? document only, do not crack</span></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option C — From Exercise 3 Session (Advanced)</div>
+        <div class="step"><span class="step-num">05</span><span>From your active session, run <strong>whoami</strong> and <strong>id</strong> — document your current user and permission level exactly</span></div>
+        <div class="step"><span class="step-num">06</span><span>Attempt privilege escalation — Metasploit <strong>getsystem</strong> or check <strong>sudo -l</strong> for available sudo permissions</span></div>
+        <div class="step"><span class="step-num">07</span><span>Search for stored credentials using the Metasploit <strong>hashdump</strong> module — document only, do not crack</span></div>
       </div>
       <div class="deliv-box">
-        <div class="deliv-label">?? DELIVERABLE</div>
-        <div class="deliv-item">Initial Access Level ? what user account and permissions did you start with?</div>
-        <div class="deliv-item">Privilege Escalation ? method used, and what level did you reach?</div>
-        <div class="deliv-item">Network Discovery ? what other hosts or services were visible from inside the system?</div>
-        <div class="deliv-item">Credentials Found ? any usernames or hashes discovered (document only ? do not crack)</div>
-        <div class="deliv-item">Persistence Plan ? what method would a real attacker use to guarantee return access? Describe it.</div>
+        <div class="deliv-label">📋 DELIVERABLE</div>
+        <div class="deliv-item">Initial Access Level — what user account and permissions did you start with?</div>
+        <div class="deliv-item">Privilege Escalation — method used, and what level did you reach?</div>
+        <div class="deliv-item">Network Discovery — what other hosts or services were visible from inside the system?</div>
+        <div class="deliv-item">Credentials Found — any usernames or hashes discovered (document only — do not crack)</div>
+        <div class="deliv-item">Persistence Plan — what method would a real attacker use to guarantee return access? Describe it.</div>
       </div>
       <div class="sample-box">
-        <div class="sample-label">?? SAMPLE SUBMISSION ? POST-EXPLOITATION</div>
+        <div class="sample-label">📝 SAMPLE SUBMISSION — POST-EXPLOITATION</div>
         <div class="sample-item"><strong>Initial Access:</strong> Standard user "jan" via SSH brute-force. uid=1000, no sudo permissions initially.</div>
-        <div class="sample-item"><strong>Privilege Escalation:</strong> Ran "sudo -l" ? discovered jan can run /bin/cat as root with no password. Used this to read /etc/shadow and retrieve root password hash. Escalated to root using the cracked hash. Final level: root (uid=0).</div>
-        <div class="sample-item"><strong>Network Discovery:</strong> Ran "arp -a" from root shell ? found 3 additional hosts on 192.168.1.0/24. Identified a Windows host at 192.168.1.50 running SMB on port 445.</div>
-        <div class="sample-item"><strong>Credentials Found:</strong> /etc/shadow retrieved ? 4 password hashes documented. Not cracked. Hashes saved to notes for reporting only.</div>
+        <div class="sample-item"><strong>Privilege Escalation:</strong> Ran "sudo -l" — discovered jan can run /bin/cat as root with no password. Used this to read /etc/shadow and retrieve root password hash. Escalated to root using the cracked hash. Final level: root (uid=0).</div>
+        <div class="sample-item"><strong>Network Discovery:</strong> Ran "arp -a" from root shell — found 3 additional hosts on 192.168.1.0/24. Identified a Windows host at 192.168.1.50 running SMB on port 445.</div>
+        <div class="sample-item"><strong>Credentials Found:</strong> /etc/shadow retrieved — 4 password hashes documented. Not cracked. Hashes saved to notes for reporting only.</div>
         <div class="sample-item"><strong>Persistence Plan:</strong> A real attacker would add an SSH public key to /root/.ssh/authorized_keys for keyless re-entry. This method survives password changes and persists across reboots with no new open ports or services that would trigger alerts.</div>
       </div>
     </div>
 
     <div class="submit-wrap">
-      <div class="submit-wrap-label">?? SUBMIT YOUR DELIVERABLE LINK ? REQUIRED BEFORE MARKING COMPLETE</div>
+      <div class="submit-wrap-label">📎 SUBMIT YOUR DELIVERABLE LINK — REQUIRED BEFORE MARKING COMPLETE</div>
       <div class="submit-row">
         <input class="submit-input" id="link3" type="url" placeholder="Paste your Google Doc, GitHub, or Drive link here..." oninput="toggleMarkBtn(3)"/>
       </div>
       <div class="saved-link-box" id="saved-link3" style="display:none"></div>
     </div>
     <div style="text-align:center;margin-top:10px">
-      <button class="mark-btn" id="mark3" onclick="markPhaseComplete(3)" disabled>? &nbsp; Mark Persistence Complete</button>
-      <span class="done-badge" id="done3" style="display:none">? Phase 4 Saved!</span>
+      <button class="mark-btn" id="mark3" onclick="markPhaseComplete(3)" disabled>✓ &nbsp; Mark Persistence Complete</button>
+      <span class="done-badge" id="done3" style="display:none">✓ Phase 4 Saved!</span>
     </div>
     <div style="text-align:center;margin-top:10px">
-      <button class="btn-outline" onclick="showPhase(2)">? Exploitation</button>
-      <button class="btn-green" onclick="showPhase(4)">? &nbsp; Next: Reporting</button>
+      <button class="btn-outline" onclick="showPhase(2)">← Exploitation</button>
+      <button class="btn-green" onclick="showPhase(4)">▶ &nbsp; Next: Reporting</button>
     </div>
   </div>
 
-  <!-- ?? PHASE 5: REPORTING ?? -->
+  <!-- ══ PHASE 5: REPORTING ══ -->
   <div class="phase-panel" id="panel4">
     <div class="phase-banner">
-      <div class="phase-icon">??</div>
+      <div class="phase-icon">📝</div>
       <div>
         <div class="phase-num-label">PHASE 05 OF 05</div>
         <div class="phase-title-large">Covering Tracks / Reporting</div>
@@ -819,12 +867,12 @@ footer strong{color:var(--green)}
       <div class="sec-title">Professional Pentest Report Structure</div>
       <table class="data-table">
         <tr><th>Section</th><th>What to Include</th></tr>
-        <tr><td>Executive Summary</td><td>Non-technical overview: what was tested, overall risk rating, top 3 findings. Written for leadership ? no jargon.</td></tr>
+        <tr><td>Executive Summary</td><td>Non-technical overview: what was tested, overall risk rating, top 3 findings. Written for leadership — no jargon.</td></tr>
         <tr><td>Scope and Rules of Engagement</td><td>Systems in scope, what was off-limits, test dates, authorization reference document</td></tr>
         <tr><td>Methodology</td><td>Which of the 5 phases were performed, tools used, and general approach</td></tr>
         <tr><td>Findings Summary Table</td><td>All vulnerabilities ranked: Critical, High, Medium, Low, Informational</td></tr>
         <tr><td>Detailed Findings</td><td>Per vulnerability: description, screenshot evidence, CVSS score, business impact, step-by-step remediation</td></tr>
-        <tr><td>Recommendations</td><td>Prioritized fix list ? Critical and High first, specific and actionable</td></tr>
+        <tr><td>Recommendations</td><td>Prioritized fix list — Critical and High first, specific and actionable</td></tr>
         <tr><td>Appendix</td><td>Full tool output, raw scan results, and complete evidence logs</td></tr>
       </table>
     </div>
@@ -833,73 +881,73 @@ footer strong{color:var(--green)}
       <div class="sec-title">Risk Rating Reference</div>
       <table class="data-table">
         <tr><th>Rating</th><th>CVSS Score</th><th>Meaning</th><th>Real Example</th></tr>
-        <tr><td style="color:#ff3a3a;font-weight:700">Critical</td><td>9.0 ? 10.0</td><td>Remote code execution, full compromise, no auth required</td><td>EternalBlue MS17-010, Log4Shell</td></tr>
-        <tr><td style="color:#ff8c00;font-weight:700">High</td><td>7.0 ? 8.9</td><td>Significant data exposure, may require some conditions</td><td>SQL injection with full database dump</td></tr>
-        <tr><td style="color:#ffb700;font-weight:700">Medium</td><td>4.0 ? 6.9</td><td>Limited impact or requires user interaction</td><td>Stored XSS, weak password policy</td></tr>
-        <tr><td style="color:#00ff41;font-weight:700">Low</td><td>0.1 ? 3.9</td><td>Minimal direct impact, informational value</td><td>Verbose error messages, version banners</td></tr>
+        <tr><td style="color:#ff3a3a;font-weight:700">Critical</td><td>9.0 – 10.0</td><td>Remote code execution, full compromise, no auth required</td><td>EternalBlue MS17-010, Log4Shell</td></tr>
+        <tr><td style="color:#ff8c00;font-weight:700">High</td><td>7.0 – 8.9</td><td>Significant data exposure, may require some conditions</td><td>SQL injection with full database dump</td></tr>
+        <tr><td style="color:#ffb700;font-weight:700">Medium</td><td>4.0 – 6.9</td><td>Limited impact or requires user interaction</td><td>Stored XSS, weak password policy</td></tr>
+        <tr><td style="color:#00ff41;font-weight:700">Low</td><td>0.1 – 3.9</td><td>Minimal direct impact, informational value</td><td>Verbose error messages, version banners</td></tr>
         <tr><td style="color:var(--muted)">Info</td><td>N/A</td><td>No direct risk but a best-practice concern</td><td>HTTP where HTTPS is recommended</td></tr>
       </table>
     </div>
 
     <div class="sec-card">
-      <div class="sec-title">Exercise 5 ? Write Your Pentest Report</div>
+      <div class="sec-title">Exercise 5 — Write Your Pentest Report</div>
       <div class="exercise-box">
-        <div class="exercise-label">?? Objective: Turn Exercises 1?4 into a professional client-ready report</div>
+        <div class="exercise-label">🎯 Objective: Turn Exercises 1–4 into a professional client-ready report</div>
         <div class="step"><span class="step-num">01</span><span>Use the <strong>MCCoE Executive Summary Template</strong> as your starting document (download below)</span></div>
-        <div class="step"><span class="step-num">02</span><span>Write an Executive Summary ? one page maximum, readable by a non-technical executive in two minutes</span></div>
+        <div class="step"><span class="step-num">02</span><span>Write an Executive Summary — one page maximum, readable by a non-technical executive in two minutes</span></div>
         <div class="step"><span class="step-num">03</span><span>Create a Findings Summary Table ranking all vulnerabilities you discovered with severity ratings</span></div>
         <div class="step"><span class="step-num">04</span><span>Write a Detailed Finding for your highest-severity vulnerability: description, screenshot, CVSS score, business impact, and step-by-step remediation</span></div>
-        <div class="step"><span class="step-num">05</span><span>Close with a prioritized Recommendations section ? most critical fixes first</span></div>
+        <div class="step"><span class="step-num">05</span><span>Close with a prioritized Recommendations section — most critical fixes first</span></div>
         <div class="step"><span class="step-num">06</span><span>Reference <a href="https://tryhackme.com/room/wreath" target="_blank" style="color:var(--green);"><strong>TryHackMe "Wreath"</strong></a> or <a href="https://tryhackme.com/room/reportwriting" target="_blank" style="color:var(--green);"><strong>"Report Writing for Pentesters"</strong></a> for professional report structure guidance</span></div>
       </div>
       <div class="rubric-card" style="margin-top:16px">
         <div class="rubric-hdr"><span>CRITERIA</span><span>FULL CREDIT</span><span>PARTIAL</span><span>POINTS</span></div>
         <div class="rubric-row"><span>Executive Summary</span><span>Clear, non-technical, covers scope and top risk</span><span>Too technical or missing elements</span><span class="points-badge">20</span></div>
-        <div class="rubric-row"><span>All 5 Phases Documented</span><span>Each phase documented with specific actions</span><span>3?4 phases covered</span><span class="points-badge">30</span></div>
+        <div class="rubric-row"><span>All 5 Phases Documented</span><span>Each phase documented with specific actions</span><span>3–4 phases covered</span><span class="points-badge">30</span></div>
         <div class="rubric-row"><span>Findings Table</span><span>All findings rated with CVSS scores</span><span>Some ratings missing</span><span class="points-badge">15</span></div>
         <div class="rubric-row"><span>Detailed Finding</span><span>Description, proof, impact, remediation</span><span>Missing one element</span><span class="points-badge">20</span></div>
         <div class="rubric-row"><span>Recommendations</span><span>Prioritized and actionable</span><span>Generic or unordered</span><span class="points-badge">15</span></div>
         <div class="total-row"><span>TOTAL</span><span></span><span></span><span>100 pts</span></div>
       </div>
       <div class="sample-box" style="margin-top:14px">
-        <div class="sample-label">?? SAMPLE ? EXECUTIVE SUMMARY PARAGRAPH</div>
+        <div class="sample-label">📝 SAMPLE — EXECUTIVE SUMMARY PARAGRAPH</div>
         <div class="sample-item"><strong>Overall Risk Rating: HIGH</strong></div>
-        <div class="sample-item">On August 14, 2026, an authorized penetration test was conducted against the Metasploitable2 training environment. Testing covered all five phases of a standard penetration test. Five vulnerabilities were discovered: two rated Critical, two High, and one Medium. The most severe finding was CVE-2011-2523 (vsftpd 2.3.4 backdoor) ? a remotely exploitable vulnerability requiring no authentication that resulted in full root-level system access. An attacker exploiting this flaw would have complete control of the server and all data stored on it. Immediate patching of all Critical and High findings is strongly recommended before this system is connected to any production or campus network.</div>
-        <div class="sample-label" style="margin-top:12px">?? SAMPLE ? DETAILED FINDING ENTRY</div>
+        <div class="sample-item">On August 14, 2026, an authorized penetration test was conducted against the Metasploitable2 training environment. Testing covered all five phases of a standard penetration test. Five vulnerabilities were discovered: two rated Critical, two High, and one Medium. The most severe finding was CVE-2011-2523 (vsftpd 2.3.4 backdoor) — a remotely exploitable vulnerability requiring no authentication that resulted in full root-level system access. An attacker exploiting this flaw would have complete control of the server and all data stored on it. Immediate patching of all Critical and High findings is strongly recommended before this system is connected to any production or campus network.</div>
+        <div class="sample-label" style="margin-top:12px">📝 SAMPLE — DETAILED FINDING ENTRY</div>
         <div class="sample-item"><strong>Finding:</strong> vsftpd 2.3.4 Backdoor Command Execution</div>
         <div class="sample-item"><strong>CVE:</strong> CVE-2011-2523 | <strong>CVSS Score:</strong> 10.0 | <strong>Severity:</strong> CRITICAL</div>
         <div class="sample-item"><strong>Description:</strong> vsftpd version 2.3.4 contains a deliberately planted backdoor. When a username containing a smiley face string ":)" is sent, the server opens a command shell on port 6200. No password is required.</div>
-        <div class="sample-item"><strong>Evidence:</strong> [Screenshot of Metasploit session output showing root shell ? see Appendix A]</div>
+        <div class="sample-item"><strong>Evidence:</strong> [Screenshot of Metasploit session output showing root shell — see Appendix A]</div>
         <div class="sample-item"><strong>Business Impact:</strong> Full root access to the server. An attacker could exfiltrate all data, install ransomware, pivot to other systems, or destroy the host entirely.</div>
         <div class="sample-item"><strong>Remediation:</strong> Immediately upgrade vsftpd to version 3.0.5 or later. Verify package integrity before deployment. Block port 6200 at the firewall as a secondary control.</div>
       </div>
     </div>
 
     <div class="submit-wrap">
-      <div class="submit-wrap-label">?? SUBMIT YOUR PENTEST REPORT LINK ? REQUIRED BEFORE MARKING COMPLETE</div>
+      <div class="submit-wrap-label">📎 SUBMIT YOUR PENTEST REPORT LINK — REQUIRED BEFORE MARKING COMPLETE</div>
       <div class="submit-row">
         <input class="submit-input" id="link4" type="url" placeholder="Paste your Google Doc, GitHub, or Drive link here..." oninput="toggleMarkBtn(4)"/>
       </div>
       <div class="saved-link-box" id="saved-link4" style="display:none"></div>
     </div>
     <div style="text-align:center;margin-top:10px">
-      <button class="mark-btn" id="mark4" onclick="markPhaseComplete(4)" disabled>? &nbsp; Mark Reporting Complete</button>
-      <span class="done-badge" id="done4" style="display:none">? Phase 5 Saved!</span>
+      <button class="mark-btn" id="mark4" onclick="markPhaseComplete(4)" disabled>✓ &nbsp; Mark Reporting Complete</button>
+      <span class="done-badge" id="done4" style="display:none">✓ Phase 5 Saved!</span>
     </div>
     <div style="text-align:center;margin-top:10px">
-      <button class="btn-outline" onclick="showPhase(3)">? Persistence</button>
-      <button class="btn-green" onclick="showPhase(5)">?? &nbsp; Go to Capstone</button>
+      <button class="btn-outline" onclick="showPhase(3)">← Persistence</button>
+      <button class="btn-green" onclick="showPhase(5)">🏁 &nbsp; Go to Capstone</button>
     </div>
   </div>
 
-  <!-- ?? CAPSTONE ?? -->
+  <!-- ══ CAPSTONE ══ -->
   <div class="phase-panel" id="panel5">
     <div class="capstone-card">
-      <span class="capstone-icon">??</span>
+      <span class="capstone-icon">🏁</span>
       <div class="capstone-title">CAPSTONE CHALLENGE</div>
       <p class="capstone-desc">All 5 phases. One target. One report. Pick a TryHackMe room, work through it end-to-end while documenting every action across all 5 phases, then deliver a professional pentest report as your final submission.</p>
-      <a href="https://tryhackme.com" target="_blank" class="btn-green">? &nbsp; Launch TryHackMe</a>
-      <a href="MCCoE_5Phases_Pentesting_Student_Guide.docx" download class="btn-outline">? &nbsp; Download Lab Guide</a>
+      <a href="https://tryhackme.com" target="_blank" class="btn-green">▶ &nbsp; Launch TryHackMe</a>
+      <a href="MCCoE_5Phases_Pentesting_Student_Guide.docx" download class="btn-outline">⬇ &nbsp; Download Lab Guide</a>
     </div>
 
     <div class="sec-card">
@@ -921,11 +969,11 @@ footer strong{color:var(--green)}
           <div class="room-name">Mr. Robot CTF</div>
           <span class="room-diff diff-intermediate">INTERMEDIATE</span>
           <div class="room-phases">Phases: 1, 2, 3, 4, 5</div>
-          <div class="room-note">All 5 phases. Excellent recon phase. Themed after the TV show ? iconic room.</div>
+          <div class="room-note">All 5 phases. Excellent recon phase. Themed after the TV show — iconic room.</div>
         </div>
         <div class="room-card">
           <div class="room-name">Vulnversity</div>
-          <span class="room-diff diff-beginner">BEGINNER?INT</span>
+          <span class="room-diff diff-beginner">BEGINNER–INT</span>
           <div class="room-phases">Phases: 2, 3, 4</div>
           <div class="room-note">Web exploitation and Linux privilege escalation. Great Metasploit practice.</div>
         </div>
@@ -939,32 +987,32 @@ footer strong{color:var(--green)}
     </div>
 
     <div class="sec-card">
-      <div class="sec-title">HackTheBox ? Recommended Machines</div>
-      <div style="margin-bottom:12px;font-size:13px;color:var(--muted)">Create a free account at <a href="https://hackthebox.com" target="_blank" style="color:var(--green);">hackthebox.com</a> ? Starting Point machines are fully guided and free</div>
+      <div class="sec-title">HackTheBox — Recommended Machines</div>
+      <div style="margin-bottom:12px;font-size:13px;color:var(--muted)">Create a free account at <a href="https://hackthebox.com" target="_blank" style="color:var(--green);">hackthebox.com</a> · Starting Point machines are fully guided and free</div>
       <div class="room-grid">
         <div class="room-card">
           <div class="room-name">Meow / Fawn / Dancing</div>
           <span class="room-diff diff-beginner">STARTING POINT</span>
           <div class="room-phases">Phases: 1, 2</div>
-          <div class="room-note">Tier 0 guided machines. Teaches Telnet, FTP, and SMB scanning from scratch ? perfect first HTB experience.</div>
+          <div class="room-note">Tier 0 guided machines. Teaches Telnet, FTP, and SMB scanning from scratch — perfect first HTB experience.</div>
         </div>
         <div class="room-card">
           <div class="room-name">Appointment / Sequel</div>
           <span class="room-diff diff-beginner">STARTING POINT</span>
           <div class="room-phases">Phases: 2, 3</div>
-          <div class="room-note">Tier 1 machines covering SQL injection exploitation ? no Metasploit needed. Great web app intro.</div>
+          <div class="room-note">Tier 1 machines covering SQL injection exploitation — no Metasploit needed. Great web app intro.</div>
         </div>
         <div class="room-card">
           <div class="room-name">Blue (MS17-010)</div>
           <span class="room-diff diff-beginner">BEGINNER</span>
           <div class="room-phases">Phases: 2, 3, 4, 5</div>
-          <div class="room-note">EternalBlue exploit. Nmap scan ? Metasploit exploit ? hashdump ? full report. All 5 phases in one machine.</div>
+          <div class="room-note">EternalBlue exploit. Nmap scan → Metasploit exploit → hashdump → full report. All 5 phases in one machine.</div>
         </div>
         <div class="room-card">
           <div class="room-name">Legacy</div>
           <span class="room-diff diff-beginner">BEGINNER</span>
           <div class="room-phases">Phases: 1, 2, 3, 5</div>
-          <div class="room-note">Classic Windows SMB vulnerabilities (MS08-067). Excellent for capstone ? clear attack path and report structure.</div>
+          <div class="room-note">Classic Windows SMB vulnerabilities (MS08-067). Excellent for capstone — clear attack path and report structure.</div>
         </div>
         <div class="room-card">
           <div class="room-name">Lame</div>
@@ -978,11 +1026,11 @@ footer strong{color:var(--green)}
     <div class="sec-card">
       <div class="sec-title">Capstone Deliverables</div>
       <div class="deliv-box">
-        <div class="deliv-label">?? WHAT TO SUBMIT</div>
-        <div class="deliv-item">Phase-by-Phase Log ? running document of every action taken, tool used, and output observed</div>
-        <div class="deliv-item">Professional Pentest Report ? full report following Exercise 5 structure, minimum 3 pages</div>
-        <div class="deliv-item">Risk Summary ? overall risk rating for the target machine with written justification</div>
-        <div class="deliv-item">Remediation Roadmap ? numbered list of recommended fixes in priority order</div>
+        <div class="deliv-label">📋 WHAT TO SUBMIT</div>
+        <div class="deliv-item">Phase-by-Phase Log — running document of every action taken, tool used, and output observed</div>
+        <div class="deliv-item">Professional Pentest Report — full report following Exercise 5 structure, minimum 3 pages</div>
+        <div class="deliv-item">Risk Summary — overall risk rating for the target machine with written justification</div>
+        <div class="deliv-item">Remediation Roadmap — numbered list of recommended fixes in priority order</div>
       </div>
       <div class="rubric-card" style="margin-top:16px">
         <div class="rubric-hdr"><span>COMPONENT</span><span>DESCRIPTION</span><span>REQUIREMENT</span><span>POINTS</span></div>
@@ -998,11 +1046,11 @@ footer strong{color:var(--green)}
     <div class="sec-card">
       <div class="sec-title">Free Practice Platforms</div>
       <div class="res-grid">
-        <div class="res-card"><div class="res-name">TryHackMe</div><div class="res-desc">Guided beginner to intermediate rooms. Best place to start ? fully authorized targets.</div></div>
+        <div class="res-card"><div class="res-name">TryHackMe</div><div class="res-desc">Guided beginner to intermediate rooms. Best place to start — fully authorized targets.</div></div>
         <div class="res-card"><div class="res-name">Hack The Box</div><div class="res-desc">Intermediate to advanced CTF-style machines for experienced students.</div></div>
         <div class="res-card"><div class="res-name">PicoCTF</div><div class="res-desc">Beginner CTF challenges covering cryptography, forensics, and web exploitation.</div></div>
-        <div class="res-card"><div class="res-name">PortSwigger Web Academy</div><div class="res-desc">The best free web application security lab available ? SQL injection, XSS, and more.</div></div>
-        <div class="res-card"><div class="res-name">DVWA</div><div class="res-desc">Damn Vulnerable Web App ? install locally for safe SQL injection and XSS practice.</div></div>
+        <div class="res-card"><div class="res-name">PortSwigger Web Academy</div><div class="res-desc">The best free web application security lab available — SQL injection, XSS, and more.</div></div>
+        <div class="res-card"><div class="res-name">DVWA</div><div class="res-desc">Damn Vulnerable Web App — install locally for safe SQL injection and XSS practice.</div></div>
         <div class="res-card"><div class="res-name">Metasploitable2</div><div class="res-desc">Intentionally vulnerable Linux VM. Run in VirtualBox on host-only network only.</div></div>
       </div>
     </div>
@@ -1014,32 +1062,32 @@ footer strong{color:var(--green)}
         <div class="legal-item">You may NEVER use these tools on school, workplace, or public networks without authorization</div>
         <div class="legal-item">ALWAYS use TryHackMe authorized machines or your own isolated VirtualBox VM for all practice</div>
         <div class="legal-item">ALWAYS document your authorization before beginning any real-world penetration test</div>
-        <div class="legal-item">Report every vulnerability you find ? withholding findings is unethical and potentially illegal</div>
-        <div class="legal-item">Responsible disclosure: if you find a real vulnerability, report it to the organization privately ? not on social media</div>
+        <div class="legal-item">Report every vulnerability you find — withholding findings is unethical and potentially illegal</div>
+        <div class="legal-item">Responsible disclosure: if you find a real vulnerability, report it to the organization privately — not on social media</div>
       </div>
     </div>
 
     <div class="submit-wrap">
-      <div class="submit-wrap-label">?? SUBMIT YOUR CAPSTONE REPORT LINK ? REQUIRED BEFORE MARKING COMPLETE</div>
+      <div class="submit-wrap-label">📎 SUBMIT YOUR CAPSTONE REPORT LINK — REQUIRED BEFORE MARKING COMPLETE</div>
       <div class="submit-row">
         <input class="submit-input" id="link5" type="url" placeholder="Paste your Google Doc, GitHub, or Drive link here..." oninput="toggleMarkBtn(5)"/>
       </div>
       <div class="saved-link-box" id="saved-link5" style="display:none"></div>
     </div>
     <div style="text-align:center;margin-top:10px">
-      <button class="mark-btn" id="mark5" onclick="markPhaseComplete(5)" disabled>?? &nbsp; Mark Capstone Complete</button>
-      <span class="done-badge" id="done5" style="display:none">? Capstone Complete ? Lab Finished!</span>
+      <button class="mark-btn" id="mark5" onclick="markPhaseComplete(5)" disabled>🏁 &nbsp; Mark Capstone Complete</button>
+      <span class="done-badge" id="done5" style="display:none">✓ Capstone Complete — Lab Finished!</span>
     </div>
     <div style="text-align:center;margin-top:10px">
-      <button class="btn-outline" onclick="showPhase(4)">? Reporting</button>
-      <a href="MCCoE_Hub.html" class="btn-green">?? &nbsp; Back to Hub</a>
+      <button class="btn-outline" onclick="showPhase(4)">← Reporting</button>
+      <a href="MCCoE_Hub.html" class="btn-green">🏠 &nbsp; Back to Hub</a>
     </div>
   </div>
 
 </div><!-- /content-area -->
 
 <footer>
-  <p>Missouri Cybersecurity Center of Excellence &nbsp;|&nbsp; <strong>Pillar 4 ? Ethical Hacking Lab</strong> &nbsp;|&nbsp; Mr. King &nbsp;?&nbsp; cking@mccoe.org</p>
+  <p>Missouri Cybersecurity Center of Excellence &nbsp;|&nbsp; <strong>Pillar 4 — Ethical Hacking Lab</strong> &nbsp;|&nbsp; Mr. King &nbsp;·&nbsp; cking@mccoe.org</p>
 </footer>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -1071,11 +1119,34 @@ const completed = new Set();
 if (_studentName) {
   const banner = document.getElementById('student-banner');
   if (banner) {
-    banner.textContent = '? ' + _studentName + '  ?  Progress synced to Admin Tracker';
+    banner.textContent = '▶ ' + _studentName + '  —  Progress synced to Admin Tracker';
     banner.style.display = 'block';
   }
 }
 
+function selectSetup(method) {
+  const dockerCard = document.getElementById('opt-docker-card');
+  const vmCard     = document.getElementById('opt-vm-card');
+  const dockerSec  = document.getElementById('setup-docker');
+  const vmSec      = document.getElementById('setup-vm');
+  const stopCard   = document.getElementById('stop-card');
+  const startBtn   = document.getElementById('start-btn-wrap');
+
+  if (method === 'docker') {
+    dockerCard.style.borderColor  = 'var(--cyan)';
+    dockerCard.style.background   = 'rgba(0,245,255,0.10)';
+    vmCard.style.borderColor      = 'rgba(0,255,65,0.3)';
+    vmCard.style.background       = 'rgba(0,255,65,0.03)';
+    dockerSec.style.display = 'block';
+    vmSec.style.display     = 'none';
+  } else {
+    vmCard.style.borderColor      = 'var(--green)';
+    vmCard.style.background       = 'rgba(0,255,65,0.10)';
+    dockerCard.style.borderColor  = 'rgba(0,245,255,0.3)';
+    dockerCard.style.background   = 'rgba(0,245,255,0.03)';
+    dockerSec.style.display = 'none';
+    vmSec.style.display     = 'block';
+  }
   stopCard.style.display  = 'block';
   startBtn.style.display  = 'block';
 }
@@ -1107,8 +1178,8 @@ function updateProgressUI(currentIdx) {
     circle.classList.toggle('active', isActive);
     label.classList.toggle('active',  isActive);
     // Checkmark for completed circles, number otherwise
-    if (isDone && !isActive) circle.textContent = '?';
-    else circle.textContent = i < 5 ? String(i + 1) : '??';
+    if (isDone && !isActive) circle.textContent = '✓';
+    else circle.textContent = i < 5 ? String(i + 1) : '🏁';
     // Connecting lines glow green when that phase is done
     const line = document.getElementById('pline' + i);
     if (line) line.classList.toggle('done', completed.has(i));
@@ -1129,7 +1200,7 @@ function markPhaseComplete(idx) {
   completed.add(idx);
   const btn  = document.getElementById('mark' + idx);
   const done = document.getElementById('done' + idx);
-  if (btn)   { btn.disabled = true; btn.textContent = '?  Saved!'; }
+  if (btn)   { btn.disabled = true; btn.textContent = '✓  Saved!'; }
   if (done)  done.style.display = 'inline-block';
   if (input) { input.disabled = true; }
   showSavedLink(idx, link);
@@ -1142,7 +1213,7 @@ function showSavedLink(idx, link) {
   const box = document.getElementById('saved-link' + idx);
   if (!box) return;
   box.style.display = 'block';
-  box.innerHTML = '? Submitted: <a href="' + link + '" target="_blank">' + link + '</a>';
+  box.innerHTML = '✓ Submitted: <a href="' + link + '" target="_blank">' + link + '</a>';
 }
 
 function savePentestProgress() {
@@ -1173,7 +1244,7 @@ function loadProgress() {
         }
         if (d['phase' + i]) {
           completed.add(i);
-          if (btn)  { btn.disabled = true; btn.textContent = '?  Saved!'; }
+          if (btn)  { btn.disabled = true; btn.textContent = '✓  Saved!'; }
           if (done) done.style.display = 'inline-block';
           if (savedLink) showSavedLink(i, savedLink);
         } else if (savedLink) {
