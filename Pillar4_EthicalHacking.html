@@ -345,14 +345,17 @@ footer strong{color:var(--green)}
     </div>
 
     <div class="sec-card">
-      <div class="sec-title" style="color:var(--cyan)">Step 2 — Download the Lab Files</div>
+      <div class="sec-title" style="color:var(--cyan)">Step 2 — Set Up the Lab Files</div>
       <div class="exercise-box">
-        <div class="step"><span class="step-num">01</span><span>Download the lab package using the button below</span></div>
-        <div class="step"><span class="step-num">02</span><span>Extract the zip — you will get a <strong>lab</strong> folder with <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">docker-compose.yml</code> and a <code style="background:rgba(0,255,65,0.1);padding:2px 8px;border-radius:3px;font-family:monospace">kali</code> folder inside</span></div>
-        <div class="step"><span class="step-num">03</span><span>Move the <strong>lab</strong> folder to your Desktop or Documents</span></div>
+        <div class="step"><span class="step-num">01</span><span>Open <strong>PowerShell as Administrator</strong> on your Windows machine</span></div>
+        <div class="step"><span class="step-num">02</span><span>Paste and run this command — it creates your lab folder and downloads all files automatically:</span></div>
       </div>
-      <div style="text-align:center;margin-top:18px">
-        <a href="https://kingchrischris23-eng.github.io/mccoe-platform/MCCoE-Hacking-Lab.zip" download class="btn-green" style="border-color:var(--cyan);color:var(--cyan);">⬇ &nbsp; Download MCCoE Hacking Lab</a>
+      <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(0,255,65,0.3);border-radius:8px;padding:14px 18px;margin:14px 0;position:relative">
+        <code id="setup-cmd-a" style="font-family:monospace;font-size:12px;color:var(--green);display:block;word-break:break-all">mkdir C:\lab\kali -Force; Invoke-WebRequest "https://raw.githubusercontent.com/kingchrischris23-eng/mccoe-platform/main/lab/docker-compose.yml" -OutFile "C:\lab\docker-compose.yml"; Invoke-WebRequest "https://raw.githubusercontent.com/kingchrischris23-eng/mccoe-platform/main/lab/kali/Dockerfile" -OutFile "C:\lab\kali\Dockerfile"; Invoke-WebRequest "https://raw.githubusercontent.com/kingchrischris23-eng/mccoe-platform/main/lab/kali/motd.txt" -OutFile "C:\lab\kali\motd.txt"; Write-Host "Lab files ready at C:\lab"</code>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('setup-cmd-a').innerText).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2000)})" style="position:absolute;top:10px;right:10px;background:rgba(0,255,65,0.15);border:1px solid rgba(0,255,65,0.4);color:var(--green);padding:4px 12px;border-radius:4px;cursor:pointer;font-size:11px;font-family:monospace">Copy</button>
+      </div>
+      <div class="exercise-box">
+        <div class="step"><span class="step-num">03</span><span>When complete you will see: <strong style="color:var(--green)">Lab files ready at C:\lab</strong></span></div>
       </div>
     </div>
 
@@ -403,15 +406,16 @@ footer strong{color:var(--green)}
     </div>
 
     <div class="sec-card">
-      <div class="sec-title" style="color:var(--green)">Step 2 — Download the Lab Files and Start Only the Targets</div>
+      <div class="sec-title" style="color:var(--green)">Step 2 — Set Up the Lab Files and Start Only the Targets</div>
       <div class="exercise-box">
-        <div class="step"><span class="step-num">01</span><span>Download and extract the lab package on your Windows machine:</span></div>
+        <div class="step"><span class="step-num">01</span><span>Open <strong>PowerShell as Administrator</strong> on your Windows machine and run this setup command:</span></div>
       </div>
-      <div style="text-align:center;margin:12px 0">
-        <a href="https://kingchrischris23-eng.github.io/mccoe-platform/MCCoE-Hacking-Lab.zip" download class="btn-green" style="border-color:var(--green);">⬇ &nbsp; Download MCCoE Hacking Lab</a>
+      <div style="background:rgba(0,0,0,0.4);border:1px solid rgba(0,255,65,0.3);border-radius:8px;padding:14px 18px;margin:14px 0;position:relative">
+        <code id="setup-cmd-b" style="font-family:monospace;font-size:12px;color:var(--green);display:block;word-break:break-all">mkdir C:\lab\kali -Force; Invoke-WebRequest "https://raw.githubusercontent.com/kingchrischris23-eng/mccoe-platform/main/lab/docker-compose.yml" -OutFile "C:\lab\docker-compose.yml"; Invoke-WebRequest "https://raw.githubusercontent.com/kingchrischris23-eng/mccoe-platform/main/lab/kali/Dockerfile" -OutFile "C:\lab\kali\Dockerfile"; Invoke-WebRequest "https://raw.githubusercontent.com/kingchrischris23-eng/mccoe-platform/main/lab/kali/motd.txt" -OutFile "C:\lab\kali\motd.txt"; Write-Host "Lab files ready at C:\lab"</code>
+        <button onclick="navigator.clipboard.writeText(document.getElementById('setup-cmd-b').innerText).then(()=>{this.textContent='Copied!';setTimeout(()=>this.textContent='Copy',2000)})" style="position:absolute;top:10px;right:10px;background:rgba(0,255,65,0.15);border:1px solid rgba(0,255,65,0.4);color:var(--green);padding:4px 12px;border-radius:4px;cursor:pointer;font-size:11px;font-family:monospace">Copy</button>
       </div>
       <div class="exercise-box">
-        <div class="step"><span class="step-num">02</span><span>Open PowerShell on Windows and navigate to the lab folder:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">cd C:\Users\YourName\Desktop\lab</code></span></div>
+        <div class="step"><span class="step-num">02</span><span>Open PowerShell on Windows and navigate to the lab folder:<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">cd C:\lab</code></span></div>
         <div class="step"><span class="step-num">03</span><span>Start only the target containers (skip Kali — you have your own):<br/><code style="background:rgba(0,255,65,0.1);padding:4px 10px;border-radius:3px;font-family:monospace;display:block;margin-top:6px">docker compose up -d metasploitable dvwa</code></span></div>
         <div class="step"><span class="step-num">04</span><span>Wait for: <strong>"Container mccoe-ms2 Started"</strong> and <strong>"Container mccoe-dvwa Started"</strong></span></div>
       </div>
