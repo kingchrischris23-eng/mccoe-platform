@@ -1068,32 +1068,6 @@ if (_studentName) {
   }
 }
 
-function selectSetup(method) {
-  const dockerCard = document.getElementById('opt-docker-card');
-  const vmCard     = document.getElementById('opt-vm-card');
-  const dockerSec  = document.getElementById('setup-docker');
-  const vmSec      = document.getElementById('setup-vm');
-  const stopCard   = document.getElementById('stop-card');
-  const startBtn   = document.getElementById('start-btn-wrap');
-
-  if (method === 'docker') {
-    dockerCard.style.borderColor  = 'var(--cyan)';
-    dockerCard.style.background   = 'rgba(0,245,255,0.10)';
-    vmCard.style.borderColor      = 'rgba(0,255,65,0.3)';
-    vmCard.style.background       = 'rgba(0,255,65,0.03)';
-    dockerSec.style.display = 'block';
-    vmSec.style.display     = 'none';
-  } else {
-    vmCard.style.borderColor      = 'var(--green)';
-    vmCard.style.background       = 'rgba(0,255,65,0.10)';
-    dockerCard.style.borderColor  = 'rgba(0,245,255,0.3)';
-    dockerCard.style.background   = 'rgba(0,245,255,0.03)';
-    dockerSec.style.display = 'none';
-    vmSec.style.display     = 'block';
-  }
-  stopCard.style.display  = 'block';
-  startBtn.style.display  = 'block';
-}
 
 function showSetup() {
   document.getElementById('panel-setup').style.display = 'block';
