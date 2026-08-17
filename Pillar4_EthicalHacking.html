@@ -234,7 +234,7 @@ footer strong{color:var(--green)}
     <span class="gr">Ethical Hacking</span><br/>
     <span class="wh">Hands-On Lab</span>
   </h1>
-  <p class="hero-sub">Work through all 5 phases of a real penetration test using Hack The Box + your Kali Linux laptop — real Nmap scans, real Metasploit sessions, real shells. Your Kali laptop. Real HTB targets. Real VPN.</p>
+  <p class="hero-sub">Work through all 5 phases of a real penetration test using Hack The Box + your Kali Linux VM — real Nmap scans, real Metasploit sessions, real shells. Your Kali VM. Real HTB targets. Real VPN.</p>
   <div class="hero-divider"></div>
 </section>
 
@@ -297,12 +297,12 @@ footer strong{color:var(--green)}
   <!-- KALI LAPTOP SETUP -->
   <div class="sec-card">
     <div class="sec-title" style="color:var(--cyan)">Lab Setup &#8212; Your Kali Linux Laptop + Hack The Box</div>
-    <div style="font-size:.9rem;color:var(--muted);margin-bottom:16px">You have Kali Linux on your laptop. You will connect to real target machines on Hack The Box over a VPN tunnel &#8212; exactly how professional penetration testers work.</div>
+    <div style="font-size:.9rem;color:var(--muted);margin-bottom:16px">You have Kali Linux on your Kali VM. You will connect to real target machines on Hack The Box over a VPN tunnel &#8212; exactly how professional penetration testers work.</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px">
       <div style="background:rgba(0,255,65,0.06);border:1px solid rgba(0,255,65,0.25);border-radius:8px;padding:16px;text-align:center">
         <div style="font-size:1.5rem;margin-bottom:6px">&#128187;</div>
         <div style="font-weight:700;color:var(--green);margin-bottom:4px">Your Kali Laptop</div>
-        <div style="font-size:.82rem;color:var(--muted)">Attacker machine &#8212; run all your tools from here</div>
+        <div style="font-size:.82rem;color:var(--muted)">Your Kali VM &#8212; run all your tools from inside here</div>
       </div>
       <div style="background:rgba(0,245,255,0.06);border:1px solid rgba(0,245,255,0.25);border-radius:8px;padding:16px;text-align:center">
         <div style="font-size:1.5rem;margin-bottom:6px">&#128279;</div>
@@ -321,10 +321,21 @@ footer strong{color:var(--green)}
   <div class="sec-card">
     <div class="sec-title" style="color:var(--cyan)">Step 1 &#8212; Create Your Free HTB Account</div>
     <div class="exercise-box">
-      <div class="step"><span class="step-num">01</span><span>Open a browser on your Kali laptop and go to <a href="https://www.hackthebox.com" target="_blank" style="color:var(--green)"><strong>hackthebox.com</strong></a></span></div>
+      <div class="step"><span class="step-num">01</span><span>Open a browser on your Kali VM and go to <a href="https://www.hackthebox.com" target="_blank" style="color:var(--green)"><strong>hackthebox.com</strong></a></span></div>
       <div class="step"><span class="step-num">02</span><span>Click <strong>Sign Up</strong> &#8212; use your personal email, free account is all you need</span></div>
       <div class="step"><span class="step-num">03</span><span>Verify your email and log in</span></div>
       <div class="step"><span class="step-num">04</span><span>Save your HTB username &#8212; you will submit it with each phase report</span></div>
+    </div>
+  </div>
+
+  <!-- VM CHECK -->
+  <div class="sec-card" style="border-color:rgba(255,215,0,0.4)">
+    <div class="sec-title" style="color:#ffd700">&#9888; Before You Start &#8212; Make Sure Your VM Has Internet</div>
+    <div class="exercise-box">
+      <div class="step"><span class="step-num">01</span><span>In VirtualBox: go to <strong>Settings &#8594; Network &#8594; Adapter 1</strong> and set it to <strong>NAT</strong> or <strong>Bridged Adapter</strong></span></div>
+      <div class="step"><span class="step-num">02</span><span>Start your Kali VM and open a terminal</span></div>
+      <div class="step"><span class="step-num">03</span><span>Test internet: <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px">ping -c 3 google.com</code> &#8212; you should see replies, not errors</span></div>
+      <div class="step"><span class="step-num">04</span><span>If no internet: shut down the VM, change the network adapter setting, restart</span></div>
     </div>
   </div>
 
@@ -333,7 +344,7 @@ footer strong{color:var(--green)}
     <div class="sec-title" style="color:var(--cyan)">Step 2 &#8212; Download the HTB VPN File</div>
     <div class="warn-box">
       <div class="warn-label">WHY VPN?</div>
-      <div class="warn-text">HTB target machines live on a private network. The VPN gives your Kali laptop a direct connection to that network so your tools (Nmap, Metasploit, etc.) can reach the target.</div>
+      <div class="warn-text">HTB target machines live on a private network. The VPN gives your Kali VM a direct connection to that network so your tools (Nmap, Metasploit, etc.) can reach the target.</div>
     </div>
     <div class="exercise-box" style="margin-top:14px">
       <div class="step"><span class="step-num">01</span><span>Log in to HTB and click <strong>Starting Point</strong> in the left sidebar</span></div>
@@ -346,7 +357,7 @@ footer strong{color:var(--green)}
   <!-- STEP 3 -->
   <div class="sec-card">
     <div class="sec-title" style="color:var(--cyan)">Step 3 &#8212; Connect to the HTB VPN from Kali</div>
-    <div style="font-size:.88rem;color:var(--muted);margin-bottom:12px">Open a terminal on your Kali laptop and run the command below. Keep this terminal open the entire time you are working &#8212; closing it disconnects the VPN.</div>
+    <div style="font-size:.88rem;color:var(--muted);margin-bottom:12px">Open a terminal on your Kali VM and run the command below. Keep this terminal open the entire time you are working &#8212; closing it disconnects the VPN.</div>
     <div style="background:#0a0a0a;border:1px solid rgba(0,245,255,0.3);border-radius:8px;padding:16px;font-family:monospace;font-size:.9rem;position:relative">
       <div style="color:#888;margin-bottom:6px"># Replace the filename with your actual .ovpn file name</div>
       <div style="color:var(--green)">sudo openvpn ~/Downloads/starting_point_YourName.ovpn</div>
