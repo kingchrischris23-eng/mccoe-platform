@@ -334,7 +334,14 @@ footer strong{color:var(--green)}
     <div class="exercise-box">
       <div class="step"><span class="step-num">01</span><span>In VirtualBox: go to <strong>Settings &#8594; Network &#8594; Adapter 1</strong> and set it to <strong>NAT</strong> or <strong>Bridged Adapter</strong></span></div>
       <div class="step"><span class="step-num">02</span><span>Start your Kali VM and open a terminal</span></div>
-      <div class="step"><span class="step-num">03</span><span>Test internet: <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px">ping -c 3 google.com</code> &#8212; you should see replies, not errors</span></div>
+      <div class="step"><span class="step-num">03</span><span>Test internet inside Kali: <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px">ping -c 3 google.com</code></span></div>
+      <div style="background:#0a0a0a;border:1px solid rgba(0,255,65,0.3);border-radius:6px;padding:12px;font-family:monospace;font-size:.78rem;color:var(--green);margin:6px 0 6px 36px">
+        PING google.com (192.x.x.x) 56 bytes of data.<br>
+        64 bytes from ...: icmp_seq=1 ttl=64 time=45.0 ms<br>
+        64 bytes from ...: icmp_seq=2 ttl=64 time=46.8 ms<br>
+        64 bytes from ...: icmp_seq=3 ttl=64 time=46.1 ms<br>
+        <span style="color:#fff">3 packets transmitted, 3 received, <strong style="color:var(--green)">0% packet loss</strong> &#8592; This means you&#39;re good!</span>
+      </div>
       <div class="step"><span class="step-num">04</span><span>If no internet: shut down the VM, change the network adapter setting, restart</span></div>
     </div>
   </div>
