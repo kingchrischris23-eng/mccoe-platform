@@ -237,7 +237,7 @@ footer strong{color:var(--green)}
     <span class="gr">Ethical Hacking</span><br/>
     <span class="wh">Hands-On Lab</span>
   </h1>
-  <p class="hero-sub">Work through all 5 phases of a real penetration test using Hack The Box + your Kali Linux VM — real Nmap scans, real Metasploit sessions, real shells. Your Kali VM. Real HTB targets. Real VPN.</p>
+  <p class="hero-sub">Work through all 5 phases of a real penetration test using the HTB AttackBox — real Nmap scans, real Metasploit sessions, real shells. Your Kali VM. Real HTB targets. Real VPN.</p>
   <div class="hero-divider"></div>
 </section>
 
@@ -297,20 +297,20 @@ footer strong{color:var(--green)}
     </div>
   </div>
 
-  <!-- KALI LAPTOP SETUP -->
+  <!-- ATTACKBOX SETUP -->
   <div class="sec-card">
-    <div class="sec-title" style="color:var(--cyan)">Lab Setup &#8212; Your Kali Linux VM + Hack The Box</div>
-    <div style="font-size:.9rem;color:var(--muted);margin-bottom:16px">You have Kali Linux running in a VM. You will connect to real target machines on Hack The Box over a VPN tunnel &#8212; exactly how professional penetration testers work.</div>
+    <div class="sec-title" style="color:var(--cyan)">Lab Setup &#8212; HTB AttackBox + Target Machine</div>
+    <div style="font-size:.9rem;color:var(--muted);margin-bottom:16px">HTB gives you a full Ubuntu attack machine that runs in your browser &#8212; no Kali VM, no VPN, no install. Just a browser and your HTB account.</div>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px">
       <div style="background:rgba(0,255,65,0.06);border:1px solid rgba(0,255,65,0.25);border-radius:8px;padding:16px;text-align:center">
-        <div style="font-size:1.5rem;margin-bottom:6px">&#128187;</div>
-        <div style="font-weight:700;color:var(--green);margin-bottom:4px">Your Kali VM</div>
-        <div style="font-size:.82rem;color:var(--muted)">Your Kali VM &#8212; run all your tools from inside here</div>
+        <div style="font-size:1.5rem;margin-bottom:6px">&#127758;</div>
+        <div style="font-weight:700;color:var(--green);margin-bottom:4px">HTB AttackBox</div>
+        <div style="font-size:.82rem;color:var(--muted)">Ubuntu machine with all tools pre-installed &#8212; runs in your browser</div>
       </div>
       <div style="background:rgba(0,245,255,0.06);border:1px solid rgba(0,245,255,0.25);border-radius:8px;padding:16px;text-align:center">
         <div style="font-size:1.5rem;margin-bottom:6px">&#128279;</div>
-        <div style="font-weight:700;color:var(--cyan);margin-bottom:4px">HTB VPN</div>
-        <div style="font-size:.82rem;color:var(--muted)">Secure tunnel connecting your Kali to HTB target machines</div>
+        <div style="font-weight:700;color:var(--cyan);margin-bottom:4px">Already Connected</div>
+        <div style="font-size:.82rem;color:var(--muted)">AttackBox connects to HTB network automatically &#8212; no VPN needed</div>
       </div>
       <div style="background:rgba(255,60,60,0.06);border:1px solid rgba(255,60,60,0.25);border-radius:8px;padding:16px;text-align:center">
         <div style="font-size:1.5rem;margin-bottom:6px">&#127919;</div>
@@ -324,78 +324,49 @@ footer strong{color:var(--green)}
   <div class="sec-card">
     <div class="sec-title" style="color:var(--cyan)">Step 1 &#8212; Create Your Free HTB Account</div>
     <div class="exercise-box">
-      <div class="step"><span class="step-num">01</span><span>Open a browser on your Kali VM and go to <a href="https://www.hackthebox.com" target="_blank" style="color:var(--green)"><strong>hackthebox.com</strong></a></span></div>
-      <div class="step"><span class="step-num">02</span><span>Click <strong>Sign Up</strong> &#8212; use your personal email, free account is all you need</span></div>
+      <div class="step"><span class="step-num">01</span><span>Go to <a href="https://account.hackthebox.com/login" target="_blank" style="color:var(--green)"><strong>hackthebox.com</strong></a> and click <strong>Sign Up</strong></span></div>
+      <div class="step"><span class="step-num">02</span><span>Use your personal email &#8212; free account is all you need</span></div>
       <div class="step"><span class="step-num">03</span><span>Verify your email and log in</span></div>
       <div class="step"><span class="step-num">04</span><span>Save your HTB username &#8212; you will submit it with each phase report</span></div>
     </div>
   </div>
 
-  <!-- VM CHECK -->
-  <div class="sec-card" style="border-color:rgba(255,215,0,0.4)">
-    <div class="sec-title" style="color:#ffd700">&#9888; Before You Start &#8212; Make Sure Your VM Has Internet</div>
-    <div class="exercise-box">
-      <div class="step"><span class="step-num">01</span><span>In VirtualBox: go to <strong>Settings &#8594; Network &#8594; Adapter 1</strong> and set it to <strong>NAT</strong> or <strong>Bridged Adapter</strong></span></div>
-      <div class="step"><span class="step-num">02</span><span>Start your Kali VM and open a terminal</span></div>
-      <div class="step"><span class="step-num">03</span><span>Test internet inside Kali: <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px">ping -c 3 google.com</code></span></div>
-      <div style="background:#0a0a0a;border:1px solid rgba(0,255,65,0.3);border-radius:6px;padding:12px;font-family:monospace;font-size:.78rem;color:var(--green);margin:6px 0 6px 36px">
-        PING google.com (192.x.x.x) 56 bytes of data.<br>
-        64 bytes from ...: icmp_seq=1 ttl=64 time=45.0 ms<br>
-        64 bytes from ...: icmp_seq=2 ttl=64 time=46.8 ms<br>
-        64 bytes from ...: icmp_seq=3 ttl=64 time=46.1 ms<br>
-        <span style="color:#fff">3 packets transmitted, 3 received, <strong style="color:var(--green)">0% packet loss</strong> &#8592; This means you&#39;re good!</span>
-      </div>
-      <div class="step"><span class="step-num">04</span><span>If no internet: shut down the VM, change the network adapter setting, restart</span></div>
-    </div>
-  </div>
-
   <!-- STEP 2 -->
   <div class="sec-card">
-    <div class="sec-title" style="color:var(--cyan)">Step 2 &#8212; Download the HTB VPN File</div>
-    <div class="warn-box">
-      <div class="warn-label">WHY VPN?</div>
-      <div class="warn-text">HTB target machines live on a private network. The VPN gives your Kali VM a direct connection to that network so your tools (Nmap, Metasploit, etc.) can reach the target.</div>
-    </div>
-    <div class="exercise-box" style="margin-top:14px">
-      <div class="step"><span class="step-num">01</span><span>Log in to HTB and click <strong>Starting Point</strong> in the left sidebar</span></div>
-      <div class="step"><span class="step-num">02</span><span>Click <strong>Connect to HTB</strong> at the top right of the page</span></div>
-      <div class="step"><span class="step-num">03</span><span>Select <strong>OpenVPN</strong> as the connection type</span></div>
-      <div class="step"><span class="step-num">04</span><span>Select <strong>Starting Point</strong> server and click <strong>Download VPN</strong> &#8212; saves a <code>.ovpn</code> file to your Downloads folder</span></div>
+    <div class="sec-title" style="color:var(--cyan)">Step 2 &#8212; Go to Starting Point</div>
+    <div class="exercise-box">
+      <div class="step"><span class="step-num">01</span><span>Log in to HTB and click <strong>HTB Labs</strong> from the top menu</span></div>
+      <div class="step"><span class="step-num">02</span><span>Click <strong>Starting Point</strong> in the left sidebar</span></div>
+      <div class="step"><span class="step-num">03</span><span>Find your assigned machine for the current phase (see table below)</span></div>
+      <div class="step"><span class="step-num">04</span><span>Click the machine name to open its page</span></div>
     </div>
   </div>
 
   <!-- STEP 3 -->
   <div class="sec-card">
-    <div class="sec-title" style="color:var(--cyan)">Step 3 &#8212; Connect to the HTB VPN from Kali</div>
-    <div style="font-size:.88rem;color:var(--muted);margin-bottom:12px">Open a terminal on your Kali VM and run the command below. Keep this terminal open the entire time you are working &#8212; closing it disconnects the VPN.</div>
-    <div style="background:#0a0a0a;border:1px solid rgba(0,245,255,0.3);border-radius:8px;padding:16px;font-family:monospace;font-size:.9rem;position:relative">
-      <div style="color:#888;margin-bottom:6px"># Replace the filename with your actual .ovpn file name</div>
-      <div style="color:var(--green)">sudo openvpn ~/Downloads/starting_point_YourName.ovpn</div>
-      <button onclick="navigator.clipboard.writeText('sudo openvpn ~/Downloads/starting_point_YourName.ovpn')" style="position:absolute;top:10px;right:10px;background:rgba(0,245,255,0.15);border:1px solid var(--cyan);color:var(--cyan);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:.75rem">Copy</button>
+    <div class="sec-title" style="color:var(--cyan)">Step 3 &#8212; Start the AttackBox</div>
+    <div class="warn-box">
+      <div class="warn-label">THE ATTACKBOX IS YOUR HACKING MACHINE</div>
+      <div class="warn-text">The HTB AttackBox is a full Ubuntu Linux desktop that opens right in your browser. It has Nmap, Metasploit, Gobuster, and every tool you need already installed. No setup. No VPN. No Kali required.</div>
     </div>
     <div class="exercise-box" style="margin-top:14px">
-      <div class="step"><span class="step-num">01</span><span>Enter your Kali password when prompted (it will not show as you type &#8212; that is normal)</span></div>
-      <div class="step"><span class="step-num">02</span><span>Wait until you see <strong>Initialization Sequence Completed</strong> in the terminal &#8212; you are now connected</span></div>
-      <div class="step"><span class="step-num">03</span><span>Open a <strong>second terminal</strong> for running your tools &#8212; leave the VPN terminal running in the background</span></div>
-      <div class="step"><span class="step-num">04</span><span>Verify your connection: <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px">ip addr show tun0</code> &#8212; you should see a 10.x.x.x IP address</span></div>
+      <div class="step"><span class="step-num">01</span><span>On the machine page, click <strong>Start Machine</strong> to spawn your target</span></div>
+      <div class="step"><span class="step-num">02</span><span>Click <strong>Start AttackBox</strong> (button at the top of the page) &#8212; an Ubuntu desktop opens in your browser</span></div>
+      <div class="step"><span class="step-num">03</span><span>Wait about 30 seconds for the AttackBox to fully load</span></div>
+      <div class="step"><span class="step-num">04</span><span>Right-click the desktop and open a <strong>Terminal</strong></span></div>
+      <div class="step"><span class="step-num">05</span><span>Copy your target IP from the machine page and paste it into the terminal &#8212; you are ready to start hacking</span></div>
     </div>
-  </div>
-
-  <!-- STEP 4 -->
-  <div class="sec-card">
-    <div class="sec-title" style="color:var(--cyan)">Step 4 &#8212; Spawn Your Target Machine on HTB</div>
-    <div class="exercise-box">
-      <div class="step"><span class="step-num">01</span><span>In HTB Starting Point, find your assigned machine for the current phase (see table below)</span></div>
-      <div class="step"><span class="step-num">02</span><span>Click <strong>Spawn Machine</strong> &#8212; HTB gives you a target IP (e.g. <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px">10.129.x.x</code>)</span></div>
-      <div class="step"><span class="step-num">03</span><span>Copy the target IP &#8212; use it in all your Kali commands instead of a generic hostname</span></div>
-      <div class="step"><span class="step-num">04</span><span>You are ready to start the phase exercises below</span></div>
+    <div style="background:#0a0a0a;border:1px solid rgba(0,255,65,0.3);border-radius:8px;padding:14px;font-family:monospace;font-size:.85rem;margin-top:14px">
+      <div style="color:#888;margin-bottom:6px"># Verify you can reach the target (replace with your actual target IP)</div>
+      <div style="color:var(--green)">ping -c 3 10.129.x.x</div>
+      <div style="color:#888;margin-top:8px"># If you see replies -- you are connected and ready</div>
     </div>
   </div>
 
   <!-- PHASE MAP TABLE -->
   <div class="sec-card">
     <div class="sec-title" style="color:var(--cyan)">Machine Assignments by Phase</div>
-    <div style="font-size:.88rem;color:var(--muted);margin-bottom:14px">Spawn the machine for your current phase. All machines below are <strong>free tier</strong> on HTB Starting Point.</div>
+    <div style="font-size:.88rem;color:var(--muted);margin-bottom:14px">All machines below are <strong>free tier</strong> on HTB Starting Point. Spawn the machine for your current phase, then open the AttackBox to begin.</div>
     <table class="data-table">
       <tr><th>Phase</th><th>HTB Machine</th><th>Skills Practiced</th><th>Difficulty</th></tr>
       <tr>
@@ -437,7 +408,7 @@ footer strong{color:var(--green)}
       <div class="deliv-label">WHAT TO SUBMIT FOR EACH PHASE</div>
       <div class="deliv-item"><strong>Your HTB username</strong> &#8212; instructor will verify on your public HTB profile</div>
       <div class="deliv-item"><strong>The flag you captured</strong> &#8212; format: <code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:4px">HTB{...}</code></div>
-      <div class="deliv-item"><strong>A screenshot</strong> of your Kali terminal showing the completed exploit and captured flag</div>
+      <div class="deliv-item"><strong>A screenshot</strong> of your AttackBox terminal showing the completed exploit and flag</div>
       <div class="deliv-item"><strong>3&#8211;5 sentences</strong> explaining what you did and what vulnerability you exploited</div>
     </div>
   </div>
@@ -445,7 +416,7 @@ footer strong{color:var(--green)}
   <div style="text-align:center;margin-top:20px;padding-bottom:10px">
     <a href="https://app.hackthebox.com/starting-point" target="_blank" class="btn-green" style="border-color:var(--cyan);color:var(--cyan);display:inline-block;text-decoration:none;margin-bottom:16px">Open HTB Starting Point</a>
     <br/>
-    <button class="btn-green" onclick="showPhase(0)" style="margin-top:8px">&#9654; VPN Connected &#8212; Go to Phase 1</button>
+    <button class="btn-green" onclick="showPhase(0)" style="margin-top:8px">&#9654; AttackBox Ready &#8212; Go to Phase 1</button>
   </div>
 
 </div>
