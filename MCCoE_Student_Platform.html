@@ -2471,6 +2471,23 @@ function renderStudentDashboard() {
       </a>
     </div>
 
+    <!-- SOC Ticket Board Card -->
+    <div style="background:#fff;border-radius:12px;padding:20px 24px;border:2px solid #003322;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="font-size:28px">&#127915;</div>
+        <div>
+          <div style="font-size:14px;font-weight:800;color:#003322;letter-spacing:.5px;">SOC Ticket Board</div>
+          <div style="font-size:12px;color:#555;margin-top:2px;" id="ticket-card-desc">Click to load your assigned tickets</div>
+        </div>
+      </div>
+      <button onclick="openTicketBoard()"
+         style="background:#003322;color:#00e676;font-size:12px;font-weight:800;padding:10px 22px;border-radius:6px;border:1px solid #00664a;cursor:pointer;letter-spacing:.5px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,51,34,.4);transition:all .2s;"
+         onmouseover="this.style.background='#001f14'" onmouseout="this.style.background='#003322'">
+        &#127915; OPEN TICKETS
+      </button>
+    </div>
+
+
     ${renderGamePanel()}
 
     <!-- JOB READINESS + CERTIFICATE -->
@@ -4317,6 +4334,366 @@ function loadDueDates() {
       <div style="display:flex;flex-direction:column;gap:6px">${html}</div>
     </div>`;
   });
+}
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════════════ SOC TICKET BOARD MODAL -->
+<div id="ticket-board-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9500;overflow-y:auto;font-family:'Rajdhani',sans-serif;">
+  <div style="max-width:960px;margin:24px auto;padding:0 16px 40px;">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px;background:#0a1a10;border:1px solid #00664a;border-radius:12px 12px 0 0;margin-bottom:0;">
+      <div>
+        <div style="font-size:1.3rem;font-weight:800;color:#00e676;letter-spacing:1px;">&#127915; SOC TICKET BOARD</div>
+        <div style="font-size:.82rem;color:#88aa99;margin-top:2px;">Cedar Creek Industries &mdash; Incident Triage Exercise</div>
+      </div>
+      <button onclick="closeTicketBoard()" style="background:rgba(255,45,94,0.15);border:1px solid rgba(255,45,94,0.4);color:#ff2d5e;padding:7px 16px;border-radius:6px;cursor:pointer;font-weight:700;font-size:.85rem;">&#10005; Close</button>
+    </div>
+
+    <!-- Status legend -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;padding:12px 24px;background:#0d1f14;border-left:1px solid #00664a;border-right:1px solid #00664a;">
+      <span style="font-size:.75rem;padding:3px 10px;border-radius:12px;background:#1a1a2e;color:#aaa;border:1px solid #333;">&#9679; New</span>
+      <span style="font-size:.75rem;padding:3px 10px;border-radius:12px;background:#1a2e1a;color:#00e676;border:1px solid #00664a;">&#8857; In Progress</span>
+      <span style="font-size:.75rem;padding:3px 10px;border-radius:12px;background:#2e2a10;color:#ffd700;border:1px solid #665200;">&#9700; Pending</span>
+      <span style="font-size:.75rem;padding:3px 10px;border-radius:12px;background:#10202e;color:#00b4ff;border:1px solid #005580;">&#10003; Resolved</span>
+      <span style="font-size:.75rem;padding:3px 10px;border-radius:12px;background:#1a1a1a;color:#666;border:1px solid #333;">&#10007; Closed</span>
+      <span style="margin-left:auto;font-size:.75rem;color:#88aa99;">P1=Critical &nbsp; P2=High &nbsp; P3=Medium &nbsp; P4=Low</span>
+    </div>
+
+    <!-- Ticket list -->
+    <div id="ticket-list-wrap" style="background:#0a1a10;border:1px solid #00664a;border-top:none;border-radius:0 0 12px 12px;padding:20px;min-height:200px;">
+      <div style="color:#88aa99;text-align:center;padding:40px;">Loading tickets...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ SOC TICKET DETAIL MODAL -->
+<div id="ticket-detail-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:9600;overflow-y:auto;font-family:'Rajdhani',sans-serif;">
+  <div style="max-width:720px;margin:40px auto;padding:0 16px 60px;">
+    <div id="ticket-detail-inner" style="background:#0a1a10;border:1px solid #00664a;border-radius:12px;overflow:hidden;"></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════ SOC TICKET BOARD
+const TICKET_BANK = [
+  // ── TIER 1 EASY ───────────────────────────────────────────────────────────
+  { id:'TCK-1001', tier:'Easy', type:'IT', defaultPriority:'P4',
+    title:'Password reset request — locked out of workstation',
+    reporter:'dana.reyes@cedarcreek-ind.com (Accounting)',
+    created:'2026-08-18 08:12', tags:['account','password','help-desk'],
+    desc:'Good morning — I changed my Windows password on Friday and now I cannot remember it. I tried a few times and now it says my account is locked. I have a payroll run due this morning and need to get back in as soon as possible. Can you reset it? My employee ID is 4471.' },
+  { id:'TCK-1002', tier:'Easy', type:'Security', defaultPriority:'P3',
+    title:'Suspicious email reported — "Your mailbox is full"',
+    reporter:'phishalert@cedarcreek-ind.com (auto-forwarded from user)',
+    created:'2026-08-18 09:04', tags:['phishing','email','user-report'],
+    desc:'User forwarded an email claiming their mailbox is full and they must "re-validate" within 24 hours or lose access. Sender displays as IT Support but the actual address is support@cedercreek-secure.com. The email contains a button linking to http://mailbox-verify.cedercreek-secure.com/login. No attachment. User says they did NOT click. Please review and advise whether others received it.' },
+  { id:'TCK-1003', tier:'Easy', type:'IT', defaultPriority:'P3',
+    title:'VPN won't connect from home — "authentication failed"',
+    reporter:'marcus.hall@cedarcreek-ind.com (Sales, remote today)',
+    created:'2026-08-18 09:31', tags:['vpn','connectivity','remote'],
+    desc:'Working from home and the VPN client keeps saying "authentication failed." I can browse normal websites fine, so my internet works. My password works for webmail. This started this morning — it was fine yesterday. I have a client call at 11 and need the shared drive. What info do you need from me?' },
+  { id:'TCK-1004', tier:'Easy', type:'IT', defaultPriority:'P4',
+    title:'New hire needs software installed before start date',
+    reporter:'hr-onboarding@cedarcreek-ind.com (Human Resources)',
+    created:'2026-08-18 10:15', tags:['provisioning','software','onboarding'],
+    desc:'We have a new engineer, Priya Nair, starting Monday. Her laptop is imaged but she needs AutoCAD, the VPN client, and access to the Engineering shared drive. Please confirm what approvals are needed and whether this can be ready by Friday EOD. Manager is Tom Becker.' },
+  { id:'TCK-1005', tier:'Easy', type:'Security', defaultPriority:'P3',
+    title:'Account lockouts — user reports repeated MFA prompts',
+    reporter:'siem-alerts@cedarcreek-ind.com (automated)',
+    created:'2026-08-18 11:02', tags:['authentication','mfa','account'],
+    desc:'User l.osei triggered 6 failed sign-ins in 10 minutes followed by 3 MFA push prompts they say they did NOT initiate. Source IPs are all internal (10.20.14.0/24). User states they were at their desk the whole time and only logged in once. No successful malicious login recorded yet. Determine whether this is a misconfigured device (cached credentials) or something worth escalating.' },
+  // ── TIER 2 MODERATE ───────────────────────────────────────────────────────
+  { id:'TCK-2001', tier:'Moderate', type:'Security', defaultPriority:'P2',
+    title:'Impossible travel alert — sign-in from two countries in 20 minutes',
+    reporter:'siem-alerts@cedarcreek-ind.com (automated)',
+    created:'2026-08-18 12:40', tags:['identity','impossible-travel','o365'],
+    desc:'Successful sign-in for r.castillo@cedarcreek-ind.com from St. Louis, MO at 12:18, then a second successful sign-in from Bucharest, RO at 12:37 — same account, both marked successful, MFA satisfied on the second. Legacy IMAP protocol used on the foreign login. User is currently reachable at their desk. Triage: is this a false positive (VPN/travel) or account compromise? Recommend next steps.' },
+  { id:'TCK-2002', tier:'Moderate', type:'Security', defaultPriority:'P2',
+    title:'EDR alert — SentinelOne flagged a file on FINANCE-07',
+    reporter:'edr-console@cedarcreek-ind.com (automated)',
+    created:'2026-08-18 13:22', tags:['edr','malware','endpoint'],
+    desc:'EDR raised a suspicious detection on host FINANCE-07 (user d.reyes). File: %TEMP%\invoice_aug.pdf.exe — a double-extension executable delivered via an email attachment the user opened. EDR quarantined the file automatically. Alert shows the process attempted to spawn powershell.exe with an encoded command before it was blocked. Confirm containment, check whether it executed, and determine if the user's earlier lockout ticket (TCK-1001) is related.' },
+  { id:'TCK-2003', tier:'Moderate', type:'IT', defaultPriority:'P3',
+    title:'Shared drive access request — Finance folder',
+    reporter:'kevin.tran@cedarcreek-ind.com (Marketing)',
+    created:'2026-08-18 14:05', tags:['access-request','permissions','approval'],
+    desc:'Hi — I need read access to the \\fileserver\Finance\Budgets folder for a campaign ROI report I'm building. My manager said it should be fine. Can you add me today? It's kind of urgent because the report is due tomorrow. Consider least-privilege and proper approval workflow before acting.' },
+  { id:'TCK-2004', tier:'Moderate', type:'IT', defaultPriority:'P2',
+    title:'Multiple users can't reach a business web app — others load fine',
+    reporter:'servicedesk@cedarcreek-ind.com (aggregated from 4 users)',
+    created:'2026-08-18 14:48', tags:['connectivity','dns','web'],
+    desc:'Four users in the Plant office report the vendor portal portal.acme-supply.com times out, while general internet works. Users in the HQ office reach it fine. Both offices use the same DNS servers but different subnets. No recent password changes. Ticket needs troubleshooting steps and a root-cause hypothesis (DNS, firewall rule, proxy, or vendor-side outage).' },
+  { id:'TCK-2005', tier:'Moderate', type:'Security', defaultPriority:'P2',
+    title:'DLP / USB alert — large copy to removable drive',
+    reporter:'dlp-console@cedarcreek-ind.com (automated)',
+    created:'2026-08-18 15:30', tags:['dlp','insider','data-protection'],
+    desc:'DLP flagged host ENG-14 (user t.becker) copying 2.3 GB across ~180 files from the Engineering drive to a USB mass-storage device at 15:11. Files include CAD drawings tagged Confidential. User is a legitimate engineer, but policy requires approval for bulk removable-media transfers of Confidential data. Determine intent vs. policy violation and recommend containment/next steps without accusing.' },
+  // ── TIER 3 HARD ───────────────────────────────────────────────────────────
+  { id:'TCK-3001', tier:'Hard', type:'Security', defaultPriority:'P1',
+    title:'Possible ransomware — mass file renames + ransom note on SHARE-01',
+    reporter:'siem-alerts@cedarcreek-ind.com (automated) + 3 user reports',
+    created:'2026-08-19 07:52', tags:['ransomware','incident','critical'],
+    desc:'Between 07:30-07:45, the file server SHARE-01 logged thousands of rapid file modifications with extension .ckl0ck. Three users report documents "won't open" and a file named RESTORE_YOUR_FILES.txt appearing in every folder. EDR shows the activity originating from a session on FINANCE-07. Shares are still mounting for other users. Work the containment decision, scope of impact, and escalation/notification path. NOTE: This ticket is linked to TCK-2002.' },
+  { id:'TCK-3002', tier:'Hard', type:'Security', defaultPriority:'P1',
+    title:'Password-spray against the VPN portal from dozens of IPs',
+    reporter:'siem-alerts@cedarcreek-ind.com (automated)',
+    created:'2026-08-19 02:14', tags:['brute-force','vpn','identity'],
+    desc:'Over a 3-hour overnight window, the VPN authentication logs show ~9,400 failed logins spread across 62 source IPs (multiple countries) trying common passwords against many valid usernames — a classic low-and-slow password spray. Two accounts show a successful authentication near the end of the window: svc-backup and j.owens. Neither account has logged in from those IPs before. Assess blast radius, decide immediate containment, and outline what to check on the two successful accounts.' },
+  { id:'TCK-3003', tier:'Hard', type:'Security', defaultPriority:'P1',
+    title:'Business Email Compromise — urgent wire-transfer request "from the CFO"',
+    reporter:'amanda.singh@cedarcreek-ind.com (Accounts Payable)',
+    created:'2026-08-19 09:20', tags:['bec','fraud','phishing','email'],
+    desc:'AP received an email appearing to be from CFO Greg Palmer instructing an "urgent, confidential" wire of $48,750 to a new vendor bank account, stressing not to call because he is in back-to-back meetings. Reply-to is g.palmer@cedarcreek-lnd.com (note lnd vs ind). The email references a real internal project name. AP has NOT sent the wire yet but says the tone is convincing. Determine legitimacy, preserve evidence, and define the response + who must be notified. Also assess whether the CFO's real mailbox is compromised.' },
+  { id:'TCK-3004', tier:'Hard', type:'Security', defaultPriority:'P1',
+    title:'Lateral movement — service account running admin tools across hosts',
+    reporter:'edr-console@cedarcreek-ind.com (automated)',
+    created:'2026-08-19 03:41', tags:['lateral-movement','incident','credentials'],
+    desc:'EDR flagged the account svc-backup (see TCK-3002) executing psexec and remote WMI commands against 7 workstations and 2 servers between 03:05-03:38 — behavior this service account has never shown before. On two hosts it launched credential-dumping tooling (blocked on one, unclear on the other). This looks like hands-on-keyboard lateral movement following the earlier password spray. Scope the affected hosts, decide containment for svc-backup, and identify what evidence to collect before systems are rebooted.' },
+  { id:'TCK-3005', tier:'Hard', type:'Security', defaultPriority:'P1',
+    title:'Data exfiltration — large encrypted upload to unknown cloud storage',
+    reporter:'proxy-alerts@cedarcreek-ind.com (automated)',
+    created:'2026-08-19 04:10', tags:['exfiltration','data-loss','incident'],
+    desc:'The web proxy logged host ENG-14 uploading 6.8 GB of encrypted .7z archives to mega[.]nz-style storage between 03:50-04:08 — outside business hours and far above this host's normal outbound baseline. The same host earlier had the DLP/USB alert (TCK-2005). Determine whether this is exfiltration tied to the broader incident or a separate event, decide whether to block the destination and isolate the host, and outline what leadership/legal notification may be required for potential data loss.' },
+];
+
+function tkStatusStyle(st) {
+  const m = {
+    'New':         'background:#1a1a2e;color:#aaa;border:1px solid #333;',
+    'In Progress': 'background:#0d2e0d;color:#00e676;border:1px solid #00664a;',
+    'Pending':     'background:#2e2700;color:#ffd700;border:1px solid #665200;',
+    'Resolved':    'background:#0d1e2e;color:#00b4ff;border:1px solid #005580;',
+    'Closed':      'background:#1a1a1a;color:#555;border:1px solid #333;',
+  };
+  return m[st] || m['New'];
+}
+function tkPriorityStyle(p) {
+  const m = {
+    'P1':'color:#ff2d5e;font-weight:800;',
+    'P2':'color:#ff8c00;font-weight:700;',
+    'P3':'color:#ffd700;font-weight:700;',
+    'P4':'color:#00b4ff;font-weight:600;',
+  };
+  return m[p] || '';
+}
+function tkTierBadge(tier) {
+  if (tier==='Easy')     return '<span style="font-size:.68rem;padding:2px 7px;border-radius:10px;background:#0d2e0d;color:#00e676;border:1px solid #00664a;">Easy</span>';
+  if (tier==='Moderate') return '<span style="font-size:.68rem;padding:2px 7px;border-radius:10px;background:#2e2700;color:#ffd700;border:1px solid #665200;">Moderate</span>';
+  return '<span style="font-size:.68rem;padding:2px 7px;border-radius:10px;background:#2e0d0d;color:#ff6060;border:1px solid #662020;">Hard</span>';
+}
+function tkTypeBadge(type) {
+  return type==='Security'
+    ? '<span style="font-size:.68rem;padding:2px 7px;border-radius:10px;background:#0d1a2e;color:#00b4ff;border:1px solid #005580;">Security</span>'
+    : '<span style="font-size:.68rem;padding:2px 7px;border-radius:10px;background:#1a1a2e;color:#a78bfa;border:1px solid #4c3d8a;">IT</span>';
+}
+
+let _tkAssignments = {};   // ticketId -> assigneeName
+let _tkProgress    = {};   // ticketId -> {status, priority, notes:[{text,ts}]}
+let _tkStudentName = '';
+
+function openTicketBoard() {
+  document.getElementById('ticket-board-modal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  _tkStudentName = (window._selectedProfile && window._selectedProfile.name) || 'Unknown';
+  loadTicketBoard();
+}
+function closeTicketBoard() {
+  document.getElementById('ticket-board-modal').style.display = 'none';
+  document.getElementById('ticket-detail-modal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function loadTicketBoard() {
+  const wrap = document.getElementById('ticket-list-wrap');
+  wrap.innerHTML = '<div style="color:#88aa99;text-align:center;padding:40px;">Loading tickets...</div>';
+  if (!window._fbDb) { renderTicketBoard(); return; }
+  const name = _tkStudentName;
+  firebase.database().ref('mccoe_tickets/assignments').once('value').then(snap => {
+    _tkAssignments = snap.val() || {};
+    return firebase.database().ref('mccoe_tickets/work/' + name).once('value');
+  }).then(snap => {
+    const raw = snap.val() || {};
+    _tkProgress = {};
+    Object.keys(raw).forEach(id => {
+      _tkProgress[id] = raw[id];
+      if (!Array.isArray(_tkProgress[id].notes)) _tkProgress[id].notes = [];
+    });
+    renderTicketBoard();
+  }).catch(e => { console.error(e); renderTicketBoard(); });
+}
+
+function renderTicketBoard() {
+  const myTickets = TICKET_BANK.filter(t => {
+    const a = _tkAssignments[t.id];
+    return a && a.toLowerCase() === _tkStudentName.toLowerCase();
+  });
+
+  // Update card description
+  const desc = document.getElementById('ticket-card-desc');
+  if (desc) desc.textContent = myTickets.length + ' ticket' + (myTickets.length!==1?'s':'') + ' assigned to you';
+
+  const wrap = document.getElementById('ticket-list-wrap');
+  if (!myTickets.length) {
+    wrap.innerHTML = '<div style="color:#88aa99;text-align:center;padding:40px;line-height:2;">'
+      + '<div style="font-size:2rem;margin-bottom:12px;">&#127915;</div>'
+      + '<div style="font-size:1rem;font-weight:700;color:#00e676;">No tickets assigned yet</div>'
+      + '<div style="font-size:.85rem;margin-top:8px;">Your instructor will assign tickets to you. Check back soon.</div>'
+      + '</div>';
+    return;
+  }
+
+  let rows = '';
+  myTickets.forEach(t => {
+    const prog = _tkProgress[t.id] || {};
+    const status = prog.status || 'New';
+    const priority = prog.priority || t.defaultPriority;
+    const noteCount = (prog.notes || []).length;
+    rows += `<div onclick="openTicketDetail('${t.id}')" style="background:#0d1f14;border:1px solid #1a4a2a;border-radius:8px;padding:14px 18px;margin-bottom:10px;cursor:pointer;transition:all .2s;"
+      onmouseover="this.style.borderColor='#00e676'" onmouseout="this.style.borderColor='#1a4a2a'">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
+            <span style="font-size:.75rem;font-family:'Share Tech Mono',monospace;color:#00e676;">${t.id}</span>
+            ${tkTypeBadge(t.type)} ${tkTierBadge(t.tier)}
+          </div>
+          <div style="font-size:.95rem;font-weight:700;color:#d0f0d8;margin-bottom:4px;">${t.title}</div>
+          <div style="font-size:.78rem;color:#88aa99;">Reporter: ${t.reporter}</div>
+          ${noteCount ? `<div style="font-size:.75rem;color:#00e676;margin-top:4px;">&#128172; ${noteCount} work note${noteCount!==1?'s':''}</div>` : ''}
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+          <span style="font-size:.75rem;padding:3px 10px;border-radius:12px;${tkStatusStyle(status)}">${status}</span>
+          <span style="font-size:.8rem;${tkPriorityStyle(priority)}">${priority}</span>
+        </div>
+      </div>
+    </div>`;
+  });
+  wrap.innerHTML = rows;
+}
+
+function openTicketDetail(ticketId) {
+  const t = TICKET_BANK.find(x => x.id === ticketId);
+  if (!t) return;
+  const prog = _tkProgress[ticketId] || {};
+  const status = prog.status || 'New';
+  const priority = prog.priority || t.defaultPriority;
+  const notes = prog.notes || [];
+
+  const statusOpts = ['New','In Progress','Pending','Resolved','Closed'].map(s =>
+    `<option value="${s}" ${s===status?'selected':''}>${s}</option>`).join('');
+  const prioOpts = ['P1','P2','P3','P4'].map(p =>
+    `<option value="${p}" ${p===priority?'selected':''}>${p} ${p==='P1'?'(Critical)':p==='P2'?'(High)':p==='P3'?'(Medium)':'(Low)'}</option>`).join('');
+
+  const tagHtml = t.tags.map(g => `<span style="font-size:.72rem;padding:2px 8px;border-radius:10px;background:#0a2a0a;color:#88aa99;border:1px solid #1a4a2a;">${g}</span>`).join(' ');
+
+  const notesHtml = notes.length ? notes.map(n =>
+    `<div style="border-left:3px solid #00e676;padding:8px 12px;background:#0a1a0a;border-radius:0 6px 6px 0;margin-bottom:8px;">
+      <div style="font-size:.72rem;color:#88aa99;margin-bottom:4px;">${n.ts}</div>
+      <div style="font-size:.85rem;color:#c0e8c8;white-space:pre-wrap;">${n.text.replace(/</g,'&lt;')}</div>
+    </div>`).join('') : '<div style="color:#88aa99;font-size:.82rem;font-style:italic;">No work notes yet. Add your analysis below.</div>';
+
+  const inner = `
+    <div style="padding:20px 24px;border-bottom:1px solid #1a4a2a;background:#071a0a;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <div>
+          <div style="font-size:.8rem;font-family:'Share Tech Mono',monospace;color:#00e676;margin-bottom:4px;">${t.id} &mdash; ${t.type} Ticket</div>
+          <div style="font-size:1.05rem;font-weight:800;color:#d0f0d8;">${t.title}</div>
+        </div>
+        <button onclick="closeTicketDetail()" style="background:rgba(255,45,94,0.15);border:1px solid rgba(255,45,94,0.4);color:#ff2d5e;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:700;">&#10005; Back</button>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+        ${tkTypeBadge(t.type)} ${tkTierBadge(t.tier)}
+        <span style="font-size:.72rem;padding:2px 8px;border-radius:10px;background:#0a1a2a;color:#88aabb;border:1px solid #1a3a4a;">Created: ${t.created}</span>
+        ${tagHtml}
+      </div>
+    </div>
+
+    <div style="padding:20px 24px;">
+      <div style="font-size:.78rem;font-weight:700;color:#88aa99;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Reporter</div>
+      <div style="font-size:.88rem;color:#c0e8c8;margin-bottom:18px;">${t.reporter}</div>
+
+      <div style="font-size:.78rem;font-weight:700;color:#88aa99;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Description</div>
+      <div style="font-size:.9rem;color:#d0e8d8;line-height:1.7;background:#071a0a;border:1px solid #1a4a2a;border-radius:8px;padding:14px;margin-bottom:20px;white-space:pre-line;">${t.desc}</div>
+
+      <!-- Status + Priority controls -->
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;">
+        <div style="flex:1;min-width:140px;">
+          <div style="font-size:.78rem;font-weight:700;color:#88aa99;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Status</div>
+          <select id="tk-status-sel" onchange="saveTicketField('${t.id}','status',this.value)"
+            style="width:100%;padding:8px 12px;background:#0a1a0a;border:1px solid #00664a;color:#00e676;border-radius:6px;font-size:.88rem;cursor:pointer;">
+            ${statusOpts}
+          </select>
+        </div>
+        <div style="flex:1;min-width:140px;">
+          <div style="font-size:.78rem;font-weight:700;color:#88aa99;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Priority</div>
+          <select id="tk-priority-sel" onchange="saveTicketField('${t.id}','priority',this.value)"
+            style="width:100%;padding:8px 12px;background:#0a1a0a;border:1px solid #00664a;color:#ffd700;border-radius:6px;font-size:.88rem;cursor:pointer;">
+            ${prioOpts}
+          </select>
+        </div>
+      </div>
+
+      <!-- Work notes -->
+      <div style="font-size:.78rem;font-weight:700;color:#88aa99;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">Work Notes</div>
+      <div id="tk-notes-list" style="margin-bottom:14px;">${notesHtml}</div>
+
+      <textarea id="tk-note-input" placeholder="Add your analysis, investigation steps, or findings here..." rows="4"
+        style="width:100%;padding:10px 14px;background:#071a0a;border:1px solid #1a4a2a;color:#c0e8c8;border-radius:8px;font-size:.88rem;font-family:'Rajdhani',sans-serif;resize:vertical;margin-bottom:10px;"></textarea>
+      <button onclick="addTicketNote('${t.id}')"
+        style="background:#003322;color:#00e676;border:1px solid #00664a;padding:9px 22px;border-radius:6px;cursor:pointer;font-weight:700;font-size:.88rem;font-family:'Rajdhani',sans-serif;">
+        &#10133; Add Note
+      </button>
+      <span id="tk-note-saved" style="display:none;font-size:.8rem;color:#00e676;margin-left:12px;">Saved!</span>
+    </div>
+  `;
+
+  document.getElementById('ticket-detail-inner').innerHTML = inner;
+  document.getElementById('ticket-detail-modal').style.display = 'block';
+}
+
+function closeTicketDetail() {
+  document.getElementById('ticket-detail-modal').style.display = 'none';
+  renderTicketBoard();
+}
+
+function saveTicketField(ticketId, field, value) {
+  const name = _tkStudentName;
+  if (!_tkProgress[ticketId]) _tkProgress[ticketId] = { status:'New', priority:'P3', notes:[] };
+  _tkProgress[ticketId][field] = value;
+  if (window._fbDb) {
+    firebase.database().ref('mccoe_tickets/work/' + name + '/' + ticketId + '/' + field).set(value);
+  }
+}
+
+function addTicketNote(ticketId) {
+  const input = document.getElementById('tk-note-input');
+  const text = (input.value || '').trim();
+  if (!text) return;
+  const name = _tkStudentName;
+  if (!_tkProgress[ticketId]) _tkProgress[ticketId] = { status:'New', priority:'P3', notes:[] };
+  if (!Array.isArray(_tkProgress[ticketId].notes)) _tkProgress[ticketId].notes = [];
+
+  const now = new Date();
+  const ts = now.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' ' +
+             now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  const note = { text, ts };
+  _tkProgress[ticketId].notes.push(note);
+
+  if (window._fbDb) {
+    const noteRef = firebase.database().ref('mccoe_tickets/work/' + name + '/' + ticketId + '/notes');
+    noteRef.set(_tkProgress[ticketId].notes);
+  }
+
+  input.value = '';
+  // Re-render notes list
+  const notes = _tkProgress[ticketId].notes;
+  document.getElementById('tk-notes-list').innerHTML = notes.map(n =>
+    `<div style="border-left:3px solid #00e676;padding:8px 12px;background:#0a1a0a;border-radius:0 6px 6px 0;margin-bottom:8px;">
+      <div style="font-size:.72rem;color:#88aa99;margin-bottom:4px;">${n.ts}</div>
+      <div style="font-size:.85rem;color:#c0e8c8;white-space:pre-wrap;">${n.text.replace(/</g,'&lt;')}</div>
+    </div>`).join('');
+  const saved = document.getElementById('tk-note-saved');
+  saved.style.display = 'inline';
+  setTimeout(() => { saved.style.display = 'none'; }, 2000);
 }
 </script>
 

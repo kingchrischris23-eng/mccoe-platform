@@ -637,6 +637,9 @@ select option { background:var(--surface); color:var(--text); }
   <button class="nav-btn" onclick="showView('ctf',this)">
     <span class="nav-icon">🚩</span> CTF Scores
   </button>
+  <button class="nav-btn" onclick="showView('tickets',this)">
+    <span class="nav-icon">&#127915;</span> SOC Tickets
+  </button>
   <div class="nav-section">Resources</div>
   <button class="nav-btn" onclick="showView('cheatsheet',this)">
     <span class="nav-icon">📋</span> Cheat Sheet
@@ -1239,6 +1242,49 @@ select option { background:var(--surface); color:var(--text); }
         <div class="section-title">Custom Flash Cards Added (<span id="cm-f-count">0</span>)</div>
         <div id="cm-f-list"><div class="empty-state"><div class="empty-icon">🃏</div>No custom flash cards yet</div></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ SOC TICKET MANAGER -->
+<div class="view" id="view-tickets">
+  <div class="page-header">
+    <div>
+      <h2>&#127915; SOC Ticket Board</h2>
+      <p>Assign tickets to students and view their triage work</p>
+    </div>
+    <button class="btn btn-red" onclick="resetTicketProgress()" title="Clear all student work notes and status — keeps assignments">&#9888; Reset Progress</button>
+  </div>
+
+  <!-- Assign tab / Progress tab toggle -->
+  <div style="display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content;">
+    <button id="tk-tab-assign" onclick="tkShowTab('assign')"
+      style="padding:9px 22px;border:none;background:rgba(0,245,255,0.1);color:var(--cyan);cursor:pointer;font-family:var(--font-b);font-size:.82rem;font-weight:700;border-right:1px solid var(--border);">
+      Assign Tickets
+    </button>
+    <button id="tk-tab-progress" onclick="tkShowTab('progress')"
+      style="padding:9px 22px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font-b);font-size:.82rem;font-weight:700;">
+      Student Progress
+    </button>
+  </div>
+
+  <!-- Assign Panel -->
+  <div id="tk-panel-assign">
+    <p style="font-size:.82rem;color:var(--muted);margin-bottom:14px;">
+      Select a student from the dropdown for each ticket. Changes save to Firebase immediately.
+      Tier: <span style="color:#00e676;">&#9650; Easy</span>&nbsp;
+      <span style="color:#ffd700;">&#9670; Moderate</span>&nbsp;
+      <span style="color:#ff6060;">&#9733; Hard</span>
+    </p>
+    <div id="tk-assign-table-wrap">
+      <div style="color:var(--muted);padding:20px;">Loading student list...</div>
+    </div>
+  </div>
+
+  <!-- Progress Panel -->
+  <div id="tk-panel-progress" style="display:none;">
+    <div id="tk-progress-wrap">
+      <div style="color:var(--muted);padding:20px;">Loading progress...</div>
     </div>
   </div>
 </div>
@@ -1847,6 +1893,7 @@ function showView(name, btn) {
   if(name==='pentest')      loadPentestScores();
   if(name==='blueteam')     loadBlueTeamScores();
   if(name==='ctf')          loadCTFScores();
+  if(name==='tickets')      loadTicketManager();
   if(name==='schedule')     loadSchedule();
   if(name==='content')      loadContentManager();
 }
@@ -4514,5 +4561,259 @@ if (sessionStorage.getItem('mccoe_admin_auth') === '1') {
   appEl.style.display = 'none';
 }
 </script>
+
+<script>
+// ════════════════════════════════════════════════════════════════ SOC TICKET BANK
+const TRACKER_TICKET_BANK = [
+  { id:'TCK-1001', tier:'Easy',     type:'IT',       pri:'P4',
+    title:'Password reset request — locked out of workstation',
+    reporter:'dana.reyes@cedarcreek-ind.com',      created:'2026-08-18 08:12',
+    tags:'account, password, help-desk' },
+  { id:'TCK-1002', tier:'Easy',     type:'Security', pri:'P3',
+    title:'Suspicious email reported — "Your mailbox is full"',
+    reporter:'phishalert@cedarcreek-ind.com',       created:'2026-08-18 09:04',
+    tags:'phishing, email, user-report' },
+  { id:'TCK-1003', tier:'Easy',     type:'IT',       pri:'P3',
+    title:'VPN won't connect from home — "authentication failed"',
+    reporter:'marcus.hall@cedarcreek-ind.com',      created:'2026-08-18 09:31',
+    tags:'vpn, connectivity, remote' },
+  { id:'TCK-1004', tier:'Easy',     type:'IT',       pri:'P4',
+    title:'New hire needs software installed before start date',
+    reporter:'hr-onboarding@cedarcreek-ind.com',    created:'2026-08-18 10:15',
+    tags:'provisioning, software, onboarding' },
+  { id:'TCK-1005', tier:'Easy',     type:'Security', pri:'P3',
+    title:'Account lockouts — user reports repeated MFA prompts',
+    reporter:'siem-alerts@cedarcreek-ind.com',      created:'2026-08-18 11:02',
+    tags:'authentication, mfa, account' },
+  { id:'TCK-2001', tier:'Moderate', type:'Security', pri:'P2',
+    title:'Impossible travel alert — sign-in from two countries in 20 minutes',
+    reporter:'siem-alerts@cedarcreek-ind.com',      created:'2026-08-18 12:40',
+    tags:'identity, impossible-travel, o365' },
+  { id:'TCK-2002', tier:'Moderate', type:'Security', pri:'P2',
+    title:'EDR alert — SentinelOne flagged a file on FINANCE-07',
+    reporter:'edr-console@cedarcreek-ind.com',      created:'2026-08-18 13:22',
+    tags:'edr, malware, endpoint' },
+  { id:'TCK-2003', tier:'Moderate', type:'IT',       pri:'P3',
+    title:'Shared drive access request — Finance folder',
+    reporter:'kevin.tran@cedarcreek-ind.com',        created:'2026-08-18 14:05',
+    tags:'access-request, permissions, approval' },
+  { id:'TCK-2004', tier:'Moderate', type:'IT',       pri:'P2',
+    title:'Multiple users can't reach a business web app — others load fine',
+    reporter:'servicedesk@cedarcreek-ind.com',       created:'2026-08-18 14:48',
+    tags:'connectivity, dns, web' },
+  { id:'TCK-2005', tier:'Moderate', type:'Security', pri:'P2',
+    title:'DLP / USB alert — large copy to removable drive',
+    reporter:'dlp-console@cedarcreek-ind.com',       created:'2026-08-18 15:30',
+    tags:'dlp, insider, data-protection' },
+  { id:'TCK-3001', tier:'Hard',     type:'Security', pri:'P1',
+    title:'Possible ransomware — mass file renames + ransom note on SHARE-01',
+    reporter:'siem-alerts@cedarcreek-ind.com',       created:'2026-08-19 07:52',
+    tags:'ransomware, incident, critical' },
+  { id:'TCK-3002', tier:'Hard',     type:'Security', pri:'P1',
+    title:'Password-spray against the VPN portal from dozens of IPs',
+    reporter:'siem-alerts@cedarcreek-ind.com',       created:'2026-08-19 02:14',
+    tags:'brute-force, vpn, identity' },
+  { id:'TCK-3003', tier:'Hard',     type:'Security', pri:'P1',
+    title:'Business Email Compromise — urgent wire-transfer request "from the CFO"',
+    reporter:'amanda.singh@cedarcreek-ind.com',      created:'2026-08-19 09:20',
+    tags:'bec, fraud, phishing, email' },
+  { id:'TCK-3004', tier:'Hard',     type:'Security', pri:'P1',
+    title:'Lateral movement — service account running admin tools across hosts',
+    reporter:'edr-console@cedarcreek-ind.com',       created:'2026-08-19 03:41',
+    tags:'lateral-movement, incident, credentials' },
+  { id:'TCK-3005', tier:'Hard',     type:'Security', pri:'P1',
+    title:'Data exfiltration — large encrypted upload to unknown cloud storage',
+    reporter:'proxy-alerts@cedarcreek-ind.com',      created:'2026-08-19 04:10',
+    tags:'exfiltration, data-loss, incident' },
+];
+
+let _tkAssign = {};    // ticketId -> assigneeName (from Firebase)
+let _tkAllWork = {};   // studentName -> {ticketId -> {status,priority,notes}}
+let _tkTabCurrent = 'assign';
+
+function tkShowTab(tab) {
+  _tkTabCurrent = tab;
+  document.getElementById('tk-panel-assign').style.display   = tab==='assign'   ? 'block' : 'none';
+  document.getElementById('tk-panel-progress').style.display = tab==='progress' ? 'block' : 'none';
+  document.getElementById('tk-tab-assign').style.background   = tab==='assign'   ? 'rgba(0,245,255,0.1)' : 'transparent';
+  document.getElementById('tk-tab-assign').style.color        = tab==='assign'   ? 'var(--cyan)' : 'var(--muted)';
+  document.getElementById('tk-tab-progress').style.background = tab==='progress' ? 'rgba(0,245,255,0.1)' : 'transparent';
+  document.getElementById('tk-tab-progress').style.color      = tab==='progress' ? 'var(--cyan)' : 'var(--muted)';
+  if (tab === 'progress') renderTkProgress();
+}
+
+function loadTicketManager() {
+  if (!firebase || !firebase.database) { renderTkAssignTable(); return; }
+  firebase.database().ref('mccoe_tickets/assignments').once('value').then(snap => {
+    _tkAssign = snap.val() || {};
+    return firebase.database().ref('mccoe_tickets/work').once('value');
+  }).then(snap => {
+    _tkAllWork = snap.val() || {};
+    renderTkAssignTable();
+    if (_tkTabCurrent === 'progress') renderTkProgress();
+  }).catch(e => { console.error(e); renderTkAssignTable(); });
+}
+
+function renderTkAssignTable() {
+  const wrap = document.getElementById('tk-assign-table-wrap');
+  const sList = students.map(s => s.name).sort();
+  const tierIcon = { Easy:'<span style="color:#00e676;">&#9650;</span>', Moderate:'<span style="color:#ffd700;">&#9670;</span>', Hard:'<span style="color:#ff6060;">&#9733;</span>' };
+  const typeStyle = { Security:'color:#00b4ff;', IT:'color:#a78bfa;' };
+
+  let rows = TRACKER_TICKET_BANK.map(t => {
+    const assigned = _tkAssign[t.id] || '';
+    const opts = ['-- Unassigned --', ...sList].map(n =>
+      `<option value="${n === '-- Unassigned --' ? '' : n}" ${assigned === (n === '-- Unassigned --' ? '' : n) ? 'selected' : ''}>${n}</option>`
+    ).join('');
+    return `<tr>
+      <td style="font-family:monospace;font-size:.8rem;color:var(--cyan);white-space:nowrap;">${t.id}</td>
+      <td style="font-size:.75rem;">${tierIcon[t.tier] || ''}</td>
+      <td style="font-size:.78rem;${typeStyle[t.type]||''}">${t.type}</td>
+      <td style="font-size:.82rem;color:var(--text);">${t.title}</td>
+      <td>
+        <select onchange="tkSaveAssignment('${t.id}', this.value)"
+          style="background:var(--card);border:1px solid var(--border);color:var(--text);padding:5px 8px;border-radius:5px;font-size:.78rem;min-width:140px;">
+          ${opts}
+        </select>
+      </td>
+    </tr>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <table style="width:100%;border-collapse:collapse;">
+      <thead>
+        <tr style="border-bottom:1px solid var(--border);">
+          <th style="padding:8px 10px;text-align:left;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Ticket ID</th>
+          <th style="padding:8px 6px;text-align:left;font-size:.72rem;color:var(--muted);">Tier</th>
+          <th style="padding:8px 6px;text-align:left;font-size:.72rem;color:var(--muted);">Type</th>
+          <th style="padding:8px 10px;text-align:left;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Title</th>
+          <th style="padding:8px 10px;text-align:left;font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Assigned To</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function tkSaveAssignment(ticketId, studentName) {
+  _tkAssign[ticketId] = studentName;
+  if (firebase && firebase.database) {
+    firebase.database().ref('mccoe_tickets/assignments/' + ticketId).set(studentName || null);
+  }
+}
+
+function renderTkProgress() {
+  const wrap = document.getElementById('tk-progress-wrap');
+  // Build per-student summary
+  const assignedStudents = {};
+  Object.entries(_tkAssign).forEach(([tid, sname]) => {
+    if (!sname) return;
+    if (!assignedStudents[sname]) assignedStudents[sname] = [];
+    assignedStudents[sname].push(tid);
+  });
+
+  if (!Object.keys(assignedStudents).length) {
+    wrap.innerHTML = '<div style="color:var(--muted);padding:20px;">No tickets assigned yet. Use the Assign Tickets tab to assign tickets to students.</div>';
+    return;
+  }
+
+  const stClr = { 'New':'#888','In Progress':'#00e676','Pending':'#ffd700','Resolved':'#00b4ff','Closed':'#444' };
+
+  let html = '';
+  Object.entries(assignedStudents).forEach(([sname, tids]) => {
+    const work = _tkAllWork[sname] || {};
+    let noteRows = '';
+    tids.forEach(tid => {
+      const t = TRACKER_TICKET_BANK.find(x => x.id === tid);
+      if (!t) return;
+      const prog = work[tid] || {};
+      const status = prog.status || 'New';
+      const priority = prog.priority || t.pri;
+      const notes = Array.isArray(prog.notes) ? prog.notes : [];
+      noteRows += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
+        <td style="padding:7px 10px;font-family:monospace;font-size:.78rem;color:var(--cyan);">${tid}</td>
+        <td style="padding:7px 10px;font-size:.8rem;color:var(--text);max-width:280px;">${t.title}</td>
+        <td style="padding:7px 10px;">
+          <span style="font-size:.72rem;padding:2px 8px;border-radius:10px;border:1px solid;color:${stClr[status]||'#888'};border-color:${stClr[status]||'#888'};background:rgba(0,0,0,0.3);">${status}</span>
+        </td>
+        <td style="padding:7px 10px;font-size:.78rem;color:#ffd700;">${priority}</td>
+        <td style="padding:7px 10px;">
+          ${notes.length
+            ? `<button onclick="tkViewNotes('${sname}','${tid}')" style="background:rgba(0,245,255,0.08);border:1px solid var(--border);color:var(--cyan);padding:3px 10px;border-radius:4px;cursor:pointer;font-size:.72rem;">&#128172; ${notes.length} note${notes.length!==1?'s':''}</button>`
+            : '<span style="font-size:.72rem;color:var(--muted);font-style:italic;">No notes</span>'}
+        </td>
+      </tr>`;
+    });
+
+    const done   = tids.filter(tid => { const s = (_tkAllWork[sname]||{})[tid]; return s && (s.status==='Resolved'||s.status==='Closed'); }).length;
+    const inprog = tids.filter(tid => { const s = (_tkAllWork[sname]||{})[tid]; return s && s.status==='In Progress'; }).length;
+
+    html += `<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden;">
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div style="font-weight:700;color:var(--text);font-size:.9rem;">&#128100; ${sname}</div>
+        <div style="display:flex;gap:10px;font-size:.78rem;">
+          <span style="color:#00e676;">${done} resolved</span>
+          <span style="color:#ffd700;">${inprog} in progress</span>
+          <span style="color:var(--muted);">${tids.length} total</span>
+        </div>
+      </div>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead><tr style="border-bottom:1px solid var(--border);">
+          <th style="padding:6px 10px;text-align:left;font-size:.7rem;color:var(--muted);">ID</th>
+          <th style="padding:6px 10px;text-align:left;font-size:.7rem;color:var(--muted);">Title</th>
+          <th style="padding:6px 10px;text-align:left;font-size:.7rem;color:var(--muted);">Status</th>
+          <th style="padding:6px 10px;text-align:left;font-size:.7rem;color:var(--muted);">Priority</th>
+          <th style="padding:6px 10px;text-align:left;font-size:.7rem;color:var(--muted);">Notes</th>
+        </tr></thead>
+        <tbody>${noteRows}</tbody>
+      </table>
+    </div>`;
+  });
+  wrap.innerHTML = html;
+}
+
+function tkViewNotes(studentName, ticketId) {
+  const work = (_tkAllWork[studentName] || {})[ticketId] || {};
+  const notes = Array.isArray(work.notes) ? work.notes : [];
+  const t = TRACKER_TICKET_BANK.find(x => x.id === ticketId);
+
+  let noteHtml = notes.map(n =>
+    `<div style="border-left:3px solid var(--cyan);padding:10px 14px;background:rgba(0,245,255,0.04);border-radius:0 6px 6px 0;margin-bottom:10px;">
+      <div style="font-size:.72rem;color:var(--muted);margin-bottom:4px;">${n.ts}</div>
+      <div style="font-size:.85rem;color:var(--text);white-space:pre-wrap;">${(n.text||'').replace(/</g,'&lt;')}</div>
+    </div>`
+  ).join('');
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9900;display:flex;align-items:center;justify-content:center;';
+  overlay.innerHTML = `<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;padding:24px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div>
+        <div style="font-size:.8rem;font-family:monospace;color:var(--cyan);">${ticketId} &mdash; ${studentName}</div>
+        <div style="font-size:.92rem;font-weight:700;color:var(--text);margin-top:4px;">${t ? t.title : ''}</div>
+      </div>
+      <button onclick="this.closest('div[style*=fixed]').remove()"
+        style="background:rgba(255,45,94,0.15);border:1px solid rgba(255,45,94,0.4);color:#ff2d5e;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:700;">&#10005;</button>
+    </div>
+    ${noteHtml || '<div style="color:var(--muted);font-style:italic;">No notes</div>'}
+  </div>`;
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+}
+
+function resetTicketProgress() {
+  if (!confirm('Reset ALL student ticket progress (status, priority, work notes)?\n\nAssignments will be kept. This cannot be undone.')) return;
+  _tkAllWork = {};
+  if (firebase && firebase.database) {
+    firebase.database().ref('mccoe_tickets/work').remove().then(() => {
+      alert('Ticket progress reset. Assignments are unchanged.');
+      renderTkProgress();
+    });
+  } else {
+    alert('Progress cleared (Firebase not connected).');
+    renderTkProgress();
+  }
+}
+</script>
+
 </body>
 </html>
