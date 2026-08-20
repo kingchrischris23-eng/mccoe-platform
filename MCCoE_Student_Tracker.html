@@ -1430,8 +1430,11 @@ let _loginsCache = {};
 function loadData() {
   const raw = localStorage.getItem('mccoe_students');
   if (raw) {
-    const parsed = JSON.parse(raw);
-    if (parsed && parsed.length > 0) return parsed;
+    try {
+      const parsed = JSON.parse(raw);
+      const valid = Array.isArray(parsed) ? parsed.filter(s => s && s.id) : [];
+      if (valid.length > 0) return valid;
+    } catch(e) {}
   }
   // Seed demo students
   return [
@@ -1525,6 +1528,8 @@ function saveData() {
   if (_fbDb) _fbDb.ref('mccoe_tracker_students').set(students);
 }
 let students = loadData();
+// Write clean copy back to localStorage so stale null entries don't survive a reload
+localStorage.setItem('mccoe_students', JSON.stringify(students));
 // Push demo/restored students to Firebase on next tick
 setTimeout(function(){
   if (_fbDb && students.length > 0 && !localStorage.getItem('_fbStudentsPushed')) {
@@ -2320,6 +2325,7 @@ function renderOnlineNow() {
 }
 
 function renderDashboard() {
+  students = students.filter(s => s && s.id);
   const newStudents = syncRegistry();
   if (newStudents) { renderStudents(); }
   // KPIs
@@ -2426,10 +2432,14 @@ function renderDashboard() {
       <td><span class="status-badge status-${s.placement}">${{active:'Active',ojt:'In OJT',placed:'Placed'}[s.placement]}</span></td>
     </tr>`).join('');
 
-  // Auto-start radar if Live Map tab is default-active
+  // Auto-start radar — switch to map tab if not already active, then render
   setTimeout(function(){
-    if (document.getElementById('dpanel-map') && document.getElementById('dtab-map')) renderLoginMap();
-  }, 100);
+    const mapTab = document.getElementById('dtab-map');
+    const mapPanel = document.getElementById('dpanel-map');
+    if (!mapTab || !mapPanel) return;
+    if (!mapTab.classList.contains('active-tab')) switchDashTab('map');
+    renderLoginMap();
+  }, 200);
 }
 
 // ════════════════════════════════════════════
