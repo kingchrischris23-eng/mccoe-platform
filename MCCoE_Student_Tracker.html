@@ -1253,7 +1253,10 @@ select option { background:var(--surface); color:var(--text); }
       <h2>&#127915; SOC Ticket Board</h2>
       <p>Assign tickets to students and view their triage work</p>
     </div>
-    <button class="btn btn-red" onclick="resetTicketProgress()" title="Clear all student work notes and status — keeps assignments">&#9888; Reset Progress</button>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+      <button class="btn" style="background:rgba(0,180,100,0.1);color:#00c864;border-color:rgba(0,180,100,0.4);" onclick="tkExportCSV()">&#11015; Export CSV</button>
+      <button class="btn btn-red" onclick="resetTicketProgress()" title="Clear all student work notes and status — keeps assignments">&#9888; Reset Progress</button>
+    </div>
   </div>
 
   <!-- Assign tab / Progress tab toggle -->
@@ -4737,9 +4740,12 @@ function renderTkProgress() {
         </td>
         <td style="padding:7px 10px;font-size:.78rem;color:#ffd700;">${priority}</td>
         <td style="padding:7px 10px;">
-          ${notes.length
-            ? `<button onclick="tkViewNotes('${sname}','${tid}')" style="background:rgba(0,245,255,0.08);border:1px solid var(--border);color:var(--cyan);padding:3px 10px;border-radius:4px;cursor:pointer;font-size:.72rem;">&#128172; ${notes.length} note${notes.length!==1?'s':''}</button>`
-            : '<span style="font-size:.72rem;color:var(--muted);font-style:italic;">No notes</span>'}
+          ${(prog.resolution)
+            ? `<span style="font-size:.68rem;padding:2px 8px;border-radius:10px;background:rgba(0,200,100,0.1);color:#00c864;border:1px solid rgba(0,200,100,0.3);">&#10003; Resolved</span>`
+            : ''}
+          <button onclick="tkViewNotes('${sname}','${tid}')" style="background:rgba(0,245,255,0.08);border:1px solid var(--border);color:var(--cyan);padding:3px 10px;border-radius:4px;cursor:pointer;font-size:.72rem;margin-left:4px;">
+            ${notes.length ? '&#128172; ' + notes.length + ' note' + (notes.length!==1?'s':'') : 'View'}
+          </button>
         </td>
       </tr>`;
     });
@@ -4772,30 +4778,46 @@ function renderTkProgress() {
 }
 
 function tkViewNotes(studentName, ticketId) {
-  const work = (_tkAllWork[studentName] || {})[ticketId] || {};
+  const work  = (_tkAllWork[studentName] || {})[ticketId] || {};
   const notes = Array.isArray(work.notes) ? work.notes : [];
-  const t = TRACKER_TICKET_BANK.find(x => x.id === ticketId);
+  const t     = TRACKER_TICKET_BANK.find(x => x.id === ticketId);
+  const isResolved = work.resolution != null;
 
   let noteHtml = notes.map(n =>
-    `<div style="border-left:3px solid var(--cyan);padding:10px 14px;background:rgba(0,245,255,0.04);border-radius:0 6px 6px 0;margin-bottom:10px;">
-      <div style="font-size:.72rem;color:var(--muted);margin-bottom:4px;">${n.ts}</div>
-      <div style="font-size:.85rem;color:var(--text);white-space:pre-wrap;">${(n.text||'').replace(/</g,'&lt;')}</div>
-    </div>`
+    '<div style="border-left:3px solid var(--cyan);padding:10px 14px;background:rgba(0,245,255,0.04);border-radius:0 6px 6px 0;margin-bottom:10px;">'
+    + '<div style="font-size:.72rem;color:var(--muted);margin-bottom:4px;">' + n.ts + '</div>'
+    + '<div style="font-size:.85rem;color:var(--text);white-space:pre-wrap;">' + (n.text||'').replace(/</g,'&lt;') + '</div>'
+    + '</div>'
   ).join('');
 
+  let resHtml = '';
+  if (work.resolution) {
+    const r = work.resolution;
+    resHtml = '<div style="margin-top:16px;padding:14px;background:rgba(0,180,100,0.05);border:1px solid rgba(0,180,100,0.25);border-radius:8px;">'
+      + '<div style="font-size:.72rem;font-weight:700;color:#00c864;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">&#10003; Resolution — ' + (work.disposition||'') + '</div>'
+      + (r.summary ? '<div style="margin-bottom:8px;"><div style="font-size:.68rem;color:var(--muted);">SUMMARY</div><div style="font-size:.85rem;color:var(--text);white-space:pre-line;">' + r.summary.replace(/</g,'&lt;') + '</div></div>' : '')
+      + (r.actions ? '<div style="margin-bottom:8px;"><div style="font-size:.68rem;color:var(--muted);">ACTIONS TAKEN</div><div style="font-size:.85rem;color:var(--text);white-space:pre-line;">' + r.actions.replace(/</g,'&lt;') + '</div></div>' : '')
+      + (r.rootCause ? '<div style="margin-bottom:8px;"><div style="font-size:.68rem;color:var(--muted);">ROOT CAUSE</div><div style="font-size:.85rem;color:var(--text);white-space:pre-line;">' + r.rootCause.replace(/</g,'&lt;') + '</div></div>' : '')
+      + (r.recommendation ? '<div><div style="font-size:.68rem;color:var(--muted);">RECOMMENDATION</div><div style="font-size:.85rem;color:var(--text);white-space:pre-line;">' + r.recommendation.replace(/</g,'&lt;') + '</div></div>' : '')
+      + '</div>';
+  }
+
   const overlay = document.createElement('div');
-  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9900;display:flex;align-items:center;justify-content:center;';
-  overlay.innerHTML = `<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;max-width:600px;width:90%;max-height:80vh;overflow-y:auto;padding:24px;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
-      <div>
-        <div style="font-size:.8rem;font-family:monospace;color:var(--cyan);">${ticketId} &mdash; ${studentName}</div>
-        <div style="font-size:.92rem;font-weight:700;color:var(--text);margin-top:4px;">${t ? t.title : ''}</div>
-      </div>
-      <button onclick="this.closest('div[style*=fixed]').remove()"
-        style="background:rgba(255,45,94,0.15);border:1px solid rgba(255,45,94,0.4);color:#ff2d5e;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:700;">&#10005;</button>
-    </div>
-    ${noteHtml || '<div style="color:var(--muted);font-style:italic;">No notes</div>'}
-  </div>`;
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.88);z-index:9900;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 16px;';
+  overlay.innerHTML =
+    '<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;max-width:640px;width:100%;padding:24px;">'
+    + '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:10px;flex-wrap:wrap;">'
+    + '<div><div style="font-size:.8rem;font-family:monospace;color:var(--cyan);">' + ticketId + ' &mdash; ' + studentName + '</div>'
+    + '<div style="font-size:.92rem;font-weight:700;color:var(--text);margin-top:4px;">' + (t ? t.title : '') + '</div>'
+    + (work.status ? '<div style="font-size:.78rem;color:var(--muted);margin-top:4px;">Status: <strong style="color:' + (work.status==='Resolved'||work.status==='Closed' ? '#00c864' : 'var(--cyan)') + ';">' + work.status + '</strong></div>' : '')
+    + '</div>'
+    + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">'
+    + (isResolved ? '<button onclick="tkAdminReopen(\'' + studentName + '\',\'' + ticketId + '\');this.closest(\'div[style*=fixed]\').remove()" style="background:rgba(255,140,0,0.1);border:1px solid rgba(255,140,0,0.4);color:#ff8c00;padding:6px 12px;border-radius:6px;cursor:pointer;font-weight:700;font-size:.78rem;">&#8635; Reopen</button>' : '')
+    + '<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="background:rgba(255,45,94,0.15);border:1px solid rgba(255,45,94,0.4);color:#ff2d5e;padding:6px 14px;border-radius:6px;cursor:pointer;font-weight:700;">&#10005;</button>'
+    + '</div></div>'
+    + (noteHtml || '<div style="color:var(--muted);font-style:italic;margin-bottom:10px;">No work notes yet.</div>')
+    + resHtml
+    + '</div>';
   document.body.appendChild(overlay);
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
 }
@@ -4813,6 +4835,54 @@ function resetTicketProgress() {
     renderTkProgress();
   }
 }
+function tkAdminReopen(studentName, ticketId) {
+  if (!confirm('Reopen ' + ticketId + ' for ' + studentName + '? This clears the resolution and sets status to In Progress.')) return;
+  if (!_tkAllWork[studentName]) _tkAllWork[studentName] = {};
+  const prog = _tkAllWork[studentName][ticketId] || {};
+  delete prog.resolution; delete prog.disposition; delete prog.resolvedAt;
+  prog.status = 'In Progress';
+  _tkAllWork[studentName][ticketId] = prog;
+  if (firebase && firebase.database) {
+    const ref = firebase.database().ref('mccoe_tickets/work/' + studentName + '/' + ticketId);
+    ref.update({ status:'In Progress' }).then(() => {
+      ref.child('resolution').remove();
+      ref.child('disposition').remove();
+      ref.child('resolvedAt').remove();
+    });
+  }
+  renderTkProgress();
+  alert(ticketId + ' reopened for ' + studentName + '.');
+}
+
+function tkExportCSV() {
+  const rows = [['Ticket ID','Title','Tier','Type','Default Priority','Assigned To','Status','Priority','Disposition','Notes Count','Summary/Actions','Root Cause','Recommendation','Resolved At']];
+  TRACKER_TICKET_BANK.forEach(t => {
+    const assignee = _tkAssign[t.id] || '';
+    const sWork    = assignee ? ((_tkAllWork[assignee] || {})[t.id] || {}) : {};
+    const notes    = Array.isArray(sWork.notes) ? sWork.notes : [];
+    const res      = sWork.resolution || {};
+    rows.push([
+      t.id, t.title, t.tier, t.type, t.pri, assignee,
+      sWork.status || 'New', sWork.priority || t.pri,
+      sWork.disposition || '', notes.length,
+      (res.summary || res.actions || '').replace(/
+/g,' '),
+      (res.rootCause || '').replace(/
+/g,' '),
+      (res.recommendation || '').replace(/
+/g,' '),
+      sWork.resolvedAt ? new Date(sWork.resolvedAt).toLocaleString() : ''
+    ]);
+  });
+  const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')).join('
+');
+  const blob = new Blob([csv], { type:'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'MCCoE_SOC_Tickets_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+}
+
 </script>
 
 </body>

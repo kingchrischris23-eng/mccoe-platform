@@ -4562,6 +4562,7 @@ function renderTicketBoard() {
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
           <span style="font-size:.75rem;padding:3px 10px;border-radius:12px;${tkStatusStyle(status)}">${status}</span>
+            ${prog.resolution ? '<span style="font-size:.65rem;padding:1px 6px;border-radius:8px;background:rgba(0,180,255,0.1);color:#00b4ff;border:1px solid rgba(0,180,255,0.3);margin-top:3px;display:block;">&#128274; locked</span>' : ''}
           <span style="font-size:.8rem;${tkPriorityStyle(priority)}">${priority}</span>
         </div>
       </div>
@@ -4608,6 +4609,8 @@ function openTicketDetail(ticketId) {
     </div>
 
     <div style="padding:20px 24px;">
+      ${tkIsLocked(t.id) ? `<div style="padding:10px 14px;background:rgba(0,180,255,0.07);border:1px solid rgba(0,180,255,0.3);border-radius:8px;margin-bottom:14px;display:flex;align-items:center;gap:10px;"><span style="font-size:1.1rem;">&#128274;</span><div><div style="font-size:.82rem;font-weight:700;color:#00b4ff;">Ticket Resolved — Read Only</div><div style="font-size:.75rem;color:#88aa99;margin-top:2px;">${prog.disposition || ''}</div></div></div>` : ''}
+      <div style="font-size:.75rem;color:#88aa99;margin-bottom:14px;">&#9200; Open for: <strong style="color:#ffd700;">${tkAge(t.created)}</strong></div>
       <div style="font-size:.78rem;font-weight:700;color:#88aa99;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Reporter</div>
       <div style="font-size:.88rem;color:#c0e8c8;margin-bottom:18px;">${t.reporter}</div>
 
@@ -4618,7 +4621,7 @@ function openTicketDetail(ticketId) {
       <div style="display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px;">
         <div style="flex:1;min-width:140px;">
           <div style="font-size:.78rem;font-weight:700;color:#88aa99;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Status</div>
-          <select id="tk-status-sel" onchange="saveTicketField('${t.id}','status',this.value)"
+          <select id="tk-status-sel" onchange="tkCheckStatusChange('${t.id}', this.value)"
             style="width:100%;padding:8px 12px;background:#0a1a0a;border:1px solid #00664a;color:#00e676;border-radius:6px;font-size:.88rem;cursor:pointer;">
             ${statusOpts}
           </select>
@@ -4640,9 +4643,10 @@ function openTicketDetail(ticketId) {
         style="width:100%;padding:10px 14px;background:#071a0a;border:1px solid #1a4a2a;color:#c0e8c8;border-radius:8px;font-size:.88rem;font-family:'Rajdhani',sans-serif;resize:vertical;margin-bottom:10px;"></textarea>
       <button onclick="addTicketNote('${t.id}')"
         style="background:#003322;color:#00e676;border:1px solid #00664a;padding:9px 22px;border-radius:6px;cursor:pointer;font-weight:700;font-size:.88rem;font-family:'Rajdhani',sans-serif;">
-        &#10133; Add Note
+        ${tkIsLocked(t.id) ? '&#128274; Locked' : '&#10133; Add Note'}
       </button>
       <span id="tk-note-saved" style="display:none;font-size:.8rem;color:#00e676;margin-left:12px;">Saved!</span>
+      ${(tkIsLocked(t.id) && prog.resolution) ? `<div style="margin-top:20px;background:rgba(0,180,255,0.05);border:1px solid rgba(0,180,255,0.25);border-radius:8px;padding:16px;"><div style="font-size:.78rem;font-weight:700;color:#00b4ff;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">Resolution Details</div>${prog.resolution.summary ? '<div style=\'margin-bottom:10px;\'><div style=\'font-size:.72rem;color:#88aa99;margin-bottom:4px;\'>SUMMARY</div><div style=\'font-size:.85rem;color:#c0e8c8;white-space:pre-line;\'>' + prog.resolution.summary.replace(/</g,'&lt;') + '</div></div>' : ''}${prog.resolution.actions ? '<div style=\'margin-bottom:10px;\'><div style=\'font-size:.72rem;color:#88aa99;margin-bottom:4px;\'>ACTIONS TAKEN</div><div style=\'font-size:.85rem;color:#c0e8c8;white-space:pre-line;\'>' + prog.resolution.actions.replace(/</g,'&lt;') + '</div></div>' : ''}${prog.resolution.rootCause ? '<div style=\'margin-bottom:10px;\'><div style=\'font-size:.72rem;color:#88aa99;margin-bottom:4px;\'>ROOT CAUSE</div><div style=\'font-size:.85rem;color:#c0e8c8;white-space:pre-line;\'>' + prog.resolution.rootCause.replace(/</g,'&lt;') + '</div></div>' : ''}${prog.resolution.recommendation ? '<div><div style=\'font-size:.72rem;color:#88aa99;margin-bottom:4px;\'>RECOMMENDATION</div><div style=\'font-size:.85rem;color:#c0e8c8;white-space:pre-line;\'>' + prog.resolution.recommendation.replace(/</g,'&lt;') + '</div></div>' : ''}</div>` : ''}
     </div>
   `;
 
@@ -4656,6 +4660,7 @@ function closeTicketDetail() {
 }
 
 function saveTicketField(ticketId, field, value) {
+  if (tkIsLocked(ticketId)) return;
   const name = _tkStudentName;
   if (!_tkProgress[ticketId]) _tkProgress[ticketId] = { status:'New', priority:'P3', notes:[] };
   _tkProgress[ticketId][field] = value;
@@ -4665,6 +4670,7 @@ function saveTicketField(ticketId, field, value) {
 }
 
 function addTicketNote(ticketId) {
+  if (tkIsLocked(ticketId)) return;
   const input = document.getElementById('tk-note-input');
   const text = (input.value || '').trim();
   if (!text) return;
@@ -4694,6 +4700,123 @@ function addTicketNote(ticketId) {
   const saved = document.getElementById('tk-note-saved');
   saved.style.display = 'inline';
   setTimeout(() => { saved.style.display = 'none'; }, 2000);
+}
+
+// ── RESOLVE SYSTEM ───────────────────────────────────────────────────────────
+const DISPOSITIONS = [
+  'True Positive — Malicious Activity Confirmed',
+  'True Positive — Policy Violation',
+  'False Positive — Expected Behavior',
+  'False Positive — Tuning Required',
+  'Escalated to Tier II / IR Team',
+  'Closed — No Action Required',
+  'Closed — Duplicate Ticket',
+];
+
+function tkAge(createdStr) {
+  const created = new Date(createdStr);
+  const hrs = Math.round((new Date() - created) / 3600000);
+  if (hrs < 1)  return 'less than 1 hour';
+  if (hrs < 24) return hrs + ' hr' + (hrs !== 1 ? 's' : '');
+  const days = Math.floor(hrs / 24);
+  return days + ' day' + (days !== 1 ? 's' : '');
+}
+
+function tkIsLocked(ticketId) {
+  return !!(_tkProgress[ticketId] && _tkProgress[ticketId].resolution);
+}
+
+function tkCheckStatusChange(ticketId, newStatus) {
+  if (newStatus === 'Resolved' || newStatus === 'Closed') {
+    const prog = _tkProgress[ticketId] || {};
+    const sel = document.getElementById('tk-status-sel');
+    if (sel) sel.value = prog.status || 'New';
+    openResolveModal(ticketId);
+  } else {
+    saveTicketField(ticketId, 'status', newStatus);
+  }
+}
+
+function openResolveModal(ticketId) {
+  const t = TICKET_BANK.find(x => x.id === ticketId);
+  if (!t) return;
+  const isHard = t.tier === 'Hard';
+  const dispOpts = DISPOSITIONS.map(d => '<option value="' + d + '">' + d + '</option>').join('');
+
+  const adaptiveFields = isHard
+    ? '<div style="margin-bottom:14px;">'
+      + '<label style="font-size:.78rem;color:#88aa99;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Actions Taken <span style="color:#ff6060;">*</span></label>'
+      + '<textarea id="tk-resolve-actions" rows="3" placeholder="What specific steps did you take to investigate, contain, or remediate?" style="width:100%;padding:10px;background:#071a0a;border:1px solid #1a4a2a;color:#c0e8c8;border-radius:6px;font-size:.85rem;font-family:\'Rajdhani\',sans-serif;resize:vertical;"></textarea>'
+      + '</div><div style="margin-bottom:14px;">'
+      + '<label style="font-size:.78rem;color:#88aa99;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Root Cause <span style="color:#ff6060;">*</span></label>'
+      + '<textarea id="tk-resolve-rootcause" rows="3" placeholder="What was the underlying cause of this incident or alert?" style="width:100%;padding:10px;background:#071a0a;border:1px solid #1a4a2a;color:#c0e8c8;border-radius:6px;font-size:.85rem;font-family:\'Rajdhani\',sans-serif;resize:vertical;"></textarea>'
+      + '</div><div style="margin-bottom:14px;">'
+      + '<label style="font-size:.78rem;color:#88aa99;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Recommendation <span style="color:#ff6060;">*</span></label>'
+      + '<textarea id="tk-resolve-rec" rows="3" placeholder="What should be done to prevent recurrence or improve defenses?" style="width:100%;padding:10px;background:#071a0a;border:1px solid #1a4a2a;color:#c0e8c8;border-radius:6px;font-size:.85rem;font-family:\'Rajdhani\',sans-serif;resize:vertical;"></textarea>'
+      + '</div>'
+    : '<div style="margin-bottom:14px;">'
+      + '<label style="font-size:.78rem;color:#88aa99;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Summary <span style="color:#ff6060;">*</span></label>'
+      + '<textarea id="tk-resolve-summary" rows="5" placeholder="Summarize what you investigated, what you found, and what action you took to close this ticket." style="width:100%;padding:10px;background:#071a0a;border:1px solid #1a4a2a;color:#c0e8c8;border-radius:6px;font-size:.85rem;font-family:\'Rajdhani\',sans-serif;resize:vertical;"></textarea>'
+      + '</div>';
+
+  const overlay = document.createElement('div');
+  overlay.id = 'tk-resolve-modal';
+  overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.93);z-index:9700;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 16px;font-family:\'Rajdhani\',sans-serif;';
+  overlay.innerHTML =
+    '<div style="background:#0a1a10;border:1px solid #00664a;border-radius:12px;max-width:600px;width:100%;padding:24px;">'
+    + '<div style="margin-bottom:20px;">'
+    + '<div style="font-size:.8rem;font-family:\'Share Tech Mono\',monospace;color:#00e676;margin-bottom:4px;">' + t.id + ' — Close Ticket</div>'
+    + '<div style="font-size:1rem;font-weight:800;color:#d0f0d8;">' + t.title + '</div>'
+    + '<div style="font-size:.78rem;color:#88aa99;margin-top:6px;padding:6px 10px;background:rgba(255,210,0,0.07);border:1px solid rgba(255,210,0,0.25);border-radius:6px;">'
+    + '⚠ Submitting this form <strong style="color:#ffd700;">locks the ticket</strong>. Your instructor can reopen it if needed.</div></div>'
+    + '<div style="margin-bottom:14px;">'
+    + '<label style="font-size:.78rem;color:#88aa99;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Disposition <span style="color:#ff6060;">*</span></label>'
+    + '<select id="tk-resolve-disp" style="width:100%;padding:9px 12px;background:#0a1a0a;border:1px solid #00664a;color:#00e676;border-radius:6px;font-size:.88rem;cursor:pointer;">'
+    + '<option value="">-- Select disposition --</option>' + dispOpts + '</select></div>'
+    + adaptiveFields
+    + '<div id="tk-resolve-error" style="display:none;color:#ff6060;font-size:.82rem;margin-bottom:12px;padding:8px 12px;background:rgba(255,96,96,0.08);border:1px solid rgba(255,96,96,0.3);border-radius:6px;"></div>'
+    + '<div style="display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;">'
+    + '<button onclick="submitResolve(\'' + ticketId + '\',' + isHard + ')" style="flex:1;min-width:160px;background:#003322;color:#00e676;border:1px solid #00664a;padding:10px 20px;border-radius:6px;cursor:pointer;font-weight:800;font-size:.92rem;font-family:\'Rajdhani\',sans-serif;">✓ Submit &amp; Close Ticket</button>'
+    + '<button onclick="document.getElementById(\'tk-resolve-modal\').remove()" style="background:rgba(255,45,94,0.15);border:1px solid rgba(255,45,94,0.4);color:#ff2d5e;padding:10px 18px;border-radius:6px;cursor:pointer;font-weight:700;font-family:\'Rajdhani\',sans-serif;">Cancel</button>'
+    + '</div></div>';
+  document.body.appendChild(overlay);
+}
+
+function submitResolve(ticketId, isHard) {
+  const disp   = (document.getElementById('tk-resolve-disp').value || '').trim();
+  const errEl  = document.getElementById('tk-resolve-error');
+  let   resolution = {};
+
+  if (!disp) { errEl.style.display='block'; errEl.textContent='Please select a disposition.'; return; }
+
+  if (isHard) {
+    const actions   = (document.getElementById('tk-resolve-actions').value||'').trim();
+    const rootCause = (document.getElementById('tk-resolve-rootcause').value||'').trim();
+    const rec       = (document.getElementById('tk-resolve-rec').value||'').trim();
+    if (!actions || !rootCause || !rec) {
+      errEl.style.display='block'; errEl.textContent='All three fields are required for Hard tier tickets.'; return;
+    }
+    resolution = { actions, rootCause, recommendation: rec };
+  } else {
+    const summary = (document.getElementById('tk-resolve-summary').value||'').trim();
+    if (!summary) { errEl.style.display='block'; errEl.textContent='Summary is required.'; return; }
+    resolution = { summary };
+  }
+
+  const finalStatus = disp.startsWith('Closed') ? 'Closed' : 'Resolved';
+  const resolvedAt  = new Date().toISOString();
+  const name = _tkStudentName;
+
+  if (!_tkProgress[ticketId]) _tkProgress[ticketId] = { status:'New', priority:'P3', notes:[] };
+  Object.assign(_tkProgress[ticketId], { status:finalStatus, disposition:disp, resolution, resolvedAt });
+
+  if (window._fbDb) {
+    firebase.database().ref('mccoe_tickets/work/' + name + '/' + ticketId).update(
+      { status:finalStatus, disposition:disp, resolution, resolvedAt }
+    );
+  }
+  document.getElementById('tk-resolve-modal').remove();
+  closeTicketDetail();
 }
 </script>
 
