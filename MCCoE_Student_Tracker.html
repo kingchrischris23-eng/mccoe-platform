@@ -4689,15 +4689,13 @@ function renderTkAssignTable() {
   const tierIcon = { Easy:'<span style="color:#00e676;">&#9650;</span>', Moderate:'<span style="color:#ffd700;">&#9670;</span>', Hard:'<span style="color:#ff6060;">&#9733;</span>' };
   const typeStyle = { Security:'color:#00b4ff;', IT:'color:#a78bfa;' };
 
-  if (sList.length === 0) {
-    wrap.innerHTML = '<div style="padding:20px;color:var(--muted);font-size:.85rem;">' +
-      '<strong style="color:var(--cyan);">No students found.</strong><br><br>' +
-      'Students must register through the Student Platform first, or check that the Firebase ' +
-      '<code>mccoe_registry</code> rule is set to read: true.<br><br>' +
-      '<em>Tip: Click away and come back to this tab to retry loading.</em>' +
-      '</div>';
-    return;
-  }
+  // If no students, show a banner but STILL render the ticket table
+  const noStudentBanner = sList.length === 0
+    ? '<div style="margin-bottom:14px;padding:10px 14px;background:rgba(0,245,255,0.05);border:1px solid rgba(0,245,255,0.2);border-radius:6px;font-size:.82rem;color:var(--muted);">' +
+      '<strong style="color:var(--cyan);">No students registered yet.</strong> ' +
+      'Students must sign up through the Student Platform before you can assign tickets. ' +
+      'The ticket table is shown below so you can preview it.</div>'
+    : '';
 
   let rows = TRACKER_TICKET_BANK.map(t => {
     const assigned = _tkAssign[t.id] || '';
@@ -4718,7 +4716,7 @@ function renderTkAssignTable() {
     </tr>`;
   }).join('');
 
-  wrap.innerHTML = `
+  wrap.innerHTML = noStudentBanner + `
     <table style="width:100%;border-collapse:collapse;">
       <thead>
         <tr style="border-bottom:1px solid var(--border);">
