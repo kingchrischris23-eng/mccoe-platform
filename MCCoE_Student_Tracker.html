@@ -2247,7 +2247,7 @@ function deleteDeadline(key) {
 // ════════════════════════════════════════════
 function avgScore(s)     { return s.scores.length ? Math.round(s.scores.reduce((a,b)=>a+b,0)/s.scores.length) : 0; }
 function attendRate(s)   {
-  const recs = Object.values(s.attendance);
+  const recs = Object.values(s.attendance || {});
   if(!recs.length) return 100;
   return Math.round((recs.filter(r=>r==='P').length / recs.length)*100);
 }
@@ -4596,7 +4596,7 @@ const TRACKER_TICKET_BANK = [
     reporter:'phishalert@cedarcreek-ind.com',       created:'2026-08-18 09:04',
     tags:'phishing, email, user-report' },
   { id:'TCK-1003', tier:'Easy',     type:'IT',       pri:'P3',
-    title:'VPN won't connect from home — "authentication failed"',
+    title:'VPN won\'t connect from home — "authentication failed"',
     reporter:'marcus.hall@cedarcreek-ind.com',      created:'2026-08-18 09:31',
     tags:'vpn, connectivity, remote' },
   { id:'TCK-1004', tier:'Easy',     type:'IT',       pri:'P4',
@@ -4620,7 +4620,7 @@ const TRACKER_TICKET_BANK = [
     reporter:'kevin.tran@cedarcreek-ind.com',        created:'2026-08-18 14:05',
     tags:'access-request, permissions, approval' },
   { id:'TCK-2004', tier:'Moderate', type:'IT',       pri:'P2',
-    title:'Multiple users can't reach a business web app — others load fine',
+    title:'Multiple users can\'t reach a business web app — others load fine',
     reporter:'servicedesk@cedarcreek-ind.com',       created:'2026-08-18 14:48',
     tags:'connectivity, dns, web' },
   { id:'TCK-2005', tier:'Moderate', type:'Security', pri:'P2',
