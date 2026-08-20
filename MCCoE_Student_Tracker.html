@@ -1429,7 +1429,10 @@ let _loginsCache = {};
 // ════════════════════════════════════════════
 function loadData() {
   const raw = localStorage.getItem('mccoe_students');
-  if (raw) return JSON.parse(raw);
+  if (raw) {
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.length > 0) return parsed;
+  }
   // Seed demo students
   return [
     {
@@ -4659,7 +4662,7 @@ function loadTicketManager() {
     return firebase.database().ref('mccoe_registry').once('value').then(snap => {
       const data = snap.val() || {};
       return Object.values(data).map(e => e.name).filter(Boolean).sort();
-    });
+    }).catch(() => Promise.resolve([]));
   }
 
   if (!firebase || !firebase.database) {
@@ -4685,6 +4688,16 @@ function renderTkAssignTable() {
   const sList = (window._tkStudentNames && _tkStudentNames.length) ? _tkStudentNames : (students || []).map(s => s.name).sort();
   const tierIcon = { Easy:'<span style="color:#00e676;">&#9650;</span>', Moderate:'<span style="color:#ffd700;">&#9670;</span>', Hard:'<span style="color:#ff6060;">&#9733;</span>' };
   const typeStyle = { Security:'color:#00b4ff;', IT:'color:#a78bfa;' };
+
+  if (sList.length === 0) {
+    wrap.innerHTML = '<div style="padding:20px;color:var(--muted);font-size:.85rem;">' +
+      '<strong style="color:var(--cyan);">No students found.</strong><br><br>' +
+      'Students must register through the Student Platform first, or check that the Firebase ' +
+      '<code>mccoe_registry</code> rule is set to read: true.<br><br>' +
+      '<em>Tip: Click away and come back to this tab to retry loading.</em>' +
+      '</div>';
+    return;
+  }
 
   let rows = TRACKER_TICKET_BANK.map(t => {
     const assigned = _tkAssign[t.id] || '';
