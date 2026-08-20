@@ -4631,6 +4631,7 @@ const TRACKER_TICKET_BANK = [
 ];
 
 let _tkAssign = {};    // ticketId -> assigneeName (from Firebase)
+let _tkStudentNames = [];
 let _tkAllWork = {};   // studentName -> {ticketId -> {status,priority,notes}}
 let _tkTabCurrent = 'assign';
 
@@ -4646,12 +4647,34 @@ function tkShowTab(tab) {
 }
 
 function loadTicketManager() {
-  if (!firebase || !firebase.database) { renderTkAssignTable(); return; }
-  firebase.database().ref('mccoe_tickets/assignments').once('value').then(snap => {
-    _tkAssign = snap.val() || {};
-    return firebase.database().ref('mccoe_tickets/work').once('value');
-  }).then(snap => {
-    _tkAllWork = snap.val() || {};
+  const wrap = document.getElementById('tk-assign-table-wrap');
+  if (wrap) wrap.innerHTML = '<div style="color:var(--muted);padding:20px;">Loading...</div>';
+
+  // Build student list: prefer local students array, fall back to Firebase registry
+  function getStudentNames() {
+    if (students && students.length > 0) {
+      return Promise.resolve(students.map(s => s.name).sort());
+    }
+    if (!firebase || !firebase.database) return Promise.resolve([]);
+    return firebase.database().ref('mccoe_registry').once('value').then(snap => {
+      const data = snap.val() || {};
+      return Object.values(data).map(e => e.name).filter(Boolean).sort();
+    });
+  }
+
+  if (!firebase || !firebase.database) {
+    getStudentNames().then(names => { _tkStudentNames = names; renderTkAssignTable(); });
+    return;
+  }
+
+  Promise.all([
+    firebase.database().ref('mccoe_tickets/assignments').once('value'),
+    firebase.database().ref('mccoe_tickets/work').once('value'),
+    getStudentNames()
+  ]).then(([assignSnap, workSnap, names]) => {
+    _tkAssign      = assignSnap.val() || {};
+    _tkAllWork     = workSnap.val()   || {};
+    _tkStudentNames = names;
     renderTkAssignTable();
     if (_tkTabCurrent === 'progress') renderTkProgress();
   }).catch(e => { console.error(e); renderTkAssignTable(); });
@@ -4659,7 +4682,7 @@ function loadTicketManager() {
 
 function renderTkAssignTable() {
   const wrap = document.getElementById('tk-assign-table-wrap');
-  const sList = students.map(s => s.name).sort();
+  const sList = (window._tkStudentNames && _tkStudentNames.length) ? _tkStudentNames : (students || []).map(s => s.name).sort();
   const tierIcon = { Easy:'<span style="color:#00e676;">&#9650;</span>', Moderate:'<span style="color:#ffd700;">&#9670;</span>', Hard:'<span style="color:#ff6060;">&#9733;</span>' };
   const typeStyle = { Security:'color:#00b4ff;', IT:'color:#a78bfa;' };
 
