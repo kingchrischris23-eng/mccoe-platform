@@ -4855,26 +4855,24 @@ function tkAdminReopen(studentName, ticketId) {
 }
 
 function tkExportCSV() {
-  const rows = [['Ticket ID','Title','Tier','Type','Default Priority','Assigned To','Status','Priority','Disposition','Notes Count','Summary/Actions','Root Cause','Recommendation','Resolved At']];
+  const rows = [['Ticket ID','Title','Tier','Type','Default Priority','Assigned To','Status','Priority','Disposition','Notes Count','Summary','Root Cause','Recommendation','Resolved At']];
   TRACKER_TICKET_BANK.forEach(t => {
     const assignee = _tkAssign[t.id] || '';
     const sWork    = assignee ? ((_tkAllWork[assignee] || {})[t.id] || {}) : {};
     const notes    = Array.isArray(sWork.notes) ? sWork.notes : [];
     const res      = sWork.resolution || {};
+    const clean    = s => String(s || '').replace(/[\r\n]+/g,' ');
     rows.push([
       t.id, t.title, t.tier, t.type, t.pri, assignee,
       sWork.status || 'New', sWork.priority || t.pri,
       sWork.disposition || '', notes.length,
-      (res.summary || res.actions || '').replace(/
-/g,' '),
-      (res.rootCause || '').replace(/
-/g,' '),
-      (res.recommendation || '').replace(/
-/g,' '),
+      clean(res.summary || res.actions),
+      clean(res.rootCause),
+      clean(res.recommendation),
       sWork.resolvedAt ? new Date(sWork.resolvedAt).toLocaleString() : ''
     ]);
   });
-  const csv = rows.map(r => r.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')).join('
+  const csv = rows.map(r => r.map(v => '"' + String(v).replace(/\"/g,'\"\"') + '"').join(',')).join('
 ');
   const blob = new Blob([csv], { type:'text/csv' });
   const a = document.createElement('a');
@@ -4882,7 +4880,6 @@ function tkExportCSV() {
   a.download = 'MCCoE_SOC_Tickets_' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
 }
-
 </script>
 
 </body>
