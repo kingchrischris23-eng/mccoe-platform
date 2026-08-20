@@ -2250,15 +2250,16 @@ function deleteDeadline(key) {
 // ════════════════════════════════════════════
 //  HELPERS
 // ════════════════════════════════════════════
-function avgScore(s)     { return s.scores.length ? Math.round(s.scores.reduce((a,b)=>a+b,0)/s.scores.length) : 0; }
+function avgScore(s)     { const sc = s.scores || []; return sc.length ? Math.round(sc.reduce((a,b)=>a+b,0)/sc.length) : 0; }
 function attendRate(s)   {
   const recs = Object.values(s.attendance || {});
   if(!recs.length) return 100;
   return Math.round((recs.filter(r=>r==='P').length / recs.length)*100);
 }
 function surveyAvg(s)    {
-  if(!s.surveys.length) return 0;
-  return (s.surveys.reduce((a,b)=>a+b.rating,0)/s.surveys.length).toFixed(1);
+  const sv = s.surveys || [];
+  if(!sv.length) return 0;
+  return (sv.reduce((a,b)=>a+b.rating,0)/sv.length).toFixed(1);
 }
 function hoursBar(h)     { return Math.min(100, Math.round((h/2000)*100)); }
 function initials(n)     { return n.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase(); }
@@ -2329,12 +2330,13 @@ function renderDashboard() {
   const newStudents = syncRegistry();
   if (newStudents) { renderStudents(); }
   // KPIs
-  const total     = students.length;
+  const total     = students.length || 1;
   const avgAtt    = Math.round(students.reduce((a,s)=>a+attendRate(s),0)/total);
   const avgSc     = Math.round(students.reduce((a,s)=>a+avgScore(s),0)/total);
-  const totalHrs  = students.reduce((a,s)=>a+s.hours,0);
-  const certsPassed = students.reduce((a,s)=>a+Object.values(s.certs).filter(v=>v==='passed').length,0);
-  const surveySat = students.filter(s=>s.surveys.length).reduce((a,s)=>a+parseFloat(surveyAvg(s)),0) / (students.filter(s=>s.surveys.length).length||1);
+  const totalHrs  = students.reduce((a,s)=>a+(s.hours||0),0);
+  const certsPassed = students.reduce((a,s)=>a+Object.values(s.certs||{}).filter(v=>v==='passed').length,0);
+  const withSurveys = students.filter(s=>(s.surveys||[]).length);
+  const surveySat = withSurveys.reduce((a,s)=>a+parseFloat(surveyAvg(s)),0) / (withSurveys.length||1);
 
   const today = new Date().toISOString().split('T')[0];
   let loginsToday = 0;
@@ -2389,7 +2391,7 @@ function renderDashboard() {
   students.forEach(s=>{
     if(attendRate(s)<80) alerts+=`<div class="alert-item alert-red"><span>⚠</span><div class="alert-text"><span class="alert-name">${s.name}</span> — Attendance at ${attendRate(s)}% (below 80% threshold)</div></div>`;
     if(avgScore(s)<75)   alerts+=`<div class="alert-item alert-yellow"><span>📉</span><div class="alert-text"><span class="alert-name">${s.name}</span> — Performance score ${avgScore(s)} needs attention</div></div>`;
-    if(!s.surveys.length)alerts+=`<div class="alert-item alert-yellow"><span>📝</span><div class="alert-text"><span class="alert-name">${s.name}</span> — No survey responses submitted yet</div></div>`;
+    if(!(s.surveys||[]).length)alerts+=`<div class="alert-item alert-yellow"><span>📝</span><div class="alert-text"><span class="alert-name">${s.name}</span> — No survey responses submitted yet</div></div>`;
   });
   document.getElementById('alertsList').innerHTML = alerts || '<div class="empty-state"><div>✅</div><div style="font-size:.85rem">No alerts — all students on track!</div></div>';
   renderOnlineNow();
@@ -2428,7 +2430,7 @@ function renderDashboard() {
         <div style="color:${attendRate(s)<80?'var(--red)':attendRate(s)<90?'var(--yellow)':'var(--green)'}; font-weight:700;">${attendRate(s)}%</div>
       </td>
       <td><span style="color:${scoreColor(avgScore(s))};font-weight:700;">${avgScore(s)||'—'}</span></td>
-      <td><span style="color:var(--yellow);">${s.surveys.length?stars(Math.round(surveyAvg(s))):'—'}</span></td>
+      <td><span style="color:var(--yellow);">${(s.surveys||[]).length?stars(Math.round(surveyAvg(s))):'—'}</span></td>
       <td><span class="status-badge status-${s.placement}">${{active:'Active',ojt:'In OJT',placed:'Placed'}[s.placement]}</span></td>
     </tr>`).join('');
 
