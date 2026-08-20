@@ -1525,6 +1525,17 @@ function saveData() {
   if (_fbDb) _fbDb.ref('mccoe_tracker_students').set(students);
 }
 let students = loadData();
+// Push demo/restored students to Firebase on next tick
+setTimeout(function(){
+  if (_fbDb && students.length > 0 && !localStorage.getItem('_fbStudentsPushed')) {
+    _fbDb.ref('mccoe_tracker_students').once('value').then(function(snap){
+      if (!snap.val() || (Array.isArray(snap.val()) && snap.val().length===0) || snap.val()===null) {
+        _fbDb.ref('mccoe_tracker_students').set(students);
+        localStorage.setItem('_fbStudentsPushed','1');
+      }
+    });
+  }
+},500);
 let editingId = null;
 let starValues = { rating:0, confidence:0, instruction:0 };
 
@@ -2414,6 +2425,11 @@ function renderDashboard() {
       <td><span style="color:var(--yellow);">${s.surveys.length?stars(Math.round(surveyAvg(s))):'—'}</span></td>
       <td><span class="status-badge status-${s.placement}">${{active:'Active',ojt:'In OJT',placed:'Placed'}[s.placement]}</span></td>
     </tr>`).join('');
+
+  // Auto-start radar if Live Map tab is default-active
+  setTimeout(function(){
+    if (document.getElementById('dpanel-map') && document.getElementById('dtab-map')) renderLoginMap();
+  }, 100);
 }
 
 // ════════════════════════════════════════════
