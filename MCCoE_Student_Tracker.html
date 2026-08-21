@@ -3819,7 +3819,7 @@ function deleteScore(id, idx) {
 function polarXY(cx,cy,r,deg){ const rad=(deg-90)*Math.PI/180; return {x:cx+r*Math.cos(rad),y:cy+r*Math.sin(rad)}; }
 
 function donutChart(s) {
-  const recs = Object.values(s.attendance);
+  const recs = Object.values(s.attendance || {});
   const P=recs.filter(r=>r==='P').length, L=recs.filter(r=>r==='L').length, A=recs.filter(r=>r==='A').length;
   const total=P+L+A;
   if(!total) return '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">No attendance recorded</div>';
@@ -3855,7 +3855,7 @@ function donutChart(s) {
 }
 
 function lineChart(s) {
-  const scores=s.scores;
+  const scores=s.scores||[];
   if(!scores.length) return '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">No scores recorded yet</div>';
   const W=300,H=110,PL=28,PR=10,PT=16,PB=18;
   const iW=W-PL-PR, iH=H-PT-PB;
@@ -3888,7 +3888,7 @@ function lineChart(s) {
 }
 
 function surveyBarChart(s) {
-  const surveys=s.surveys;
+  const surveys=s.surveys||[];
   if(!surveys.length) return '<div style="text-align:center;padding:30px;color:var(--muted);font-size:.8rem;">No surveys submitted yet</div>';
   const W=300,H=110,PL=12,PR=12,PT=20,PB=28;
   const iW=W-PL-PR, iH=H-PT-PB;
