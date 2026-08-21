@@ -3292,7 +3292,7 @@ function openDetail(id) {
       </div>
     </div>
 
-    <div class="metric-card" style="margin-bottom:16px;">
+    <div class="metric-card" id="scoreHistoryCard-${s.id}" style="margin-bottom:16px;">
       <div class="metric-title">📋 Score History</div>
       ${s.scoreLog && s.scoreLog.length ? `
       <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
@@ -4118,10 +4118,16 @@ function logScore(id) {
   if(!date)           { alert('Please select a date.'); return; }
   if(!s.scoreLog) s.scoreLog = [];
   s.scoreLog.push({ date, topic, score:val });
+  if(!s.scores) s.scores = [];
   s.scores.push(val);
   saveData();
-  // Refresh detail view
-  openDetail(id);
+  // Clear inputs without closing the modal
+  document.getElementById('scoreTopicInput').value = '';
+  document.getElementById('scoreValueInput').value = '';
+  document.getElementById('scoreSlider').value = 85;
+  document.getElementById('scoreValueInput').style.color = '';
+  // Refresh only the score history card
+  refreshScoreHistory(id);
 }
 
 function deleteScore(id, idx) {
@@ -4130,7 +4136,40 @@ function deleteScore(id, idx) {
   s.scoreLog.splice(idx,1);
   s.scores = s.scoreLog.map(e=>e.score);
   saveData();
-  openDetail(id);
+  refreshScoreHistory(id);
+}
+
+function refreshScoreHistory(id) {
+  const s   = students.find(x=>x.id===id);
+  const el  = document.getElementById('scoreHistoryCard-'+id);
+  if (!s || !el) return;
+  const rows = (s.scoreLog||[]);
+  el.innerHTML = `<div class="metric-title">📋 Score History</div>` + (rows.length ? `
+    <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+      <thead><tr>
+        <th style="text-align:left;padding:8px;font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;border-bottom:1px solid var(--border);">#</th>
+        <th style="text-align:left;padding:8px;font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;border-bottom:1px solid var(--border);">Date</th>
+        <th style="text-align:left;padding:8px;font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;border-bottom:1px solid var(--border);">Assessment / Topic</th>
+        <th style="text-align:right;padding:8px;font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;border-bottom:1px solid var(--border);">Score</th>
+        <th style="text-align:center;padding:8px;font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;border-bottom:1px solid var(--border);">Grade</th>
+        <th style="padding:8px;border-bottom:1px solid var(--border);"></th>
+      </tr></thead>
+      <tbody>
+        ${[...rows].reverse().map((entry,i)=>{
+          const grade = entry.score>=90?'A':entry.score>=80?'B':entry.score>=70?'C':entry.score>=60?'D':'F';
+          const gc    = entry.score>=90?'var(--green)':entry.score>=80?'var(--blue)':entry.score>=70?'var(--yellow)':'var(--red)';
+          const origIdx = rows.length - 1 - i;
+          return `<tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:8px;color:var(--muted);">${rows.length-i}</td>
+            <td style="padding:8px;color:var(--muted);">${entry.date}</td>
+            <td style="padding:8px;color:var(--text);font-weight:500;">${entry.topic||'—'}</td>
+            <td style="padding:8px;text-align:right;"><span style="font-weight:800;font-size:1rem;color:${scoreColor(entry.score)}">${entry.score}</span></td>
+            <td style="padding:8px;text-align:center;"><span style="font-weight:800;color:${gc};font-size:.9rem;">${grade}</span></td>
+            <td style="padding:8px;text-align:center;"><button onclick="deleteScore('${id}',${origIdx})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem;" title="Delete">✕</button></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>` : `<div style="color:var(--muted);font-size:.82rem;padding:12px 0;">No scores logged yet — use the form above to add the first entry.</div>`);
 }
 
 // ════════════════════════════════════════════
