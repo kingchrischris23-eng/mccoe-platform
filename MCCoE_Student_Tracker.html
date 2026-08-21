@@ -631,6 +631,9 @@ select option { background:var(--surface); color:var(--text); }
   <button class="nav-btn" onclick="showView('pentest',this)">
     <span class="nav-icon">💻</span> Pentest Lab
   </button>
+  <button class="nav-btn" onclick="showView('htb',this)">
+    <span class="nav-icon">🟧</span> HTB Scores
+  </button>
   <button class="nav-btn" onclick="showView('blueteam',this)">
     <span class="nav-icon">🛡</span> Blue Team Lab
   </button>
@@ -1036,6 +1039,31 @@ select option { background:var(--surface); color:var(--text); }
   </div>
 </div>
 
+<!-- ═══ HTB SCORES ═══ -->
+<div id="view-htb" class="view">
+  <div class="page-header">
+    <div>
+      <h2>🟧 HackTheBox Scores</h2>
+      <p>Pillar 4 — Manually log each student's HTB progress: points, machines owned, global rank</p>
+    </div>
+    <button class="btn btn-red" onclick="openHTBEntry(null)">+ Log HTB Score</button>
+  </div>
+
+  <div id="htb-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;"></div>
+
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;">
+    <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase;">Student HTB Leaderboard</div>
+    <div id="htb-table-wrap">
+      <div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0;">Click ↻ Refresh or log the first score to get started.</div>
+    </div>
+  </div>
+
+  <div style="margin-top:16px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;">
+    <div style="font-size:.75rem;font-weight:700;color:var(--orange,#f97316);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">⚠ Firebase Rule Needed</div>
+    <div style="font-size:.8rem;color:rgba(200,216,232,0.6);line-height:1.6;">Add <code style="background:#0a1628;padding:2px 6px;border-radius:4px;color:var(--cyan);">"mccoe_htb": {".read": true, ".write": true}</code> to your Firebase Realtime Database rules if scores are not saving.</div>
+  </div>
+</div>
+
 <!-- ═══ BLUE TEAM LAB ═══ -->
 <div id="view-blueteam" class="view">
   <div class="page-header">
@@ -1394,6 +1422,56 @@ select option { background:var(--surface); color:var(--text); }
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('detailModal')">Close</button>
       <button class="btn btn-red" id="detailEditBtn">Edit Student</button>
+    </div>
+  </div>
+</div>
+
+<!-- HTB Entry Modal -->
+<div class="modal-overlay" id="htbModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-header">
+      <h3 id="htbModalTitle">Log HTB Score</h3>
+      <button class="modal-close" onclick="closeModal('htbModal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Student</label>
+        <select id="htbStudentSelect" style="width:100%;"></select>
+      </div>
+      <div class="form-group">
+        <label>HTB Username</label>
+        <input type="text" id="htbUsername" placeholder="e.g. h4ck3r_chris">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group">
+          <label>Points</label>
+          <input type="number" id="htbPoints" min="0" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>Global Rank</label>
+          <input type="number" id="htbRank" min="0" placeholder="e.g. 45210">
+        </div>
+        <div class="form-group">
+          <label>Machines Owned (User)</label>
+          <input type="number" id="htbUser" min="0" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label>Machines Owned (Root)</label>
+          <input type="number" id="htbRoot" min="0" placeholder="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Challenges Solved</label>
+        <input type="number" id="htbChallenges" min="0" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label>Notes (optional)</label>
+        <input type="text" id="htbNotes" placeholder="e.g. Completed Lame, Jerry, Blue">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('htbModal')">Cancel</button>
+      <button class="btn btn-red" onclick="saveHTBEntry()">Save Score</button>
     </div>
   </div>
 </div>
@@ -1913,6 +1991,7 @@ function showView(name, btn) {
   if(name==='library')      renderLibraryAdmin();
   if(name==='academy')      loadAcademyScores();
   if(name==='pentest')      loadPentestScores();
+  if(name==='htb')          loadHTBScores();
   if(name==='blueteam')     loadBlueTeamScores();
   if(name==='ctf')          loadCTFScores();
   if(name==='tickets')      loadTicketManager();
@@ -2141,6 +2220,140 @@ function loadBlueTeamScores() {
           ${[0,1,2,3,4].map(idx=>`<td style="padding:10px 8px;text-align:center;">${phaseCheck(r['phase'+idx],r['phase'+idx+'_link'])}</td>`).join('')}
         </tr>`;}).join('')}</tbody></table></div>`;
   });
+}
+
+// ════════════════════════════════════════════
+//  HTB SCORES
+// ════════════════════════════════════════════
+function loadHTBScores() {
+  const wrap = document.getElementById('htb-table-wrap');
+  const kpis = document.getElementById('htb-kpis');
+  if (!wrap) return;
+  wrap.innerHTML = '<div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0;">Loading...</div>';
+
+  // Pull from local students first, supplement with Firebase
+  const rows = students.filter(s => s && s.id && s.htb && (s.htb.points || s.htb.username))
+    .map(s => ({ id: s.id, name: s.name, ...s.htb }))
+    .sort((a,b) => (b.points||0) - (a.points||0));
+
+  renderHTBTable(rows, wrap, kpis);
+
+  // Also check Firebase for any entries not in local students
+  if (_fbDb) {
+    _fbDb.ref('mccoe_htb').once('value', snap => {
+      const fbData = snap.val() || {};
+      Object.values(fbData).forEach(entry => {
+        if (!rows.find(r => r.name === entry.name)) rows.push(entry);
+      });
+      rows.sort((a,b) => (b.points||0) - (a.points||0));
+      renderHTBTable(rows, wrap, kpis);
+    });
+  }
+}
+
+function renderHTBTable(rows, wrap, kpis) {
+  if (!rows.length) {
+    wrap.innerHTML = '<div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0;">No HTB data logged yet. Click "+ Log HTB Score" to add the first entry.</div>';
+    if (kpis) kpis.innerHTML = '';
+    return;
+  }
+  const topPts = rows[0].points || 0;
+  const totalMachines = rows.reduce((a,r)=>(a+(r.machinesUser||0)+(r.machinesRoot||0)),0);
+  const avgPts = Math.round(rows.reduce((a,r)=>a+(r.points||0),0)/rows.length);
+
+  if (kpis) kpis.innerHTML = [
+    ['👥', rows.length, 'Students on HTB'],
+    ['🏆', (topPts||0).toLocaleString() + ' pts', 'Top Score'],
+    ['💻', totalMachines, 'Total Machines Owned'],
+    ['📊', avgPts.toLocaleString() + ' pts', 'Avg Points'],
+  ].map(([icon,val,lbl])=>`
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px;text-align:center;">
+      <div style="font-size:22px;margin-bottom:6px;">${icon}</div>
+      <div style="font-size:1.4rem;font-weight:900;color:#f97316;">${val}</div>
+      <div style="font-size:.7rem;color:rgba(200,216,232,0.5);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;">${lbl}</div>
+    </div>`).join('');
+
+  const htbLevel = pts => pts>=5000?'Pro Hacker':pts>=2000?'Hacker':pts>=1000?'Script Kiddie':pts>=500?'Noob':'Beginner';
+  const htbColor = pts => pts>=5000?'var(--red)':pts>=2000?'var(--yellow)':pts>=1000?'var(--green)':'var(--cyan)';
+
+  wrap.innerHTML = `<div style="overflow-x:auto;">
+    <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+      <thead><tr style="border-bottom:1px solid var(--border);">
+        ${['#','Student','HTB Username','Points','User Flags','Root Flags','Challenges','Level','Global Rank','Last Updated',''].map(h=>`
+          <th style="text-align:left;padding:10px 8px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">${h}</th>`).join('')}
+      </tr></thead>
+      <tbody>
+        ${rows.map((r,i)=>{
+          const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+          const pts = r.points||0;
+          const barW = topPts ? Math.round(pts/topPts*100) : 0;
+          const lu = r.lastUpdated||'—';
+          return `<tr style="border-bottom:1px solid rgba(255,255,255,.04);" onmouseover="this.style.background='rgba(249,115,22,.04)'" onmouseout="this.style.background=''">
+            <td style="padding:10px 8px;color:rgba(200,216,232,0.4);font-weight:700;">${medal||i+1}</td>
+            <td style="padding:10px 8px;font-weight:700;color:var(--text);">${r.name||'—'}</td>
+            <td style="padding:10px 8px;color:#f97316;font-family:monospace;">@${r.username||'—'}</td>
+            <td style="padding:10px 8px;">
+              <div style="font-weight:900;color:#f97316;font-size:.95rem;">${pts.toLocaleString()}</div>
+              <div style="height:3px;background:rgba(249,115,22,.1);border-radius:2px;margin-top:4px;"><div style="height:3px;background:#f97316;border-radius:2px;width:${barW}%;"></div></div>
+            </td>
+            <td style="padding:10px 8px;text-align:center;color:var(--green);font-weight:700;">${r.machinesUser||0}</td>
+            <td style="padding:10px 8px;text-align:center;color:var(--red);font-weight:700;">${r.machinesRoot||0}</td>
+            <td style="padding:10px 8px;text-align:center;color:var(--yellow);">${r.challenges||0}</td>
+            <td style="padding:10px 8px;"><span style="font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(249,115,22,.1);color:${htbColor(pts)};letter-spacing:.5px;">${htbLevel(pts)}</span></td>
+            <td style="padding:10px 8px;color:rgba(200,216,232,0.6);">${r.globalRank ? '#'+r.globalRank.toLocaleString() : '—'}</td>
+            <td style="padding:10px 8px;color:rgba(200,216,232,0.5);font-size:.75rem;">${lu}</td>
+            <td style="padding:10px 8px;"><button onclick="openHTBEntry('${r.id||''}')" style="background:none;border:1px solid var(--border);color:var(--muted);cursor:pointer;padding:3px 8px;border-radius:4px;font-size:.72rem;">✎ Edit</button></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table></div>`;
+}
+
+function openHTBEntry(studentId) {
+  // Populate student dropdown
+  const sel = document.getElementById('htbStudentSelect');
+  sel.innerHTML = students.map(s=>`<option value="${s.id}" ${s.id===studentId?'selected':''}>${s.name}</option>`).join('');
+
+  // Pre-fill if student already has HTB data
+  const s = students.find(x => x.id === (studentId || students[0]?.id));
+  const h = (s && s.htb) || {};
+  document.getElementById('htbUsername').value   = h.username    || '';
+  document.getElementById('htbPoints').value     = h.points      || '';
+  document.getElementById('htbRank').value       = h.globalRank  || '';
+  document.getElementById('htbUser').value       = h.machinesUser|| '';
+  document.getElementById('htbRoot').value       = h.machinesRoot|| '';
+  document.getElementById('htbChallenges').value = h.challenges  || '';
+  document.getElementById('htbNotes').value      = h.notes       || '';
+
+  document.getElementById('htbModalTitle').textContent = s ? `Log HTB Score — ${s.name}` : 'Log HTB Score';
+  openModal('htbModal');
+}
+
+function saveHTBEntry() {
+  const sid  = document.getElementById('htbStudentSelect').value;
+  const s    = students.find(x => x.id === sid);
+  if (!s) { alert('Student not found.'); return; }
+
+  const entry = {
+    name:         s.name,
+    username:     document.getElementById('htbUsername').value.trim(),
+    points:       parseInt(document.getElementById('htbPoints').value)     || 0,
+    globalRank:   parseInt(document.getElementById('htbRank').value)       || 0,
+    machinesUser: parseInt(document.getElementById('htbUser').value)       || 0,
+    machinesRoot: parseInt(document.getElementById('htbRoot').value)       || 0,
+    challenges:   parseInt(document.getElementById('htbChallenges').value) || 0,
+    notes:        document.getElementById('htbNotes').value.trim(),
+    lastUpdated:  new Date().toLocaleDateString(),
+  };
+
+  s.htb = entry;
+  saveData();
+
+  if (_fbDb) _fbDb.ref('mccoe_htb/' + s.name.replace(/\s+/g,'_')).set(entry);
+
+  closeModal('htbModal');
+  loadHTBScores();
+  alert(`✓ HTB score saved for ${s.name}`);
 }
 
 // ════════════════════════════════════════════
@@ -3160,6 +3373,52 @@ function openDetail(id) {
       <div style="display:flex;align-items:center;gap:24px;flex-wrap:wrap;">
         ${radarChart(s)}
       </div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-title" style="margin-bottom:12px;">🟧 HackTheBox Progress</div>
+    <div id="htb-detail-${s.id}" class="metric-card" style="margin-bottom:16px;">
+      ${(()=>{
+        const h = s.htb || {};
+        if (!h.username && !h.points) return `
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div style="font-size:.82rem;color:var(--muted);">No HTB data logged yet.</div>
+            <button class="btn btn-outline" style="font-size:.75rem;padding:5px 12px;" onclick="closeModal('detailModal');showView('htb',null);setTimeout(()=>openHTBEntry('${s.id}'),200);">+ Log HTB Score</button>
+          </div>`;
+        const rankPts = h.points||0;
+        const htbRankLabel = rankPts>=5000?'Pro Hacker':rankPts>=2000?'Hacker':rankPts>=1000?'Script Kiddie':rankPts>=500?'Noob':'Beginner';
+        const htbRankColor = rankPts>=5000?'var(--red)':rankPts>=2000?'var(--yellow)':rankPts>=1000?'var(--green)':'var(--cyan)';
+        return `
+          <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:14px;">
+            <div><div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">HTB Username</div>
+              <div style="font-size:1rem;font-weight:700;color:var(--orange,#f97316);">@${h.username||'—'}</div></div>
+            <div><div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Points</div>
+              <div style="font-size:1.3rem;font-weight:900;color:var(--cyan);">${rankPts.toLocaleString()}</div></div>
+            <div><div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Global Rank</div>
+              <div style="font-size:1.3rem;font-weight:900;color:var(--text);">#${(h.globalRank||0).toLocaleString()}</div></div>
+            <div><div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">HTB Level</div>
+              <div style="font-size:.85rem;font-weight:700;padding:2px 10px;border-radius:10px;display:inline-block;background:rgba(249,115,22,.12);color:${htbRankColor};">${htbRankLabel}</div></div>
+          </div>
+          <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:14px;">
+            <div style="background:#0a1628;border-radius:8px;padding:12px 20px;text-align:center;">
+              <div style="font-size:1.6rem;font-weight:900;color:var(--green);">${h.machinesUser||0}</div>
+              <div style="font-size:.68rem;color:var(--muted);">User Flags</div>
+            </div>
+            <div style="background:#0a1628;border-radius:8px;padding:12px 20px;text-align:center;">
+              <div style="font-size:1.6rem;font-weight:900;color:var(--red);">${h.machinesRoot||0}</div>
+              <div style="font-size:.68rem;color:var(--muted);">Root Flags</div>
+            </div>
+            <div style="background:#0a1628;border-radius:8px;padding:12px 20px;text-align:center;">
+              <div style="font-size:1.6rem;font-weight:900;color:var(--yellow);">${h.challenges||0}</div>
+              <div style="font-size:.68rem;color:var(--muted);">Challenges</div>
+            </div>
+          </div>
+          ${h.notes?`<div style="font-size:.78rem;color:var(--muted);background:#0a1628;border-radius:6px;padding:8px 12px;margin-bottom:12px;">📝 ${h.notes}</div>`:''}
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <div style="font-size:.7rem;color:var(--muted);">Last updated: ${h.lastUpdated||'—'}</div>
+            <button class="btn btn-outline" style="font-size:.75rem;padding:5px 12px;" onclick="closeModal('detailModal');showView('htb',null);setTimeout(()=>openHTBEntry('${s.id}'),200);">✎ Update</button>
+          </div>`;
+      })()}
     </div>
 
     <div class="divider"></div>
