@@ -2481,6 +2481,48 @@ function certClass(v)    { return {passed:'cert-passed',in_progress:'cert-progre
 function certIcon(v)     { return {passed:'✓',in_progress:'⟳',not_started:'○',failed:'✗'}[v]; }
 function certText(v)     { return {passed:'Passed',in_progress:'In Progress',not_started:'Not Started',failed:'Failed'}[v]; }
 
+// ── Hours tracking helpers ───────────────────────────────────────────────────
+let _addHoursMode = 'hours';
+
+function openAddHours(id, mode) {
+  _addHoursMode = mode;
+  const form  = document.getElementById('addHoursForm-' + id);
+  const label = document.getElementById('addHoursLabel-' + id);
+  label.textContent = mode === 'soc' ? 'Hours to add (SOC / Range):' : 'Hours to add (Program):';
+  form.style.display = form.style.display === 'none' ? 'block' : 'none';
+  if (form.style.display === 'block') document.getElementById('addHoursInput-' + id).focus();
+}
+
+function submitAddHours(id) {
+  const s   = students.find(x => x.id === id);
+  const val = parseFloat(document.getElementById('addHoursInput-' + id).value);
+  if (!s || isNaN(val) || val <= 0) { alert('Enter a valid number of hours.'); return; }
+  if (_addHoursMode === 'soc') {
+    s.socHours = Math.round((s.socHours || 0) + val);
+    document.getElementById('socLabel-' + id).textContent = s.socHours + '/120';
+    document.getElementById('socBar-' + id).style.width   = Math.min(100, Math.round(s.socHours / 120 * 100)) + '%';
+  } else {
+    s.hours = Math.round((s.hours || 0) + val);
+    document.getElementById('hoursLabel-' + id).textContent = s.hours + '/2,000';
+    document.getElementById('hoursBar-' + id).style.width   = hoursBar(s.hours) + '%';
+  }
+  saveData();
+  document.getElementById('addHoursForm-' + id).style.display = 'none';
+  document.getElementById('addHoursInput-' + id).value = '';
+}
+
+function loadAutoHours(studentId, portalTempId) {
+  const el = document.getElementById('autoHoursLabel-' + studentId);
+  if (!el) return;
+  if (!_fbDb || !portalTempId) { el.textContent = '⏱ Auto-tracked: —'; return; }
+  _fbDb.ref('mccoe_hours/' + portalTempId + '/totalMinutes').once('value', snap => {
+    const mins = Math.round(snap.val() || 0);
+    const hrs  = (mins / 60).toFixed(1);
+    el.textContent = `⏱ Auto-tracked: ${hrs} hrs (${mins} min)`;
+  });
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 function updateCertStatus(studentId, certKey, newVal) {
   const s = students.find(x => x.id === studentId);
   if (!s) return;
@@ -3196,14 +3238,43 @@ function openDetail(id) {
         ${s.notes?`<div style="margin-top:14px;background:#0a1628;border-radius:6px;padding:10px;font-size:.78rem;color:var(--muted);text-align:left;"><b style="color:var(--text);">Notes:</b><br>${s.notes}</div>`:''}
       </div>
       <div class="metrics-grid">
-        <div class="metric-card">
+        <div class="metric-card" id="progressMetricsCard-${s.id}">
           <div class="metric-title">📈 Progress Metrics</div>
-          <div class="progress-label"><span>Program Hours</span><span>${s.hours}/2,000</span></div>
-          <div class="progress-wrap" style="margin-bottom:10px;"><div class="progress-bar progress-blue" style="width:${hoursBar(s.hours)}%"></div></div>
-          <div class="progress-label"><span>SOC / Range Hours</span><span>${s.socHours}/120</span></div>
-          <div class="progress-wrap" style="margin-bottom:10px;"><div class="progress-bar progress-green" style="width:${Math.min(100,Math.round(s.socHours/120*100))}%"></div></div>
+
+          <div class="progress-label">
+            <span>Program Hours</span>
+            <span id="hoursLabel-${s.id}">${s.hours}/2,000</span>
+          </div>
+          <div class="progress-wrap" style="margin-bottom:4px;">
+            <div class="progress-bar progress-blue" id="hoursBar-${s.id}" style="width:${hoursBar(s.hours)}%"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+            <span id="autoHoursLabel-${s.id}" style="font-size:.68rem;color:var(--cyan);">⏱ Auto-tracked: loading...</span>
+            <button onclick="openAddHours('${s.id}','hours')" style="margin-left:auto;background:none;border:1px solid var(--border);color:var(--cyan);border-radius:4px;padding:2px 8px;font-size:.68rem;cursor:pointer;">+ Add Hours</button>
+          </div>
+
+          <div class="progress-label">
+            <span>SOC / Range Hours</span>
+            <span id="socLabel-${s.id}">${s.socHours}/120</span>
+          </div>
+          <div class="progress-wrap" style="margin-bottom:4px;">
+            <div class="progress-bar progress-green" id="socBar-${s.id}" style="width:${Math.min(100,Math.round(s.socHours/120*100))}%"></div>
+          </div>
+          <div style="display:flex;margin-bottom:10px;">
+            <button onclick="openAddHours('${s.id}','soc')" style="margin-left:auto;background:none;border:1px solid var(--border);color:var(--green);border-radius:4px;padding:2px 8px;font-size:.68rem;cursor:pointer;">+ Add SOC Hours</button>
+          </div>
+
           <div class="progress-label"><span>Phase Completion</span><span>${s.phase}/4</span></div>
           <div class="progress-wrap"><div class="progress-bar progress-red" style="width:${s.phase*25}%"></div></div>
+
+          <div id="addHoursForm-${s.id}" style="display:none;margin-top:12px;background:#0a1628;border-radius:6px;padding:10px;">
+            <div style="font-size:.72rem;color:var(--muted);margin-bottom:6px;" id="addHoursLabel-${s.id}">Add hours</div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <input type="number" id="addHoursInput-${s.id}" min="0.25" max="24" step="0.25" placeholder="e.g. 4" style="width:80px;background:#111d2e;border:1px solid var(--border);color:var(--text);border-radius:4px;padding:4px 8px;font-size:.8rem;">
+              <button onclick="submitAddHours('${s.id}')" class="btn btn-red" style="padding:4px 12px;font-size:.75rem;">Save</button>
+              <button onclick="document.getElementById('addHoursForm-${s.id}').style.display='none'" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:.8rem;">✕</button>
+            </div>
+          </div>
         </div>
         <div class="metric-card">
           <div class="metric-title">⚡ Performance KPI</div>
@@ -3492,6 +3563,7 @@ function openDetail(id) {
   `;
   openModal('detailModal');
   loadPortalProgress(s.id, s.portalTempId);
+  loadAutoHours(s.id, s.portalTempId);
 }
 
 function loadPortalProgress(rosterId, portalTempId) {

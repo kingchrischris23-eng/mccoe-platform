@@ -1951,6 +1951,45 @@ const FIREBASE_CONFIG = {
 let _fbDb = null;
 let _registryCache = JSON.parse(localStorage.getItem('mccoe_student_registry') || '[]');
 
+// ── Hours auto-tracking ──────────────────────────────────────────────────────
+let _hoursTrackingId  = null;
+let _sessionStartMs   = null;
+let _sessionBaseMin   = 0;
+let _hoursHeartbeat   = null;
+
+function startHoursTracking(tempId) {
+  if (!_fbDb || !tempId) return;
+  _hoursTrackingId = tempId;
+  _sessionStartMs  = Date.now();
+  _fbDb.ref('mccoe_hours/' + tempId + '/totalMinutes').once('value', snap => {
+    _sessionBaseMin = Math.round(snap.val() || 0);
+    _fbDb.ref('mccoe_hours/' + tempId).update({
+      name: state.student.name,
+      sessionStart: new Date().toISOString()
+    });
+    _hoursHeartbeat = setInterval(_writeHoursSnapshot, 5 * 60 * 1000);
+  });
+}
+
+function _writeHoursSnapshot() {
+  if (!_fbDb || !_hoursTrackingId || !_sessionStartMs) return;
+  const elapsed = Math.min(Math.floor((Date.now() - _sessionStartMs) / 60000), 480);
+  _fbDb.ref('mccoe_hours/' + _hoursTrackingId).update({
+    totalMinutes:  _sessionBaseMin + elapsed,
+    lastHeartbeat: new Date().toISOString()
+  });
+}
+
+function stopHoursTracking() {
+  _writeHoursSnapshot();
+  if (_hoursHeartbeat) { clearInterval(_hoursHeartbeat); _hoursHeartbeat = null; }
+  _hoursTrackingId = null;
+  _sessionStartMs  = null;
+}
+
+window.addEventListener('beforeunload', () => { if (_sessionStartMs) _writeHoursSnapshot(); });
+// ─────────────────────────────────────────────────────────────────────────────
+
 (function initFirebase() {
   try {
     if (FIREBASE_CONFIG.apiKey.startsWith('PASTE_')) return; // not configured yet
@@ -2108,6 +2147,7 @@ function verifyAndLogin() {
       assignedId: latestEntry ? (latestEntry.assignedId || null) : null
     };
     enterApp();
+    startHoursTracking(_selectedProfile.tempId);
     // Record portal login event in Firebase
     if (_fbDb && _selectedProfile) {
       const _now = new Date();
@@ -2289,6 +2329,7 @@ function enterApp() {
 }
 
 function doLogout() {
+  stopHoursTracking();
   saveState();
   _selectedProfile = null;
   document.getElementById('login-screen').style.display = 'flex';
