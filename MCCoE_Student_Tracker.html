@@ -2480,6 +2480,16 @@ function certLabel(k)    { return {aplus:'A+',netplus:'Network+',secplus:'Securi
 function certClass(v)    { return {passed:'cert-passed',in_progress:'cert-progress',not_started:'cert-not',failed:'cert-failed'}[v]; }
 function certIcon(v)     { return {passed:'✓',in_progress:'⟳',not_started:'○',failed:'✗'}[v]; }
 function certText(v)     { return {passed:'Passed',in_progress:'In Progress',not_started:'Not Started',failed:'Failed'}[v]; }
+
+function updateCertStatus(studentId, certKey, newVal) {
+  const s = students.find(x => x.id === studentId);
+  if (!s) return;
+  s.certs[certKey] = newVal;
+  saveData();
+  // Refresh the progress bar color inline without reopening the modal
+  const bars = document.querySelectorAll('#detailBody .metric-card');
+  // Quietly saved — no alert needed
+}
 function scoreColor(sc)  { return sc>=90?'var(--green)':sc>=75?'var(--yellow)':'var(--red)'; }
 function stars(n)        { return '★'.repeat(n)+'☆'.repeat(5-n); }
 function phaseLabel(p)   { return ['','Phase 1','Phase 2','Phase 3','Phase 4'][p]; }
@@ -3208,10 +3218,18 @@ function openDetail(id) {
         <div class="metric-card">
           <div class="metric-title">🎓 Certifications</div>
           ${Object.entries(s.certs).map(([k,v])=>`
-            <div style="margin-bottom:8px;">
-              <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
-                <span style="font-size:.8rem;">${certLabel(k)}</span>
-                <span class="cert-badge ${certClass(v)}" style="padding:1px 8px;font-size:.68rem;">${certIcon(v)} ${certText(v)}</span>
+            <div style="margin-bottom:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                <span style="font-size:.8rem;font-weight:600;color:var(--text);">${certLabel(k)}</span>
+                <select onchange="updateCertStatus('${s.id}','${k}',this.value)" style="background:#0a1628;border:1px solid var(--border);color:var(--text);border-radius:6px;padding:3px 6px;font-size:.72rem;cursor:pointer;">
+                  <option value="not_started" ${v==='not_started'?'selected':''}>○ Not Started</option>
+                  <option value="in_progress" ${v==='in_progress'?'selected':''}>⟳ In Progress</option>
+                  <option value="passed"      ${v==='passed'?'selected':''}>✓ Passed</option>
+                  <option value="failed"      ${v==='failed'?'selected':''}>✗ Failed</option>
+                </select>
+              </div>
+              <div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px;margin-top:6px;">
+                <div style="height:4px;border-radius:2px;width:${v==='passed'?'100':v==='in_progress'?'50':v==='failed'?'30':'0'}%;background:${v==='passed'?'var(--green)':v==='in_progress'?'var(--cyan)':v==='failed'?'var(--red)':'transparent'};transition:width .3s;"></div>
               </div>
             </div>`).join('')}
         </div>
