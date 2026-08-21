@@ -3008,8 +3008,8 @@ function openDetail(id) {
             <div style="font-size:2.8rem;font-weight:800;color:var(--yellow)">${surveyAvg(s)||'—'}</div>
             <div style="font-size:.72rem;color:var(--muted);">/5 Average Rating</div>
           </div>
-          <div style="font-size:.78rem;color:var(--muted);">${s.surveys.length} survey${s.surveys.length!==1?'s':''} submitted</div>
-          ${s.surveys.length?`<div style="color:var(--yellow);font-size:1.1rem;margin-top:6px;">${stars(Math.round(surveyAvg(s)))}</div>`:''}
+          <div style="font-size:.78rem;color:var(--muted);">${(s.surveys||[]).length} survey${(s.surveys||[]).length!==1?'s':''} submitted</div>
+          ${(s.surveys||[]).length?`<div style="color:var(--yellow);font-size:1.1rem;margin-top:6px;">${stars(Math.round(surveyAvg(s)))}</div>`:''}
         </div>
       </div>
     </div>
@@ -3022,9 +3022,9 @@ function openDetail(id) {
       </div>
     </div>`:''}
 
-    ${s.surveys.length?`<div class="metric-card">
+    ${(s.surveys||[]).length?`<div class="metric-card">
       <div class="metric-title">📋 Recent Survey Responses</div>
-      ${s.surveys.slice(-3).reverse().map(sv=>`
+      ${(s.surveys||[]).slice(-3).reverse().map(sv=>`
         <div class="survey-history-item">
           <div class="survey-date">${sv.date}</div>
           <div style="display:flex;gap:16px;font-size:.78rem;margin-bottom:6px;">
