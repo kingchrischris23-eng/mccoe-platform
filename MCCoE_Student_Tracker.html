@@ -647,6 +647,9 @@ select option { background:var(--surface); color:var(--text); }
   <button class="nav-btn" onclick="showView('cheatsheet',this)">
     <span class="nav-icon">📋</span> Cheat Sheet
   </button>
+  <button class="nav-btn" onclick="showView('ctfkey',this)">
+    <span class="nav-icon">🗝</span> CTF Answer Key
+  </button>
   <button class="nav-btn" onclick="showView('schedule',this)">
     <span class="nav-icon">📅</span> Due Dates
   </button>
@@ -1181,6 +1184,70 @@ select option { background:var(--surface); color:var(--text); }
         <tr><td style="padding:5px 0;border-bottom:1px solid rgba(200,216,232,0.08);color:#a0c4d8;font-family:monospace">5900</td><td style="padding:5px 8px;border-bottom:1px solid rgba(200,216,232,0.08);color:rgba(200,216,232,0.75)">VNC (weak creds)</td></tr>
         <tr><td style="padding:5px 0;color:#a0c4d8;font-family:monospace">6200</td><td style="padding:5px 8px;color:#ff8080;font-weight:700">vsftpd 2.3.4 backdoor shell</td></tr>
       </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CTF ANSWER KEY (appended to cheat sheet) ═══ -->
+<div id="view-ctfkey" class="view">
+  <div class="page-header">
+    <div>
+      <h2>🚩 CTF Answer Key</h2>
+      <p>Instructor reference — all 12 correct flags. Do not share with students.</p>
+    </div>
+  </div>
+
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px;">
+    <div style="font-size:.7rem;font-weight:700;color:var(--red);text-transform:uppercase;letter-spacing:.5px;margin-bottom:16px;">⚠ Instructor Eyes Only — Flag format is not case-sensitive but must include MCCoE{"{...}"}</div>
+    <table style="width:100%;border-collapse:collapse;font-size:.85rem;">
+      <thead>
+        <tr style="border-bottom:2px solid var(--border);">
+          <th style="text-align:left;padding:10px 12px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;width:40px;">#</th>
+          <th style="text-align:left;padding:10px 12px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Scenario</th>
+          <th style="text-align:left;padding:10px 12px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Task</th>
+          <th style="text-align:left;padding:10px 12px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Correct Flag</th>
+          <th style="text-align:left;padding:10px 12px;font-size:.7rem;color:rgba(200,216,232,0.45);font-weight:700;text-transform:uppercase;letter-spacing:.5px;">Common Mistake</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${[
+          [1,'Target Breach','Decode Base64 — vendor name','MCCoE{fazio_tech}','Spelling: "fazio" not "faxio"'],
+          [2,'Target Breach','SQL table with payment data','MCCoE{payment_cards}','Using "credit_cards" or "payments"'],
+          [3,'Target Breach','Exfiltration IP address','MCCoE{96.27.170.30}','Picking wrong IP from log'],
+          [4,'Colonial Pipeline','vsftpd backdoor port number','MCCoE{port_6200}','Submitting just "6200" without "port_"'],
+          [5,'Colonial Pipeline','CVE for vsftpd 2.3.4','MCCoE{CVE-2011-2523}','Wrong year — it\'s 2011 not 2012'],
+          [6,'Colonial Pipeline','Crack the MD5 hash','MCCoE{password}','Overthinking — the password IS "password"'],
+          [7,'SolarWinds','SUNBURST codename','MCCoE{sunburst}','Using "solarburst" or "sunwind"'],
+          [8,'SolarWinds','C2 domain from DNS logs','MCCoE{avsvmcloud.com}','Leaving out ".com"'],
+          [9,'SolarWinds','MITRE ATT&CK technique ID','MCCoE{T1195.002}','Using T1195 without ".002"'],
+          [10,'Equifax','Apache Struts CVE','MCCoE{CVE-2017-5638}','Wrong year — it\'s 2017'],
+          [11,'Equifax','Decode hex string','MCCoE{social_security_number}','Using spaces instead of underscores'],
+          [12,'Equifax','Days from exploit to detection','MCCoE{78_days}','Using "78" without "_days"'],
+        ].map(([n,scenario,task,flag,mistake])=>`
+        <tr style="border-bottom:1px solid rgba(255,255,255,.05);" onmouseover="this.style.background='rgba(238,34,7,.04)'" onmouseout="this.style.background=''">
+          <td style="padding:10px 12px;color:rgba(200,216,232,0.4);font-weight:700;">${n}</td>
+          <td style="padding:10px 12px;">
+            <span style="font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:10px;background:rgba(238,34,7,.12);color:var(--red);">${scenario}</span>
+          </td>
+          <td style="padding:10px 12px;color:rgba(200,216,232,0.75);font-size:.8rem;">${task}</td>
+          <td style="padding:10px 12px;">
+            <code style="font-family:'Courier New',monospace;font-size:.82rem;color:var(--green);background:rgba(0,212,170,.08);padding:3px 8px;border-radius:4px;border:1px solid rgba(0,212,170,.2);">${flag}</code>
+          </td>
+          <td style="padding:10px 12px;font-size:.75rem;color:rgba(200,216,232,0.45);font-style:italic;">${mistake}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>
+
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;">
+    <div style="font-size:.7rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;">Quick Hints to Give Students (without spoiling the answer)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:.8rem;">
+      <div style="background:#0a1628;border-radius:6px;padding:10px;"><span style="color:var(--yellow);font-weight:700;">Flag 4:</span> <span style="color:rgba(200,216,232,0.7);">Include "port_" before the number</span></div>
+      <div style="background:#0a1628;border-radius:6px;padding:10px;"><span style="color:var(--yellow);font-weight:700;">Flag 6:</span> <span style="color:rgba(200,216,232,0.7);">The world's most common password…</span></div>
+      <div style="background:#0a1628;border-radius:6px;padding:10px;"><span style="color:var(--yellow);font-weight:700;">Flag 9:</span> <span style="color:rgba(200,216,232,0.7);">Include the full sub-technique (.002)</span></div>
+      <div style="background:#0a1628;border-radius:6px;padding:10px;"><span style="color:var(--yellow);font-weight:700;">Flag 11:</span> <span style="color:rgba(200,216,232,0.7);">Use underscores, not spaces</span></div>
+      <div style="background:#0a1628;border-radius:6px;padding:10px;"><span style="color:var(--yellow);font-weight:700;">Flag 12:</span> <span style="color:rgba(200,216,232,0.7);">Format is XX_days — include the word</span></div>
+      <div style="background:#0a1628;border-radius:6px;padding:10px;"><span style="color:var(--yellow);font-weight:700;">All flags:</span> <span style="color:rgba(200,216,232,0.7);">Not case-sensitive, but need MCCoE{"{...}"}</span></div>
     </div>
   </div>
 </div>
