@@ -5216,10 +5216,43 @@ const TRACKER_TICKET_BANK = [
     tags:'exfiltration, data-loss, incident' },
 ];
 
-let _tkAssign = {};    // ticketId -> assigneeName (from Firebase)
+let _tkAssign = {};       // ticketId -> assigneeName (from Firebase)
+let _tkAssignMeta = {};   // ticketId -> {assignedAt: epoch ms}
 let _tkStudentNames = [];
-let _tkAllWork = {};   // studentName -> {ticketId -> {status,priority,notes}}
+let _tkAllWork = {};      // studentName -> {ticketId -> {status,priority,notes}}
 let _tkTabCurrent = 'assign';
+const TK_SLA_HOURS = { P1: 4, P2: 8, P3: 24, P4: 72 };
+function tkSlaInfo(ticketId, pri, prog) {
+  const meta = _tkAssignMeta[ticketId];
+  if (!meta || !meta.assignedAt) return null;
+  const slaH   = TK_SLA_HOURS[pri] || 24;
+  const elapsed = (Date.now() - meta.assignedAt) / 3600000;
+  const pct     = elapsed / slaH;
+  const resolved = prog && (prog.status === 'Resolved' || prog.status === 'Closed');
+  let resolvedH = null;
+  if (resolved && prog.resolvedAt) resolvedH = (prog.resolvedAt - meta.assignedAt) / 3600000;
+  return { slaH, elapsed, pct, resolved, resolvedH, assignedAt: meta.assignedAt };
+}
+function tkFmtHours(h) {
+  if (h < 1)   return Math.round(h * 60) + 'm';
+  if (h < 24)  return h.toFixed(1) + 'h';
+  return (h / 24).toFixed(1) + 'd';
+}
+function tkSlaBadge(ticketId, pri, prog) {
+  const info = tkSlaInfo(ticketId, pri, prog);
+  if (!info) return '<span style="color:var(--muted);font-size:.72rem;">Not assigned</span>';
+  if (info.resolved) {
+    const met = info.resolvedH !== null && info.resolvedH <= info.slaH;
+    const col = met ? '#00c864' : '#ff6060';
+    const label = info.resolvedH !== null ? 'Resolved in ' + tkFmtHours(info.resolvedH) : 'Resolved';
+    return '<span style="font-size:.72rem;padding:2px 8px;border-radius:10px;border:1px solid ' + col + ';color:' + col + ';background:rgba(0,0,0,0.3);">' + (met ? '✓ ' : '⚠ ') + label + '</span>';
+  }
+  const col   = info.pct < 0.5 ? '#00c864' : info.pct < 0.9 ? '#ffd700' : '#ff6060';
+  const label = info.pct >= 1
+    ? 'BREACHED +' + tkFmtHours(info.elapsed - info.slaH)
+    : tkFmtHours(info.elapsed) + ' / ' + tkFmtHours(info.slaH) + ' SLA';
+  return '<span style="font-size:.72rem;padding:2px 8px;border-radius:10px;border:1px solid ' + col + ';color:' + col + ';background:rgba(0,0,0,0.3);">' + label + '</span>';
+}
 
 function tkShowTab(tab) {
   _tkTabCurrent = tab;
@@ -5255,11 +5288,13 @@ function loadTicketManager() {
 
   Promise.all([
     firebase.database().ref('mccoe_tickets/assignments').once('value'),
+    firebase.database().ref('mccoe_tickets/assignments_meta').once('value'),
     firebase.database().ref('mccoe_tickets/work').once('value'),
     getStudentNames()
-  ]).then(([assignSnap, workSnap, names]) => {
-    _tkAssign      = assignSnap.val() || {};
-    _tkAllWork     = workSnap.val()   || {};
+  ]).then(([assignSnap, metaSnap, workSnap, names]) => {
+    _tkAssign       = assignSnap.val() || {};
+    _tkAssignMeta   = metaSnap.val()   || {};
+    _tkAllWork      = workSnap.val()   || {};
     _tkStudentNames = names;
     renderTkAssignTable();
     if (_tkTabCurrent === 'progress') renderTkProgress();
@@ -5315,9 +5350,19 @@ function renderTkAssignTable() {
 }
 
 function tkSaveAssignment(ticketId, studentName) {
+  const wasAssigned = !!_tkAssign[ticketId];
+  const nowAssigned = !!studentName;
   _tkAssign[ticketId] = studentName;
   if (firebase && firebase.database) {
     firebase.database().ref('mccoe_tickets/assignments/' + ticketId).set(studentName || null);
+    if (nowAssigned && !wasAssigned) {
+      const ts = Date.now();
+      _tkAssignMeta[ticketId] = { assignedAt: ts };
+      firebase.database().ref('mccoe_tickets/assignments_meta/' + ticketId).set({ assignedAt: ts });
+    } else if (!nowAssigned) {
+      delete _tkAssignMeta[ticketId];
+      firebase.database().ref('mccoe_tickets/assignments_meta/' + ticketId).remove();
+    }
   }
 }
 
@@ -5338,7 +5383,29 @@ function renderTkProgress() {
 
   const stClr = { 'New':'#888','In Progress':'#00e676','Pending':'#ffd700','Resolved':'#00b4ff','Closed':'#444' };
 
-  let html = '';
+  // Count SLA breaches across all assigned tickets
+  let totalBreached = 0;
+  Object.entries(assignedStudents).forEach(([sname, tids]) => {
+    tids.forEach(tid => {
+      const t = TRACKER_TICKET_BANK.find(x => x.id === tid);
+      if (!t) return;
+      const prog = (_tkAllWork[sname] || {})[tid] || {};
+      const resolved = prog.status === 'Resolved' || prog.status === 'Closed';
+      if (!resolved) {
+        const info = tkSlaInfo(tid, prog.priority || t.pri, prog);
+        if (info && info.pct >= 1) totalBreached++;
+      }
+    });
+  });
+
+  const breachBanner = totalBreached > 0
+    ? `<div style="margin-bottom:16px;padding:10px 16px;background:rgba(255,60,60,0.08);border:1px solid rgba(255,60,60,0.4);border-radius:8px;display:flex;align-items:center;gap:10px;">
+        <span style="font-size:1.2rem;">🚨</span>
+        <span style="color:#ff6060;font-weight:700;font-size:.88rem;">${totalBreached} ticket${totalBreached!==1?'s':''} have breached SLA</span>
+       </div>`
+    : '';
+
+  let html = breachBanner;
   Object.entries(assignedStudents).forEach(([sname, tids]) => {
     const work = _tkAllWork[sname] || {};
     let noteRows = '';
@@ -5349,33 +5416,41 @@ function renderTkProgress() {
       const status = prog.status || 'New';
       const priority = prog.priority || t.pri;
       const notes = Array.isArray(prog.notes) ? prog.notes : [];
+      const slaBadge = tkSlaBadge(tid, priority, prog);
       noteRows += `<tr style="border-bottom:1px solid rgba(255,255,255,0.04);">
         <td style="padding:7px 10px;font-family:monospace;font-size:.78rem;color:var(--cyan);">${tid}</td>
-        <td style="padding:7px 10px;font-size:.8rem;color:var(--text);max-width:280px;">${t.title}</td>
+        <td style="padding:7px 10px;font-size:.8rem;color:var(--text);max-width:220px;">${t.title}</td>
         <td style="padding:7px 10px;">
           <span style="font-size:.72rem;padding:2px 8px;border-radius:10px;border:1px solid;color:${stClr[status]||'#888'};border-color:${stClr[status]||'#888'};background:rgba(0,0,0,0.3);">${status}</span>
         </td>
         <td style="padding:7px 10px;font-size:.78rem;color:#ffd700;">${priority}</td>
+        <td style="padding:7px 6px;">${slaBadge}</td>
         <td style="padding:7px 10px;">
-          ${(prog.resolution)
-            ? `<span style="font-size:.68rem;padding:2px 8px;border-radius:10px;background:rgba(0,200,100,0.1);color:#00c864;border:1px solid rgba(0,200,100,0.3);">&#10003; Resolved</span>`
-            : ''}
-          <button onclick="tkViewNotes('${sname}','${tid}')" style="background:rgba(0,245,255,0.08);border:1px solid var(--border);color:var(--cyan);padding:3px 10px;border-radius:4px;cursor:pointer;font-size:.72rem;margin-left:4px;">
+          <button onclick="tkViewNotes('${sname}','${tid}')" style="background:rgba(0,245,255,0.08);border:1px solid var(--border);color:var(--cyan);padding:3px 10px;border-radius:4px;cursor:pointer;font-size:.72rem;">
             ${notes.length ? '&#128172; ' + notes.length + ' note' + (notes.length!==1?'s':'') : 'View'}
           </button>
         </td>
       </tr>`;
     });
 
-    const done   = tids.filter(tid => { const s = (_tkAllWork[sname]||{})[tid]; return s && (s.status==='Resolved'||s.status==='Closed'); }).length;
-    const inprog = tids.filter(tid => { const s = (_tkAllWork[sname]||{})[tid]; return s && s.status==='In Progress'; }).length;
+    const done     = tids.filter(tid => { const s = (work)[tid]; return s && (s.status==='Resolved'||s.status==='Closed'); }).length;
+    const inprog   = tids.filter(tid => { const s = (work)[tid]; return s && s.status==='In Progress'; }).length;
+    const breached = tids.filter(tid => {
+      const t = TRACKER_TICKET_BANK.find(x => x.id === tid);
+      if (!t) return false;
+      const prog = (work)[tid] || {};
+      if (prog.status === 'Resolved' || prog.status === 'Closed') return false;
+      const info = tkSlaInfo(tid, prog.priority || t.pri, prog);
+      return info && info.pct >= 1;
+    }).length;
 
-    html += `<div style="background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:16px;overflow:hidden;">
+    html += `<div style="background:var(--card);border:1px solid ${breached>0?'rgba(255,60,60,0.4)':'var(--border)'};border-radius:10px;margin-bottom:16px;overflow:hidden;">
       <div style="padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
         <div style="font-weight:700;color:var(--text);font-size:.9rem;">&#128100; ${sname}</div>
-        <div style="display:flex;gap:10px;font-size:.78rem;">
+        <div style="display:flex;gap:10px;font-size:.78rem;flex-wrap:wrap;">
           <span style="color:#00e676;">${done} resolved</span>
           <span style="color:#ffd700;">${inprog} in progress</span>
+          ${breached > 0 ? `<span style="color:#ff6060;font-weight:700;">&#128680; ${breached} SLA breach${breached!==1?'es':''}</span>` : ''}
           <span style="color:var(--muted);">${tids.length} total</span>
         </div>
       </div>
@@ -5385,6 +5460,7 @@ function renderTkProgress() {
           <th style="padding:6px 10px;text-align:left;font-size:.7rem;color:var(--muted);">Title</th>
           <th style="padding:6px 10px;text-align:left;font-size:.7rem;color:var(--muted);">Status</th>
           <th style="padding:6px 10px;text-align:left;font-size:.7rem;color:var(--muted);">Priority</th>
+          <th style="padding:6px 10px;text-align:left;font-size:.7rem;color:var(--muted);">SLA</th>
           <th style="padding:6px 10px;text-align:left;font-size:.7rem;color:var(--muted);">Notes</th>
         </tr></thead>
         <tbody>${noteRows}</tbody>
@@ -5478,7 +5554,8 @@ function tkExportCSV() {
   var CRLF = CR + LF;
   var hdrs = ['Ticket ID','Title','Tier','Type','Default Priority','Assigned To',
               'Status','Priority','Disposition','Notes Count',
-              'Summary','Root Cause','Recommendation','Resolved At'];
+              'Summary','Root Cause','Recommendation',
+              'Assigned At','SLA Hours','Elapsed Hours','SLA Status','Resolved At'];
   var rows  = [hdrs.map(function(h){ return DQ+h+DQ; }).join(',')];
   TRACKER_TICKET_BANK.forEach(function(t) {
     var asgn = _tkAssign[t.id] || '';
@@ -5489,6 +5566,10 @@ function tkExportCSV() {
       var t2 = String(s || '');
       t2 = t2.split(CR).join(' '); t2 = t2.split(LF).join(' '); return t2;
     };
+    var slaInf  = tkSlaInfo(t.id, sw.priority || t.pri, sw);
+    var slaHrs  = slaInf ? TK_SLA_HOURS[sw.priority || t.pri] || '' : '';
+    var elapsed = slaInf ? slaInf.elapsed.toFixed(2) : '';
+    var slaSt   = slaInf ? (slaInf.resolved ? 'Resolved' : slaInf.pct >= 1 ? 'BREACHED' : slaInf.pct >= 0.9 ? 'At Risk' : 'On Track') : 'Not Assigned';
     var row = [
       t.id, t.title, t.tier, t.type, t.pri, asgn,
       sw.status || 'New', sw.priority || t.pri,
@@ -5496,6 +5577,8 @@ function tkExportCSV() {
       clean(res.summary || res.actions),
       clean(res.rootCause),
       clean(res.recommendation),
+      slaInf ? new Date(slaInf.assignedAt).toLocaleString() : '',
+      slaHrs, elapsed, slaSt,
       sw.resolvedAt ? new Date(sw.resolvedAt).toLocaleString() : ''
     ];
     rows.push(row.map(function(v){ return DQ + String(v).split(DQ).join(DQ+DQ) + DQ; }).join(','));
