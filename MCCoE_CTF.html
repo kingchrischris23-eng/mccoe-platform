@@ -192,9 +192,9 @@ msf6 exploit(vsftpd_234_backdoor) > run
 [+] 172.20.0.20:????  - UID: uid=0(root) gid=0(root)
 [*] Found shell.
 [*] Found shell.</div>
-    <div class="c-task"><strong>Task:</strong> Research vsftpd 2.3.4. What port number does the backdoor shell open on? Submit it as the flag.</div>
+    <div class="c-task"><strong>Task:</strong> Research vsftpd 2.3.4. What port does the backdoor shell open on? Format your flag as: <code>MCCoE{port_XXXX}</code></div>
     <button class="hint-btn" onclick="toggleHint(3)">💡 Hint</button>
-    <div class="hint-box" id="hint3">The backdoor in vsftpd 2.3.4 listens on port 6200. This is documented in the Metasploit module source and the original Rapid7 advisory.</div>
+    <div class="hint-box" id="hint3">The backdoor in vsftpd 2.3.4 listens on port 6200 (Metasploit module / Rapid7 advisory). Your flag should follow the format MCCoE{port_6200} — include the word "port" and an underscore before the number.</div>
     <div class="flag-row">
       <input class="flag-input" id="fi3" placeholder="MCCoE{...}" oninput="clearWrong(3)"/>
       <button class="submit-flag" onclick="checkFlag(3)">SUBMIT FLAG</button>
@@ -446,7 +446,7 @@ const PTS = [50,50,50,50,50,50,50,50,50,50,50,50];
 const solved = new Set();
 let totalPts = 0;
 
-function normalize(s){ return s.trim().toLowerCase().replace(/\s+/g,''); }
+function normalize(s){ return s.trim().toLowerCase().replace(/\s+/g,'_').replace(/_+/g,'_'); }
 
 function checkFlag(idx) {
   if (solved.has(idx)) return;
