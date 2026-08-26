@@ -694,7 +694,7 @@ hr { border-color: rgba(0,245,255,0.12) !important; }
       <div class="sidebar-section" style="margin-top:12px;">Career Path</div>
       <div class="week-item" id="nav-roadmap" onclick="renderRoadmap()">
         <div class="week-num" style="background:var(--navy);color:#fff;">🗺</div>
-        <div class="week-label"><div>Journey Map</div><div style="font-size:11px;opacity:0.7;">SOC Analyst Roadmap</div></div>
+        <div class="week-label"><div>Journey Map</div><div style="font-size:11px;opacity:0.7;">MCCoE 9-Week Journey</div></div>
       </div>
       <div class="sidebar-section" style="margin-top:12px;">Achievements</div>
       <div class="week-item" id="nav-leaderboard" onclick="renderLeaderboard()">
@@ -3144,126 +3144,24 @@ function renderRoadmap() {
   currentWeek = null;
   setActiveNav('roadmap');
   const mc = document.getElementById('main-content');
-
-  const totalDays = 100; // approx based on durations
-
-  // Build phase chips
-  const phaseChips = ROADMAP_PHASES.map(p => `
-    <div class="roadmap-phase-chip" style="color:${p.color};border-color:${p.color}40;background:${p.color}0d;">
-      PHASE ${p.num}<br><span style="font-size:9px;opacity:.7;">${p.label}</span>
-    </div>`).join('');
-
-  // Build timeline
-  let timelineHTML = '';
-  let nodeIdx = 0;
-
-  ROADMAP_PHASES.forEach(phase => {
-    // Phase divider
-    timelineHTML += `
-      <div class="roadmap-phase-header">
-        <div style="flex:1;height:1px;background:linear-gradient(90deg,transparent,${phase.color}40);"></div>
-        <div class="roadmap-phase-title" style="color:${phase.color};border-color:${phase.color}50;background:${phase.color}0d;">
-          ⬡ PHASE ${phase.num} — ${phase.label}
-        </div>
-        <div style="flex:1;height:1px;background:linear-gradient(90deg,${phase.color}40,transparent);"></div>
-      </div>`;
-
-    // Module nodes in this phase
-    phase.modules.forEach(modId => {
-      const m = ROADMAP_MODULES.find(x => x.id === modId || x.id === String(modId));
-      if (!m) return;
-      const side = nodeIdx % 2 === 0 ? 'right' : 'left';
-      nodeIdx++;
-
-      let weekBtn = '';
-      if (m.weekLink !== null) {
-        if (typeof m.weekLink === 'number') {
-          weekBtn = `<button class="rm-week-link" onclick="renderWeek(${m.weekLink});event.stopPropagation()">
-            ▶ OPEN WEEK ${m.weekLink} IN CURRICULUM
-          </button>`;
-        } else if (typeof m.weekLink === 'string' && m.weekLink.startsWith('ss-')) {
-          const ssId = m.weekLink.replace('ss-','');
-          weekBtn = `<button class="rm-week-link" onclick="renderSoftSkill('${ssId}');event.stopPropagation()">
-            ▶ OPEN IN SOFT SKILLS
-          </button>`;
-        }
-      }
-
-      const connectorSide = side === 'right'
-        ? `<div class="rm-connector phase-${m.phase}" style="margin-right:0;"></div>`
-        : `<div class="rm-connector phase-${m.phase}" style="margin-left:0;"></div>`;
-
-      timelineHTML += `
-        <div class="rm-node ${side}" id="rm-node-${m.id}">
-          ${side === 'right' ? '' : connectorSide}
-          <div class="rm-dot phase-${m.phase}"></div>
-          ${side === 'left' ? '' : connectorSide}
-          <div class="rm-card phase-${m.phase}" onclick="_rmToggle('${m.id}')">
-            <div class="rm-card-top">
-              <div class="rm-num-badge phase-${m.phase}">${m.num}</div>
-              <div class="rm-icon">${m.icon}</div>
-              <div class="rm-card-title">${m.title}</div>
-              <div class="rm-duration-pill phase-${m.phase}">${m.duration}</div>
-            </div>
-            <div class="rm-card-sub">${m.tagline}</div>
-            <div class="rm-detail" id="rm-detail-${m.id}">
-              <div class="rm-detail-desc">${m.desc}</div>
-              <div class="rm-detail-obj">🎯 Learning Objective: ${m.objective}</div>
-              ${weekBtn}
-            </div>
-          </div>
-        </div>`;
-    });
-  });
-
-  // Goal card
-  const goalHTML = `
-    <div class="rm-goal-card">
-      <div style="font-size:2.2em;margin-bottom:8px;">🎯</div>
-      <h2>MISSION COMPLETE — CAREER READY</h2>
-      <p style="color:rgba(200,216,232,0.7);font-size:13px;margin:0;">
-        You are now a Tier I/II Cybersecurity Trained SOC Analyst<br>
-        with hands-on experience and industry certifications.
-      </p>
-      <div class="rm-goal-tags">
-        <span class="rm-goal-tag" style="color:#00f5ff;border-color:#00f5ff40;background:#00f5ff0d;">Tier I/II SOC Analyst</span>
-        <span class="rm-goal-tag" style="color:#f5a623;border-color:#f5a62340;background:#f5a6230d;">Security+ Certified</span>
-        <span class="rm-goal-tag" style="color:#00ff41;border-color:#00ff4140;background:#00ff410d;">Hands-On Experience</span>
-        <span class="rm-goal-tag" style="color:#c084fc;border-color:#c084fc40;background:#c084fc0d;">US Clearance Ready</span>
-      </div>
-    </div>`;
-
   mc.innerHTML = `
-    <div class="roadmap-wrap">
-      <div class="roadmap-hero">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,245,255,0.5);letter-spacing:3px;margin-bottom:8px;">MCCoE · TRAINING JOURNEY</div>
-        <h1>SOC ANALYST CAREER ROADMAP</h1>
-        <p>Your complete path from cybersecurity essentials to a career-ready SOC Analyst. Click any module to expand details and connect to curriculum content.</p>
-        <div class="roadmap-phases">${phaseChips}</div>
-        <div class="roadmap-stats">
-          <div class="roadmap-stat">
-            <div class="roadmap-stat-num">19</div>
-            <div class="roadmap-stat-label">Modules</div>
-          </div>
-          <div class="roadmap-stat">
-            <div class="roadmap-stat-num">~100</div>
-            <div class="roadmap-stat-label">Training Days</div>
-          </div>
-          <div class="roadmap-stat">
-            <div class="roadmap-stat-num">5</div>
-            <div class="roadmap-stat-label">Phases</div>
-          </div>
-          <div class="roadmap-stat">
-            <div class="roadmap-stat-num">7+</div>
-            <div class="roadmap-stat-label">Certifications</div>
-          </div>
-        </div>
+    <div style="padding:24px 20px 40px;">
+      <div style="margin-bottom:20px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,245,255,0.5);letter-spacing:3px;margin-bottom:6px;">MCCoE · TRAINING JOURNEY</div>
+        <h1 style="font-size:22px;font-weight:800;color:#0a192f;margin:0 0 6px;">MCCoE 9-Week Journey Map</h1>
+        <p style="font-size:13px;color:#555;margin:0 0 16px;">Your complete week-by-week training path from Day 1 to career-ready cybersecurity professional.</p>
+        <a href="MCCoE_9Week_Journey_Map.pdf" download
+           style="display:inline-flex;align-items:center;gap:8px;background:#0a192f;color:#fff;font-size:12px;font-weight:700;padding:10px 20px;border-radius:6px;text-decoration:none;letter-spacing:.5px;">
+          ⬇ Download Journey Map PDF
+        </a>
       </div>
-
-      <div class="roadmap-timeline">
-        ${timelineHTML}
-        ${goalHTML}
-      </div>
+      <iframe src="MCCoE_9Week_Journey_Map.pdf" width="100%" height="820px"
+        style="border:2px solid #e2e8f0;border-radius:10px;display:block;"
+        title="MCCoE 9-Week Journey Map">
+        <p style="padding:20px;color:#555;">Your browser cannot display PDFs inline.
+          <a href="MCCoE_9Week_Journey_Map.pdf" download>Click here to download the Journey Map.</a>
+        </p>
+      </iframe>
     </div>`;
 }
 
