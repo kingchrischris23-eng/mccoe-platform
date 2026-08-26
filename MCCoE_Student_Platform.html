@@ -3144,24 +3144,139 @@ function renderRoadmap() {
   currentWeek = null;
   setActiveNav('roadmap');
   const mc = document.getElementById('main-content');
-  mc.innerHTML = `
-    <div style="padding:24px 20px 40px;">
-      <div style="margin-bottom:20px;">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,245,255,0.5);letter-spacing:3px;margin-bottom:6px;">MCCoE · TRAINING JOURNEY</div>
-        <h1 style="font-size:22px;font-weight:800;color:#0a192f;margin:0 0 6px;">MCCoE 9-Week Journey Map</h1>
-        <p style="font-size:13px;color:#555;margin:0 0 16px;">Your complete week-by-week training path from Day 1 to career-ready cybersecurity professional.</p>
-        <a href="MCCoE_9Week_Journey_Map.pdf" download
-           style="display:inline-flex;align-items:center;gap:8px;background:#0a192f;color:#fff;font-size:12px;font-weight:700;padding:10px 20px;border-radius:6px;text-decoration:none;letter-spacing:.5px;">
-          ⬇ Download Journey Map PDF
-        </a>
+
+  const PHASES = [
+    { num:'01', label:'GROUND', desc:'Build the vocabulary and the mental model', sub:'Weeks 1–3 · They learn to see the field and name what is on it', color:'#3b82f6', bg:'#eff6ff', border:'#bfdbfe' },
+    { num:'02', label:'BUILD',  desc:'Hands on the tools, and on the human layer', sub:'Weeks 4–6 · They learn to operate, not just to recognize', color:'#f59e0b', bg:'#fffbeb', border:'#fde68a' },
+    { num:'03', label:'PROVE',  desc:'Defend, respond, and prove it to an employer', sub:'Weeks 7–9 · They produce evidence a hiring manager can judge', color:'#10b981', bg:'#ecfdf5', border:'#a7f3d0' }
+  ];
+
+  const WEEKS = [
+    { num:1, phase:0, icon:'🛡️', title:'Cybersecurity Foundations',
+      learn:['CIA Triad','Threat, vulnerability, risk','Core terminology','Security principles'],
+      produce:'Terminology and CIA Triad assessment',
+      capability:'Speaks the language of the field', weekLink:1 },
+    { num:2, phase:0, icon:'🌐', title:'Network Fundamentals',
+      learn:['TCP/IP and the OSI model','Ports, protocols, packets','Firewalls and segmentation'],
+      produce:'Annotated network diagram and traffic walkthrough',
+      capability:'Reads a network and explains what moved', weekLink:2 },
+    { num:3, phase:0, icon:'☠️', title:'Threat Landscape',
+      learn:['Threat actors and motives','Malware families','Attack vectors','MITRE ATT&CK'],
+      produce:'Threat actor profile with ATT&CK technique IDs',
+      capability:'Names the adversary and the technique', weekLink:3 },
+    { num:4, phase:1, icon:'📚', title:'Core Classes',
+      learn:['Certification-aligned core domains','Frameworks in depth','Governance and controls'],
+      produce:'Graded core coursework and framework assessments',
+      capability:'Applies frameworks to real organizations', weekLink:4 },
+    { num:5, phase:1, icon:'💻', title:'Kali Linux Fundamentals',
+      learn:['Linux command line','Recon and scanning','The 5 phases of pentesting'],
+      produce:'Recon and scanning lab report from the attacker\'s view',
+      capability:'Works the attacker\'s toolkit firsthand', weekLink:5 },
+    { num:6, phase:1, icon:'🎭', title:'Human Factors',
+      learn:['Social engineering','Phishing and pretexting','Insider threat','Professional communication'],
+      produce:'Phishing analysis and an awareness brief for non-technical staff',
+      capability:'Defends the human layer — and briefs it plainly', weekLink:6 },
+    { num:7, phase:2, icon:'🔍', title:'Defensive Security & Tools',
+      learn:['Logging, monitoring, SIEM','Detection and hardening','NIST Cybersecurity Framework'],
+      produce:'Detection and hardening lab with mapped NIST functions',
+      capability:'Detects, hardens, and monitors', weekLink:7 },
+    { num:8, phase:2, icon:'🚨', title:'Incident Response Basics',
+      learn:['Cyber Kill Chain','Triage and containment','Executive summary writing'],
+      produce:'Executive summaries on 4 real breaches — Target, Colonial Pipeline, SolarWinds, Equifax',
+      capability:'Runs an incident and briefs an executive', weekLink:8 },
+    { num:9, phase:2, icon:'🎯', title:'Careers & Capstone',
+      learn:['Capstone analysis','Résumé and interview','Portfolio and briefing'],
+      produce:'Capstone project, portfolio, and a presentation to a panel',
+      capability:'Proves it to a hiring manager', weekLink:9 }
+  ];
+
+  const phaseCards = PHASES.map(p => `
+    <div style="flex:1;min-width:200px;background:${p.bg};border:2px solid ${p.border};border-radius:12px;padding:18px 16px;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;font-weight:700;color:${p.color};letter-spacing:2px;margin-bottom:6px;">PHASE ${p.num} — ${p.label}</div>
+      <div style="font-size:14px;font-weight:800;color:#0a192f;margin-bottom:4px;">${p.desc}</div>
+      <div style="font-size:11px;color:#64748b;">${p.sub}</div>
+    </div>`).join('');
+
+  function buildWeekCard(w) {
+    const p = PHASES[w.phase];
+    const learnItems = w.learn.map(l => `<li style="margin-bottom:3px;">${l}</li>`).join('');
+    return `<div style="background:#fff;border:2px solid ${p.border};border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);transition:transform .15s;" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+      <div style="background:${p.color};padding:12px 16px;display:flex;align-items:center;gap:10px;">
+        <div style="width:32px;height:32px;background:rgba(255,255,255,0.25);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Share Tech Mono',monospace;font-size:13px;font-weight:900;color:#fff;flex-shrink:0;">${w.num}</div>
+        <div><div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,255,255,0.75);letter-spacing:2px;">WEEK ${w.num}</div><div style="font-size:13px;font-weight:800;color:#fff;line-height:1.2;">${w.icon} ${w.title}</div></div>
       </div>
-      <iframe src="MCCoE_9Week_Journey_Map.pdf" width="100%" height="820px"
-        style="border:2px solid #e2e8f0;border-radius:10px;display:block;"
-        title="MCCoE 9-Week Journey Map">
-        <p style="padding:20px;color:#555;">Your browser cannot display PDFs inline.
-          <a href="MCCoE_9Week_Journey_Map.pdf" download>Click here to download the Journey Map.</a>
-        </p>
-      </iframe>
+      <div style="padding:14px 16px;">
+        <div style="font-size:10px;font-weight:800;color:${p.color};letter-spacing:1.5px;margin-bottom:6px;">WHAT THEY LEARN</div>
+        <ul style="margin:0 0 12px 16px;padding:0;font-size:12px;color:#374151;line-height:1.6;">${learnItems}</ul>
+        <div style="font-size:10px;font-weight:800;color:${p.color};letter-spacing:1.5px;margin-bottom:4px;">WHAT THEY PRODUCE</div>
+        <div style="font-size:12px;color:#374151;background:${p.bg};border-left:3px solid ${p.color};padding:7px 10px;border-radius:0 6px 6px 0;margin-bottom:12px;line-height:1.5;">${w.produce}</div>
+        <div style="font-size:10px;font-weight:800;color:${p.color};letter-spacing:1.5px;margin-bottom:4px;">CAPABILITY PROVEN</div>
+        <div style="font-size:12px;font-weight:700;color:#0a192f;margin-bottom:12px;">${w.capability}</div>
+        <button onclick="renderWeek(${w.weekLink})" style="width:100%;background:${p.color};color:#fff;border:none;border-radius:6px;padding:8px;font-size:11px;font-weight:800;letter-spacing:1px;cursor:pointer;">▶ OPEN WEEK ${w.num}</button>
+      </div>
+    </div>`;
+  }
+  const phase1Cards = WEEKS.filter(w=>w.phase===0).map(buildWeekCard).join('');
+  const phase2Cards = WEEKS.filter(w=>w.phase===1).map(buildWeekCard).join('');
+  const phase3Cards = WEEKS.filter(w=>w.phase===2).map(buildWeekCard).join('');
+
+  mc.innerHTML = `
+    <div style="padding:0 0 60px;">
+      <!-- HERO -->
+      <div style="background:linear-gradient(135deg,#0a192f 0%,#1e3a5f 100%);padding:32px 28px;margin-bottom:28px;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,245,255,0.6);letter-spacing:3px;margin-bottom:8px;">MCCoE · CYBERSECURITY APPRENTICESHIP PROGRAM</div>
+        <h1 style="font-size:26px;font-weight:900;color:#fff;margin:0 0 8px;line-height:1.2;">Nine weeks from certified<br>to job-ready.</h1>
+        <p style="font-size:13px;color:rgba(200,216,232,0.75);margin:0 0 20px;max-width:560px;line-height:1.6;">Every MCCoE associate walks the same road — foundations, tools, the human layer, then proof under pressure. This is what an employer is hiring at the end of it.</p>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;">
+          <div style="text-align:center;"><div style="font-size:28px;font-weight:900;color:#00f5ff;">9</div><div style="font-size:10px;color:rgba(200,216,232,0.6);letter-spacing:1px;">WEEKS</div></div>
+          <div style="text-align:center;"><div style="font-size:28px;font-weight:900;color:#00f5ff;">3</div><div style="font-size:10px;color:rgba(200,216,232,0.6);letter-spacing:1px;">PHASES</div></div>
+          <div style="text-align:center;"><div style="font-size:28px;font-weight:900;color:#00f5ff;">9</div><div style="font-size:10px;color:rgba(200,216,232,0.6);letter-spacing:1px;">DELIVERABLES</div></div>
+          <div style="text-align:center;"><div style="font-size:28px;font-weight:900;color:#00ff41;">JOB</div><div style="font-size:10px;color:rgba(200,216,232,0.6);letter-spacing:1px;">READY</div></div>
+        </div>
+      </div>
+
+      <div style="padding:0 20px;">
+        <!-- PHASE OVERVIEW -->
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:28px;">${phaseCards}</div>
+
+        <!-- WEEK CARDS — PHASE 01 -->
+        <div style="margin-bottom:24px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:2px;white-space:nowrap;">⬡ PHASE 01 — GROUND</div>
+            <div style="flex:1;height:1px;background:linear-gradient(90deg,#bfdbfe,transparent);"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;">${phase1Cards}</div>
+        </div>
+
+        <!-- WEEK CARDS — PHASE 02 -->
+        <div style="margin-bottom:24px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:11px;font-weight:700;color:#f59e0b;letter-spacing:2px;white-space:nowrap;">⬡ PHASE 02 — BUILD</div>
+            <div style="flex:1;height:1px;background:linear-gradient(90deg,#fde68a,transparent);"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;">${phase2Cards}</div>
+        </div>
+
+        <!-- WEEK CARDS — PHASE 03 -->
+        <div style="margin-bottom:28px;">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:11px;font-weight:700;color:#10b981;letter-spacing:2px;white-space:nowrap;">⬡ PHASE 03 — PROVE</div>
+            <div style="flex:1;height:1px;background:linear-gradient(90deg,#a7f3d0,transparent);"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;">${phase3Cards}</div>
+        </div>
+
+        <!-- EMPLOYER READINESS BAR -->
+        <div style="background:#0a192f;border-radius:12px;padding:20px 24px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,245,255,0.6);letter-spacing:2px;margin-bottom:12px;">EMPLOYER READINESS PROGRESSION</div>
+          <div style="display:flex;gap:0;border-radius:8px;overflow:hidden;margin-bottom:10px;">
+            <div style="flex:1;background:#3b82f6;padding:10px 14px;font-size:11px;font-weight:700;color:#fff;text-align:center;">Certified, but unproven<br><span style="font-size:9px;opacity:.7;">Weeks 1–3</span></div>
+            <div style="flex:1;background:#f59e0b;padding:10px 14px;font-size:11px;font-weight:700;color:#fff;text-align:center;">Operating with real tools<br><span style="font-size:9px;opacity:.7;">Weeks 4–6</span></div>
+            <div style="flex:1;background:#10b981;padding:10px 14px;font-size:11px;font-weight:700;color:#fff;text-align:center;">Job-ready<br><span style="font-size:9px;opacity:.7;">Weeks 7–9</span></div>
+          </div>
+          <div style="text-align:center;font-size:11px;color:rgba(200,216,232,0.5);">Missouri Cybersecurity Center of Excellence · 501(c)(3) Nonprofit · Secure our Region</div>
+        </div>
+      </div>
     </div>`;
 }
 
