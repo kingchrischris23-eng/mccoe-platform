@@ -3635,6 +3635,12 @@ function openDetail(id) {
     </div>
 
     <div class="divider"></div>
+    <div class="section-title" style="margin-bottom:12px;">🏆 All Platform Activity</div>
+    <div id="pillar-activity-${s.id}" class="metric-card" style="margin-bottom:16px;">
+      <div style="color:var(--muted);font-size:.82rem;">Loading activity across all pillars...</div>
+    </div>
+
+    <div class="divider"></div>
     <div class="section-title" style="margin-bottom:12px;">💻 Portal Learning Progress</div>
     <div id="portal-progress-${s.id}" class="metric-card" style="margin-bottom:16px;">
       <div style="color:var(--muted);font-size:.82rem;">Loading portal progress...</div>
@@ -3688,6 +3694,7 @@ function openDetail(id) {
   openModal('detailModal');
   loadPortalProgress(s.id, s.portalTempId);
   loadAutoHours(s.id, s.portalTempId);
+  loadPillarActivity(s.id, s.portalTempId);
 }
 
 function loadPortalProgress(rosterId, portalTempId) {
@@ -3808,6 +3815,118 @@ function loadPortalProgress(rosterId, portalTempId) {
   }, err => {
     el.innerHTML = '<div style="color:var(--red);font-size:.82rem;">Error loading portal data: ' + err.message + '</div>';
   });
+}
+
+// ════════════════════════════════════════════
+//  ALL-PILLARS ACTIVITY — cross-Firebase load
+// ════════════════════════════════════════════
+function loadPillarActivity(rosterId, portalTempId) {
+  const el = document.getElementById('pillar-activity-' + rosterId);
+  if (!el) return;
+  const fbKey = portalTempId || rosterId;
+  if (!_fbDb) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:.82rem;">Firebase not connected.</div>';
+    return;
+  }
+  let done = 0;
+  const results = {};
+  const paths = { academy:'mccoe_academy', pentest:'mccoe_pentest', blueteam:'mccoe_blueteam', ctf:'mccoe_ctf' };
+  Object.entries(paths).forEach(([key, path]) => {
+    _fbDb.ref(path + '/' + fbKey).once('value', snap => {
+      results[key] = snap.val();
+      done++;
+      if (done === 4) renderPillarActivity(el, results);
+    }, () => { results[key] = null; done++; if (done === 4) renderPillarActivity(el, results); });
+  });
+}
+
+function renderPillarActivity(el, r) {
+  const none = '<span style="color:var(--muted);font-size:.78rem;">No data yet</span>';
+
+  // Pillar 2 — CyberSec Academy
+  const ac = r.academy;
+  const acHtml = ac ? `
+    <div style="display:flex;gap:20px;flex-wrap:wrap;margin-top:8px;">
+      <div style="background:#0a1628;border-radius:6px;padding:8px 14px;text-align:center;">
+        <div style="font-size:1.4rem;font-weight:900;color:var(--cyan);">${ac.totalScore||0}</div>
+        <div style="font-size:.65rem;color:var(--muted);">Total Pts</div>
+      </div>
+      <div style="background:#0a1628;border-radius:6px;padding:8px 14px;text-align:center;">
+        <div style="font-size:1.4rem;font-weight:900;color:var(--green);">${ac.quizScore||0}</div>
+        <div style="font-size:.65rem;color:var(--muted);">Quiz</div>
+      </div>
+      <div style="background:#0a1628;border-radius:6px;padding:8px 14px;text-align:center;">
+        <div style="font-size:1.4rem;font-weight:900;color:var(--yellow);">${ac.socScore||0}</div>
+        <div style="font-size:.65rem;color:var(--muted);">SOC Sim</div>
+      </div>
+      <div style="background:#0a1628;border-radius:6px;padding:8px 14px;text-align:center;">
+        <div style="font-size:1.4rem;font-weight:900;color:var(--red);">${ac.phishScore||0}</div>
+        <div style="font-size:.65rem;color:var(--muted);">Phishing</div>
+      </div>
+      ${ac.lastActivity?`<div style="align-self:center;font-size:.7rem;color:var(--muted);">Last active: ${new Date(ac.lastActivity).toLocaleDateString()}</div>`:''}
+    </div>` : none;
+
+  // Pillar 4 — Ethical Hacking
+  const pt = r.pentest;
+  const ptPhases = pt ? [0,1,2,3,4].filter(i => pt['phase'+i]).length : 0;
+  const ptLinks = pt ? [0,1,2,3,4].map(i => pt['phase'+i+'_link']).filter(Boolean) : [];
+  const ptHtml = pt ? `
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;">
+      <div style="background:#0a1628;border-radius:6px;padding:8px 14px;text-align:center;">
+        <div style="font-size:1.4rem;font-weight:900;color:#00ff41;">${ptPhases}/5</div>
+        <div style="font-size:.65rem;color:var(--muted);">Phases</div>
+      </div>
+      ${ptLinks.length?`<div style="align-self:center;font-size:.72rem;color:var(--green);">📎 ${ptLinks.length} submission${ptLinks.length!==1?'s':''} on file</div>`:''}
+      ${pt.lastActivity?`<div style="align-self:center;font-size:.7rem;color:var(--muted);">Last active: ${new Date(pt.lastActivity).toLocaleDateString()}</div>`:''}
+    </div>` : none;
+
+  // Pillar 5 — Blue Team
+  const bt = r.blueteam;
+  const btPhases = bt ? [0,1,2,3,4].filter(i => bt['phase'+i]).length : 0;
+  const btLinks = bt ? [0,1,2,3,4].map(i => bt['phase'+i+'_link']).filter(Boolean) : [];
+  const btHtml = bt ? `
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;">
+      <div style="background:#0a1628;border-radius:6px;padding:8px 14px;text-align:center;">
+        <div style="font-size:1.4rem;font-weight:900;color:#00f5ff;">${btPhases}/5</div>
+        <div style="font-size:.65rem;color:var(--muted);">Phases</div>
+      </div>
+      ${btLinks.length?`<div style="align-self:center;font-size:.72rem;color:var(--cyan);">📎 ${btLinks.length} submission${btLinks.length!==1?'s':''} on file</div>`:''}
+    </div>` : none;
+
+  // CTF
+  const cf = r.ctf;
+  const cfHtml = cf ? `
+    <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;">
+      <div style="background:#0a1628;border-radius:6px;padding:8px 14px;text-align:center;">
+        <div style="font-size:1.4rem;font-weight:900;color:#ffd700;">${cf.points||0}</div>
+        <div style="font-size:.65rem;color:var(--muted);">Points</div>
+      </div>
+      <div style="background:#0a1628;border-radius:6px;padding:8px 14px;text-align:center;">
+        <div style="font-size:1.4rem;font-weight:900;color:#ffd700;">${cf.flagsCaptured||0}/12</div>
+        <div style="font-size:.65rem;color:var(--muted);">Flags</div>
+      </div>
+      ${cf.lastActivity?`<div style="align-self:center;font-size:.7rem;color:var(--muted);">Last active: ${new Date(cf.lastActivity).toLocaleDateString()}</div>`:''}
+    </div>` : none;
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div>
+        <div style="font-size:.7rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">🎮 Pillar 2 — CyberSec Academy</div>
+        ${acHtml}
+      </div>
+      <div>
+        <div style="font-size:.7rem;font-weight:700;color:#00ff41;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">🔓 Pillar 4 — Ethical Hacking Lab</div>
+        ${ptHtml}
+      </div>
+      <div>
+        <div style="font-size:.7rem;font-weight:700;color:#00f5ff;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">🛡 Pillar 5 — Blue Team Lab</div>
+        ${btHtml}
+      </div>
+      <div>
+        <div style="font-size:.7rem;font-weight:700;color:#ffd700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">🚩 CTF Challenges</div>
+        ${cfHtml}
+      </div>
+    </div>`;
 }
 
 // ════════════════════════════════════════════

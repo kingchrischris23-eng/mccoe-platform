@@ -458,6 +458,8 @@ footer strong {
   .stat-num      { font-size: 18px; }
 }
 </style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 </head>
 <body>
 
@@ -472,7 +474,8 @@ footer strong {
   </div>
   <div style="display:flex; align-items:center; gap:16px;">
     <div class="header-badge">▶ APPRENTICESHIP HUB v1.0</div>
-    <a href="MCCoE_Student_Platform.html" target="_blank" style="font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:2px; color:#fff; background:var(--red); padding:8px 18px; border-radius:5px; text-decoration:none; box-shadow:0 0 14px rgba(238,34,7,0.5); transition:all .2s; white-space:nowrap;" onmouseover="this.style.boxShadow='0 0 24px rgba(238,34,7,0.85)'; this.style.transform='scale(1.04)'" onmouseout="this.style.boxShadow='0 0 14px rgba(238,34,7,0.5)'; this.style.transform='scale(1)'">⚡ STUDENT LOGIN</a>
+    <span id="hub-student-badge" style="display:none; font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:2px; color:#fff; background:rgba(238,34,7,0.2); padding:8px 18px; border-radius:5px; border:1px solid rgba(238,34,7,0.5); white-space:nowrap;">👤 STUDENT</span>
+    <button onclick="hubLogout()" id="hub-logout-btn" style="display:none; font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:rgba(255,255,255,0.4); background:none; border:1px solid rgba(255,255,255,0.1); padding:6px 12px; border-radius:4px; cursor:pointer;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">SIGN OUT</button>
     <a href="MCCoE_Student_Tracker.html" target="_blank" style="font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:2px; color:#fff; background:rgba(0,245,255,0.15); padding:8px 18px; border-radius:5px; text-decoration:none; border:1px solid rgba(0,245,255,0.5); box-shadow:0 0 14px rgba(0,245,255,0.25); transition:all .2s; white-space:nowrap;" onmouseover="this.style.boxShadow='0 0 24px rgba(0,245,255,0.6)'; this.style.transform='scale(1.04)'" onmouseout="this.style.boxShadow='0 0 14px rgba(0,245,255,0.25)'; this.style.transform='scale(1)'">🔒 ADMIN LOGIN</a>
   </div>
 </header>
@@ -707,12 +710,133 @@ footer strong {
   </div>
 </div>
 
+<!-- ══════════ HUB LOGIN OVERLAY ══════════ -->
+<div id="hub-login-overlay" style="position:fixed;inset:0;z-index:600;background:rgba(5,5,16,0.98);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);">
+  <div style="background:#0d0d1f;border:1px solid rgba(238,34,7,0.45);border-radius:16px;padding:50px 42px;max-width:440px;width:90%;text-align:center;box-shadow:0 0 80px rgba(238,34,7,0.15),0 0 140px rgba(0,0,0,0.9),inset 0 1px 0 rgba(255,255,255,0.04);">
+    <div style="width:64px;height:64px;border:2px solid var(--red);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:var(--glow-red);margin:0 auto 22px;">🛡️</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,245,255,0.55);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">Missouri Cybersecurity Center of Excellence</div>
+    <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:900;color:#fff;letter-spacing:4px;margin-bottom:4px;">MCCoE</div>
+    <div style="font-family:'Orbitron',monospace;font-size:11px;font-weight:700;color:var(--red);letter-spacing:2px;text-shadow:var(--glow-red);margin-bottom:36px;">TRAINING HUB ACCESS</div>
+    <div style="margin-bottom:14px;text-align:left;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">STUDENT NAME</div>
+      <input id="hub-login-name" type="text" placeholder="Enter your full name..." autocomplete="name" spellcheck="false"
+        style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:13px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:500;outline:none;transition:border-color .2s;"
+        onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
+        onkeydown="if(event.key==='Enter')doHubLogin()">
+    </div>
+    <div id="hub-login-msg" style="min-height:22px;font-size:11px;margin-bottom:16px;font-family:'Share Tech Mono',monospace;letter-spacing:1px;"></div>
+    <button id="hub-login-btn" onclick="doHubLogin()" style="width:100%;background:linear-gradient(135deg,rgba(238,34,7,0.28),rgba(238,34,7,0.10));border:1px solid rgba(238,34,7,0.55);color:#fff;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:3px;padding:15px;border-radius:6px;cursor:pointer;transition:all .2s;box-shadow:0 0 22px rgba(238,34,7,0.2);" onmouseover="this.style.background='linear-gradient(135deg,rgba(238,34,7,0.5),rgba(238,34,7,0.25))';this.style.boxShadow='0 0 35px rgba(238,34,7,0.5)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(238,34,7,0.28),rgba(238,34,7,0.10))';this.style.boxShadow='0 0 22px rgba(238,34,7,0.2)'">
+      ▶ &nbsp; ACCESS TRAINING HUB
+    </button>
+    <div style="margin-top:22px;font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,255,255,0.22);letter-spacing:1px;line-height:2;">
+      Not registered? Ask <strong style="color:rgba(238,34,7,0.5);">Coach King</strong> or <strong style="color:rgba(238,34,7,0.5);">Coach Harbour</strong> to set up your account.<br>
+      Admins use the <strong style="color:rgba(0,245,255,0.4);">ADMIN LOGIN</strong> button at the top.
+    </div>
+  </div>
+</div>
+
 <!-- ══════════ FOOTER ══════════ -->
 <footer>
   <p>Missouri Cybersecurity Center of Excellence &nbsp;|&nbsp; <strong>MCCoE Training Program</strong> &nbsp;|&nbsp; Mr. King &nbsp;·&nbsp; cking@mccoe.org</p>
 </footer>
 
 <script>
+// ── Firebase Init ──
+firebase.initializeApp({
+  apiKey:"AIzaSyBpK8uLCD0_m83a1xFiOQVaS1PKWSGcEc8",
+  authDomain:"mccoe-platform-a9710.firebaseapp.com",
+  databaseURL:"https://mccoe-platform-a9710-default-rtdb.firebaseio.com",
+  projectId:"mccoe-platform-a9710",
+  storageBucket:"mccoe-platform-a9710.firebasestorage.app",
+  messagingSenderId:"435411134511",
+  appId:"1:435411134511:web:face8dfcc670df20f1beda"
+});
+const _hubDb = firebase.database();
+
+// ── Hub Login ──
+function doHubLogin() {
+  const name = (document.getElementById('hub-login-name').value || '').trim();
+  if (!name) { hubMsg('Please enter your full name.', '#ff6b6b'); return; }
+  hubMsg('Connecting to MCCoE network...', '#00f5ff');
+  document.getElementById('hub-login-btn').disabled = true;
+  _hubDb.ref('mccoe_registry').once('value', function(snap) {
+    document.getElementById('hub-login-btn').disabled = false;
+    if (!snap.exists()) { hubMsg('Connection error. Try again.', '#ff6b6b'); return; }
+    var found = null;
+    snap.forEach(function(child) {
+      var d = child.val();
+      if (d && d.name && d.name.toLowerCase() === name.toLowerCase()) {
+        found = { key: child.key, name: d.name };
+      }
+    });
+    if (!found) {
+      hubMsg('Name not found — check spelling or ask Coach King to register you.', '#ff6b6b');
+      return;
+    }
+    hubLoginSuccess(found.name, found.key, true);
+  });
+}
+
+function hubMsg(text, color) {
+  var el = document.getElementById('hub-login-msg');
+  if (!el) return;
+  el.textContent = text;
+  el.style.color = color || '#e8e8e8';
+}
+
+function hubLoginSuccess(name, id, doLog) {
+  sessionStorage.setItem('hub_name', name);
+  sessionStorage.setItem('hub_id', id);
+
+  var p = '?name=' + encodeURIComponent(name) + '&id=' + encodeURIComponent(id);
+  var c1 = document.getElementById('card-p1');
+  var c2 = document.getElementById('card-p2');
+  var c4 = document.getElementById('card-p4');
+  var c5 = document.getElementById('card-p5');
+  var cc = document.getElementById('card-ctf');
+  var cp = document.getElementById('card-portfolio');
+  if (c1) c1.href = 'MCCoE_Student_Platform.html' + p;
+  if (c2) c2.href = 'CyberSec_Academy.html' + p;
+  if (c4) c4.href = 'Pillar4_EthicalHacking.html' + p;
+  if (c5) c5.href = 'Pillar5_BlueTeam.html' + p;
+  if (cc) cc.href = 'MCCoE_CTF.html' + p;
+  if (cp) cp.href = 'MCCoE_Student_Platform.html' + p + '#portfolio';
+
+  var badge = document.getElementById('hub-student-badge');
+  var logoutBtn = document.getElementById('hub-logout-btn');
+  if (badge) { badge.textContent = '👤 ' + name.split(' ')[0].toUpperCase(); badge.style.display = 'inline-block'; }
+  if (logoutBtn) logoutBtn.style.display = 'inline-block';
+
+  if (doLog) {
+    var ts = new Date().toISOString();
+    _hubDb.ref('mccoe_logins/' + id + '/lastLogin').set(ts);
+    _hubDb.ref('mccoe_logins/' + id + '/loginCount').transaction(function(c) { return (c || 0) + 1; });
+    _hubDb.ref('mccoe_logins/' + id + '/history').push({ ts: ts, date: ts.split('T')[0], source: 'Hub' });
+  }
+
+  document.getElementById('hub-login-overlay').style.display = 'none';
+}
+
+function hubLogout() {
+  sessionStorage.removeItem('hub_name');
+  sessionStorage.removeItem('hub_id');
+  document.getElementById('hub-login-overlay').style.display = 'flex';
+  document.getElementById('hub-student-badge').style.display = 'none';
+  document.getElementById('hub-logout-btn').style.display = 'none';
+  document.getElementById('hub-login-name').value = '';
+  hubMsg('', '');
+}
+
+// ── Restore session on load ──
+window.addEventListener('DOMContentLoaded', function() {
+  var name = sessionStorage.getItem('hub_name');
+  var id   = sessionStorage.getItem('hub_id');
+  if (name && id) {
+    hubLoginSuccess(name, id, false);
+  }
+  // else: overlay stays visible for login
+});
+
 // ── Curriculum Modal ──
 function openCurriculum(e) {
   e.preventDefault();
@@ -726,8 +850,6 @@ function closeCurriculum() {
 document.getElementById('curriculumModal').addEventListener('click', function(e) {
   if (e.target === this) closeCurriculum();
 });
-
-// 2x2 grid — no connector lines needed
 </script>
 </body>
 </html>

@@ -1951,6 +1951,7 @@ const FIREBASE_CONFIG = {
 
 let _fbDb = null;
 let _registryCache = JSON.parse(localStorage.getItem('mccoe_student_registry') || '[]');
+let _hubSSODone = false;
 
 // ── Hours auto-tracking ──────────────────────────────────────────────────────
 let _hoursTrackingId  = null;
@@ -2003,6 +2004,29 @@ window.addEventListener('beforeunload', () => { if (_sessionStartMs) _writeHours
       // Refresh returning-student list if currently visible
       const panel = document.getElementById('panel-returning');
       if (panel && panel.style.display !== 'none') buildReturningList();
+      // ── Hub SSO: auto-login if coming from Hub with URL params ──
+      if (!_hubSSODone) {
+        _hubSSODone = true;
+        const _p = new URLSearchParams(window.location.search);
+        const _hubId   = _p.get('id');
+        const _hubName = _p.get('name');
+        if (_hubId && _hubName) {
+          const _match = _registryCache.find(r => r.tempId === _hubId);
+          if (_match && document.getElementById('login-screen') && document.getElementById('login-screen').style.display !== 'none') {
+            const _savedKey = 'mccoe_student_state_' + _hubId;
+            const _raw = localStorage.getItem(_savedKey);
+            if (_raw) { try { const _s = JSON.parse(_raw); if (_s.student && _s.progress) state = _s; } catch(e){} }
+            state.student = { name: _match.name, cohort: _match.cohort || '', tempId: _hubId, assignedId: _match.assignedId || null };
+            enterApp();
+            startHoursTracking(_hubId);
+            const _now = new Date(); const _ts = _now.toISOString();
+            const _lr = _fbDb.ref('mccoe_logins/' + _hubId);
+            _lr.child('lastLogin').set(_ts);
+            _lr.child('loginCount').transaction(c => (c||0)+1);
+            _lr.child('history').push({ ts:_ts, date:_ts.split('T')[0], display:_now.toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}), source:'Hub SSO' });
+          }
+        }
+      }
     }, err => console.warn('Firebase read error:', err));
   } catch(e) {
     console.warn('Firebase unavailable, using local storage only:', e.message);
