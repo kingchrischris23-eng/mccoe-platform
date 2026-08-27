@@ -884,13 +884,17 @@ function doHubRegister() {
   regMsg('Creating your account...', '#00f5ff');
   document.getElementById('hub-reg-btn').disabled = true;
 
-  // Check if name already exists
+  // Check for duplicates and calculate next student ID
   _hubDb.ref('mccoe_registry').once('value', function(snap) {
     var duplicate = false;
+    var maxNum = 0;
     if (snap.exists()) {
       snap.forEach(function(child) {
         var d = child.val();
-        if (d && d.name && d.name.toLowerCase() === name.toLowerCase()) duplicate = true;
+        if (!d) return;
+        if (d.name && d.name.toLowerCase() === name.toLowerCase()) duplicate = true;
+        var n = parseInt((d.assignedId || '').replace('MCCoE-', ''));
+        if (!isNaN(n) && n > maxNum) maxNum = n;
       });
     }
     if (duplicate) {
@@ -898,14 +902,15 @@ function doHubRegister() {
       regMsg('An account with that name already exists — try signing in.', '#ff6b6b');
       return;
     }
-    var tempId = 'PENDING_' + Date.now();
-    var hash   = _hubHashSync(pass);
-    var entry  = { tempId: tempId, name: name, cohort: cohort, password: hash, registeredAt: new Date().toISOString(), addedToRoster: false, assignedId: null };
+    var tempId     = 'PENDING_' + Date.now();
+    var hash       = _hubHashSync(pass);
+    var assignedId = 'MCCoE-' + String(maxNum + 1).padStart(3, '0');
+    var entry      = { tempId: tempId, name: name, cohort: cohort, password: hash, registeredAt: new Date().toISOString(), addedToRoster: false, assignedId: assignedId };
     _hubDb.ref('mccoe_registry/' + tempId).set(entry, function(err) {
       document.getElementById('hub-reg-btn').disabled = false;
       if (err) { regMsg('Error saving account. Please try again.', '#ff6b6b'); return; }
-      regMsg('Account created! Signing you in...', '#00ff41');
-      setTimeout(function() { hubLoginSuccess(name, tempId, true); }, 900);
+      regMsg('Account created! Your ID: ' + assignedId + ' — signing you in...', '#00ff41');
+      setTimeout(function() { hubLoginSuccess(name, tempId, true); }, 1200);
     });
   });
 }
