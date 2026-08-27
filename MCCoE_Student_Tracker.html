@@ -1749,13 +1749,26 @@ let starValues = { rating:0, confidence:0, instruction:0 };
 // ════════════════════════════════════════════
 //  REGISTRY SYNC — pulls from Firebase (cross-device)
 // ════════════════════════════════════════════
+function _nextAutoId() {
+  const max = students.reduce((m, s) => {
+    const n = parseInt((s.studentId || '').replace('MCCoE-', ''));
+    return isNaN(n) ? m : Math.max(m, n);
+  }, 0);
+  return 'MCCoE-' + String(max + 1).padStart(3, '0');
+}
+
 function _addRegistryEntry(entry) {
   const exists = students.find(s => s.portalTempId === entry.tempId);
   if (exists) return false;
+  const assignedId = entry.assignedId || _nextAutoId();
+  // Write the assigned ID back to Firebase so the student sees it too
+  if (!entry.assignedId && _fbDb) {
+    _fbDb.ref('mccoe_registry/' + entry.tempId + '/assignedId').set(assignedId);
+  }
   students.push({
     id: 'reg_' + Date.now() + '_' + Math.random().toString(36).substr(2,5),
     portalTempId: entry.tempId,
-    studentId: entry.assignedId || null,
+    studentId: assignedId,
     name: entry.name,
     cohort: entry.cohort,
     startDate: new Date().toISOString().split('T')[0],
@@ -1768,7 +1781,7 @@ function _addRegistryEntry(entry) {
     notesLog: [{
       date: new Date().toISOString().split('T')[0],
       author: 'System', tag: 'General',
-      text: `Student self-registered via MCCoE Student Portal on ${new Date().toLocaleDateString()}. Cohort: ${entry.cohort}.`
+      text: `Student self-registered via MCCoE Student Portal on ${new Date().toLocaleDateString()}. Cohort: ${entry.cohort}. Auto-assigned ID: ${assignedId}.`
     }]
   });
   return true;
