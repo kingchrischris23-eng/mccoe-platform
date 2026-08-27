@@ -722,6 +722,13 @@ footer strong {
       <input id="hub-login-name" type="text" placeholder="Enter your full name..." autocomplete="name" spellcheck="false"
         style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:13px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:500;outline:none;transition:border-color .2s;"
         onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
+        onkeydown="if(event.key==='Enter')document.getElementById('hub-login-pass').focus()">
+    </div>
+    <div style="margin-bottom:14px;text-align:left;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">PASSWORD</div>
+      <input id="hub-login-pass" type="password" placeholder="Enter your password..." autocomplete="current-password"
+        style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:13px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:500;outline:none;transition:border-color .2s;"
+        onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
         onkeydown="if(event.key==='Enter')doHubLogin()">
     </div>
     <div id="hub-login-msg" style="min-height:22px;font-size:11px;margin-bottom:16px;font-family:'Share Tech Mono',monospace;letter-spacing:1px;"></div>
@@ -753,10 +760,23 @@ firebase.initializeApp({
 });
 const _hubDb = firebase.database();
 
+// ── Password check (matches Student Platform hashing) ──
+function _hubHashSync(str) {
+  try { return 'b64:' + btoa(unescape(encodeURIComponent(str || ''))); } catch(e) { return 'p:' + str; }
+}
+function _hubCheckPassword(entered, stored) {
+  if (!stored || !entered) return false;
+  if (entered === stored) return true;
+  if (_hubHashSync(entered) === stored) return true;
+  return false;
+}
+
 // ── Hub Login ──
 function doHubLogin() {
   const name = (document.getElementById('hub-login-name').value || '').trim();
-  if (!name) { hubMsg('Please enter your full name.', '#ff6b6b'); return; }
+  const pass = (document.getElementById('hub-login-pass').value || '').trim();
+  if (!name) { hubMsg('Please enter your full name.', '#ff6b6b'); document.getElementById('hub-login-name').focus(); return; }
+  if (!pass) { hubMsg('Please enter your password.', '#ff6b6b'); document.getElementById('hub-login-pass').focus(); return; }
   hubMsg('Connecting to MCCoE network...', '#00f5ff');
   document.getElementById('hub-login-btn').disabled = true;
   _hubDb.ref('mccoe_registry').once('value', function(snap) {
@@ -766,11 +786,17 @@ function doHubLogin() {
     snap.forEach(function(child) {
       var d = child.val();
       if (d && d.name && d.name.toLowerCase() === name.toLowerCase()) {
-        found = { key: child.key, name: d.name };
+        found = { key: child.key, name: d.name, password: d.password };
       }
     });
     if (!found) {
-      hubMsg('Name not found — check spelling or ask Coach King to register you.', '#ff6b6b');
+      hubMsg('Name not found — check spelling or ask your coach.', '#ff6b6b');
+      return;
+    }
+    if (!_hubCheckPassword(pass, found.password)) {
+      hubMsg('Incorrect password. Try again or ask your coach to reset it.', '#ff6b6b');
+      document.getElementById('hub-login-pass').value = '';
+      document.getElementById('hub-login-pass').focus();
       return;
     }
     hubLoginSuccess(found.name, found.key, true);
