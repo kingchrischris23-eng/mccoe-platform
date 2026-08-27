@@ -1801,6 +1801,9 @@ function startFirebaseRegistryListener() {
     const data = snap.val() || {};
     let changed = false;
 
+    // Keep the registry localStorage cache in sync so getRegistry() sees all students
+    localStorage.setItem('mccoe_student_registry', JSON.stringify(Object.values(data)));
+
     // Add new entries
     Object.values(data).forEach(entry => {
       if (_addRegistryEntry(entry)) {
