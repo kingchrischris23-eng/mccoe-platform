@@ -3766,11 +3766,7 @@ function loadPortalProgress(rosterId, portalTempId) {
     return;
   }
   _fbDb.ref('mccoe_progress/' + portalTempId).once('value', snap => {
-    const data = snap.val();
-    if (!data || !data.progress) {
-      el.innerHTML = '<div style="color:var(--muted);font-size:.82rem;">No portal activity recorded yet — student has not completed any content.</div>';
-      return;
-    }
+    const data = snap.val() || {};
     const prog = data.progress || {};
     const skills = data.softSkills || {};
     const updated = data.lastUpdated ? new Date(data.lastUpdated).toLocaleString() : '—';
