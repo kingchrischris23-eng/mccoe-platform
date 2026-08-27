@@ -716,28 +716,77 @@ footer strong {
     <div style="width:64px;height:64px;border:2px solid var(--red);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:var(--glow-red);margin:0 auto 22px;">🛡️</div>
     <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,245,255,0.55);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">Missouri Cybersecurity Center of Excellence</div>
     <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:900;color:#fff;letter-spacing:4px;margin-bottom:4px;">MCCoE</div>
-    <div style="font-family:'Orbitron',monospace;font-size:11px;font-weight:700;color:var(--red);letter-spacing:2px;text-shadow:var(--glow-red);margin-bottom:36px;">TRAINING HUB ACCESS</div>
-    <div style="margin-bottom:14px;text-align:left;">
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">STUDENT NAME</div>
-      <input id="hub-login-name" type="text" placeholder="Enter your full name..." autocomplete="name" spellcheck="false"
-        style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:13px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:500;outline:none;transition:border-color .2s;"
-        onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
-        onkeydown="if(event.key==='Enter')document.getElementById('hub-login-pass').focus()">
+    <div style="font-family:'Orbitron',monospace;font-size:11px;font-weight:700;color:var(--red);letter-spacing:2px;text-shadow:var(--glow-red);margin-bottom:24px;">TRAINING HUB ACCESS</div>
+
+    <!-- Tab switcher -->
+    <div style="display:flex;gap:0;margin-bottom:24px;border:1px solid rgba(238,34,7,0.35);border-radius:6px;overflow:hidden;">
+      <button id="hub-tab-signin" onclick="hubShowTab('signin')" style="flex:1;padding:10px;border:none;background:rgba(238,34,7,0.25);color:#fff;font-family:'Orbitron',monospace;font-size:9px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;">SIGN IN</button>
+      <button id="hub-tab-register" onclick="hubShowTab('register')" style="flex:1;padding:10px;border:none;border-left:1px solid rgba(238,34,7,0.35);background:transparent;color:rgba(255,255,255,0.4);font-family:'Orbitron',monospace;font-size:9px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;">REGISTER</button>
     </div>
-    <div style="margin-bottom:14px;text-align:left;">
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">PASSWORD</div>
-      <input id="hub-login-pass" type="password" placeholder="Enter your password..." autocomplete="current-password"
-        style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:13px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:500;outline:none;transition:border-color .2s;"
-        onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
-        onkeydown="if(event.key==='Enter')doHubLogin()">
+
+    <!-- SIGN IN FORM -->
+    <div id="hub-form-signin">
+      <div style="margin-bottom:14px;text-align:left;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">STUDENT NAME</div>
+        <input id="hub-login-name" type="text" placeholder="Enter your full name..." autocomplete="name" spellcheck="false"
+          style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:13px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:500;outline:none;transition:border-color .2s;"
+          onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
+          onkeydown="if(event.key==='Enter')document.getElementById('hub-login-pass').focus()">
+      </div>
+      <div style="margin-bottom:14px;text-align:left;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">PASSWORD</div>
+        <input id="hub-login-pass" type="password" placeholder="Enter your password..." autocomplete="current-password"
+          style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:13px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:500;outline:none;transition:border-color .2s;"
+          onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
+          onkeydown="if(event.key==='Enter')doHubLogin()">
+      </div>
+      <div id="hub-login-msg" style="min-height:22px;font-size:11px;margin-bottom:14px;font-family:'Share Tech Mono',monospace;letter-spacing:1px;"></div>
+      <button id="hub-login-btn" onclick="doHubLogin()" style="width:100%;background:linear-gradient(135deg,rgba(238,34,7,0.28),rgba(238,34,7,0.10));border:1px solid rgba(238,34,7,0.55);color:#fff;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:3px;padding:15px;border-radius:6px;cursor:pointer;transition:all .2s;box-shadow:0 0 22px rgba(238,34,7,0.2);" onmouseover="this.style.background='linear-gradient(135deg,rgba(238,34,7,0.5),rgba(238,34,7,0.25))';this.style.boxShadow='0 0 35px rgba(238,34,7,0.5)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(238,34,7,0.28),rgba(238,34,7,0.10))';this.style.boxShadow='0 0 22px rgba(238,34,7,0.2)'">
+        ▶ &nbsp; SIGN IN
+      </button>
     </div>
-    <div id="hub-login-msg" style="min-height:22px;font-size:11px;margin-bottom:16px;font-family:'Share Tech Mono',monospace;letter-spacing:1px;"></div>
-    <button id="hub-login-btn" onclick="doHubLogin()" style="width:100%;background:linear-gradient(135deg,rgba(238,34,7,0.28),rgba(238,34,7,0.10));border:1px solid rgba(238,34,7,0.55);color:#fff;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:3px;padding:15px;border-radius:6px;cursor:pointer;transition:all .2s;box-shadow:0 0 22px rgba(238,34,7,0.2);" onmouseover="this.style.background='linear-gradient(135deg,rgba(238,34,7,0.5),rgba(238,34,7,0.25))';this.style.boxShadow='0 0 35px rgba(238,34,7,0.5)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(238,34,7,0.28),rgba(238,34,7,0.10))';this.style.boxShadow='0 0 22px rgba(238,34,7,0.2)'">
-      ▶ &nbsp; ACCESS TRAINING HUB
-    </button>
-    <div style="margin-top:22px;font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,255,255,0.22);letter-spacing:1px;line-height:2;">
-      Not registered? Ask <strong style="color:rgba(238,34,7,0.5);">Coach King</strong> or <strong style="color:rgba(238,34,7,0.5);">Coach Harbour</strong> to set up your account.<br>
-      Admins use the <strong style="color:rgba(0,245,255,0.4);">ADMIN LOGIN</strong> button at the top.
+
+    <!-- REGISTER FORM -->
+    <div id="hub-form-register" style="display:none;">
+      <div style="margin-bottom:12px;text-align:left;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">FULL NAME</div>
+        <input id="hub-reg-name" type="text" placeholder="First and last name..." autocomplete="name" spellcheck="false"
+          style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:12px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:500;outline:none;transition:border-color .2s;"
+          onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
+          onkeydown="if(event.key==='Enter')document.getElementById('hub-reg-cohort').focus()">
+      </div>
+      <div style="margin-bottom:12px;text-align:left;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">COHORT</div>
+        <select id="hub-reg-cohort" style="width:100%;background:#0d0d1f;border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:12px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:500;outline:none;">
+          <option value="MCCoE 2026 — Cohort 1">MCCoE 2026 — Cohort 1</option>
+          <option value="MCCoE 2026 — Cohort 2">MCCoE 2026 — Cohort 2</option>
+          <option value="MCCoE 2027 — Cohort 1">MCCoE 2027 — Cohort 1</option>
+        </select>
+      </div>
+      <div style="margin-bottom:12px;text-align:left;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">CREATE PASSWORD</div>
+        <input id="hub-reg-pass" type="password" placeholder="Choose a password..." autocomplete="new-password"
+          style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:12px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:500;outline:none;transition:border-color .2s;"
+          onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
+          onkeydown="if(event.key==='Enter')document.getElementById('hub-reg-confirm').focus()">
+      </div>
+      <div style="margin-bottom:12px;text-align:left;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">CONFIRM PASSWORD</div>
+        <input id="hub-reg-confirm" type="password" placeholder="Re-enter password..." autocomplete="new-password"
+          style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:12px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:500;outline:none;transition:border-color .2s;"
+          onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
+          onkeydown="if(event.key==='Enter')doHubRegister()">
+      </div>
+      <div id="hub-reg-msg" style="min-height:22px;font-size:11px;margin-bottom:14px;font-family:'Share Tech Mono',monospace;letter-spacing:1px;"></div>
+      <button id="hub-reg-btn" onclick="doHubRegister()" style="width:100%;background:linear-gradient(135deg,rgba(238,34,7,0.28),rgba(238,34,7,0.10));border:1px solid rgba(238,34,7,0.55);color:#fff;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:3px;padding:15px;border-radius:6px;cursor:pointer;transition:all .2s;box-shadow:0 0 22px rgba(238,34,7,0.2);" onmouseover="this.style.background='linear-gradient(135deg,rgba(238,34,7,0.5),rgba(238,34,7,0.25))';this.style.boxShadow='0 0 35px rgba(238,34,7,0.5)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(238,34,7,0.28),rgba(238,34,7,0.10))';this.style.boxShadow='0 0 22px rgba(238,34,7,0.2)'">
+        ✚ &nbsp; CREATE ACCOUNT
+      </button>
+    </div>
+
+    <!-- Admin + footer -->
+    <div style="margin-top:20px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:1px;">MCCoE Training Program v2.0</div>
+      <a href="MCCoE_Student_Tracker.html" target="_blank" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;color:rgba(0,245,255,0.45);text-decoration:none;border:1px solid rgba(0,245,255,0.2);padding:5px 10px;border-radius:4px;transition:all .2s;" onmouseover="this.style.color='#00f5ff';this.style.borderColor='rgba(0,245,255,0.6)'" onmouseout="this.style.color='rgba(0,245,255,0.45)';this.style.borderColor='rgba(0,245,255,0.2)'">🔒 ADMIN</a>
     </div>
   </div>
 </div>
@@ -771,6 +820,19 @@ function _hubCheckPassword(entered, stored) {
   return false;
 }
 
+// ── Tab switcher ──
+function hubShowTab(tab) {
+  var isSignin = tab === 'signin';
+  document.getElementById('hub-form-signin').style.display   = isSignin ? '' : 'none';
+  document.getElementById('hub-form-register').style.display = isSignin ? 'none' : '';
+  document.getElementById('hub-tab-signin').style.background   = isSignin ? 'rgba(238,34,7,0.25)' : 'transparent';
+  document.getElementById('hub-tab-signin').style.color        = isSignin ? '#fff' : 'rgba(255,255,255,0.4)';
+  document.getElementById('hub-tab-register').style.background = isSignin ? 'transparent' : 'rgba(238,34,7,0.25)';
+  document.getElementById('hub-tab-register').style.color      = isSignin ? 'rgba(255,255,255,0.4)' : '#fff';
+  hubMsg('', '');
+  document.getElementById('hub-reg-msg').textContent = '';
+}
+
 // ── Hub Login ──
 function doHubLogin() {
   const name = (document.getElementById('hub-login-name').value || '').trim();
@@ -800,6 +862,51 @@ function doHubLogin() {
       return;
     }
     hubLoginSuccess(found.name, found.key, true);
+  });
+}
+
+// ── Hub Register ──
+function doHubRegister() {
+  var name    = (document.getElementById('hub-reg-name').value || '').trim();
+  var cohort  = document.getElementById('hub-reg-cohort').value;
+  var pass    = document.getElementById('hub-reg-pass').value;
+  var confirm = document.getElementById('hub-reg-confirm').value;
+  var msgEl   = document.getElementById('hub-reg-msg');
+
+  function regMsg(text, color) { msgEl.textContent = text; msgEl.style.color = color || '#e8e8e8'; }
+
+  if (!name)    { regMsg('Please enter your full name.', '#ff6b6b'); return; }
+  if (name.split(' ').filter(Boolean).length < 2) { regMsg('Please enter your first AND last name.', '#ff6b6b'); return; }
+  if (!pass)    { regMsg('Please create a password.', '#ff6b6b'); return; }
+  if (pass.length < 4) { regMsg('Password must be at least 4 characters.', '#ff6b6b'); return; }
+  if (pass !== confirm) { regMsg('Passwords do not match.', '#ff6b6b'); return; }
+
+  regMsg('Creating your account...', '#00f5ff');
+  document.getElementById('hub-reg-btn').disabled = true;
+
+  // Check if name already exists
+  _hubDb.ref('mccoe_registry').once('value', function(snap) {
+    var duplicate = false;
+    if (snap.exists()) {
+      snap.forEach(function(child) {
+        var d = child.val();
+        if (d && d.name && d.name.toLowerCase() === name.toLowerCase()) duplicate = true;
+      });
+    }
+    if (duplicate) {
+      document.getElementById('hub-reg-btn').disabled = false;
+      regMsg('An account with that name already exists — try signing in.', '#ff6b6b');
+      return;
+    }
+    var tempId = 'PENDING_' + Date.now();
+    var hash   = _hubHashSync(pass);
+    var entry  = { tempId: tempId, name: name, cohort: cohort, password: hash, registeredAt: new Date().toISOString(), addedToRoster: false, assignedId: null };
+    _hubDb.ref('mccoe_registry/' + tempId).set(entry, function(err) {
+      document.getElementById('hub-reg-btn').disabled = false;
+      if (err) { regMsg('Error saving account. Please try again.', '#ff6b6b'); return; }
+      regMsg('Account created! Signing you in...', '#00ff41');
+      setTimeout(function() { hubLoginSuccess(name, tempId, true); }, 900);
+    });
   });
 }
 
@@ -850,6 +957,8 @@ function hubLogout() {
   document.getElementById('hub-student-badge').style.display = 'none';
   document.getElementById('hub-logout-btn').style.display = 'none';
   document.getElementById('hub-login-name').value = '';
+  document.getElementById('hub-login-pass').value = '';
+  hubShowTab('signin');
   hubMsg('', '');
 }
 
