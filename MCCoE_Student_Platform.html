@@ -716,6 +716,70 @@ hr { border-color: rgba(0,245,255,0.12) !important; }
 // ══════════════════════════════════════════════
 const INSTRUCTOR_EMAIL = 'jharbour@mccoe.org';
 
+// PROJECT SUBMISSION FIELDS — one entry per week (1-8)
+const PROJECTS = {
+  1: { incident:'Target Data Breach (2013)', type:'Part 1 — Deep Dive', maxScore:50, fields:[
+    {id:'q1',label:'Describe what happened in this incident. Who was attacked, how did the attackers get in, and what was stolen?',type:'textarea'},
+    {id:'q2',label:'How were each of the three CIA Triad pillars (Confidentiality, Integrity, Availability) impacted?',type:'textarea'},
+    {id:'q3',label:'At which Cyber Kill Chain phase did the attackers first gain a foothold?',type:'text'},
+    {id:'q4',label:'What MITRE ATT&CK technique(s) were used? (Include technique ID, e.g. T1566 – Phishing)',type:'text'},
+    {id:'q5',label:'List any CVEs involved in this breach, or write "None publicly identified."',type:'text'},
+    {id:'q6',label:'What ONE security control, if properly implemented, could have prevented this breach? Explain why.',type:'textarea'}
+  ]},
+  2: { incident:'Target Data Breach (2013)', type:'Part 2 — Frameworks & Writing', maxScore:100, fields:[
+    {id:'q1',label:'Which NIST CSF functions (Identify, Protect, Detect, Respond, Recover) failed at Target? Explain each failure specifically.',type:'textarea'},
+    {id:'q2',label:'What penetration testing technique would have uncovered this vulnerability before the breach occurred?',type:'textarea'},
+    {id:'q3',label:'Write a 3–5 sentence Executive Summary of this incident for a non-technical board of directors.',type:'textarea'},
+    {id:'q4',label:'List 3 specific, actionable remediation recommendations for the affected organization.',type:'textarea'},
+    {id:'q5',label:'What compliance framework(s) were violated (e.g., PCI-DSS, HIPAA, SOX)? Explain how.',type:'textarea'}
+  ]},
+  3: { incident:'Colonial Pipeline Attack (2021)', type:'Part 1 — Deep Dive', maxScore:50, fields:[
+    {id:'q1',label:'Describe what happened in this incident. Who was attacked, how, and what was the real-world impact?',type:'textarea'},
+    {id:'q2',label:'How were each of the three CIA Triad pillars impacted by this attack?',type:'textarea'},
+    {id:'q3',label:'At which Cyber Kill Chain phase did the attackers first gain access?',type:'text'},
+    {id:'q4',label:'What MITRE ATT&CK technique(s) were used in this attack?',type:'text'},
+    {id:'q5',label:'What known vulnerability or credential issue was exploited?',type:'text'},
+    {id:'q6',label:'What ONE security control could have prevented or significantly limited this attack?',type:'textarea'}
+  ]},
+  4: { incident:'Colonial Pipeline Attack (2021)', type:'Part 2 — Frameworks & Writing', maxScore:100, fields:[
+    {id:'q1',label:'Which NIST CSF functions failed at Colonial Pipeline? Explain each failure with specifics.',type:'textarea'},
+    {id:'q2',label:'What penetration testing technique would have revealed this vulnerability before attackers found it?',type:'textarea'},
+    {id:'q3',label:'Write a 3–5 sentence Executive Summary for a non-technical audience (e.g., a Congressional hearing brief).',type:'textarea'},
+    {id:'q4',label:'List 3 specific remediation recommendations for Colonial Pipeline going forward.',type:'textarea'},
+    {id:'q5',label:'What compliance or regulatory framework violations occurred? (e.g., TSA Pipeline Security Directives, NERC CIP)',type:'textarea'}
+  ]},
+  5: { incident:'SolarWinds Supply Chain Attack (2020)', type:'Part 1 — Deep Dive', maxScore:50, fields:[
+    {id:'q1',label:'Describe what happened. How was the SolarWinds Orion software supply chain compromised, and what was the scope of the impact?',type:'textarea'},
+    {id:'q2',label:'How were each of the three CIA Triad pillars impacted by this attack?',type:'textarea'},
+    {id:'q3',label:'At which Cyber Kill Chain phase did the threat actors insert the malicious SUNBURST backdoor?',type:'text'},
+    {id:'q4',label:'What MITRE ATT&CK technique(s) were used? (Hint: explore T1195 – Supply Chain Compromise)',type:'text'},
+    {id:'q5',label:'List the CVE(s) associated with this breach.',type:'text'},
+    {id:'q6',label:'What ONE control could have detected or prevented the supply chain compromise?',type:'textarea'}
+  ]},
+  6: { incident:'SolarWinds Supply Chain Attack (2020)', type:'Part 2 — Frameworks & Writing', maxScore:100, fields:[
+    {id:'q1',label:'Which NIST CSF functions failed during the SolarWinds attack? Provide specific evidence from the incident.',type:'textarea'},
+    {id:'q2',label:'What pentesting technique could be used to simulate a supply chain attack on your organization\'s software?',type:'textarea'},
+    {id:'q3',label:'Write a 3–5 sentence Executive Summary for a federal CIO who uses SolarWinds products.',type:'textarea'},
+    {id:'q4',label:'List 3 specific remediation recommendations to prevent or detect future supply chain attacks.',type:'textarea'},
+    {id:'q5',label:'What compliance frameworks were implicated? (e.g., FedRAMP, FISMA, CMMC) How did agencies fall short?',type:'textarea'}
+  ]},
+  7: { incident:'Equifax Data Breach (2017)', type:'Part 1 — Deep Dive', maxScore:50, fields:[
+    {id:'q1',label:'Describe what happened. What data was stolen, how many people were affected, and how did the breach occur?',type:'textarea'},
+    {id:'q2',label:'How were each of the three CIA Triad pillars impacted by this breach?',type:'textarea'},
+    {id:'q3',label:'At which Cyber Kill Chain phase did attackers first exploit Equifax\'s systems?',type:'text'},
+    {id:'q4',label:'What MITRE ATT&CK technique(s) were used by the attackers?',type:'text'},
+    {id:'q5',label:'What CVE was at the center of this breach? Describe the vulnerability briefly.',type:'text'},
+    {id:'q6',label:'What ONE control — if patched or enforced — would have prevented this breach?',type:'textarea'}
+  ]},
+  8: { incident:'Equifax Data Breach (2017)', type:'Part 2 — Frameworks & Writing', maxScore:100, fields:[
+    {id:'q1',label:'Which NIST CSF functions failed at Equifax? Back each up with specific evidence from the breach.',type:'textarea'},
+    {id:'q2',label:'What pentesting technique would have found the Apache Struts vulnerability before attackers exploited it?',type:'textarea'},
+    {id:'q3',label:'Write a 3–5 sentence Executive Summary suitable for Congressional testimony.',type:'textarea'},
+    {id:'q4',label:'List 3 specific remediation recommendations Equifax should have had in place.',type:'textarea'},
+    {id:'q5',label:'What consumer protection and data privacy laws were violated? (e.g., FCRA, GDPR, state breach notification laws)',type:'textarea'}
+  ]}
+};
+
 const WEEKS = [
   {
     num: 5, title: 'Kali Linux Fundamentals', nist: 'Identify / Protect',
@@ -2350,7 +2414,7 @@ function enterApp() {
   renderStudentDashboard();
   initLibraryFromFirebase();
   updateStreak();
-  setTimeout(() => { loadJobReadiness(); loadDueDates(); }, 400);
+  setTimeout(() => { loadJobReadiness(); loadDueDates(); loadProjectSubmissions(); }, 400);
 }
 
 function doLogout() {
@@ -2714,10 +2778,11 @@ function renderWeek(num) {
 
     <!-- TABS -->
     <div class="tabs">
-      <button class="tab active" onclick="switchTab('content')">📖 Content</button>
-      <button class="tab" onclick="switchTab('quiz')">📝 Quiz</button>
-      <button class="tab" onclick="switchTab('lab')">🔬 Lab</button>
-      <button class="tab" onclick="switchTab('submit')">📤 Submit</button>
+      <button class="tab active" data-tab="content" onclick="switchTab('content')">📖 Content</button>
+      <button class="tab" data-tab="quiz" onclick="switchTab('quiz')">📝 Quiz</button>
+      <button class="tab" data-tab="lab" onclick="switchTab('lab')">🔬 Lab</button>
+      ${w.num <= 8 ? `<button class="tab" data-tab="project" onclick="switchTab('project')" id="tab-btn-project" style="${(state.projectSubmissions && state.projectSubmissions[w.num] && state.projectSubmissions[w.num].submittedAt) ? 'border-bottom:3px solid var(--green);' : ''}">📋 Project</button>` : ''}
+      <button class="tab" data-tab="submit" onclick="switchTab('submit')">📤 Submit</button>
     </div>
 
     <!-- CONTENT TAB -->
@@ -2814,6 +2879,9 @@ function renderWeek(num) {
     <div class="tab-panel" id="tab-submit">
       ${renderSubmitTab(w, p)}
     </div>
+
+    <!-- PROJECT TAB -->
+    ${w.num <= 8 ? `<div class="tab-panel" id="tab-project">${renderProjectTab(w.num)}</div>` : ''}
   `;
 
   // Restore graded quiz state if student navigates back to this week
@@ -2886,12 +2954,125 @@ function renderSubmitTab(w, p) {
 }
 
 // ══════════════════════════════════════════════
+// PROJECT SUBMISSIONS
+// ══════════════════════════════════════════════
+function renderProjectTab(weekNum) {
+  const proj = PROJECTS[weekNum];
+  if (!proj) return '<div class="card"><p>No project for this week.</p></div>';
+  const saved = state.projectSubmissions && state.projectSubmissions[weekNum];
+  const submitted = saved && saved.submittedAt;
+  const grade = saved && saved.grade;
+
+  const fieldHTML = proj.fields.map(f => {
+    const val = (saved && saved.answers && saved.answers[f.id]) ? saved.answers[f.id] : '';
+    const escaped = val.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return `<div style="margin-bottom:18px;">
+      <label style="display:block;font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.4;">${f.label}</label>
+      ${f.type==='textarea'
+        ? `<textarea id="proj-${weekNum}-${f.id}" rows="3" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;font-size:.82rem;font-family:inherit;resize:vertical;background:var(--card);color:var(--text);box-sizing:border-box;" placeholder="Type your answer here..." oninput="saveProjectDraft(${weekNum})"${submitted?' readonly':''}>${val}</textarea>`
+        : `<input type="text" id="proj-${weekNum}-${f.id}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;font-size:.82rem;font-family:inherit;background:var(--card);color:var(--text);box-sizing:border-box;" placeholder="Type your answer here..." value="${escaped}" oninput="saveProjectDraft(${weekNum})"${submitted?' readonly':''}>`
+      }
+    </div>`;
+  }).join('');
+
+  const gradeHTML = grade ? `
+    <div style="background:rgba(0,166,81,.08);border:1px solid rgba(0,166,81,.3);border-radius:8px;padding:14px;margin-top:16px;">
+      <div style="font-weight:700;color:var(--green);margin-bottom:6px;">✅ Graded by Instructor</div>
+      <div style="font-size:.85rem;margin-bottom:4px;">Score: <strong>${grade.score} / ${proj.maxScore}</strong> (${Math.round(grade.score/proj.maxScore*100)}%)</div>
+      ${grade.feedback ? `<div style="font-size:.82rem;color:var(--text);margin-top:8px;line-height:1.5;"><strong>Instructor Feedback:</strong><br>${grade.feedback}</div>` : ''}
+    </div>` : '';
+
+  return `<div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+      <div>
+        <h3 style="margin:0 0 4px 0;"><span class="icon">📋</span> Project ${weekNum}</h3>
+        <div style="font-size:.8rem;font-weight:600;color:var(--blue);margin-bottom:2px;">${proj.incident}</div>
+        <div style="font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;">${proj.type} &bull; Max ${proj.maxScore} pts</div>
+      </div>
+      ${submitted ? '<span style="background:var(--green);color:#fff;font-size:.72rem;font-weight:700;padding:4px 12px;border-radius:12px;">✅ SUBMITTED</span>' : '<span style="background:rgba(245,166,35,.15);color:var(--yellow);font-size:.72rem;font-weight:700;padding:4px 12px;border-radius:12px;border:1px solid var(--yellow);">DRAFT</span>'}
+    </div>
+    ${submitted ? `<div style="font-size:.78rem;color:var(--muted);margin-bottom:14px;padding:8px 12px;background:rgba(0,166,81,.06);border-radius:6px;">Submitted ${new Date(submitted).toLocaleString()} — answers are locked. Contact your instructor to request changes.</div>` : ''}
+    ${fieldHTML}
+    ${!submitted ? `<button onclick="submitProject(${weekNum})" style="width:100%;padding:12px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:8px;letter-spacing:.3px;">📤 Submit Project ${weekNum} to Instructor</button>` : ''}
+    ${gradeHTML}
+  </div>`;
+}
+
+function saveProjectDraft(weekNum) {
+  const proj = PROJECTS[weekNum];
+  if (!proj) return;
+  if (!state.projectSubmissions) state.projectSubmissions = {};
+  if (!state.projectSubmissions[weekNum]) state.projectSubmissions[weekNum] = {};
+  if (state.projectSubmissions[weekNum].submittedAt) return;
+  const answers = {};
+  proj.fields.forEach(f => {
+    const el = document.getElementById('proj-' + weekNum + '-' + f.id);
+    if (el) answers[f.id] = el.value;
+  });
+  state.projectSubmissions[weekNum].answers = answers;
+  const key = state.student.tempId ? 'mccoe_student_state_' + state.student.tempId : 'mccoe_student_state';
+  localStorage.setItem(key, JSON.stringify(state));
+}
+
+function submitProject(weekNum) {
+  const proj = PROJECTS[weekNum];
+  if (!proj) return;
+  const answers = {};
+  let hasContent = false;
+  proj.fields.forEach(f => {
+    const el = document.getElementById('proj-' + weekNum + '-' + f.id);
+    const val = el ? el.value.trim() : '';
+    if (val.length > 0) hasContent = true;
+    answers[f.id] = val;
+  });
+  if (!hasContent) { alert('Please answer at least one question before submitting.'); return; }
+  if (!confirm('Submit Project ' + weekNum + '?\n\nYour answers will be locked and sent to your instructor for grading.')) return;
+  if (!state.projectSubmissions) state.projectSubmissions = {};
+  const entry = {
+    answers,
+    weekNum,
+    studentName: state.student.name,
+    studentId:   state.student.assignedId || state.student.tempId,
+    tempId:      state.student.tempId,
+    incident:    proj.incident,
+    projectType: proj.type,
+    maxScore:    proj.maxScore,
+    submittedAt: new Date().toISOString()
+  };
+  state.projectSubmissions[weekNum] = entry;
+  if (_fbDb && state.student.tempId) {
+    _fbDb.ref('mccoe_submissions/' + state.student.tempId + '/week' + weekNum).set(entry);
+  }
+  const key = state.student.tempId ? 'mccoe_student_state_' + state.student.tempId : 'mccoe_student_state';
+  localStorage.setItem(key, JSON.stringify(state));
+  renderWeek(weekNum);
+  switchTab('project');
+  alert('✅ Project ' + weekNum + ' submitted! Your instructor will review and grade it.');
+}
+
+function loadProjectSubmissions() {
+  if (!_fbDb || !state.student.tempId) return;
+  _fbDb.ref('mccoe_submissions/' + state.student.tempId).once('value', snap => {
+    const data = snap.val();
+    if (!data) return;
+    if (!state.projectSubmissions) state.projectSubmissions = {};
+    Object.keys(data).forEach(k => {
+      const weekNum = parseInt(k.replace('week',''));
+      if (!isNaN(weekNum)) {
+        state.projectSubmissions[weekNum] = data[k];
+      }
+    });
+    const key = state.student.tempId ? 'mccoe_student_state_' + state.student.tempId : 'mccoe_student_state';
+    localStorage.setItem(key, JSON.stringify(state));
+  });
+}
+
+// ══════════════════════════════════════════════
 // TABS
 // ══════════════════════════════════════════════
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach((t,i) => {
-    const names = ['content','quiz','lab','submit'];
-    t.classList.toggle('active', names[i]===name);
+  document.querySelectorAll('.tab[data-tab]').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === name);
   });
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   const panel = document.getElementById('tab-'+name);

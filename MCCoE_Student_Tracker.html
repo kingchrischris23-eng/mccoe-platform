@@ -871,29 +871,24 @@ select option { background:var(--surface); color:var(--text); }
 <div id="view-submissions" class="view">
   <div class="page-header">
     <div>
-      <h2>Student Submissions</h2>
-      <p>Import and review weekly assignment packages from students</p>
+      <h2>📋 Project Submissions</h2>
+      <p>Review and grade student project submissions across all 8 case study projects</p>
     </div>
-    <div style="display:flex;gap:10px;">
-      <button class="btn btn-outline" onclick="triggerImport()">📥 Import JSON Files</button>
-      <button class="btn btn-red" onclick="approveAllPending()">✅ Approve All Pending</button>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <span id="sub-ungraded-count" style="font-size:.78rem;color:var(--yellow);font-weight:700;display:none;"></span>
+      <button class="btn btn-outline" onclick="renderSubmissionsView()">🔄 Refresh</button>
     </div>
   </div>
-
-  <div id="submissions-pending-section" style="display:none;margin-bottom:28px;">
-    <div class="section-title" style="color:var(--yellow);">⏳ Pending Review</div>
-    <div id="submissions-pending"></div>
+  <div id="submissions-matrix-wrap">
+    <div class="empty-state"><div class="empty-icon">📋</div><div>Loading submissions...</div></div>
   </div>
+</div>
 
-  <div id="submissions-approved-section">
-    <div class="section-title">✅ Processed Submissions</div>
-    <div id="submissions-approved">
-      <div class="empty-state">
-        <div class="empty-icon">📥</div>
-        <div>No submissions imported yet</div>
-        <div style="font-size:.78rem;margin-top:8px;">Click "Import JSON Files" or the header button to load student submission files</div>
-      </div>
-    </div>
+<!-- GRADE MODAL -->
+<div id="grade-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;overflow-y:auto;padding:20px;">
+  <div style="max-width:700px;margin:20px auto;background:var(--card);border-radius:14px;padding:28px;position:relative;">
+    <button onclick="closeGradeModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--muted);">✕</button>
+    <div id="grade-modal-content"></div>
   </div>
 </div>
 
@@ -4679,22 +4674,19 @@ function radarChart(s) {
 }
 
 // ════════════════════════════════════════════
-//  SUBMISSIONS
+//  SUBMISSIONS — Firebase-based project grading
 // ════════════════════════════════════════════
-let pendingSubmissions = [];
-
-function loadSubmissions() {
-  const raw = localStorage.getItem('mccoe_submissions');
-  return raw ? JSON.parse(raw) : [];
-}
-function saveSubmissions(subs) {
-  localStorage.setItem('mccoe_submissions', JSON.stringify(subs));
-}
-
-function triggerImport() {
-  document.getElementById('importFileInput').value = '';
-  document.getElementById('importFileInput').click();
-}
+let pendingSubmissions = []; // kept for legacy import stub compatibility
+const PROJECT_META = {
+  1:{incident:'Target Data Breach (2013)',type:'Part 1 — Deep Dive',max:50},
+  2:{incident:'Target Data Breach (2013)',type:'Part 2 — Frameworks & Writing',max:100},
+  3:{incident:'Colonial Pipeline (2021)',type:'Part 1 — Deep Dive',max:50},
+  4:{incident:'Colonial Pipeline (2021)',type:'Part 2 — Frameworks & Writing',max:100},
+  5:{incident:'SolarWinds Attack (2020)',type:'Part 1 — Deep Dive',max:50},
+  6:{incident:'SolarWinds Attack (2020)',type:'Part 2 — Frameworks & Writing',max:100},
+  7:{incident:'Equifax Breach (2017)',type:'Part 1 — Deep Dive',max:50},
+  8:{incident:'Equifax Breach (2017)',type:'Part 2 — Frameworks & Writing',max:100}
+};
 
 function handleImportFiles(files) {
   if (!files || !files.length) return;
@@ -4731,8 +4723,259 @@ function handleImportFiles(files) {
 }
 
 function renderSubmissionsView() {
-  const pending  = pendingSubmissions.filter(s => s._status === 'pending');
-  const approved = loadSubmissions();
+  const wrap = document.getElementById('submissions-matrix-wrap');
+  if (!wrap) return;
+  if (!_fbDb) {
+    wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div>Firebase not connected</div></div>';
+    return;
+  }
+  wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div>Loading submissions...</div></div>';
+  _fbDb.ref('mccoe_submissions').once('value', snap => {
+    const all = snap.val() || {};
+    // Build: { tempId → { week1: {...}, week2: {...}, ... } }
+    // Match tempId to student name using students array
+    const rows = [];
+    Object.keys(all).forEach(tempId => {
+      const stu = students.find(s => s.portalTempId === tempId) ||
+                  { name: all[tempId].week1?.studentName || all[tempId].week2?.studentName || tempId, studentId: '—' };
+      rows.push({ tempId, name: stu.name, studentId: stu.studentId || '—', weeks: all[tempId] });
+    });
+    rows.sort((a,b) => a.name.localeCompare(b.name));
+
+    let ungradedCount = 0;
+    if (!rows.length) {
+      wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">📋</div><div>No project submissions yet</div><div style="font-size:.78rem;margin-top:8px;">Submissions appear here when students submit from the Student Platform (Pillar 1 → Week 1-8 → 📋 Project tab)</div></div>';
+      return;
+    }
+
+    const headerCells = [1,2,3,4,5,6,7,8].map(n =>
+      `<th style="padding:8px 6px;font-size:.65rem;color:var(--muted);font-weight:700;text-align:center;min-width:70px;border-bottom:1px solid var(--border);">P${n}<br><span style="font-weight:400;font-size:.6rem;opacity:.7;">${PROJECT_META[n].max}pts</span></th>`
+    ).join('');
+
+    const tableRows = rows.map(row => {
+      const cells = [1,2,3,4,5,6,7,8].map(n => {
+        const key = 'week' + n;
+        const sub = row.weeks[key];
+        if (!sub || !sub.submittedAt) {
+          return `<td style="padding:8px 6px;text-align:center;"><span style="font-size:.68rem;color:var(--muted);">—</span></td>`;
+        }
+        if (sub.grade) {
+          const pct = Math.round(sub.grade.score / PROJECT_META[n].max * 100);
+          const col = pct >= 80 ? 'var(--green)' : pct >= 60 ? 'var(--yellow)' : 'var(--red)';
+          return `<td style="padding:6px;text-align:center;">
+            <button onclick="openGradeModal('${row.tempId}',${n})" style="background:rgba(0,166,81,.12);border:1px solid rgba(0,166,81,.4);color:var(--green);font-size:.7rem;font-weight:700;padding:4px 8px;border-radius:6px;cursor:pointer;width:100%;">
+              ${sub.grade.score}/${PROJECT_META[n].max}<br><span style="font-size:.62rem;opacity:.8;">${pct}%</span>
+            </button>
+          </td>`;
+        }
+        ungradedCount++;
+        return `<td style="padding:6px;text-align:center;">
+          <button onclick="openGradeModal('${row.tempId}',${n})" style="background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.4);color:var(--yellow);font-size:.7rem;font-weight:700;padding:4px 8px;border-radius:6px;cursor:pointer;width:100%;">
+            Grade<br><span style="font-size:.62rem;opacity:.8;">Submitted</span>
+          </button>
+        </td>`;
+      }).join('');
+      return `<tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:10px 12px;font-weight:700;color:var(--text);white-space:nowrap;">${row.name}</td>
+        <td style="padding:10px 6px;font-size:.72rem;color:var(--muted);">${row.studentId}</td>
+        ${cells}
+      </tr>`;
+    }).join('');
+
+    const ungrEl = document.getElementById('sub-ungraded-count');
+    if (ungrEl) {
+      if (ungradedCount > 0) { ungrEl.textContent = ungradedCount + ' ungraded'; ungrEl.style.display = 'inline'; }
+      else ungrEl.style.display = 'none';
+    }
+    updateSubBadge(ungradedCount);
+
+    wrap.innerHTML = `
+      <div style="font-size:.78rem;color:var(--muted);margin-bottom:12px;">Click any cell to view answers and enter a grade. <span style="color:var(--yellow);">■</span> Submitted/ungraded &nbsp; <span style="color:var(--green);">■</span> Graded</div>
+      <div style="overflow-x:auto;">
+        <table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+          <thead><tr>
+            <th style="text-align:left;padding:10px 12px;font-size:.68rem;color:var(--muted);font-weight:700;text-transform:uppercase;border-bottom:1px solid var(--border);">Student</th>
+            <th style="padding:8px 6px;font-size:.68rem;color:var(--muted);font-weight:700;text-align:center;border-bottom:1px solid var(--border);">ID</th>
+            ${headerCells}
+          </tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>`;
+  });
+}
+
+let _gradeModalTempId = null;
+let _gradeModalWeek = null;
+
+function openGradeModal(tempId, weekNum) {
+  _gradeModalTempId = tempId;
+  _gradeModalWeek = weekNum;
+  const modal = document.getElementById('grade-modal');
+  const content = document.getElementById('grade-modal-content');
+  content.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:20px 0;">Loading...</div>';
+  modal.style.display = 'block';
+
+  _fbDb.ref('mccoe_submissions/' + tempId + '/week' + weekNum).once('value', snap => {
+    const sub = snap.val();
+    if (!sub) { content.innerHTML = '<div>Submission not found.</div>'; return; }
+    const meta = PROJECT_META[weekNum];
+    const grade = sub.grade || {};
+    const FIELD_LABELS = {
+      1:[
+        'Describe what happened in this incident.',
+        'How were each of the three CIA Triad pillars impacted?',
+        'At which Cyber Kill Chain phase did the attackers first gain a foothold?',
+        'What MITRE ATT&CK technique(s) were used?',
+        'List any CVEs involved.',
+        'What ONE security control could have prevented this breach?'
+      ],
+      2:[
+        'Which NIST CSF functions failed? Explain each.',
+        'What pentesting technique would have uncovered this vulnerability?',
+        'Write a 3–5 sentence Executive Summary.',
+        'List 3 specific, actionable remediation recommendations.',
+        'What compliance framework(s) were violated? How?'
+      ],
+      3:[
+        'Describe what happened in this incident.',
+        'How were each of the three CIA Triad pillars impacted?',
+        'At which Kill Chain phase did attackers first gain access?',
+        'What MITRE ATT&CK technique(s) were used?',
+        'What known vulnerability or credential issue was exploited?',
+        'What ONE security control could have prevented this attack?'
+      ],
+      4:[
+        'Which NIST CSF functions failed? Explain each.',
+        'What pentesting technique would have found this vulnerability?',
+        'Write a 3–5 sentence Executive Summary.',
+        'List 3 specific remediation recommendations.',
+        'What compliance/regulatory framework violations occurred?'
+      ],
+      5:[
+        'Describe what happened and how the supply chain was compromised.',
+        'How were each of the three CIA Triad pillars impacted?',
+        'At which Kill Chain phase did attackers insert the SUNBURST backdoor?',
+        'What MITRE ATT&CK technique(s) were used?',
+        'List the CVE(s) associated with this breach.',
+        'What ONE control could have detected or prevented the compromise?'
+      ],
+      6:[
+        'Which NIST CSF functions failed? Provide specific evidence.',
+        'What pentesting technique could simulate a supply chain attack?',
+        'Write a 3–5 sentence Executive Summary for a federal CIO.',
+        'List 3 specific remediation recommendations.',
+        'What compliance frameworks were implicated?'
+      ],
+      7:[
+        'Describe what happened — data stolen, people affected, how it occurred.',
+        'How were each of the three CIA Triad pillars impacted?',
+        'At which Kill Chain phase did attackers first exploit systems?',
+        'What MITRE ATT&CK technique(s) were used?',
+        'What CVE was at the center of this breach?',
+        'What ONE control would have prevented this breach?'
+      ],
+      8:[
+        'Which NIST CSF functions failed at Equifax? Back each up with evidence.',
+        'What pentesting technique would have found the Apache Struts vulnerability?',
+        'Write a 3–5 sentence Executive Summary for Congressional testimony.',
+        'List 3 specific remediation recommendations.',
+        'What consumer protection/data privacy laws were violated?'
+      ]
+    };
+    const labels = FIELD_LABELS[weekNum] || [];
+    const answers = sub.answers || {};
+    const qaHTML = Object.keys(answers).sort().map((key, i) => `
+      <div style="margin-bottom:16px;padding:12px;background:#0a1628;border-radius:8px;border-left:3px solid var(--blue);">
+        <div style="font-size:.72rem;font-weight:700;color:var(--blue);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">Q${i+1} — ${labels[i] || key}</div>
+        <div style="font-size:.85rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${answers[key] || '<span style="color:var(--muted);">No answer provided</span>'}</div>
+      </div>`).join('');
+
+    content.innerHTML = `
+      <div style="margin-bottom:20px;">
+        <h3 style="margin:0 0 4px 0;">Project ${weekNum}: ${meta.incident}</h3>
+        <div style="font-size:.78rem;color:var(--muted);">${meta.type} &bull; Max ${meta.max} pts</div>
+        <div style="font-size:.75rem;color:var(--muted);margin-top:4px;">Student: <strong style="color:var(--text);">${sub.studentName || '—'}</strong> &bull; ID: ${sub.studentId || '—'} &bull; Submitted: ${new Date(sub.submittedAt).toLocaleString()}</div>
+      </div>
+      <div style="max-height:45vh;overflow-y:auto;margin-bottom:20px;padding-right:4px;">${qaHTML}</div>
+      <div style="border-top:1px solid var(--border);padding-top:18px;">
+        <div style="font-weight:700;color:var(--text);margin-bottom:12px;">📝 Enter Grade</div>
+        <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+          <div>
+            <label style="display:block;font-size:.75rem;color:var(--muted);margin-bottom:4px;font-weight:600;">Score (out of ${meta.max})</label>
+            <input type="number" id="grade-score-input" min="0" max="${meta.max}" value="${grade.score !== undefined ? grade.score : ''}" style="width:100px;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:.9rem;font-weight:700;">
+          </div>
+          <div style="flex:1;min-width:200px;">
+            <label style="display:block;font-size:.75rem;color:var(--muted);margin-bottom:4px;font-weight:600;">Instructor Feedback (optional)</label>
+            <textarea id="grade-feedback-input" rows="3" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:.82rem;font-family:inherit;resize:vertical;box-sizing:border-box;" placeholder="Write feedback for the student...">${grade.feedback || ''}</textarea>
+          </div>
+        </div>
+        <button onclick="saveGrade()" style="margin-top:14px;padding:10px 28px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;">💾 Save Grade</button>
+        ${grade.score !== undefined ? `<span style="margin-left:12px;font-size:.78rem;color:var(--muted);">Last graded: ${new Date(grade.gradedAt).toLocaleString()}</span>` : ''}
+      </div>`;
+  });
+}
+
+function saveGrade() {
+  const scoreEl = document.getElementById('grade-score-input');
+  const feedbackEl = document.getElementById('grade-feedback-input');
+  const score = parseInt(scoreEl.value);
+  const meta = PROJECT_META[_gradeModalWeek];
+  if (isNaN(score) || score < 0 || score > meta.max) {
+    alert('Please enter a valid score between 0 and ' + meta.max + '.');
+    return;
+  }
+  const gradeData = {
+    score,
+    maxScore: meta.max,
+    feedback: feedbackEl.value.trim(),
+    gradedAt: new Date().toISOString(),
+    gradedBy: localStorage.getItem('mccoe_admin_user') || 'Admin'
+  };
+  _fbDb.ref('mccoe_submissions/' + _gradeModalTempId + '/week' + _gradeModalWeek + '/grade').set(gradeData, err => {
+    if (err) { alert('Error saving grade: ' + err.message); return; }
+    closeGradeModal();
+    renderSubmissionsView();
+    alert('✅ Grade saved! The student will see it the next time they open the Project tab.');
+  });
+}
+
+function closeGradeModal() {
+  document.getElementById('grade-modal').style.display = 'none';
+  _gradeModalTempId = null;
+  _gradeModalWeek = null;
+}
+
+function updateSubBadge(count) {
+  const badge = document.getElementById('sub-badge');
+  if (!badge) return;
+  if (count > 0) { badge.style.display = 'inline'; badge.textContent = count; }
+  else badge.style.display = 'none';
+}
+
+function _legacyLoadSubmissions() {
+  const raw = localStorage.getItem('mccoe_submissions');
+  return raw ? JSON.parse(raw) : [];
+}
+function loadSubmissions() { return _legacyLoadSubmissions(); }
+function saveSubmissions(s) { localStorage.setItem('mccoe_submissions', JSON.stringify(s)); }
+
+function _legacyApproveAllPending() {
+  // kept for compatibility — no-op in new system
+}
+
+// ─── old pending submission stubs removed ───
+function renderSubCard() {}
+
+function approveSubmission() {}
+
+function rejectSubmission() {}
+
+function approveAllPending() {}
+
+function _oldRenderSubmissionsView_REMOVED() {
+  // removed — replaced by Firebase-based renderSubmissionsView above
+  const pending  = [];
+  const approved = _legacyLoadSubmissions();
 
   const pendSec = document.getElementById('submissions-pending-section');
   const pendDiv = document.getElementById('submissions-pending');
@@ -4946,30 +5189,6 @@ function approveSubmission(pendingIdx) {
   renderSubmissionsView();
   renderDashboard();
   updateSubBadge();
-}
-
-function rejectSubmission(pendingIdx) {
-  if (!confirm('Discard this submission? It will not be imported.')) return;
-  pendingSubmissions.splice(pendingIdx, 1);
-  renderSubmissionsView();
-  updateSubBadge();
-}
-
-function approveAllPending() {
-  const pending = pendingSubmissions.filter(s => s._status === 'pending');
-  if (!pending.length) { alert('No pending submissions.'); return; }
-  if (!confirm(`Approve and import all ${pending.length} pending submission(s)?`)) return;
-  // Approve in reverse order so indices stay valid
-  for (let i = pendingSubmissions.length - 1; i >= 0; i--) {
-    if (pendingSubmissions[i]._status === 'pending') approveSubmission(i);
-  }
-}
-
-function updateSubBadge() {
-  const cnt = pendingSubmissions.filter(s => s._status === 'pending').length;
-  const badge = document.getElementById('sub-badge');
-  if (cnt > 0) { badge.style.display = 'inline'; badge.textContent = cnt; }
-  else badge.style.display = 'none';
 }
 
 // ════════════════════════════════════════════
