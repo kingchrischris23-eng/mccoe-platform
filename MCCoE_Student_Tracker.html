@@ -1844,6 +1844,11 @@ function startFirebaseRegistryListener() {
     students = fbStudents;
     _lastSavedStr = fbStr;
     localStorage.setItem('mccoe_students', JSON.stringify(students));
+    // Re-merge any registry students not yet saved to mccoe_tracker_students
+    const _reg = JSON.parse(localStorage.getItem('mccoe_student_registry') || '[]');
+    let _regChanged = false;
+    _reg.forEach(function(entry) { if (_addRegistryEntry(entry)) _regChanged = true; });
+    if (_regChanged) { saveData(); return; } // saveData triggers a fresh render
     renderDashboard();
     const active = document.querySelector('.view.active');
     if (active) {
@@ -1991,13 +1996,30 @@ function adminRemoveLibraryItem(id) {
 function manualSync() {
   const btn = document.getElementById('syncBtn');
   if (btn) { btn.textContent = '🔄 Syncing...'; btn.disabled = true; }
-  const added = syncRegistry();
-  renderDashboard();
-  if (btn) {
-    btn.innerHTML = added ? '✅ Synced!' : '🔄 Sync';
-    btn.disabled = false;
-    if (added) setTimeout(() => { btn.textContent = '🔄 Sync'; updateSyncBadge(); }, 2000);
-    else updateSyncBadge();
+  // Full re-sync: pull fresh from Firebase then merge ALL registry entries
+  if (_fbDb) {
+    _fbDb.ref('mccoe_registry').once('value', function(snap) {
+      const data = snap.val() || {};
+      localStorage.setItem('mccoe_student_registry', JSON.stringify(Object.values(data)));
+      let added = false;
+      Object.values(data).forEach(function(entry) {
+        if (_addRegistryEntry(entry)) {
+          added = true;
+          _fbDb.ref('mccoe_registry/' + entry.tempId + '/addedToRoster').set(true);
+        }
+      });
+      if (added) saveData();
+      renderDashboard();
+      if (btn) {
+        btn.innerHTML = added ? '✅ Synced!' : '🔄 Sync';
+        btn.disabled = false;
+        setTimeout(() => { btn.textContent = '🔄 Sync'; updateSyncBadge(); }, 2000);
+      }
+    });
+  } else {
+    const added = syncRegistry();
+    renderDashboard();
+    if (btn) { btn.innerHTML = added ? '✅ Synced!' : '🔄 Sync'; btn.disabled = false; setTimeout(() => { btn.textContent = '🔄 Sync'; updateSyncBadge(); }, 2000); }
   }
 }
 
