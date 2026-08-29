@@ -600,6 +600,10 @@ select option { background:var(--surface); color:var(--text); }
     <span class="nav-icon">📊</span> Dashboard
   </button>
   <div class="nav-section">Management</div>
+  <button class="nav-btn" id="nav-pending" onclick="showView('pending',this)">
+    <span class="nav-icon">⏳</span> Pending Approvals
+    <span id="pending-badge" style="display:none;background:var(--red);color:#fff;font-size:.6rem;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:auto;"></span>
+  </button>
   <button class="nav-btn" onclick="showView('students',this)">
     <span class="nav-icon">👥</span> Students
   </button>
@@ -735,6 +739,20 @@ select option { background:var(--surface); color:var(--text); }
       </thead>
       <tbody id="dashboardTable"></tbody>
     </table>
+  </div>
+</div>
+
+<!-- ═══ PENDING APPROVALS ═══ -->
+<div id="view-pending" class="view">
+  <div class="page-header">
+    <div>
+      <h2>Pending Approvals</h2>
+      <p>Students who registered on the Hub and are waiting for your approval</p>
+    </div>
+    <button class="btn btn-outline" onclick="loadPendingApprovals()" style="font-size:.8rem;">🔄 Refresh</button>
+  </div>
+  <div id="pending-approvals-list">
+    <p style="color:var(--muted);padding:20px;">Loading...</p>
   </div>
 </div>
 
@@ -1849,6 +1867,7 @@ function startFirebaseRegistryListener() {
       if (sv && sv.classList.contains('active')) renderStudents();
     }
     updateSyncBadge();
+    updatePendingBadge();
   }, err => console.warn('Firebase registry error:', err));
 
   // Sync tracker-managed students across all admin sessions in real time
@@ -2159,6 +2178,7 @@ function showView(name, btn) {
   document.getElementById('view-'+name).classList.add('active');
   if(btn) btn.classList.add('active');
   if(name==='dashboard')    renderDashboard();
+  if(name==='pending')      loadPendingApprovals();
   if(name==='students')     renderStudents();
   if(name==='attendance')   renderAttendance();
   if(name==='survey')       renderSurveyView();
@@ -2173,6 +2193,106 @@ function showView(name, btn) {
   if(name==='tickets')      loadTicketManager();
   if(name==='schedule')     loadSchedule();
   if(name==='content')      loadContentManager();
+}
+
+// ════════════════════════════════════════════
+//  PENDING APPROVALS
+// ════════════════════════════════════════════
+function updatePendingBadge() {
+  if (!_fbDb) return;
+  _fbDb.ref('mccoe_registry').once('value', function(snap) {
+    var count = 0;
+    if (snap.exists()) {
+      snap.forEach(function(child) {
+        var d = child.val();
+        if (d && d.status === 'pending') count++;
+      });
+    }
+    var badge = document.getElementById('pending-badge');
+    if (!badge) return;
+    if (count > 0) {
+      badge.textContent = count;
+      badge.style.display = 'flex';
+    } else {
+      badge.style.display = 'none';
+    }
+  });
+}
+
+function loadPendingApprovals() {
+  var wrap = document.getElementById('pending-approvals-list');
+  if (!wrap) return;
+  wrap.innerHTML = '<p style="color:var(--muted);padding:20px;">Loading...</p>';
+
+  if (!_fbDb) {
+    wrap.innerHTML = '<p style="color:var(--red);padding:20px;">Firebase not connected. Cannot load pending approvals.</p>';
+    return;
+  }
+
+  _fbDb.ref('mccoe_registry').once('value', function(snap) {
+    var pending = [];
+    if (snap.exists()) {
+      snap.forEach(function(child) {
+        var d = child.val();
+        if (d && d.status === 'pending') {
+          pending.push({ key: child.key, data: d });
+        }
+      });
+    }
+
+    if (pending.length === 0) {
+      wrap.innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted);">' +
+        '<div style="font-size:2rem;margin-bottom:12px;">✅</div>' +
+        '<div style="font-size:1.1rem;font-weight:600;">No pending approvals</div>' +
+        '<div style="font-size:.85rem;margin-top:6px;">All registered students have been reviewed.</div>' +
+        '</div>';
+      updatePendingBadge();
+      return;
+    }
+
+    updatePendingBadge();
+    var html = '<div class="table-wrap"><table><thead><tr>' +
+      '<th>Name</th><th>Cohort</th><th>Student ID (Assigned)</th><th>Registered</th><th style="text-align:center;">Actions</th>' +
+      '</tr></thead><tbody>';
+
+    pending.forEach(function(p) {
+      var d = p.data;
+      var regDate = d.registeredAt ? new Date(d.registeredAt).toLocaleDateString() : '—';
+      html += '<tr>' +
+        '<td><strong>' + (d.name || '—') + '</strong></td>' +
+        '<td>' + (d.cohort || '—') + '</td>' +
+        '<td><span style="font-family:monospace;background:rgba(0,245,255,0.08);padding:2px 8px;border-radius:4px;">' + (d.assignedId || '—') + '</span></td>' +
+        '<td>' + regDate + '</td>' +
+        '<td style="text-align:center;">' +
+          '<button class="btn btn-red" style="font-size:.75rem;padding:5px 14px;margin-right:6px;" onclick="approvePending(\'' + p.key + '\',\'' + (d.name||'') + '\')">✅ Approve</button>' +
+          '<button class="btn btn-outline" style="font-size:.75rem;padding:5px 14px;color:var(--red);border-color:var(--red);" onclick="rejectPending(\'' + p.key + '\',\'' + (d.name||'') + '\')">✗ Reject</button>' +
+        '</td>' +
+        '</tr>';
+    });
+
+    html += '</tbody></table></div>' +
+      '<p style="color:var(--muted);font-size:.8rem;margin-top:12px;padding:0 4px;">Approving a student allows them to sign in to the Hub and access all pillars. Rejecting removes their registration permanently.</p>';
+
+    wrap.innerHTML = html;
+  });
+}
+
+function approvePending(key, name) {
+  if (!_fbDb) return;
+  if (!confirm('Approve ' + name + '? They will be able to sign in immediately.')) return;
+  _fbDb.ref('mccoe_registry/' + key + '/status').set('approved', function(err) {
+    if (err) { alert('Error approving student. Please try again.'); return; }
+    loadPendingApprovals();
+  });
+}
+
+function rejectPending(key, name) {
+  if (!_fbDb) return;
+  if (!confirm('Reject and permanently delete ' + name + '\'s registration? This cannot be undone.')) return;
+  _fbDb.ref('mccoe_registry/' + key).remove(function(err) {
+    if (err) { alert('Error rejecting student. Please try again.'); return; }
+    loadPendingApprovals();
+  });
 }
 
 // ════════════════════════════════════════════
@@ -5244,6 +5364,7 @@ function checkAdminLogin() {
     startFirebaseRegistryListener();
     startLoginListener();
     startSyncPoller();
+    updatePendingBadge();
     initLibrary();
   } else {
     document.getElementById('gate-error').style.display = 'block';

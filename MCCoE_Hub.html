@@ -799,6 +799,13 @@ footer strong {
         <input id="hub-reg-confirm" type="password" placeholder="Re-enter password..." autocomplete="new-password"
           style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:12px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:500;outline:none;transition:border-color .2s;"
           onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
+          onkeydown="if(event.key==='Enter')document.getElementById('hub-reg-code').focus()">
+      </div>
+      <div style="margin-bottom:12px;text-align:left;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">INVITE CODE</div>
+        <input id="hub-reg-code" type="text" placeholder="Enter code provided by your instructor..." autocomplete="off" spellcheck="false"
+          style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:12px 16px;color:#fff;font-family:'Share Tech Mono',monospace;font-size:14px;font-weight:500;outline:none;transition:border-color .2s;letter-spacing:2px;"
+          onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
           onkeydown="if(event.key==='Enter')doHubRegister()">
       </div>
       <div id="hub-reg-msg" style="min-height:22px;font-size:11px;margin-bottom:14px;font-family:'Share Tech Mono',monospace;letter-spacing:1px;"></div>
@@ -872,7 +879,7 @@ function doHubLogin() {
     snap.forEach(function(child) {
       var d = child.val();
       if (d && d.name && d.name.toLowerCase() === name.toLowerCase()) {
-        found = { key: child.key, name: d.name, password: d.password };
+        found = { key: child.key, name: d.name, password: d.password, status: d.status || 'approved' };
       }
     });
     if (!found) {
@@ -883,6 +890,10 @@ function doHubLogin() {
       hubMsg('Incorrect password. Try again or ask your coach to reset it.', '#ff6b6b');
       document.getElementById('hub-login-pass').value = '';
       document.getElementById('hub-login-pass').focus();
+      return;
+    }
+    if (found.status === 'pending') {
+      hubMsg('Your account is pending instructor approval. Please wait for your instructor to approve your account before signing in.', '#ffd700');
       return;
     }
     hubLoginSuccess(found.name, found.key, true);
@@ -899,13 +910,21 @@ function doHubRegister() {
 
   function regMsg(text, color) { msgEl.textContent = text; msgEl.style.color = color || '#e8e8e8'; }
 
+  var code    = (document.getElementById('hub-reg-code').value || '').trim();
+  var VALID_CODES = ['MCCoE2026', 'MCCOE2026'];
+
   if (!name)    { regMsg('Please enter your full name.', '#ff6b6b'); return; }
   if (name.split(' ').filter(Boolean).length < 2) { regMsg('Please enter your first AND last name.', '#ff6b6b'); return; }
   if (!pass)    { regMsg('Please create a password.', '#ff6b6b'); return; }
   if (pass.length < 4) { regMsg('Password must be at least 4 characters.', '#ff6b6b'); return; }
   if (pass !== confirm) { regMsg('Passwords do not match.', '#ff6b6b'); return; }
+  if (!code || !VALID_CODES.includes(code)) {
+    regMsg('Invalid invite code. Ask your instructor for the correct code.', '#ff6b6b');
+    document.getElementById('hub-reg-code').focus();
+    return;
+  }
 
-  regMsg('Creating your account...', '#00f5ff');
+  regMsg('Submitting registration request...', '#00f5ff');
   document.getElementById('hub-reg-btn').disabled = true;
 
   // Check for duplicates and calculate next student ID
@@ -929,12 +948,11 @@ function doHubRegister() {
     var tempId     = 'PENDING_' + Date.now();
     var hash       = _hubHashSync(pass);
     var assignedId = 'MCCoE-' + String(maxNum + 1).padStart(3, '0');
-    var entry      = { tempId: tempId, name: name, cohort: cohort, password: hash, registeredAt: new Date().toISOString(), addedToRoster: false, assignedId: assignedId };
+    var entry      = { tempId: tempId, name: name, cohort: cohort, password: hash, registeredAt: new Date().toISOString(), addedToRoster: false, assignedId: assignedId, status: 'pending' };
     _hubDb.ref('mccoe_registry/' + tempId).set(entry, function(err) {
       document.getElementById('hub-reg-btn').disabled = false;
       if (err) { regMsg('Error saving account. Please try again.', '#ff6b6b'); return; }
-      regMsg('Account created! Your ID: ' + assignedId + ' — signing you in...', '#00ff41');
-      setTimeout(function() { hubLoginSuccess(name, tempId, true); }, 1200);
+      regMsg('Registration submitted! Your instructor will review and approve your account. Come back to Sign In once approved.', '#00ff41');
     });
   });
 }
