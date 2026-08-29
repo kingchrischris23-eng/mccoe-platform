@@ -2600,48 +2600,6 @@ function renderStudentDashboard() {
       </div>
     </div>
 
-    <!-- CURRICULUM DOWNLOADS -->
-    <div style="background:#fff;border-radius:12px;padding:22px 26px;border:1px solid var(--border);margin-top:24px;box-shadow:0 2px 6px rgba(0,0,0,.05);">
-      <div style="font-size:14px;font-weight:700;color:var(--dark);margin-bottom:4px;padding-bottom:10px;border-bottom:2px solid var(--bg);">📁 Curriculum — Download Your Project Docs</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:16px;">
-
-        ${[
-          { proj:'1–2', title:'Target Data Breach', year:'2013', color:'#c0392b',
-            f1:'Project1_Target_Data_Breach_2013_Part1_Deep_Dive.pdf?v=1',
-            f2:'Project2_Target_Data_Breach_2013_Part2_Executive_Summary.pdf?v=1' },
-          { proj:'3–4', title:'Colonial Pipeline', year:'2021', color:'#e67e22',
-            f1:'Project3_Colonial_Pipeline_Ransomware_2021_Part1_Deep_Dive.pdf?v=1',
-            f2:'Project4_Colonial_Pipeline_Ransomware_2021_Part2_Executive_Summary.pdf?v=1' },
-          { proj:'5–6', title:'SolarWinds', year:'2020', color:'#8e44ad',
-            f1:'Project5_SolarWinds_Supply_Chain_Attack_2020_Part1_Deep_Dive.pdf?v=1',
-            f2:'Project6_SolarWinds_Supply_Chain_Attack_2020_Part2_Executive_Summary.pdf?v=1' },
-          { proj:'7–8', title:'Equifax Data Breach', year:'2017', color:'#2980b9',
-            f1:'Project7_Equifax_Data_Breach_2017_Part1_Deep_Dive.pdf?v=1',
-            f2:'Project8_Equifax_Data_Breach_2017_Part2_Executive_Summary.pdf?v=1' },
-        ].map(inc => `
-          <div style="border:1px solid #eee;border-radius:10px;padding:16px;border-top:3px solid ${inc.color};">
-            <div style="font-size:10px;font-weight:700;color:${inc.color};letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Project ${inc.proj}</div>
-            <div style="font-size:13px;font-weight:800;color:var(--dark);margin-bottom:12px;">${inc.title} (${inc.year})</div>
-            <div style="display:flex;flex-direction:column;gap:7px;">
-              <a href="${inc.f1}" download style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(0,0,0,.03);border:1px solid #ddd;border-radius:6px;color:var(--dark);font-size:12px;font-weight:600;text-decoration:none;transition:all .15s;" onmouseover="this.style.background='rgba(0,0,0,.08)'" onmouseout="this.style.background='rgba(0,0,0,.03)'">
-                <span style="font-size:16px;">📄</span> Part 1 — Deep Dive
-              </a>
-              <a href="${inc.f2}" download style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(0,0,0,.03);border:1px solid #ddd;border-radius:6px;color:var(--dark);font-size:12px;font-weight:600;text-decoration:none;transition:all .15s;" onmouseover="this.style.background='rgba(0,0,0,.08)'" onmouseout="this.style.background='rgba(0,0,0,.03)'">
-                <span style="font-size:16px;">📝</span> Part 2 — Exec Summary
-              </a>
-            </div>
-          </div>`).join('')}
-
-        <div style="border:1px solid #eee;border-radius:10px;padding:16px;border-top:3px solid var(--red);display:flex;flex-direction:column;justify-content:center;">
-          <div style="font-size:10px;font-weight:700;color:var(--red);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;">Reference</div>
-          <div style="font-size:13px;font-weight:800;color:var(--dark);margin-bottom:12px;">Course Syllabus</div>
-          <a href="MCCoE_Course_Syllabus_8Week.docx" download style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(0,0,0,.03);border:1px solid #ddd;border-radius:6px;color:var(--dark);font-size:12px;font-weight:600;text-decoration:none;transition:all .15s;" onmouseover="this.style.background='rgba(0,0,0,.08)'" onmouseout="this.style.background='rgba(0,0,0,.03)'">
-            <span style="font-size:16px;">📋</span> Download Syllabus
-          </a>
-        </div>
-
-      </div>
-    </div>
   `;
 }
 function updateOverallProgress() {
