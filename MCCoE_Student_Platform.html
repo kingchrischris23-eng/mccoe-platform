@@ -4633,7 +4633,7 @@ function closeTicketBoard() {
 function loadTicketBoard() {
   const wrap = document.getElementById('ticket-list-wrap');
   wrap.innerHTML = '<div style="color:#88aa99;text-align:center;padding:40px;">Loading tickets...</div>';
-  if (!window._fbDb) { renderTicketBoard(); return; }
+  if (!_fbDb) { renderTicketBoard(); return; }
   const name = _tkStudentName;
   firebase.database().ref('mccoe_tickets/assignments').once('value').then(snap => {
     _tkAssignments = snap.val() || {};
@@ -4796,7 +4796,7 @@ function saveTicketField(ticketId, field, value) {
   const name = _tkStudentName;
   if (!_tkProgress[ticketId]) _tkProgress[ticketId] = { status:'New', priority:'P3', notes:[] };
   _tkProgress[ticketId][field] = value;
-  if (window._fbDb) {
+  if (_fbDb) {
     firebase.database().ref('mccoe_tickets/work/' + name + '/' + ticketId + '/' + field).set(value);
   }
 }
@@ -4816,7 +4816,7 @@ function addTicketNote(ticketId) {
   const note = { text, ts };
   _tkProgress[ticketId].notes.push(note);
 
-  if (window._fbDb) {
+  if (_fbDb) {
     const noteRef = firebase.database().ref('mccoe_tickets/work/' + name + '/' + ticketId + '/notes');
     noteRef.set(_tkProgress[ticketId].notes);
   }
@@ -4942,7 +4942,7 @@ function submitResolve(ticketId, isHard) {
   if (!_tkProgress[ticketId]) _tkProgress[ticketId] = { status:'New', priority:'P3', notes:[] };
   Object.assign(_tkProgress[ticketId], { status:finalStatus, disposition:disp, resolution, resolvedAt });
 
-  if (window._fbDb) {
+  if (_fbDb) {
     firebase.database().ref('mccoe_tickets/work/' + name + '/' + ticketId).update(
       { status:finalStatus, disposition:disp, resolution, resolvedAt }
     );
