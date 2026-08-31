@@ -1887,12 +1887,6 @@ function startFirebaseRegistryListener() {
     students = fbStudents;
     _lastSavedStr = fbStr;
     localStorage.setItem('mccoe_students', JSON.stringify(students));
-    // Re-merge any registry students not yet saved to mccoe_tracker_students
-    const _reg = JSON.parse(localStorage.getItem('mccoe_student_registry') || '[]');
-    let _regChanged = false;
-    _reg.forEach(function(entry) { if (_addRegistryEntry(entry)) _regChanged = true; });
-    if (_assignMissingIds()) _regChanged = true;
-    if (_regChanged) { saveData(); return; } // saveData triggers a fresh render
     renderDashboard();
     const active = document.querySelector('.view.active');
     if (active) {
