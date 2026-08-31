@@ -4661,11 +4661,15 @@ function renderTicketBoard() {
 
   const wrap = document.getElementById('ticket-list-wrap');
   if (!myTickets.length) {
+    var assignedTo = Object.entries(_tkAssignments).map(function(e){return e[0]+':'+e[1];}).join(', ') || 'none loaded';
     wrap.innerHTML = '<div style="color:#88aa99;text-align:center;padding:40px;line-height:2;">'
       + '<div style="font-size:2rem;margin-bottom:12px;">&#127915;</div>'
       + '<div style="font-size:1rem;font-weight:700;color:#00e676;">No tickets assigned yet</div>'
       + '<div style="font-size:.85rem;margin-top:8px;">Your instructor will assign tickets to you. Check back soon.</div>'
-      + '<div style="font-size:.75rem;margin-top:16px;color:#556;padding:8px 16px;background:rgba(0,0,0,0.3);border-radius:6px;display:inline-block;">Logged in as: <strong style="color:#00f5ff;">' + _tkStudentName + '</strong></div>'
+      + '<div style="font-size:.75rem;margin-top:16px;color:#556;padding:8px 16px;background:rgba(0,0,0,0.3);border-radius:6px;display:inline-block;text-align:left;">'
+      + 'Logged in as: <strong style="color:#00f5ff;">' + _tkStudentName + '</strong><br>'
+      + 'Assignments loaded: <strong style="color:#ffd700;">' + assignedTo + '</strong>'
+      + '</div>'
       + '</div>';
     return;
   }
