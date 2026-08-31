@@ -2724,7 +2724,7 @@ function renderWeek(num) {
           }).join('')}
         </div>
         <div style="margin-top:16px;font-size:13px;color:#666;">
-          Completed: <strong>${p.labsChecked.length} / ${w.labs.length}</strong>
+          Completed: <strong id="lab-counter-${num}">${p.labsChecked.length} / ${w.labs.length}</strong>
         </div>
       </div>
       <div class="card">
@@ -3424,6 +3424,12 @@ function toggleLab(weekNum, labIdx) {
     if (item) item.classList.remove('done');
   }
   saveState();
+  // Update counter text live
+  const w = WEEKS.find(x => x.num === weekNum);
+  const counter = document.getElementById('lab-counter-' + weekNum);
+  if (counter && w) counter.textContent = p.labsChecked.length + ' / ' + w.labs.length;
+  // Refresh overall dashboard progress bar
+  updateOverallProgress();
 }
 
 function toggleObjective(weekNum, idx) {
