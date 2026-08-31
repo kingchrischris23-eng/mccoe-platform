@@ -4621,7 +4621,7 @@ let _tkStudentName = '';
 function openTicketBoard() {
   document.getElementById('ticket-board-modal').style.display = 'block';
   document.body.style.overflow = 'hidden';
-  _tkStudentName = (window._selectedProfile && window._selectedProfile.name) || 'Unknown';
+  _tkStudentName = (state && state.student && state.student.name) || 'Unknown';
   loadTicketBoard();
 }
 function closeTicketBoard() {
