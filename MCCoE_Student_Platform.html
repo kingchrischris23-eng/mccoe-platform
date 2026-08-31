@@ -4571,7 +4571,7 @@ const TICKET_BANK = [
     title:'Business Email Compromise — urgent wire-transfer request "from the CFO"',
     reporter:'amanda.singh@cedarcreek-ind.com (Accounts Payable)',
     created:'2026-08-19 09:20', tags:['bec','fraud','phishing','email'],
-    desc:'AP received an email appearing to be from CFO Greg Palmer instructing an "urgent, confidential" wire of $48,750 to a new vendor bank account, stressing not to call because he is in back-to-back meetings. Reply-to is g.palmer@cedarcreek-lnd.com (note lnd vs ind). The email references a real internal project name. AP has NOT sent the wire yet but says the tone is convincing. Determine legitimacy, preserve evidence, and define the response + who must be notified. Also assess whether the CFO's real mailbox is compromised.' },
+    desc:'AP received an email appearing to be from CFO Greg Palmer instructing an "urgent, confidential" wire of $48,750 to a new vendor bank account, stressing not to call because he is in back-to-back meetings. Reply-to is g.palmer@cedarcreek-lnd.com (note lnd vs ind). The email references a real internal project name. AP has NOT sent the wire yet but says the tone is convincing. Determine legitimacy, preserve evidence, and define the response + who must be notified. Also assess whether the CFO real mailbox is compromised.' },
   { id:'TCK-3004', tier:'Hard', type:'Security', defaultPriority:'P1',
     title:'Lateral movement — service account running admin tools across hosts',
     reporter:'edr-console@cedarcreek-ind.com (automated)',
@@ -4581,7 +4581,7 @@ const TICKET_BANK = [
     title:'Data exfiltration — large encrypted upload to unknown cloud storage',
     reporter:'proxy-alerts@cedarcreek-ind.com (automated)',
     created:'2026-08-19 04:10', tags:['exfiltration','data-loss','incident'],
-    desc:'The web proxy logged host ENG-14 uploading 6.8 GB of encrypted .7z archives to mega[.]nz-style storage between 03:50-04:08 — outside business hours and far above this host's normal outbound baseline. The same host earlier had the DLP/USB alert (TCK-2005). Determine whether this is exfiltration tied to the broader incident or a separate event, decide whether to block the destination and isolate the host, and outline what leadership/legal notification may be required for potential data loss.' },
+    desc:'The web proxy logged host ENG-14 uploading 6.8 GB of encrypted .7z archives to mega[.]nz-style storage between 03:50-04:08 — outside business hours and far above this host normal outbound baseline. The same host earlier had the DLP/USB alert (TCK-2005). Determine whether this is exfiltration tied to the broader incident or a separate event, decide whether to block the destination and isolate the host, and outline what leadership/legal notification may be required for potential data loss.' },
 ];
 
 function tkStatusStyle(st) {
