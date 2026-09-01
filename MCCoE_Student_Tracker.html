@@ -1082,12 +1082,37 @@ select option { background:var(--surface); color:var(--text); }
     <button class="btn btn-outline" onclick="loadAcademyScores()">↻ Refresh</button>
   </div>
 
-  <div id="academy-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;"></div>
+  <!-- Tab toggle -->
+  <div style="display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content;">
+    <button id="acad-tab-live" onclick="acadShowTab('live')"
+      style="padding:9px 22px;border:none;background:rgba(0,245,255,0.1);color:var(--cyan);cursor:pointer;font-family:var(--font-b);font-size:.82rem;font-weight:700;border-right:1px solid var(--border);">
+      Live Scores
+    </button>
+    <button id="acad-tab-grades" onclick="acadShowTab('grades')"
+      style="padding:9px 22px;border:none;background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font-b);font-size:.82rem;font-weight:700;">
+      Weekly Grades
+    </button>
+  </div>
 
-  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;">
-    <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase;">Student Leaderboard</div>
-    <div id="academy-table-wrap">
-      <div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0;">Loading scores...</div>
+  <!-- Live Scores Panel -->
+  <div id="acad-panel-live">
+    <div id="academy-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;"></div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;">
+      <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase;">Student Leaderboard</div>
+      <div id="academy-table-wrap">
+        <div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0;">Loading scores...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly Grades Panel -->
+  <div id="acad-panel-grades" style="display:none;">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;">
+      <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:6px;letter-spacing:.5px;text-transform:uppercase;">Pillar 2 — Weekly Assessment Grades</div>
+      <div style="font-size:.8rem;color:var(--muted);margin-bottom:18px;">Enter scores (0–100) for each student per week. Saves to Firebase automatically.</div>
+      <div id="academy-grades-wrap">
+        <div style="color:var(--muted);padding:20px;">Loading...</div>
+      </div>
     </div>
   </div>
 </div>
@@ -2292,6 +2317,78 @@ function rejectPending(key, name) {
 // ════════════════════════════════════════════
 //  ACADEMY SCORES
 // ════════════════════════════════════════════
+function acadShowTab(tab) {
+  var isLive = tab === 'live';
+  document.getElementById('acad-panel-live').style.display   = isLive ? '' : 'none';
+  document.getElementById('acad-panel-grades').style.display = isLive ? 'none' : '';
+  document.getElementById('acad-tab-live').style.background   = isLive ? 'rgba(0,245,255,0.1)' : 'transparent';
+  document.getElementById('acad-tab-live').style.color        = isLive ? 'var(--cyan)' : 'var(--muted)';
+  document.getElementById('acad-tab-grades').style.background = isLive ? 'transparent' : 'rgba(0,245,255,0.1)';
+  document.getElementById('acad-tab-grades').style.color      = isLive ? 'var(--muted)' : 'var(--cyan)';
+  if (!isLive) loadAcademyGrades();
+}
+
+function loadAcademyGrades() {
+  var wrap = document.getElementById('academy-grades-wrap');
+  if (!wrap) return;
+  if (!_fbDb) { wrap.innerHTML = '<div style="color:var(--red);padding:20px;">Firebase not connected.</div>'; return; }
+  wrap.innerHTML = '<div style="color:var(--muted);padding:20px;">Loading...</div>';
+
+  _fbDb.ref('mccoe_academy').once('value', function(snap) {
+    var academyData = snap.val() || {};
+
+    // Build student list from tracker roster
+    var sList = students.filter(s => s.name).map(s => ({
+      name: s.name,
+      key: (s.portalTempId || s.name.replace(/\s+/g,'_').toLowerCase())
+    }));
+
+    if (sList.length === 0) {
+      wrap.innerHTML = '<div style="color:var(--muted);padding:20px;">No students on roster yet.</div>';
+      return;
+    }
+
+    var weeks = [1,2,3,4,5,6,7,8];
+    var html = '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;min-width:700px;">';
+    html += '<thead><tr style="border-bottom:2px solid var(--border);">';
+    html += '<th style="padding:10px;text-align:left;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;min-width:160px;">Student</th>';
+    weeks.forEach(function(w) {
+      html += '<th style="padding:10px;text-align:center;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Wk ' + w + '</th>';
+    });
+    html += '<th style="padding:10px;text-align:center;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Avg</th>';
+    html += '</tr></thead><tbody>';
+
+    sList.forEach(function(s) {
+      var saved = (academyData[s.key] && academyData[s.key].weeklyGrades) ? academyData[s.key].weeklyGrades : {};
+      html += '<tr style="border-bottom:1px solid var(--border);">';
+      html += '<td style="padding:10px;font-weight:600;color:var(--text);font-size:.85rem;">' + s.name + '</td>';
+      var total = 0; var count = 0;
+      weeks.forEach(function(w) {
+        var val = saved[w] !== undefined ? saved[w] : '';
+        if (val !== '') { total += Number(val); count++; }
+        html += '<td style="padding:6px;text-align:center;">' +
+          '<input type="number" min="0" max="100" value="' + val + '" placeholder="—" ' +
+          'style="width:54px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:4px;color:var(--text);text-align:center;padding:5px 4px;font-size:.82rem;" ' +
+          'onchange="saveAcademyGrade(\'' + s.key + '\',' + w + ',this.value)">' +
+          '</td>';
+      });
+      var avg = count > 0 ? Math.round(total / count) : '—';
+      var avgColor = count > 0 ? (avg >= 70 ? 'var(--green)' : avg >= 50 ? 'var(--yellow)' : 'var(--red)') : 'var(--muted)';
+      html += '<td style="padding:10px;text-align:center;font-weight:700;color:' + avgColor + ';">' + avg + (count > 0 ? '%' : '') + '</td>';
+      html += '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    wrap.innerHTML = html;
+  });
+}
+
+function saveAcademyGrade(studentKey, week, value) {
+  if (!_fbDb) return;
+  var score = value === '' ? null : Math.min(100, Math.max(0, parseInt(value)));
+  _fbDb.ref('mccoe_academy/' + studentKey + '/weeklyGrades/' + week).set(score);
+}
+
 function loadAcademyScores() {
   const wrap = document.getElementById('academy-table-wrap');
   const kpis = document.getElementById('academy-kpis');
