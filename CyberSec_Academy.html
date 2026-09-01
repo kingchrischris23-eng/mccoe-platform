@@ -716,10 +716,11 @@ function showQuizResults() {
   document.getElementById('q-nxt').textContent = '[ RETAKE QUIZ ]';
   document.getElementById('q-nxt').style.display = 'inline-block';
   document.getElementById('q-nxt').onclick = function() {
-    score -= _quizPts;  // remove old quiz pts from total before reset
-    _quizPts = 0;
+    score = score - _quizPts;   // strip old quiz points from total
+    _quizPts = 0;               // reset quiz counter to 0
     document.getElementById('pts').textContent = score;
     updateRank();
+    saveProgress();             // sync reset to Firebase immediately
     document.getElementById('q-nxt').onclick = nextQ;
     initQuiz();
   };
