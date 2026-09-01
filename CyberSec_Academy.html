@@ -661,7 +661,7 @@ function renderQ() {
   });
   document.getElementById('q-fb').style.display = 'none';
   document.getElementById('q-nxt').style.display = 'none';
-  document.getElementById('q-nxt').textContent = qi === QS.length-1 ? '[ RESTART QUIZ ]' : '[ NEXT QUESTION >> ]';
+  document.getElementById('q-nxt').textContent = qi === QS.length-1 ? '[ VIEW RESULTS ]' : '[ NEXT QUESTION >> ]';
   answered = false;
 }
 
@@ -689,8 +689,37 @@ function answerQ(i) {
 }
 
 function nextQ() {
-  qi = (qi+1) % QS.length;
-  renderQ();
+  if (qi === QS.length - 1) {
+    showQuizResults();
+  } else {
+    qi++;
+    renderQ();
+  }
+}
+
+function showQuizResults() {
+  var pct = Math.round((_quizPts / (QS.length * 10)) * 100);
+  var grade = pct >= 90 ? 'EXPERT' : pct >= 70 ? 'PROFICIENT' : pct >= 50 ? 'DEVELOPING' : 'NOVICE';
+  var gradeColor = pct >= 90 ? 'var(--g)' : pct >= 70 ? '#00f5ff' : pct >= 50 ? '#ffd700' : 'var(--red)';
+  saveProgress();
+  document.getElementById('q-text').innerHTML =
+    '<div style="text-align:center;padding:20px 0;">' +
+    '<div style="font-size:11px;letter-spacing:3px;color:var(--gd);margin-bottom:8px;">QUIZ COMPLETE</div>' +
+    '<div style="font-size:2.5rem;font-weight:800;color:' + gradeColor + ';margin-bottom:4px;">' + pct + '%</div>' +
+    '<div style="font-size:11px;letter-spacing:2px;color:' + gradeColor + ';margin-bottom:16px;">' + grade + '</div>' +
+    '<div style="font-size:13px;color:var(--text);margin-bottom:8px;">Quiz Score: <strong style="color:var(--g)">' + _quizPts + ' pts</strong> out of ' + (QS.length * 10) + ' possible</div>' +
+    '<div style="font-size:12px;color:var(--gd);margin-bottom:20px;">Total Academy Score: <strong style="color:#00f5ff">' + score + ' pts</strong></div>' +
+    '<div style="font-size:11px;color:var(--g);letter-spacing:1px;margin-bottom:6px;">✔ SCORE SAVED TO YOUR PROFILE</div>' +
+    '</div>';
+  document.getElementById('q-opts').innerHTML = '';
+  document.getElementById('q-fb').style.display = 'none';
+  document.getElementById('q-nxt').textContent = '[ RETAKE QUIZ ]';
+  document.getElementById('q-nxt').style.display = 'inline-block';
+  document.getElementById('q-nxt').onclick = function() {
+    _quizPts = 0;
+    initQuiz();
+    document.getElementById('q-nxt').onclick = nextQ;
+  };
 }
 
 // ===== SOC DATA =====
