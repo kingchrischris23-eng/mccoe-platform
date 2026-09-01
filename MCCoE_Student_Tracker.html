@@ -4333,9 +4333,14 @@ function deleteStudent(id) {
 //  ATTENDANCE
 // ════════════════════════════════════════════
 function renderAttendance() {
-  const date = document.getElementById('attendDate').value;
-  if(!date) return;
+  let date = document.getElementById('attendDate').value;
+  if(!date) {
+    date = new Date().toISOString().split('T')[0];
+    document.getElementById('attendDate').value = date;
+  }
+  if(!students.length){ document.getElementById('attendanceList').innerHTML='<div style="color:var(--muted);padding:20px;">No students on roster yet.</div>'; return; }
   document.getElementById('attendanceList').innerHTML = students.map(s=>{
+    if(!s.attendance) s.attendance = {};  // guard against undefined
     // Portal login data for this date
     const ld = s.portalTempId ? _loginsCache[s.portalTempId] : null;
     const dayLogins = ld && ld.history ? Object.values(ld.history).filter(h=>h.date===date).sort((a,b)=>a.ts.localeCompare(b.ts)) : [];
@@ -4375,6 +4380,8 @@ function renderAttendance() {
 
 function markAttendance(studentId, date, status, btn) {
   const s = students.find(x=>x.id===studentId);
+  if(!s) return;
+  if(!s.attendance) s.attendance = {};
   s.attendance[date] = status;
   saveData();
   // Update button styles in the row
