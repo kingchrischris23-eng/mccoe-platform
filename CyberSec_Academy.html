@@ -716,9 +716,12 @@ function showQuizResults() {
   document.getElementById('q-nxt').textContent = '[ RETAKE QUIZ ]';
   document.getElementById('q-nxt').style.display = 'inline-block';
   document.getElementById('q-nxt').onclick = function() {
+    score -= _quizPts;  // remove old quiz pts from total before reset
     _quizPts = 0;
-    initQuiz();
+    document.getElementById('pts').textContent = score;
+    updateRank();
     document.getElementById('q-nxt').onclick = nextQ;
+    initQuiz();
   };
 }
 
