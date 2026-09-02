@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>5 Phases of Hacking vs Cyber Kill Chain — MCCoE</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background:#fff; color:#111; padding:30px; }
+
+  .header {
+    text-align:center;
+    border-bottom:4px solid #cc0000;
+    padding-bottom:16px;
+    margin-bottom:28px;
+  }
+  .header .org { font-size:.8rem; font-weight:700; color:#cc0000; letter-spacing:3px; text-transform:uppercase; margin-bottom:4px; }
+  .header h1 { font-size:1.6rem; font-weight:900; color:#111; margin-bottom:4px; }
+  .header .sub { font-size:.85rem; color:#555; }
+
+  .diagram {
+    display:grid;
+    grid-template-columns:1fr 60px 1fr;
+    gap:0;
+    max-width:960px;
+    margin:0 auto;
+  }
+
+  .col-header {
+    text-align:center;
+    font-size:.75rem;
+    font-weight:800;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    padding:10px;
+    margin-bottom:8px;
+    border-radius:4px;
+  }
+  .col-header.left  { background:#1a1a2e; color:#fff; }
+  .col-header.right { background:#cc0000; color:#fff; }
+  .col-header.mid   { background:transparent; }
+
+  /* Color bands for correlation groups */
+  .g1 { --gcolor:#1565c0; --glight:#e3f0ff; }
+  .g2 { --gcolor:#6a1a8a; --glight:#f3e8ff; }
+  .g3 { --gcolor:#cc0000; --glight:#ffe8e8; }
+  .g4 { --gcolor:#2e7d32; --glight:#e8f5e9; }
+  .g5 { --gcolor:#e65100; --glight:#fff3e0; }
+
+  .phase-box {
+    border:2px solid var(--gcolor);
+    border-radius:8px;
+    padding:14px 16px;
+    margin-bottom:10px;
+    background:var(--glight);
+    position:relative;
+  }
+  .phase-num {
+    display:inline-block;
+    background:var(--gcolor);
+    color:#fff;
+    font-size:.68rem;
+    font-weight:800;
+    letter-spacing:1px;
+    padding:2px 8px;
+    border-radius:3px;
+    margin-bottom:6px;
+    text-transform:uppercase;
+  }
+  .phase-title {
+    font-size:1rem;
+    font-weight:800;
+    color:var(--gcolor);
+    margin-bottom:4px;
+  }
+  .phase-desc {
+    font-size:.75rem;
+    color:#444;
+    line-height:1.5;
+  }
+
+  /* Kill chain boxes — can span multiple */
+  .kc-group {
+    margin-bottom:10px;
+  }
+  .kc-box {
+    border:2px solid var(--gcolor);
+    border-radius:8px;
+    padding:10px 14px;
+    background:var(--glight);
+    margin-bottom:6px;
+  }
+  .kc-box:last-child { margin-bottom:0; }
+  .kc-num {
+    display:inline-block;
+    background:var(--gcolor);
+    color:#fff;
+    font-size:.62rem;
+    font-weight:800;
+    padding:2px 7px;
+    border-radius:3px;
+    margin-bottom:4px;
+    text-transform:uppercase;
+    letter-spacing:.5px;
+  }
+  .kc-title {
+    font-size:.9rem;
+    font-weight:800;
+    color:var(--gcolor);
+    margin-bottom:3px;
+  }
+  .kc-desc {
+    font-size:.72rem;
+    color:#444;
+    line-height:1.5;
+  }
+
+  /* Connector column */
+  .connector-col {
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    padding-top:0;
+  }
+  .arrow-block {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--gcolor);
+    font-size:1.4rem;
+    font-weight:900;
+    flex:1;
+    min-height:80px;
+  }
+  .arrow-block.g1 { color:#1565c0; }
+  .arrow-block.g2 { color:#6a1a8a; }
+  .arrow-block.g3 { color:#cc0000; }
+  .arrow-block.g4 { color:#2e7d32; }
+  .arrow-block.g5 { color:#e65100; }
+
+  .mid-header-spacer { height:42px; }
+
+  /* Legend */
+  .legend {
+    max-width:960px;
+    margin:24px auto 0;
+    padding:16px 20px;
+    border:1px solid #ddd;
+    border-radius:8px;
+    background:#f9f9f9;
+  }
+  .legend-title { font-size:.75rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:#555; margin-bottom:10px; }
+  .legend-items { display:flex; gap:20px; flex-wrap:wrap; }
+  .legend-item { display:flex; align-items:center; gap:8px; font-size:.75rem; color:#333; }
+  .legend-dot { width:14px; height:14px; border-radius:3px; flex-shrink:0; }
+
+  /* Key takeaways */
+  .takeaways {
+    max-width:960px;
+    margin:16px auto 0;
+    padding:16px 20px;
+    border:2px solid #cc0000;
+    border-radius:8px;
+    background:#fff8f8;
+  }
+  .takeaways-title { font-size:.75rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:#cc0000; margin-bottom:10px; }
+  .takeaways ul { padding-left:18px; }
+  .takeaways li { font-size:.78rem; color:#333; line-height:1.7; }
+
+  .footer {
+    text-align:center;
+    margin-top:24px;
+    font-size:.7rem;
+    color:#999;
+    border-top:1px solid #eee;
+    padding-top:12px;
+  }
+
+  @media print {
+    body { padding:16px; }
+    @page { margin:0.5in; size:letter landscape; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="org">MCCoE Cybersecurity Apprenticeship Program</div>
+  <h1>5 Phases of Hacking &nbsp;↔&nbsp; Cyber Kill Chain</h1>
+  <div class="sub">How attacker methodology maps to Lockheed Martin's Cyber Kill Chain framework</div>
+</div>
+
+<div class="diagram">
+
+  <!-- LEFT HEADER -->
+  <div class="col-header left">5 Phases of Hacking</div>
+  <div class="col-header mid"></div>
+  <div class="col-header right">Cyber Kill Chain (Lockheed Martin)</div>
+
+  <!-- ═══ GROUP 1 ═══ -->
+  <div class="phase-box g1">
+    <div class="phase-num">Phase 1</div>
+    <div class="phase-title">Reconnaissance</div>
+    <div class="phase-desc">Gathering information about the target — IP ranges, employees, technologies, open ports, social media, public records, DNS records.</div>
+  </div>
+
+  <div class="connector-col">
+    <div class="arrow-block g1">⟶</div>
+  </div>
+
+  <div class="kc-group g1">
+    <div class="kc-box g1">
+      <div class="kc-num">Step 1</div>
+      <div class="kc-title">Reconnaissance</div>
+      <div class="kc-desc">Attacker researches the target using OSINT, WHOIS, Shodan, LinkedIn, job postings, and passive scanning to identify entry points.</div>
+    </div>
+  </div>
+
+  <!-- ═══ GROUP 2 ═══ -->
+  <div class="phase-box g2">
+    <div class="phase-num">Phase 2</div>
+    <div class="phase-title">Scanning &amp; Enumeration</div>
+    <div class="phase-desc">Active probing of the target — port scans (Nmap), vulnerability scans, service enumeration, OS fingerprinting, banner grabbing.</div>
+  </div>
+
+  <div class="connector-col">
+    <div class="arrow-block g2">⟶</div>
+  </div>
+
+  <div class="kc-group g2">
+    <div class="kc-box g2">
+      <div class="kc-num">Step 2</div>
+      <div class="kc-title">Weaponization</div>
+      <div class="kc-desc">Attacker uses scan results to identify specific vulnerabilities and creates or selects an exploit — malware, payload, phishing lure — tailored to the target's environment.</div>
+    </div>
+  </div>
+
+  <!-- ═══ GROUP 3 ═══ -->
+  <div class="phase-box g3">
+    <div class="phase-num">Phase 3</div>
+    <div class="phase-title">Gaining Access</div>
+    <div class="phase-desc">Exploiting identified vulnerabilities to break in — phishing, SQL injection, buffer overflow, credential stuffing, exploiting unpatched CVEs.</div>
+  </div>
+
+  <div class="connector-col">
+    <div class="arrow-block g3">⟶</div>
+  </div>
+
+  <div class="kc-group g3">
+    <div class="kc-box g3">
+      <div class="kc-num">Step 3</div>
+      <div class="kc-title">Delivery</div>
+      <div class="kc-desc">Weapon is delivered to the target — phishing email, malicious USB, watering hole attack, or direct network exploit.</div>
+    </div>
+    <div class="kc-box g3">
+      <div class="kc-num">Step 4</div>
+      <div class="kc-title">Exploitation</div>
+      <div class="kc-desc">The exploit executes — code runs, vulnerability is triggered, attacker achieves initial foothold inside the target system.</div>
+    </div>
+  </div>
+
+  <!-- ═══ GROUP 4 ═══ -->
+  <div class="phase-box g4">
+    <div class="phase-num">Phase 4</div>
+    <div class="phase-title">Maintaining Access</div>
+    <div class="phase-desc">Establishing persistent presence — backdoors, rootkits, scheduled tasks, new admin accounts, C2 beaconing, lateral movement to other systems.</div>
+  </div>
+
+  <div class="connector-col">
+    <div class="arrow-block g4">⟶</div>
+  </div>
+
+  <div class="kc-group g4">
+    <div class="kc-box g4">
+      <div class="kc-num">Step 5</div>
+      <div class="kc-title">Installation</div>
+      <div class="kc-desc">Malware or backdoor installed for persistent access — RATs, web shells, rootkits dropped onto the system to survive reboots.</div>
+    </div>
+    <div class="kc-box g4">
+      <div class="kc-num">Step 6</div>
+      <div class="kc-title">Command &amp; Control (C2)</div>
+      <div class="kc-desc">Attacker establishes remote control channel — beaconing to external server, encrypted tunnels, DNS exfiltration to receive commands and move laterally.</div>
+    </div>
+  </div>
+
+  <!-- ═══ GROUP 5 ═══ -->
+  <div class="phase-box g5">
+    <div class="phase-num">Phase 5</div>
+    <div class="phase-title">Covering Tracks</div>
+    <div class="phase-desc">Erasing evidence of the attack — clearing logs, deleting files, timestomping, disabling audit trails, removing malware after data is stolen.</div>
+  </div>
+
+  <div class="connector-col">
+    <div class="arrow-block g5">⟶</div>
+  </div>
+
+  <div class="kc-group g5">
+    <div class="kc-box g5">
+      <div class="kc-num">Step 7</div>
+      <div class="kc-title">Actions on Objectives</div>
+      <div class="kc-desc">Attacker achieves their goal — data exfiltration, ransomware deployment, destruction, espionage — then removes traces to avoid detection and maintain long-term access.</div>
+    </div>
+  </div>
+
+</div><!-- end diagram -->
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-title">Color Key — Correlation Groups</div>
+  <div class="legend-items">
+    <div class="legend-item"><div class="legend-dot" style="background:#1565c0;"></div> Phase 1 ↔ KCC Step 1</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#6a1a8a;"></div> Phase 2 ↔ KCC Step 2</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#cc0000;"></div> Phase 3 ↔ KCC Steps 3–4</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#2e7d32;"></div> Phase 4 ↔ KCC Steps 5–6</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#e65100;"></div> Phase 5 ↔ KCC Step 7</div>
+  </div>
+</div>
+
+<!-- KEY TAKEAWAYS -->
+<div class="takeaways">
+  <div class="takeaways-title">Key Takeaways for Students</div>
+  <ul>
+    <li>The <strong>5 Phases</strong> describe the attacker's <em>methodology</em> — how they think and plan an attack from start to finish.</li>
+    <li>The <strong>Cyber Kill Chain</strong> describes the attacker's <em>actions</em> — the specific technical steps executed at each stage.</li>
+    <li>Phases 3 and 4 of hacking each map to <strong>two Kill Chain steps</strong> — gaining access requires both Delivery and Exploitation; maintaining access requires both Installation and C2.</li>
+    <li>Defenders use the Kill Chain to identify which step to <strong>break</strong> — stopping Delivery prevents Exploitation; blocking C2 limits the damage of Installation.</li>
+    <li>Both frameworks together give a complete picture: <strong>WHY</strong> attackers do what they do (5 Phases) and <strong>HOW</strong> they do it (Kill Chain).</li>
+  </ul>
+</div>
+
+<div class="footer">
+  MCCoE Cybersecurity Apprenticeship Program &nbsp;|&nbsp; Instructor Reference &nbsp;|&nbsp; For Educational Use
+</div>
+
+</body>
+</html>
