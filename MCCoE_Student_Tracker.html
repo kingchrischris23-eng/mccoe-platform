@@ -2110,6 +2110,7 @@ function startLoginListener() {
     let attendanceChanged = false;
     students.forEach(s => {
       if (!s.portalTempId) return;
+      if (!s.attendance) s.attendance = {};
       if (s.attendance[today]) return; // already marked — don't override admin's decision
       const ld = _loginsCache[s.portalTempId];
       if (ld && ld.history && Object.values(ld.history).some(h => h.date === today)) {
