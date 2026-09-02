@@ -612,7 +612,7 @@ select option { background:var(--surface); color:var(--text); }
   </button>
   <div class="nav-section">Reporting</div>
   <button class="nav-btn" onclick="showView('survey',this)">
-    <span class="nav-icon">📝</span> Daily Survey
+    <span class="nav-icon">📋</span> Surveys
   </button>
   <button class="nav-btn" onclick="showView('employer',this)">
     <span class="nav-icon">🏢</span> Employer Profile
@@ -806,66 +806,109 @@ select option { background:var(--surface); color:var(--text); }
   <div id="attendanceList"></div>
 </div>
 
-<!-- ═══ DAILY SURVEY ═══ -->
+<!-- ═══ SURVEYS ═══ -->
 <div id="view-survey" class="view">
   <div class="page-header">
     <div>
-      <h2>Daily Survey</h2>
-      <p>End-of-day feedback from each apprentice</p>
+      <h2>📋 Surveys</h2>
+      <p>Weekly student check-ins, program feedback, and admin daily surveys</p>
+    </div>
+    <button class="btn btn-outline" onclick="loadAllSurveyData()">↻ Refresh</button>
+  </div>
+
+  <!-- Survey Sub-Tabs -->
+  <div style="display:flex;gap:0;margin-bottom:24px;border-radius:8px;overflow:hidden;border:1px solid var(--border);max-width:560px;">
+    <button id="svtab-checkins" onclick="showSurveyTab('checkins')"
+      style="flex:1;padding:10px 14px;border:none;background:var(--red);color:#fff;font-weight:700;font-size:.82rem;cursor:pointer;font-family:inherit;letter-spacing:.3px;">
+      📅 Weekly Check-Ins
+    </button>
+    <button id="svtab-feedback" onclick="showSurveyTab('feedback')"
+      style="flex:1;padding:10px 14px;border:none;background:var(--card);color:var(--muted);font-weight:700;font-size:.82rem;cursor:pointer;font-family:inherit;letter-spacing:.3px;">
+      💬 Program Feedback
+    </button>
+    <button id="svtab-admin" onclick="showSurveyTab('admin')"
+      style="flex:1;padding:10px 14px;border:none;background:var(--card);color:var(--muted);font-weight:700;font-size:.82rem;cursor:pointer;font-family:inherit;letter-spacing:.3px;">
+      📝 Admin Survey
+    </button>
+  </div>
+
+  <!-- WEEKLY CHECK-INS PANEL -->
+  <div id="svpanel-checkins">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap;">
+      <select id="sv-filter-week" onchange="renderCheckinTable()"
+        style="padding:8px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;outline:none;">
+        <option value="all">All Weeks</option>
+        ${[1,2,3,4,5,6,7,8,9].map(n=>`<option value="${n}">Week ${n}</option>`).join('')}
+      </select>
+      <select id="sv-filter-student" onchange="renderCheckinTable()"
+        style="padding:8px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;outline:none;">
+        <option value="all">All Students</option>
+      </select>
+      <span id="sv-checkin-count" style="font-size:.82rem;color:var(--muted);"></span>
+    </div>
+    <div id="sv-checkin-table-wrap">
+      <div class="empty-state"><div class="empty-icon">📅</div><div>Loading check-ins...</div></div>
     </div>
   </div>
 
-  <div class="two-col">
-    <!-- Survey Form -->
-    <div>
-      <div class="section-title">Submit Today's Survey</div>
-      <div class="survey-card">
-        <div class="form-group" style="margin-bottom:16px;">
-          <label>Select Student</label>
-          <select id="surveyStudent"></select>
-        </div>
-
-        <div style="margin-bottom:16px;">
-          <div class="question-label">How would you rate today's training?</div>
-          <div class="question-sub">Overall quality of today's session</div>
-          <div class="star-row" id="stars-rating" data-field="rating"></div>
-        </div>
-
-        <div style="margin-bottom:16px;">
-          <div class="question-label">How confident do you feel about today's material?</div>
-          <div class="question-sub">Did you understand what was taught?</div>
-          <div class="star-row" id="stars-confidence" data-field="confidence"></div>
-        </div>
-
-        <div style="margin-bottom:16px;">
-          <div class="question-label">How would you rate the instruction/guidance today?</div>
-          <div class="question-sub">Clarity, support, and mentorship quality</div>
-          <div class="star-row" id="stars-instruction" data-field="instruction"></div>
-        </div>
-
-        <div class="form-group" style="margin-bottom:16px;">
-          <label>What topic did you cover today?</label>
-          <input type="text" id="surveyTopic" placeholder="e.g. SIEM alert triage, firewall rules...">
-        </div>
-
-        <div class="form-group" style="margin-bottom:16px;">
-          <label>What was most challenging today?</label>
-          <textarea id="surveyChallenges" placeholder="Describe any difficulties or confusing concepts..."></textarea>
-        </div>
-
-        <div class="form-group" style="margin-bottom:20px;">
-          <label>What would help you learn better?</label>
-          <textarea id="surveyImprove" placeholder="Suggestions for improvement, more practice, resources needed..."></textarea>
-        </div>
-
-        <button class="btn btn-red" style="width:100%;" onclick="submitSurvey()">Submit Survey</button>
-      </div>
+  <!-- PROGRAM FEEDBACK PANEL -->
+  <div id="svpanel-feedback" style="display:none;">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;flex-wrap:wrap;">
+      <select id="sv-fb-filter-student" onchange="renderFeedbackTable()"
+        style="padding:8px 14px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:.85rem;outline:none;">
+        <option value="all">All Students</option>
+      </select>
+      <span id="sv-feedback-count" style="font-size:.82rem;color:var(--muted);"></span>
     </div>
+    <div id="sv-feedback-table-wrap">
+      <div class="empty-state"><div class="empty-icon">💬</div><div>Loading feedback...</div></div>
+    </div>
+  </div>
 
-    <!-- Recent Surveys -->
-    <div>
-      <div class="section-title">Recent Survey Responses</div>
-      <div id="surveyHistory"></div>
+  <!-- ADMIN DAILY SURVEY PANEL -->
+  <div id="svpanel-admin" style="display:none;">
+    <div class="two-col">
+      <div>
+        <div class="section-title">Submit Today's Survey</div>
+        <div class="survey-card">
+          <div class="form-group" style="margin-bottom:16px;">
+            <label>Select Student</label>
+            <select id="surveyStudent"></select>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div class="question-label">How would you rate today's training?</div>
+            <div class="question-sub">Overall quality of today's session</div>
+            <div class="star-row" id="stars-rating" data-field="rating"></div>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div class="question-label">How confident do you feel about today's material?</div>
+            <div class="question-sub">Did you understand what was taught?</div>
+            <div class="star-row" id="stars-confidence" data-field="confidence"></div>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div class="question-label">How would you rate the instruction/guidance today?</div>
+            <div class="question-sub">Clarity, support, and mentorship quality</div>
+            <div class="star-row" id="stars-instruction" data-field="instruction"></div>
+          </div>
+          <div class="form-group" style="margin-bottom:16px;">
+            <label>What topic did you cover today?</label>
+            <input type="text" id="surveyTopic" placeholder="e.g. SIEM alert triage, firewall rules...">
+          </div>
+          <div class="form-group" style="margin-bottom:16px;">
+            <label>What was most challenging today?</label>
+            <textarea id="surveyChallenges" placeholder="Describe any difficulties or confusing concepts..."></textarea>
+          </div>
+          <div class="form-group" style="margin-bottom:20px;">
+            <label>What would help you learn better?</label>
+            <textarea id="surveyImprove" placeholder="Suggestions for improvement, more practice, resources needed..."></textarea>
+          </div>
+          <button class="btn btn-red" style="width:100%;" onclick="submitSurvey()">Submit Survey</button>
+        </div>
+      </div>
+      <div>
+        <div class="section-title">Recent Survey Responses</div>
+        <div id="surveyHistory"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -4401,11 +4444,176 @@ function markAttendance(studentId, date, status, btn) {
 // ════════════════════════════════════════════
 //  SURVEY
 // ════════════════════════════════════════════
+let _allCheckins = [];
+let _allFeedback = [];
+
 function renderSurveyView() {
+  // Admin survey tab setup
   const sel = document.getElementById('surveyStudent');
-  sel.innerHTML = students.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+  if (sel) sel.innerHTML = students.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
   renderStars();
   renderSurveyHistory();
+  // Show check-ins tab by default and load data
+  showSurveyTab('checkins');
+  loadAllSurveyData();
+}
+
+function showSurveyTab(tab) {
+  ['checkins','feedback','admin'].forEach(t => {
+    const panel = document.getElementById('svpanel-' + t);
+    const btn   = document.getElementById('svtab-'   + t);
+    if (panel) panel.style.display = t === tab ? '' : 'none';
+    if (btn)   {
+      btn.style.background = t === tab ? 'var(--red)' : 'var(--card)';
+      btn.style.color      = t === tab ? '#fff' : 'var(--muted)';
+    }
+  });
+  if (tab === 'admin') {
+    const sel = document.getElementById('surveyStudent');
+    if (sel && !sel.children.length) sel.innerHTML = students.map(s=>`<option value="${s.id}">${s.name}</option>`).join('');
+    renderStars();
+  }
+}
+
+function loadAllSurveyData() {
+  if (!_fbDb) return;
+  // Load check-ins
+  _fbDb.ref('mccoe_checkins').once('value', function(snap) {
+    const raw = snap.val() || {};
+    _allCheckins = [];
+    // Build student lookup: tempId → student name/id
+    const byTempId = {};
+    students.forEach(s => { if (s.portalTempId) byTempId[s.portalTempId] = s; });
+
+    Object.entries(raw).forEach(([tempId, weeks]) => {
+      if (!weeks || typeof weeks !== 'object') return;
+      const stu = byTempId[tempId];
+      Object.entries(weeks).forEach(([weekKey, entry]) => {
+        if (!entry || typeof entry !== 'object') return;
+        _allCheckins.push({
+          ...entry,
+          tempId,
+          studentName: entry.studentName || (stu && stu.name) || '—',
+          studentMccoId: entry.studentId || (stu && stu.assignedId) || '—'
+        });
+      });
+    });
+    _allCheckins.sort((a,b) => (b.submittedAt || '').localeCompare(a.submittedAt || ''));
+
+    // Populate student filter
+    const uniqueNames = [...new Set(_allCheckins.map(c => c.studentName).filter(Boolean))].sort();
+    const ciStu = document.getElementById('sv-filter-student');
+    if (ciStu) ciStu.innerHTML = '<option value="all">All Students</option>' + uniqueNames.map(n=>`<option value="${n}">${n}</option>`).join('');
+
+    renderCheckinTable();
+  });
+
+  // Load feedback
+  _fbDb.ref('mccoe_feedback').once('value', function(snap) {
+    const raw = snap.val() || {};
+    _allFeedback = [];
+    const byTempId = {};
+    students.forEach(s => { if (s.portalTempId) byTempId[s.portalTempId] = s; });
+
+    Object.entries(raw).forEach(([tempId, entries]) => {
+      if (!entries || typeof entries !== 'object') return;
+      const stu = byTempId[tempId];
+      Object.values(entries).forEach(entry => {
+        if (!entry || typeof entry !== 'object') return;
+        _allFeedback.push({
+          ...entry,
+          tempId,
+          studentName: entry.studentName || (stu && stu.name) || '—',
+          studentMccoId: entry.studentId || (stu && stu.assignedId) || '—'
+        });
+      });
+    });
+    _allFeedback.sort((a,b) => (b.submittedAt || '').localeCompare(a.submittedAt || ''));
+
+    const uniqueFbNames = [...new Set(_allFeedback.map(f => f.studentName).filter(Boolean))].sort();
+    const fbStu = document.getElementById('sv-fb-filter-student');
+    if (fbStu) fbStu.innerHTML = '<option value="all">All Students</option>' + uniqueFbNames.map(n=>`<option value="${n}">${n}</option>`).join('');
+
+    renderFeedbackTable();
+  });
+}
+
+const moodLabels = {1:'😫 Struggling',2:'😐 Okay',3:'🙂 Good',4:'😀 Great',5:'🤩 Amazing'};
+const confLabels = {1:'1 – Not at all',2:'2 – Slightly',3:'3 – Somewhat',4:'4 – Mostly',5:'5 – Very confident'};
+const starStr = n => n ? '★'.repeat(n) + '☆'.repeat(5-n) : '—';
+
+function renderCheckinTable() {
+  const wrap = document.getElementById('sv-checkin-table-wrap');
+  const cnt  = document.getElementById('sv-checkin-count');
+  if (!wrap) return;
+  const weekFilter = (document.getElementById('sv-filter-week') || {}).value || 'all';
+  const stuFilter  = (document.getElementById('sv-filter-student') || {}).value || 'all';
+  let rows = _allCheckins.filter(c =>
+    (weekFilter === 'all' || String(c.week) === weekFilter) &&
+    (stuFilter  === 'all' || c.studentName === stuFilter)
+  );
+  if (cnt) cnt.textContent = rows.length + ' response' + (rows.length === 1 ? '' : 's');
+  if (!rows.length) { wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><div>No check-ins found.</div></div>'; return; }
+  wrap.innerHTML = rows.map(c => `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+        <div>
+          <div style="font-weight:700;font-size:.95rem;color:var(--white);">${c.studentName} <span style="color:var(--muted);font-weight:400;font-size:.8rem;">(${c.studentMccoId})</span></div>
+          <div style="font-size:.78rem;color:var(--blue);font-weight:700;margin-top:2px;">Week ${c.week}</div>
+        </div>
+        <div style="font-size:.72rem;color:var(--muted);">${c.submittedDisplay || c.submittedAt || ''}</div>
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;">
+        <div style="background:var(--bg);border-radius:8px;padding:8px 14px;min-width:130px;">
+          <div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">Mood</div>
+          <div style="font-size:.85rem;font-weight:700;color:var(--white);">${moodLabels[c.mood] || '—'}</div>
+        </div>
+        <div style="background:var(--bg);border-radius:8px;padding:8px 14px;min-width:160px;">
+          <div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">Confidence</div>
+          <div style="font-size:.85rem;font-weight:700;color:var(--yellow);">${confLabels[c.confidence] || '—'}</div>
+        </div>
+      </div>
+      ${c.learned ? `<div style="margin-bottom:10px;"><div style="font-size:.7rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">What I Learned</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${c.learned.replace(/</g,'&lt;')}</div></div>` : ''}
+      ${c.challenge ? `<div style="margin-bottom:10px;"><div style="font-size:.7rem;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Challenges</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${c.challenge.replace(/</g,'&lt;')}</div></div>` : ''}
+      ${c.questions ? `<div style="margin-bottom:10px;"><div style="font-size:.7rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Questions for Instructor</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${c.questions.replace(/</g,'&lt;')}</div></div>` : ''}
+      ${c.goal ? `<div><div style="font-size:.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Goal for Next Week</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${c.goal.replace(/</g,'&lt;')}</div></div>` : ''}
+    </div>`).join('');
+}
+
+function renderFeedbackTable() {
+  const wrap = document.getElementById('sv-feedback-table-wrap');
+  const cnt  = document.getElementById('sv-feedback-count');
+  if (!wrap) return;
+  const stuFilter = (document.getElementById('sv-fb-filter-student') || {}).value || 'all';
+  let rows = _allFeedback.filter(f => stuFilter === 'all' || f.studentName === stuFilter);
+  if (cnt) cnt.textContent = rows.length + ' submission' + (rows.length === 1 ? '' : 's');
+  if (!rows.length) { wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">💬</div><div>No feedback submitted yet.</div></div>'; return; }
+  wrap.innerHTML = rows.map(f => `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+        <div>
+          <div style="font-weight:700;font-size:.95rem;color:var(--white);">${f.studentName} <span style="color:var(--muted);font-weight:400;font-size:.8rem;">(${f.studentMccoId})</span></div>
+        </div>
+        <div style="font-size:.72rem;color:var(--muted);">${f.submittedDisplay || f.submittedAt || ''}</div>
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;">
+        <div style="background:var(--bg);border-radius:8px;padding:8px 14px;">
+          <div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">Program Rating</div>
+          <div style="font-size:.95rem;color:var(--yellow);">${starStr(f.programRating)}</div>
+        </div>
+        ${f.instructionRating ? `<div style="background:var(--bg);border-radius:8px;padding:8px 14px;">
+          <div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">Instruction Rating</div>
+          <div style="font-size:.95rem;color:var(--yellow);">${starStr(f.instructionRating)}</div>
+        </div>` : ''}
+        ${f.recommend ? `<div style="background:var(--bg);border-radius:8px;padding:8px 14px;">
+          <div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">Recommend?</div>
+          <div style="font-size:.85rem;font-weight:700;color:var(--white);">${f.recommend}</div>
+        </div>` : ''}
+      </div>
+      ${f.working ? `<div style="margin-bottom:10px;"><div style="font-size:.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">What's Working</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${f.working.replace(/</g,'&lt;')}</div></div>` : ''}
+      ${f.improve ? `<div style="margin-bottom:10px;"><div style="font-size:.7rem;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">What to Improve</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${f.improve.replace(/</g,'&lt;')}</div></div>` : ''}
+      ${f.comments ? `<div><div style="font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Additional Comments</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${f.comments.replace(/</g,'&lt;')}</div></div>` : ''}
+    </div>`).join('');
 }
 
 function renderStars() {

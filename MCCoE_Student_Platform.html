@@ -701,6 +701,11 @@ hr { border-color: rgba(0,245,255,0.12) !important; }
         <div class="week-num" style="background:var(--navy);color:#fff;">🎫</div>
         <div class="week-label"><div>SOC Ticket Board</div><div style="font-size:11px;opacity:0.7;">Your assigned tickets</div></div>
       </div>
+      <div class="sidebar-section" style="margin-top:12px;">Check-Ins</div>
+      <div class="week-item" id="nav-surveys" onclick="renderSurveys()">
+        <div class="week-num" style="background:var(--navy);color:#fff;">📋</div>
+        <div class="week-label"><div>Surveys</div><div style="font-size:11px;opacity:0.7;">Check-In &amp; Feedback</div></div>
+      </div>
       <div class="sidebar-section" style="margin-top:12px;">Achievements</div>
       <div class="week-item" id="nav-leaderboard" onclick="renderLeaderboard()">
         <div class="week-num" style="background:var(--navy);color:#fff;">🏆</div>
@@ -1913,6 +1918,361 @@ function renderGamePanel() {
     '<div style="font-size:.82em;font-weight:700;opacity:.7;margin-bottom:10px;">SECURITY+ SY0-701 PROGRESS — BADGES (' + g.badges.length + '/' + BADGES_DEF.length + ')</div>' +
     '<div style="display:flex;flex-wrap:wrap;gap:8px;">' + badgesHTML + '</div>' +
     '</div>';
+}
+
+// ══════════════════════════════════════════════
+//  SURVEYS — Weekly Check-In + Program Feedback
+// ══════════════════════════════════════════════
+function renderSurveys() {
+  currentWeek = null;
+  setActiveNav('surveys');
+  const tempId = state.student && state.student.tempId;
+  const content = document.getElementById('main-content');
+  if (!content) return;
+
+  // Determine current program week (1-9) from progress
+  const prog = state.progress || {};
+  let curWeek = 1;
+  for (let w = 9; w >= 1; w--) { if (prog[w] && (prog[w].completed || prog[w].reflection)) { curWeek = w; break; } }
+
+  const weekOptions = [1,2,3,4,5,6,7,8,9].map(n => `<option value="${n}"${n===curWeek?' selected':''}>Week ${n}</option>`).join('');
+
+  content.innerHTML = `
+  <div style="max-width:860px;margin:0 auto;">
+    <div style="margin-bottom:28px;">
+      <h2 style="font-size:1.5rem;font-weight:800;color:var(--navy);margin-bottom:4px;">📋 Surveys</h2>
+      <p style="color:#666;font-size:.9rem;">Share your weekly check-in and program feedback below.</p>
+    </div>
+
+    <!-- TAB SWITCHER -->
+    <div style="display:flex;gap:0;margin-bottom:24px;border-radius:8px;overflow:hidden;border:2px solid var(--border-color,#dde3ed);max-width:420px;">
+      <button id="sv-tab-checkin" onclick="svShowTab('checkin')"
+        style="flex:1;padding:10px 16px;border:none;background:var(--red);color:#fff;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;">
+        📅 Weekly Check-In
+      </button>
+      <button id="sv-tab-feedback" onclick="svShowTab('feedback')"
+        style="flex:1;padding:10px 16px;border:none;background:#f1f3f8;color:#888;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;">
+        💬 Program Feedback
+      </button>
+    </div>
+
+    <!-- WEEKLY CHECK-IN PANEL -->
+    <div id="sv-panel-checkin">
+      <div style="background:#fff;border:1px solid #dde3ed;border-radius:12px;padding:28px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+          <div>
+            <div style="font-size:1.05rem;font-weight:800;color:var(--navy,#0d2137);margin-bottom:2px;">Weekly Check-In</div>
+            <div style="font-size:.82rem;color:#666;">One check-in per week — submitted answers are saved automatically.</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <label style="font-size:.82rem;color:#555;font-weight:600;">Select Week:</label>
+            <select id="sv-week-sel" onchange="svLoadCheckin()" style="padding:7px 12px;border:1px solid #dde3ed;border-radius:6px;font-size:.85rem;color:var(--navy,#0d2137);background:#fff;">${weekOptions}</select>
+          </div>
+        </div>
+
+        <div id="sv-already-submitted" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px 16px;margin-bottom:18px;font-size:.85rem;color:#166534;font-weight:600;">
+          ✅ You already submitted your check-in for this week. Your answers are shown below — you can update and resubmit.
+        </div>
+
+        <!-- Q1: Mood -->
+        <div style="margin-bottom:20px;">
+          <div style="font-weight:700;color:var(--navy,#0d2137);margin-bottom:6px;font-size:.92rem;">1. How are you feeling this week? <span style="color:var(--red,#cc0000);">*</span></div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            ${['😫 Struggling','😐 Okay','🙂 Good','😀 Great','🤩 Amazing'].map((m,i)=>`
+            <label style="display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;">
+              <input type="radio" name="sv-mood" value="${i+1}" style="display:none;" id="sv-mood-${i+1}">
+              <div onclick="svSelectMood(${i+1})" id="sv-mood-btn-${i+1}"
+                style="padding:8px 14px;border:2px solid #dde3ed;border-radius:8px;font-size:1.1rem;cursor:pointer;transition:all .15s;white-space:nowrap;">${m}</div>
+            </label>`).join('')}
+          </div>
+        </div>
+
+        <!-- Q2: Confidence -->
+        <div style="margin-bottom:20px;">
+          <div style="font-weight:700;color:var(--navy,#0d2137);margin-bottom:8px;font-size:.92rem;">2. How confident do you feel with this week's material? <span style="color:var(--red,#cc0000);">*</span></div>
+          <div style="display:flex;gap:6px;" id="sv-conf-stars">
+            ${[1,2,3,4,5].map(n=>`<span onclick="svSetConf(${n})" data-val="${n}"
+              style="font-size:1.8rem;cursor:pointer;color:#ddd;transition:color .1s;">★</span>`).join('')}
+          </div>
+          <div id="sv-conf-label" style="font-size:.8rem;color:#888;margin-top:4px;">Click to rate 1–5</div>
+        </div>
+
+        <!-- Q3: Learned -->
+        <div style="margin-bottom:18px;">
+          <label style="font-weight:700;color:var(--navy,#0d2137);font-size:.92rem;">3. What did you learn this week? <span style="color:var(--red,#cc0000);">*</span></label>
+          <textarea id="sv-learned" rows="3" placeholder="Describe the key concepts or skills you picked up..."
+            style="width:100%;margin-top:6px;padding:10px 12px;border:1px solid #dde3ed;border-radius:8px;font-size:.88rem;font-family:inherit;resize:vertical;"></textarea>
+        </div>
+
+        <!-- Q4: Challenging -->
+        <div style="margin-bottom:18px;">
+          <label style="font-weight:700;color:var(--navy,#0d2137);font-size:.92rem;">4. What was most challenging this week?</label>
+          <textarea id="sv-challenge" rows="3" placeholder="What topics or tasks were difficult? What confused you?"
+            style="width:100%;margin-top:6px;padding:10px 12px;border:1px solid #dde3ed;border-radius:8px;font-size:.88rem;font-family:inherit;resize:vertical;"></textarea>
+        </div>
+
+        <!-- Q5: Questions -->
+        <div style="margin-bottom:18px;">
+          <label style="font-weight:700;color:var(--navy,#0d2137);font-size:.92rem;">5. Questions for your instructor</label>
+          <textarea id="sv-questions" rows="2" placeholder="What do you still need help with or want to explore more?"
+            style="width:100%;margin-top:6px;padding:10px 12px;border:1px solid #dde3ed;border-radius:8px;font-size:.88rem;font-family:inherit;resize:vertical;"></textarea>
+        </div>
+
+        <!-- Q6: Goal -->
+        <div style="margin-bottom:22px;">
+          <label style="font-weight:700;color:var(--navy,#0d2137);font-size:.92rem;">6. What is your goal for next week?</label>
+          <textarea id="sv-goal" rows="2" placeholder="Set a learning goal or something you want to improve..."
+            style="width:100%;margin-top:6px;padding:10px 12px;border:1px solid #dde3ed;border-radius:8px;font-size:.88rem;font-family:inherit;resize:vertical;"></textarea>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+          <button onclick="svSubmitCheckin()" style="background:var(--red,#cc0000);color:#fff;border:none;border-radius:8px;padding:12px 28px;font-weight:700;font-size:.95rem;cursor:pointer;font-family:inherit;">
+            Submit Check-In
+          </button>
+          <div id="sv-checkin-msg" style="font-size:.85rem;display:none;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROGRAM FEEDBACK PANEL -->
+    <div id="sv-panel-feedback" style="display:none;">
+      <div style="background:#fff;border:1px solid #dde3ed;border-radius:12px;padding:28px;box-shadow:0 2px 8px rgba(0,0,0,.06);margin-bottom:20px;">
+        <div style="margin-bottom:20px;">
+          <div style="font-size:1.05rem;font-weight:800;color:var(--navy,#0d2137);margin-bottom:2px;">Program Feedback</div>
+          <div style="font-size:.82rem;color:#666;">Your feedback helps us improve the program. You can submit multiple times.</div>
+        </div>
+
+        <!-- Q1: Overall Rating -->
+        <div style="margin-bottom:20px;">
+          <div style="font-weight:700;color:var(--navy,#0d2137);margin-bottom:8px;font-size:.92rem;">1. Overall program rating <span style="color:var(--red,#cc0000);">*</span></div>
+          <div style="display:flex;gap:6px;" id="sv-fb-prog-stars">
+            ${[1,2,3,4,5].map(n=>`<span onclick="svSetFbStar('prog',${n})" data-val="${n}"
+              style="font-size:1.8rem;cursor:pointer;color:#ddd;transition:color .1s;">★</span>`).join('')}
+          </div>
+          <div id="sv-fb-prog-label" style="font-size:.8rem;color:#888;margin-top:4px;">Click to rate 1–5</div>
+        </div>
+
+        <!-- Q2: Instruction Rating -->
+        <div style="margin-bottom:20px;">
+          <div style="font-weight:700;color:var(--navy,#0d2137);margin-bottom:8px;font-size:.92rem;">2. Rate the quality of instruction and teaching</div>
+          <div style="display:flex;gap:6px;" id="sv-fb-inst-stars">
+            ${[1,2,3,4,5].map(n=>`<span onclick="svSetFbStar('inst',${n})" data-val="${n}"
+              style="font-size:1.8rem;cursor:pointer;color:#ddd;transition:color .1s;">★</span>`).join('')}
+          </div>
+          <div id="sv-fb-inst-label" style="font-size:.8rem;color:#888;margin-top:4px;">Click to rate 1–5</div>
+        </div>
+
+        <!-- Q3: What's working -->
+        <div style="margin-bottom:18px;">
+          <label style="font-weight:700;color:var(--navy,#0d2137);font-size:.92rem;">3. What is working well in the program? <span style="color:var(--red,#cc0000);">*</span></label>
+          <textarea id="sv-fb-working" rows="3" placeholder="What aspects of the program have been most valuable to you?"
+            style="width:100%;margin-top:6px;padding:10px 12px;border:1px solid #dde3ed;border-radius:8px;font-size:.88rem;font-family:inherit;resize:vertical;"></textarea>
+        </div>
+
+        <!-- Q4: What to improve -->
+        <div style="margin-bottom:18px;">
+          <label style="font-weight:700;color:var(--navy,#0d2137);font-size:.92rem;">4. What could be improved?</label>
+          <textarea id="sv-fb-improve" rows="3" placeholder="Content, pace, labs, tools, scheduling — any suggestions welcome..."
+            style="width:100%;margin-top:6px;padding:10px 12px;border:1px solid #dde3ed;border-radius:8px;font-size:.88rem;font-family:inherit;resize:vertical;"></textarea>
+        </div>
+
+        <!-- Q5: Recommend -->
+        <div style="margin-bottom:18px;">
+          <div style="font-weight:700;color:var(--navy,#0d2137);margin-bottom:8px;font-size:.92rem;">5. Would you recommend this program to others?</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            ${['👍 Yes, definitely','🤔 Maybe','👎 Not right now'].map((opt,i)=>`
+            <div onclick="svSelectRec(${i})" id="sv-rec-${i}"
+              style="padding:9px 18px;border:2px solid #dde3ed;border-radius:8px;font-size:.88rem;cursor:pointer;transition:all .15s;font-weight:600;">${opt}</div>`).join('')}
+          </div>
+        </div>
+
+        <!-- Q6: Comments -->
+        <div style="margin-bottom:22px;">
+          <label style="font-weight:700;color:var(--navy,#0d2137);font-size:.92rem;">6. Any other comments or suggestions?</label>
+          <textarea id="sv-fb-comments" rows="3" placeholder="Anything else you'd like us to know..."
+            style="width:100%;margin-top:6px;padding:10px 12px;border:1px solid #dde3ed;border-radius:8px;font-size:.88rem;font-family:inherit;resize:vertical;"></textarea>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+          <button onclick="svSubmitFeedback()" style="background:var(--red,#cc0000);color:#fff;border:none;border-radius:8px;padding:12px 28px;font-weight:700;font-size:.95rem;cursor:pointer;font-family:inherit;">
+            Submit Feedback
+          </button>
+          <div id="sv-feedback-msg" style="font-size:.85rem;display:none;"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>`;
+
+  window._svConf = 0;
+  window._svFbProg = 0;
+  window._svFbInst = 0;
+  window._svRec = null;
+  svLoadCheckin();
+}
+
+function svShowTab(tab) {
+  document.getElementById('sv-panel-checkin').style.display = tab === 'checkin' ? '' : 'none';
+  document.getElementById('sv-panel-feedback').style.display = tab === 'feedback' ? '' : 'none';
+  document.getElementById('sv-tab-checkin').style.background  = tab === 'checkin'  ? 'var(--red,#cc0000)' : '#f1f3f8';
+  document.getElementById('sv-tab-checkin').style.color       = tab === 'checkin'  ? '#fff' : '#888';
+  document.getElementById('sv-tab-feedback').style.background = tab === 'feedback' ? 'var(--red,#cc0000)' : '#f1f3f8';
+  document.getElementById('sv-tab-feedback').style.color      = tab === 'feedback' ? '#fff' : '#888';
+}
+
+function svSelectMood(n) {
+  window._svMood = n;
+  [1,2,3,4,5].forEach(i => {
+    const btn = document.getElementById('sv-mood-btn-' + i);
+    if (!btn) return;
+    btn.style.borderColor = i === n ? 'var(--red,#cc0000)' : '#dde3ed';
+    btn.style.background  = i === n ? '#fff0f0' : '#fff';
+  });
+}
+
+function svSetConf(n) {
+  window._svConf = n;
+  const labels = ['','Not at all','Slightly','Somewhat','Mostly','Very confident'];
+  const stars = document.getElementById('sv-conf-stars');
+  if (stars) stars.querySelectorAll('span').forEach((s, i) => { s.style.color = i < n ? '#f59e0b' : '#ddd'; });
+  const lbl = document.getElementById('sv-conf-label');
+  if (lbl) lbl.textContent = labels[n] || '';
+}
+
+function svSetFbStar(type, n) {
+  window['_svFb' + (type === 'prog' ? 'Prog' : 'Inst')] = n;
+  const labels = ['','Poor','Fair','Good','Very Good','Excellent'];
+  const stars = document.getElementById('sv-fb-' + type + '-stars');
+  if (stars) stars.querySelectorAll('span').forEach((s, i) => { s.style.color = i < n ? '#f59e0b' : '#ddd'; });
+  const lbl = document.getElementById('sv-fb-' + type + '-label');
+  if (lbl) lbl.textContent = labels[n] || '';
+}
+
+function svSelectRec(i) {
+  window._svRec = i;
+  [0,1,2].forEach(j => {
+    const el = document.getElementById('sv-rec-' + j);
+    if (!el) return;
+    el.style.borderColor = j === i ? 'var(--red,#cc0000)' : '#dde3ed';
+    el.style.background  = j === i ? '#fff0f0' : '#fff';
+  });
+}
+
+function svLoadCheckin() {
+  const weekNum = parseInt(document.getElementById('sv-week-sel').value);
+  const tempId = state.student && state.student.tempId;
+  if (!tempId || !_fbDb) return;
+  _fbDb.ref('mccoe_checkins/' + tempId + '/week' + weekNum).once('value', function(snap) {
+    const data = snap.val();
+    const badge = document.getElementById('sv-already-submitted');
+    if (data) {
+      if (badge) badge.style.display = '';
+      if (data.mood) svSelectMood(data.mood);
+      if (data.confidence) svSetConf(data.confidence);
+      const fields = { learned:'sv-learned', challenge:'sv-challenge', questions:'sv-questions', goal:'sv-goal' };
+      Object.entries(fields).forEach(([k,id]) => { const el = document.getElementById(id); if (el && data[k]) el.value = data[k]; });
+    } else {
+      if (badge) badge.style.display = 'none';
+      window._svMood = 0; window._svConf = 0;
+      ['sv-mood-btn-1','sv-mood-btn-2','sv-mood-btn-3','sv-mood-btn-4','sv-mood-btn-5'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.style.borderColor = '#dde3ed'; el.style.background = '#fff'; }
+      });
+      const confStars = document.getElementById('sv-conf-stars');
+      if (confStars) confStars.querySelectorAll('span').forEach(s => s.style.color = '#ddd');
+      const confLbl = document.getElementById('sv-conf-label');
+      if (confLbl) confLbl.textContent = 'Click to rate 1–5';
+      ['sv-learned','sv-challenge','sv-questions','sv-goal'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+    }
+  });
+}
+
+function svSubmitCheckin() {
+  const weekNum = parseInt(document.getElementById('sv-week-sel').value);
+  const tempId = state.student && state.student.tempId;
+  const mood = window._svMood || 0;
+  const conf = window._svConf || 0;
+  const learned = (document.getElementById('sv-learned').value || '').trim();
+  const msg = document.getElementById('sv-checkin-msg');
+
+  if (!mood) { alert('Please select how you are feeling this week.'); return; }
+  if (!conf) { alert('Please rate your confidence level.'); return; }
+  if (!learned) { alert('Please describe what you learned this week.'); return; }
+  if (!tempId || !_fbDb) { if (msg) { msg.textContent = 'Error: not logged in.'; msg.style.display = ''; msg.style.color = 'red'; } return; }
+
+  const now = new Date();
+  const entry = {
+    week: weekNum,
+    mood: mood,
+    confidence: conf,
+    learned: learned,
+    challenge: (document.getElementById('sv-challenge').value || '').trim(),
+    questions: (document.getElementById('sv-questions').value || '').trim(),
+    goal: (document.getElementById('sv-goal').value || '').trim(),
+    studentName: state.student.name || '',
+    studentId: state.student.assignedId || '',
+    submittedAt: now.toISOString(),
+    submittedDisplay: now.toLocaleString('en-US', {month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})
+  };
+
+  _fbDb.ref('mccoe_checkins/' + tempId + '/week' + weekNum).set(entry, function(err) {
+    if (msg) {
+      msg.style.display = '';
+      if (err) { msg.textContent = 'Error saving. Try again.'; msg.style.color = 'red'; }
+      else {
+        msg.textContent = '✅ Check-in submitted! Thank you.';
+        msg.style.color = '#166534';
+        const badge = document.getElementById('sv-already-submitted');
+        if (badge) badge.style.display = '';
+      }
+    }
+  });
+}
+
+function svSubmitFeedback() {
+  const tempId = state.student && state.student.tempId;
+  const progRating = window._svFbProg || 0;
+  const working = (document.getElementById('sv-fb-working').value || '').trim();
+  const msg = document.getElementById('sv-feedback-msg');
+
+  if (!progRating) { alert('Please rate the overall program.'); return; }
+  if (!working) { alert('Please tell us what is working well.'); return; }
+  if (!tempId || !_fbDb) { if (msg) { msg.textContent = 'Error: not logged in.'; msg.style.display = ''; msg.style.color = 'red'; } return; }
+
+  const recLabels = ['Yes, definitely', 'Maybe', 'Not right now'];
+  const now = new Date();
+  const entry = {
+    programRating: progRating,
+    instructionRating: window._svFbInst || 0,
+    working: working,
+    improve: (document.getElementById('sv-fb-improve').value || '').trim(),
+    recommend: window._svRec !== null ? recLabels[window._svRec] : '',
+    comments: (document.getElementById('sv-fb-comments').value || '').trim(),
+    studentName: state.student.name || '',
+    studentId: state.student.assignedId || '',
+    submittedAt: now.toISOString(),
+    submittedDisplay: now.toLocaleString('en-US', {month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})
+  };
+
+  _fbDb.ref('mccoe_feedback/' + tempId).push(entry, function(err) {
+    if (msg) {
+      msg.style.display = '';
+      if (err) { msg.textContent = 'Error saving. Try again.'; msg.style.color = 'red'; }
+      else {
+        msg.textContent = '✅ Feedback submitted! Thank you.';
+        msg.style.color = '#166534';
+        // Reset form
+        window._svFbProg = 0; window._svFbInst = 0; window._svRec = null;
+        ['sv-fb-prog-stars','sv-fb-inst-stars'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.querySelectorAll('span').forEach(s => s.style.color = '#ddd');
+        });
+        ['sv-fb-prog-label','sv-fb-inst-label'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = 'Click to rate 1–5'; });
+        ['sv-fb-working','sv-fb-improve','sv-fb-comments'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+        [0,1,2].forEach(j => { const el = document.getElementById('sv-rec-' + j); if (el) { el.style.borderColor = '#dde3ed'; el.style.background = '#fff'; } });
+      }
+    }
+  });
 }
 
 function renderLeaderboard() {
