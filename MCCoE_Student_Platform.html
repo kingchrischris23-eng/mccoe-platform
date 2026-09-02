@@ -3774,6 +3774,15 @@ function getLibrary() {
   return _libraryCache || DEFAULT_LIBRARY;
 }
 
+function saveLibrary(lib) {
+  _libraryCache = lib;
+  if (_fbDb) {
+    const obj = {};
+    lib.forEach(function(item, i) { obj['item' + i] = item; });
+    _fbDb.ref('mccoe_library').set(obj);
+  }
+}
+
 function initLibraryFromFirebase() {
   if (!_fbDb) { _libraryCache = DEFAULT_LIBRARY; return; }
   _fbDb.ref('mccoe_library').on('value', snap => {
