@@ -2872,6 +2872,10 @@ function saveProjectDraft(weekNum) {
   state.projectSubmissions[weekNum].answers = answers;
   const key = state.student.tempId ? 'mccoe_student_state_' + state.student.tempId : 'mccoe_student_state';
   localStorage.setItem(key, JSON.stringify(state));
+  // Also save draft to Firebase so answers survive browser close / device switch
+  if (_fbDb && state.student.tempId) {
+    _fbDb.ref('mccoe_submissions/' + state.student.tempId + '/week' + weekNum).update({ answers: answers });
+  }
 }
 
 function submitProject(weekNum) {
@@ -2924,6 +2928,9 @@ function loadProjectSubmissions() {
     });
     const key = state.student.tempId ? 'mccoe_student_state_' + state.student.tempId : 'mccoe_student_state';
     localStorage.setItem(key, JSON.stringify(state));
+    // Re-render project tab if it's currently open so saved answers appear
+    const projTab = document.getElementById('tab-project');
+    if (projTab && projTab.classList.contains('active')) switchTab('project');
   });
 }
 
