@@ -4044,13 +4044,16 @@ function loadPortalProgress(rosterId, portalTempId) {
       <div style="font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">Soft Skills</div>
       ${skillRows}
     `;
-    // Append login history section from cache
-    const loginData = _loginsCache[portalTempId];
-    const loginHistory = loginData && loginData.history ? Object.values(loginData.history).sort((a,b)=>b.ts.localeCompare(a.ts)) : [];
-    const lastLogin = loginData && loginData.lastLogin ? new Date(loginData.lastLogin).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) : 'Never';
-    const loginCount = loginData && loginData.loginCount ? loginData.loginCount : loginHistory.length;
-    el.innerHTML += `
-      <div style="margin-top:16px;">
+    // Load login activity directly from Firebase for accuracy
+    el.innerHTML += `<div style="margin-top:16px;" id="login-activity-${rosterId}"><div style="font-size:.78rem;color:var(--muted);">Loading login activity...</div></div>`;
+    _fbDb.ref('mccoe_logins/' + portalTempId).once('value', function(loginSnap) {
+      const loginData = loginSnap.val();
+      const loginHistory = loginData && loginData.history ? Object.values(loginData.history).sort((a,b)=>b.ts.localeCompare(a.ts)) : [];
+      const lastLogin = loginData && loginData.lastLogin ? new Date(loginData.lastLogin).toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'}) : 'Never';
+      const loginCount = loginData && loginData.loginCount ? loginData.loginCount : loginHistory.length;
+      const loginEl = document.getElementById('login-activity-' + rosterId);
+      if (!loginEl) return;
+      loginEl.innerHTML = `
         <div style="font-size:.72rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">🖥️ Portal Login Activity</div>
         <div style="display:flex;gap:16px;margin-bottom:12px;flex-wrap:wrap;">
           <div style="background:var(--bg);border-radius:8px;padding:10px 14px;flex:1;min-width:120px;">
@@ -4068,11 +4071,11 @@ function loadPortalProgress(rosterId, portalTempId) {
           ${loginHistory.slice(0,10).map((h,i)=>`
             <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:.78rem;">
               <span style="color:var(--muted);">#${loginCount - i}</span>
-              <span style="color:var(--white);">${h.display}</span>
+              <span style="color:var(--white);">${h.display || h.ts || '—'}</span>
             </div>`).join('')}
         </div>` : '<div style="font-size:.78rem;color:var(--muted);">No login history recorded yet.</div>'}
-      </div>
-    `;
+      `;
+    });
   }, err => {
     el.innerHTML = '<div style="color:var(--red);font-size:.82rem;">Error loading portal data: ' + err.message + '</div>';
   });
