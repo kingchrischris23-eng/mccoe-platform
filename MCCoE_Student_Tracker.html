@@ -4001,10 +4001,11 @@ function loadPortalProgress(rosterId, portalTempId) {
         </td>
         <td style="padding:8px;text-align:center;color:${objColor};font-weight:600;">${quizPassed ? '✅ All '+objTotal : objDone+'/'+objTotal}</td>
         <td style="padding:8px;text-align:center;color:${labs>0?'var(--green)':'var(--muted)'};">${labs > 0 ? labs + ' done' : '—'}</td>
-        <td style="padding:8px;text-align:center;">${hasRef ? '<span style="color:var(--green);">✓</span>' : '<span style="color:var(--muted);">—</span>'}</td>
+        <td style="padding:8px;text-align:center;">${hasRef ? `<button onclick="showReflection(${n}, this)" style="background:rgba(0,245,255,.1);color:var(--cyan);border:1px solid rgba(0,245,255,.3);border-radius:4px;padding:2px 8px;font-size:.7rem;font-weight:700;cursor:pointer;">💬 Read</button>` : '<span style="color:var(--muted);">—</span>'}</td>
       </tr>`;
     }).join('');
 
+    window._currentPortalProg = prog; // store so showReflection can access it
     const SOFT_SKILL_LABELS = { communication:'Communication', teamwork:'Teamwork', problemsolving:'Problem-Solving', professionalism:'Professionalism' };
     const skillRows = Object.entries(SOFT_SKILL_LABELS).map(([id, label]) => {
       const sk = skills[id] || {};
@@ -5169,6 +5170,27 @@ function updateSubBadge(count) {
   if (!badge) return;
   if (count > 0) { badge.style.display = 'inline'; badge.textContent = count; }
   else badge.style.display = 'none';
+}
+
+function showReflection(weekNum, btn) {
+  const prog = window._currentPortalProg || {};
+  const w = prog[weekNum] || {};
+  const text = w.reflection || 'No reflection found.';
+  const row = btn.closest('tr');
+  // Toggle existing panel
+  const existing = row.nextSibling;
+  if (existing && existing.dataset && existing.dataset.reflRow === String(weekNum)) {
+    existing.remove();
+    btn.textContent = '💬 Read';
+    return;
+  }
+  const tr = document.createElement('tr');
+  tr.dataset.reflRow = weekNum;
+  tr.innerHTML = `<td colspan="6" style="padding:0 8px 12px 8px;">
+    <div style="background:#0a1628;border-radius:6px;padding:12px 14px;font-size:.82rem;color:var(--text);border-left:3px solid var(--cyan);line-height:1.6;white-space:pre-wrap;">${text.replace(/</g,'&lt;')}</div>
+  </td>`;
+  row.parentNode.insertBefore(tr, row.nextSibling);
+  btn.textContent = '💬 Close';
 }
 
 function _legacyLoadSubmissions() {
