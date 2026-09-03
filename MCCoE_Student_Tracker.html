@@ -1857,6 +1857,13 @@ function _assignMissingIds() {
 function _addRegistryEntry(entry) {
   const exists = students.find(s => s.portalTempId === entry.tempId);
   if (exists) return false;
+  // If a manually-added student with same name exists, link them instead of duplicating
+  const byName = students.find(s => !s.portalTempId && s.name && entry.name && s.name.toLowerCase() === entry.name.toLowerCase());
+  if (byName) {
+    byName.portalTempId = entry.tempId;
+    if (!byName.studentId && entry.assignedId) byName.studentId = entry.assignedId;
+    return true; // changed
+  }
   const assignedId = entry.assignedId || _nextAutoId();
   // Write the assigned ID back to Firebase so the student sees it too
   if (!entry.assignedId && _fbDb) {
@@ -4007,6 +4014,15 @@ function openDetail(id) {
 function loadPortalProgress(rosterId, portalTempId) {
   const el = document.getElementById('portal-progress-' + rosterId);
   if (!el) return;
+  // Fallback: if portalTempId missing, search registry by student name
+  if (!portalTempId) {
+    const s = students.find(x => x.id === rosterId);
+    if (s) {
+      const reg = getRegistry();
+      const entry = reg.find(r => r.name && s.name && r.name.toLowerCase() === s.name.toLowerCase() && r.tempId);
+      if (entry) portalTempId = entry.tempId;
+    }
+  }
   if (!portalTempId) {
     el.innerHTML = '<div style="color:var(--muted);font-size:.82rem;">No portal account linked to this student.</div>';
     return;
