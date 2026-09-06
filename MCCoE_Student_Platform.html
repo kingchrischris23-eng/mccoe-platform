@@ -754,7 +754,7 @@ function buildAcronymQuiz(weekNum) {
     const correctPos = Math.floor(Math.random() * 4);
     const opts = [...wrongDefs];
     opts.splice(correctPos, 0, correct);
-    return { q: `What does <strong>${acronym}</strong> stand for?`, opts, ans: correctPos };
+    return { acronym, q: `What does ${acronym} stand for?`, opts, ans: correctPos };
   });
 }
 
@@ -3231,7 +3231,11 @@ function renderAcronymTab(weekNum) {
 function renderAcronymQuestions(quiz) {
   return quiz.map((q, qi) => `
     <div class="quiz-q">
-      <div class="quiz-q-text"><span class="quiz-q-num">Q${qi+1}.</span> ${q.q}</div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;flex-wrap:wrap;">
+        <span class="quiz-q-num">Q${qi+1}.</span>
+        <span style="font-size:1.5rem;font-weight:900;color:var(--cyan);font-family:var(--font-h);letter-spacing:2px;background:rgba(0,245,255,.07);padding:4px 16px;border-radius:8px;border:1px solid rgba(0,245,255,.25);">${q.acronym}</span>
+        <span style="font-size:.8rem;color:var(--muted);">Select the correct definition:</span>
+      </div>
       <div class="quiz-options">
         ${q.opts.map((opt, oi) => `
           <label class="quiz-opt" id="aq-opt-${qi}-${oi}">
