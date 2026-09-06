@@ -747,14 +747,14 @@ function buildAcronymQuiz(weekNum) {
   const data = ACRONYM_DATA[weekNum];
   if (!data) return [];
   return data.map((item, idx) => {
-    const [acronym, correct] = item;
+    const [acronym, definition] = item;
     const others = data.filter((_, i) => i !== idx);
     const shuffled = [...others].sort(() => Math.random() - 0.5).slice(0, 3);
-    const wrongDefs = shuffled.map(o => o[1]);
+    const wrongAcronyms = shuffled.map(o => o[0]);
     const correctPos = Math.floor(Math.random() * 4);
-    const opts = [...wrongDefs];
-    opts.splice(correctPos, 0, correct);
-    return { acronym, q: `What does ${acronym} stand for?`, opts, ans: correctPos };
+    const opts = [...wrongAcronyms];
+    opts.splice(correctPos, 0, acronym);
+    return { acronym, definition, q: definition, opts, ans: correctPos };
   });
 }
 
@@ -3231,15 +3231,18 @@ function renderAcronymTab(weekNum) {
 function renderAcronymQuestions(quiz) {
   return quiz.map((q, qi) => `
     <div class="quiz-q">
-      <div style="display:flex;align-items:center;gap:14px;margin-bottom:10px;flex-wrap:wrap;">
-        <span class="quiz-q-num">Q${qi+1}.</span>
-        <span style="font-size:1.5rem;font-weight:900;color:var(--cyan);font-family:var(--font-h);letter-spacing:2px;background:rgba(0,245,255,.07);padding:4px 16px;border-radius:8px;border:1px solid rgba(0,245,255,.25);">${q.acronym}</span>
-        <span style="font-size:.8rem;color:var(--muted);">Select the correct definition:</span>
+      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
+        <span class="quiz-q-num" style="flex-shrink:0;">Q${qi+1}.</span>
+        <div>
+          <div style="font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;">Which acronym matches this definition?</div>
+          <div style="font-size:.95rem;font-weight:600;color:var(--text);line-height:1.5;">${q.q}</div>
+        </div>
       </div>
       <div class="quiz-options">
         ${q.opts.map((opt, oi) => `
           <label class="quiz-opt" id="aq-opt-${qi}-${oi}">
-            <input type="radio" name="aq${qi}" value="${oi}"> ${opt}
+            <input type="radio" name="aq${qi}" value="${oi}">
+            <span style="font-weight:800;font-family:var(--font-h);letter-spacing:1px;color:var(--cyan);">${opt}</span>
           </label>`).join('')}
       </div>
     </div>`).join('');
@@ -3792,7 +3795,7 @@ function _showAcronymReview(quiz, panelId) {
     const sel = document.querySelector(`input[name="aq${qi}"]:checked`);
     if (!sel) return;
     const chosen = parseInt(sel.value);
-    results.push({ acronym: q.acronym, correct: q.opts[q.ans], chosen: q.opts[chosen], isWrong: chosen !== q.ans });
+    results.push({ acronym: q.acronym, definition: q.definition, correct: q.opts[q.ans], chosen: q.opts[chosen], isWrong: chosen !== q.ans });
   });
 
   const wrongs = results.filter(r => r.isWrong);
@@ -3807,11 +3810,9 @@ function _showAcronymReview(quiz, panelId) {
 
   wrongs.forEach(w => {
     html += `<div class="quiz-review-item" style="padding:14px 16px;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-        <span style="font-size:1.2rem;font-weight:900;color:var(--cyan);font-family:var(--font-h);letter-spacing:2px;background:rgba(0,245,255,.07);padding:3px 14px;border-radius:6px;border:1px solid rgba(0,245,255,.25);">${w.acronym}</span>
-      </div>
-      <div class="quiz-review-wrong" style="margin-bottom:4px;">✗ You chose: ${w.chosen}</div>
-      <div class="quiz-review-correct">✓ ${w.acronym} = ${w.correct}</div>
+      <div style="font-size:.8rem;color:var(--muted);margin-bottom:6px;line-height:1.4;">${w.definition}</div>
+      <div class="quiz-review-wrong" style="margin-bottom:4px;">✗ You chose: <strong style="font-family:var(--font-h);letter-spacing:1px;">${w.chosen}</strong></div>
+      <div class="quiz-review-correct">✓ Correct: <strong style="font-family:var(--font-h);letter-spacing:1px;color:var(--cyan);">${w.acronym}</strong> = ${w.definition}</div>
     </div>`;
   });
 
