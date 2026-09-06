@@ -632,6 +632,9 @@ select option { background:var(--surface); color:var(--text); }
   <button class="nav-btn" onclick="showView('academy',this)">
     <span class="nav-icon">🎮</span> Academy Scores
   </button>
+  <button class="nav-btn" onclick="showView('acronym',this)">
+    <span class="nav-icon">🔤</span> Acronym Scores
+  </button>
   <button class="nav-btn" onclick="showView('pentest',this)">
     <span class="nav-icon">💻</span> Pentest Lab
   </button>
@@ -1156,6 +1159,24 @@ select option { background:var(--surface); color:var(--text); }
       <div id="academy-grades-wrap">
         <div style="color:var(--muted);padding:20px;">Loading...</div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ ACRONYM SCORES ═══ -->
+<div id="view-acronym" class="view">
+  <div class="page-header">
+    <div>
+      <h2>🔤 Acronym Scores</h2>
+      <p>SY0-701 acronym drill scores from the student platform — all 9 weeks, auto-graded</p>
+    </div>
+    <button class="btn btn-outline" onclick="loadAcronymScores()">↻ Refresh</button>
+  </div>
+  <div id="acronym-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;"></div>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;">
+    <div style="font-size:.8rem;font-weight:700;color:var(--text);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);letter-spacing:.5px;text-transform:uppercase;">Scores by Student — Weeks 1–9</div>
+    <div id="acronym-table-wrap">
+      <div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0;">Loading...</div>
     </div>
   </div>
 </div>
@@ -2256,6 +2277,7 @@ function showView(name, btn) {
   if(name==='submissions')  renderSubmissionsView();
   if(name==='library')      renderLibraryAdmin();
   if(name==='academy')      loadAcademyScores();
+  if(name==='acronym')      loadAcronymScores();
   if(name==='pentest')      loadPentestScores();
   if(name==='htb')          loadHTBScores();
   if(name==='blueteam')     loadBlueTeamScores();
@@ -2527,6 +2549,103 @@ function loadAcademyScores() {
         </tbody>
       </table>
       </div>`;
+  });
+}
+
+// ════════════════════════════════════════════
+//  ACRONYM DRILL SCORES
+// ════════════════════════════════════════════
+function loadAcronymScores() {
+  const wrap = document.getElementById('acronym-table-wrap');
+  const kpis = document.getElementById('acronym-kpis');
+  if (!wrap) return;
+  wrap.innerHTML = '<div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0;">Loading...</div>';
+  if (!_fbDb) { wrap.innerHTML = '<div style="color:var(--red);padding:20px;">Firebase not connected.</div>'; return; }
+
+  _fbDb.ref('mccoe_acronyms').once('value', snap => {
+    const allData = snap.val() || {};
+    const weeks = [1,2,3,4,5,6,7,8,9];
+
+    // Build roster — match by portalTempId
+    const sList = students.filter(s => s.name).map(s => ({
+      name: s.name,
+      key: s.portalTempId || s.name.replace(/\s+/g,'_').toLowerCase()
+    }));
+
+    if (!sList.length) {
+      wrap.innerHTML = '<div style="color:var(--muted);padding:20px;">No students on roster yet.</div>';
+      if (kpis) kpis.innerHTML = '';
+      return;
+    }
+
+    // KPIs
+    let attempted = 0, passCount = 0, totalPct = 0, scoreCount = 0;
+    sList.forEach(s => {
+      const sd = allData[s.key] || {};
+      weeks.forEach(w => {
+        const entry = sd['week' + w];
+        if (entry && entry.pct !== undefined) {
+          attempted++;
+          if (entry.pct >= 70) passCount++;
+          totalPct += entry.pct;
+          scoreCount++;
+        }
+      });
+    });
+    const avgPct = scoreCount > 0 ? Math.round(totalPct / scoreCount) : 0;
+    const passRate = attempted > 0 ? Math.round(passCount / attempted * 100) : 0;
+
+    if (kpis) kpis.innerHTML = `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;">
+        <div style="font-size:1.6rem;font-weight:900;color:var(--cyan);">${attempted}</div>
+        <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Drills Completed</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;">
+        <div style="font-size:1.6rem;font-weight:900;color:var(--green);">${passRate}%</div>
+        <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Pass Rate (≥70%)</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;">
+        <div style="font-size:1.6rem;font-weight:900;color:var(--yellow);">${avgPct}%</div>
+        <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Avg Score</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center;">
+        <div style="font-size:1.6rem;font-weight:900;color:var(--text);">${sList.length * weeks.length}</div>
+        <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;">Total Possible</div>
+      </div>`;
+
+    // Table
+    let html = '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;min-width:800px;">';
+    html += '<thead><tr style="border-bottom:2px solid var(--border);">';
+    html += '<th style="padding:10px;text-align:left;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;min-width:160px;">Student</th>';
+    weeks.forEach(w => {
+      html += `<th style="padding:10px;text-align:center;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Wk ${w}</th>`;
+    });
+    html += '<th style="padding:10px;text-align:center;font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Avg</th>';
+    html += '</tr></thead><tbody>';
+
+    sList.forEach(s => {
+      const sd = allData[s.key] || {};
+      html += '<tr style="border-bottom:1px solid var(--border);">';
+      html += `<td style="padding:10px;font-weight:600;color:var(--text);font-size:.85rem;">${s.name}</td>`;
+      let total = 0, count = 0;
+      weeks.forEach(w => {
+        const entry = sd['week' + w];
+        if (entry && entry.pct !== undefined) {
+          const c = entry.pct >= 70 ? 'var(--green)' : entry.pct >= 50 ? 'var(--yellow)' : 'var(--red)';
+          html += `<td style="padding:8px;text-align:center;"><span style="font-size:.78rem;font-weight:700;color:${c};">${entry.score}/${entry.total}<br><span style="font-size:.7rem;">${entry.pct}%</span></span></td>`;
+          total += entry.pct; count++;
+        } else {
+          html += `<td style="padding:8px;text-align:center;color:rgba(200,216,232,0.25);font-size:.8rem;">—</td>`;
+        }
+      });
+      const avg = count > 0 ? Math.round(total / count) : null;
+      const avgC = avg !== null ? (avg >= 70 ? 'var(--green)' : avg >= 50 ? 'var(--yellow)' : 'var(--red)') : 'var(--muted)';
+      html += `<td style="padding:10px;text-align:center;font-weight:700;color:${avgC};">${avg !== null ? avg + '%' : '—'}</td>`;
+      html += '</tr>';
+    });
+
+    html += '</tbody></table></div>';
+    wrap.innerHTML = html;
   });
 }
 
