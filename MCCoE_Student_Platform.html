@@ -726,87 +726,37 @@ hr { border-color: rgba(0,245,255,0.12) !important; }
 // ══════════════════════════════════════════════
 const INSTRUCTOR_EMAIL = 'jharbour@mccoe.org';
 
-// ACRONYM QUIZZES — one set per week, replaces Project tab
-const ACRONYM_QUIZ = {
-  1: [
-    { q: 'What does CIA stand for in cybersecurity?', opts: ['Cyber Intelligence Agency', 'Confidentiality, Integrity, Availability', 'Control, Investigate, Assess', 'Central Intelligence Architecture'], ans: 1 },
-    { q: 'What does DAD stand for (the opposite of the CIA Triad)?', opts: ['Data, Access, Defense', 'Disclosure, Alteration, Denial', 'Detection, Analysis, Defense', 'Data Audit Domain'], ans: 1 },
-    { q: 'What does AAA stand for in security frameworks?', opts: ['Authentication, Authorization, Accounting', 'Access, Audit, Alert', 'Administration, Authentication, Audit', 'Assurance, Authority, Access'], ans: 0 },
-    { q: 'What does NIST stand for?', opts: ['Network Infrastructure Security Team', 'National Institute of Standards and Technology', 'National Internet Security Trust', 'Network Integrity Standards Tool'], ans: 1 },
-    { q: 'What does CVE stand for?', opts: ['Cyber Vulnerability Exploit', 'Common Vulnerabilities and Exposures', 'Certified Vulnerability Expert', 'Cyber Vector Evaluation'], ans: 1 },
-    { q: 'What does CWE stand for?', opts: ['Common Weakness Enumeration', 'Certified Wireless Expert', 'Cyber War Exercise', 'Central Web Encryption'], ans: 0 },
-    { q: 'What does RMF stand for?', opts: ['Risk Mapping Framework', 'Risk Management Framework', 'Rapid Mitigation Function', 'Regional Management Form'], ans: 1 }
-  ],
-  2: [
-    { q: 'What does OSI stand for?', opts: ['Open Security Infrastructure', 'Open Systems Interconnection', 'Operational Security Interface', 'Online Security Interchange'], ans: 1 },
-    { q: 'What does TCP stand for?', opts: ['Transfer Control Protocol', 'Transmission Control Protocol', 'Traffic Control Process', 'Trusted Communication Protocol'], ans: 1 },
-    { q: 'What does DNS stand for?', opts: ['Digital Network Security', 'Domain Name System', 'Dynamic Network Service', 'Data Node Server'], ans: 1 },
-    { q: 'What does DHCP stand for?', opts: ['Dynamic Host Configuration Protocol', 'Data Host Control Protocol', 'Distributed Hardware Configuration Process', 'Digital Host Connectivity Protocol'], ans: 0 },
-    { q: 'What does VPN stand for?', opts: ['Virtual Private Network', 'Virtual Public Node', 'Verified Private Network', 'Virtual Protocol Network'], ans: 0 },
-    { q: 'What does DMZ stand for in networking?', opts: ['Data Management Zone', 'Demilitarized Zone', 'Distributed Media Zone', 'Domain Management Zone'], ans: 1 },
-    { q: 'What does ARP stand for?', opts: ['Advanced Routing Protocol', 'Address Resolution Protocol', 'Automatic Resource Processing', 'Authentication Request Protocol'], ans: 1 }
-  ],
-  3: [
-    { q: 'What does APT stand for?', opts: ['Automated Phishing Toolkit', 'Advanced Persistent Threat', 'Application Penetration Testing', 'Active Protocol Tracker'], ans: 1 },
-    { q: 'What does IOC stand for in threat intelligence?', opts: ['Internet of Compromise', 'Indicator of Compromise', 'Internal Operations Control', 'Index of Countermeasures'], ans: 1 },
-    { q: 'What does RAT stand for in malware?', opts: ['Remote Access Trojan', 'Rapid Attack Tool', 'Reconnaissance and Tracking', 'Remote Audit Terminal'], ans: 0 },
-    { q: 'What does TTP stand for?', opts: ['Tools, Techniques, and Procedures', 'Tactics, Techniques, and Procedures', 'Targeted Threat Profile', 'Threat Testing Protocol'], ans: 1 },
-    { q: 'What does OSINT stand for?', opts: ['Online Security Intelligence', 'Open Source Intelligence', 'Operational Security Integration', 'Organized System Inventory Tool'], ans: 1 },
-    { q: 'What does C2 stand for in malware operations?', opts: ['Code to Code', 'Command and Control', 'Core Communication', 'Cyber Configuration'], ans: 1 }
-  ],
-  4: [
-    { q: 'What does CLI stand for?', opts: ['Coded Logic Interface', 'Command Line Interface', 'Central Logging Infrastructure', 'Cyber Linux Integration'], ans: 1 },
-    { q: 'What does IDS stand for?', opts: ['Intrusion Detection System', 'Internal Data Security', 'Integrated Defense Software', 'Internet Defense Shield'], ans: 0 },
-    { q: 'What does IPS stand for?', opts: ['Internet Protection Service', 'Intrusion Prevention System', 'Integrated Policy Standard', 'Internal Packet Scanner'], ans: 1 },
-    { q: 'What does SIEM stand for?', opts: ['Security Information and Event Management', 'Secure Internet Event Monitor', 'System Integrity and Error Management', 'Security Intelligence and Endpoint Management'], ans: 0 },
-    { q: 'What does EDR stand for?', opts: ['Event Detection and Response', 'Endpoint Detection and Response', 'Enterprise Data Recovery', 'External Defense Response'], ans: 1 },
-    { q: 'What does WAF stand for?', opts: ['Wireless Access Framework', 'Web Application Firewall', 'Wide Area Filter', 'Wireless Authentication Function'], ans: 1 },
-    { q: 'What does DLP stand for?', opts: ['Data Loss Prevention', 'Digital Log Protocol', 'Dynamic Link Protection', 'Data Layer Policy'], ans: 0 }
-  ],
-  5: [
-    { q: 'What does SSH stand for?', opts: ['Secure Shell', 'System Shell Handler', 'Secure Socket Hosting', 'Standard Shell Host'], ans: 0 },
-    { q: 'What does FTP stand for?', opts: ['File Transfer Protocol', 'Firewall Testing Protocol', 'Fast Transmission Protocol', 'Federated Transfer Process'], ans: 0 },
-    { q: 'What does CFAA stand for?', opts: ['Computer Forensics and Analysis Act', 'Computer Fraud and Abuse Act', 'Certified Federal Access Authority', 'Cyber Fraud and Audit Act'], ans: 1 },
-    { q: 'What does PID stand for in Linux?', opts: ['Program Identification Directory', 'Process Identifier', 'Permission ID', 'Port Interface Descriptor'], ans: 1 },
-    { q: 'What does BASH stand for?', opts: ['Basic Automated Shell Host', 'Bourne Again Shell', 'Binary Application Shell Handler', 'Background Application System Hub'], ans: 1 },
-    { q: 'What does GUI stand for?', opts: ['General User Interface', 'Graphical User Interface', 'Global Utility Integration', 'Graded User Input'], ans: 1 }
-  ],
-  6: [
-    { q: 'What does MFA stand for?', opts: ['Managed Firewall Access', 'Multi-Factor Authentication', 'Monitored File Access', 'Maximum Firewall Authority'], ans: 1 },
-    { q: 'What does BEC stand for?', opts: ['Browser Exploit Code', 'Business Email Compromise', 'Backend Encryption Control', 'Basic Email Configuration'], ans: 1 },
-    { q: 'What does DMARC stand for?', opts: ['Domain Mail Authentication and Reporting Control', 'Domain-based Message Authentication, Reporting, and Conformance', 'Digital Mail Access and Relay Control', 'Distributed Message Authentication and Relay Configuration'], ans: 1 },
-    { q: 'What does SPF stand for in email security?', opts: ['Spam Protection Filter', 'Sender Policy Framework', 'Secure Packet Forwarding', 'Standard Protocol Filter'], ans: 1 },
-    { q: 'What does DKIM stand for?', opts: ['DomainKeys Identified Mail', 'Digital Key Integration Module', 'Distributed Key Infrastructure Management', 'Domain Knowledge Identification Method'], ans: 0 },
-    { q: 'What does OTP stand for?', opts: ['Online Threat Protection', 'One-Time Password', 'Open Trust Protocol', 'Outbound Traffic Policy'], ans: 1 }
-  ],
-  7: [
-    { q: 'What does NGFW stand for?', opts: ['Network Gateway Filtering Wizard', 'Next-Generation Firewall', 'Node Guardian Firewall Wrapper', 'Network Guard and Filter Watchdog'], ans: 1 },
-    { q: 'What does SOC stand for in cybersecurity?', opts: ['System Operations Control', 'Security Operations Center', 'Secure Output Controller', 'System Output Console'], ans: 1 },
-    { q: 'What does MDR stand for?', opts: ['Multi-Device Response', 'Managed Detection and Response', 'Mobile Defense Resource', 'Monitored Detection Record'], ans: 1 },
-    { q: 'What does UEBA stand for?', opts: ['Unified Endpoint Behavior Analysis', 'User and Entity Behavior Analytics', 'Universal Event and Behavior Auditing', 'User Entry Blocking Application'], ans: 1 },
-    { q: 'What does NAC stand for?', opts: ['Network Access Control', 'Node Authentication Certificate', 'Network Audit Console', 'Networked Application Controller'], ans: 0 },
-    { q: 'What does XDR stand for?', opts: ['Extended Device Response', 'Extended Detection and Response', 'External Data Recovery', 'Extra Domain Routing'], ans: 1 }
-  ],
-  8: [
-    { q: 'What does IR stand for in cybersecurity?', opts: ['Intrusion Report', 'Incident Response', 'Internal Review', 'Integrity Risk'], ans: 1 },
-    { q: 'What does CSIRT stand for?', opts: ['Cyber Security Intelligence and Response Team', 'Computer Security Incident Response Team', 'Central Security Incident Reporting Team', 'Cyber System Integrity Response Team'], ans: 1 },
-    { q: 'What does MTTR stand for?', opts: ['Mean Time to Remediate', 'Mean Time to Recover', 'Maximum Threat to Response', 'Managed Time to Reboot'], ans: 1 },
-    { q: 'What does MTTD stand for?', opts: ['Mean Time to Detect', 'Maximum Threat Trigger Date', 'Managed Threat and Triage Decisions', 'Mean Time to Defend'], ans: 0 },
-    { q: 'What does RTO stand for?', opts: ['Risk Threshold Overview', 'Recovery Time Objective', 'Response Time Operation', 'Risk Transfer Order'], ans: 1 },
-    { q: 'What does RPO stand for?', opts: ['Response Point Operation', 'Recovery Point Objective', 'Risk Protocol Overview', 'Restore Position Order'], ans: 1 },
-    { q: 'What does BCP stand for?', opts: ['Business Cyber Policy', 'Business Continuity Plan', 'Backup Control Process', 'Breach Containment Protocol'], ans: 1 }
-  ],
-  9: [
-    { q: 'What does CompTIA stand for?', opts: ['Computer Technology Integration Authority', 'Computing Technology Industry Association', 'Certified Professional Technology Integration Agency', 'Computer Training and Industry Alliance'], ans: 1 },
-    { q: 'What does CISSP stand for?', opts: ['Certified Information Systems Security Professional', 'Certified Internet Security and Systems Protocol', 'Central Information Security Specialist Program', 'Comprehensive IT Security and Safety Protocol'], ans: 0 },
-    { q: 'What does CISA stand for (the certification)?', opts: ['Certified Internet Security Analyst', 'Certified Information Systems Auditor', 'Cyber Infrastructure Security Authority', 'Certified Information Security Assessor'], ans: 1 },
-    { q: 'What does CISM stand for?', opts: ['Certified Information Security Manager', 'Cyber Intelligence and Security Monitor', 'Certified IT Security Management', 'Central Information Security Model'], ans: 0 },
-    { q: 'What does CEH stand for?', opts: ['Computer Ethics Handbook', 'Certified Ethical Hacker', 'Cyber Exploitation Handbook', 'Certified Enterprise Hacker'], ans: 1 },
-    { q: 'What does OSCP stand for?', opts: ['Open Source Certification Program', 'Offensive Security Certified Professional', 'Online Security Credential Pathway', 'Operational Security Certified Practitioner'], ans: 1 },
-    { q: 'What does GRC stand for?', opts: ['Global Risk and Compliance', 'Governance, Risk, and Compliance', 'General Response Capability', 'Government Risk Controls'], ans: 1 },
-    { q: 'What does NOC stand for?', opts: ['Network Operations Center', 'National Operations Command', 'Network Output Controller', 'Node Operations Console'], ans: 0 }
-  ]
+// SY0-701 ACRONYM DATA — 292 acronyms split across 9 weeks (~32 each)
+// Quiz is generated dynamically so wrong answers are drawn from the same week's pool
+const ACRONYM_DATA = {
+  1: [['AAA','Authentication, Authorization, and Accounting'],['ACL','Access Control List'],['AES','Advanced Encryption Standard'],['AH','Authentication Header'],['AI','Artificial Intelligence'],['AIS','Automated Indicator Sharing'],['ALE','Annualized Loss Expectancy'],['APT','Advanced Persistent Threat'],['ARO','Annualized Rate of Occurrence'],['ARP','Address Resolution Protocol'],['ASLR','Address Space Layout Randomization'],['ATT&CK','Adversarial Tactics, Techniques, and Common Knowledge'],['AUP','Acceptable Use Policy'],['AV','Antivirus / Asset Value'],['AVI','Audio Video Interleave'],['AWS','Amazon Web Services'],['BAC','Business Availability Center'],['BCP','Business Continuity Plan'],['BGP','Border Gateway Protocol'],['BIA','Business Impact Analysis'],['BIOS','Basic Input/Output System'],['BPA','Business Partnership Agreement'],['BPDU','Bridge Protocol Data Unit'],['BYOD','Bring Your Own Device'],['CA','Certificate Authority'],['CAC','Common Access Card'],['CAPTCHA','Completely Automated Public Turing Test to Tell Computers and Humans Apart'],['CAR','Corrective Action Report'],['CASB','Cloud Access Security Broker'],['CBC','Cipher Block Chaining'],['CCMP','Counter Mode with Cipher Block Chaining Message Authentication Code Protocol'],['CCTV','Closed-Circuit Television'],['CERT','Computer Emergency Response Team']],
+  2: [['CFB','Cipher Feedback'],['CHAP','Challenge Handshake Authentication Protocol'],['CIA','Confidentiality, Integrity, and Availability'],['CIS','Center for Internet Security'],['CISA','Cybersecurity and Infrastructure Security Agency'],['CMS','Content Management System'],['COOP','Continuity of Operations Plan'],['COPE','Corporate-Owned, Personally Enabled'],['CPU','Central Processing Unit'],['CRC','Cyclic Redundancy Check'],['CRL','Certificate Revocation List'],['CSP','Cloud Service Provider / Content Security Policy'],['CSR','Certificate Signing Request'],['CSRF','Cross-Site Request Forgery'],['CTI','Cyber Threat Intelligence'],['CVE','Common Vulnerabilities and Exposures'],['CVSS','Common Vulnerability Scoring System'],['CYOD','Choose Your Own Device'],['DAC','Discretionary Access Control'],['DaaS','Desktop as a Service'],['DB','Database'],['DBA','Database Administrator'],['DBMS','Database Management System'],['DDoS','Distributed Denial of Service'],['DEP','Data Execution Prevention'],['DES','Digital Encryption Standard'],['DHCP','Dynamic Host Configuration Protocol'],['DHE','Diffie-Hellman Ephemeral'],['DKIM','DomainKeys Identified Mail'],['DLL','Dynamic-Link Library'],['DLP','Data Loss Prevention'],['DMARC','Domain-Based Message Authentication, Reporting, and Conformance'],['DMZ','Demilitarized Zone']],
+  3: [['DNS','Domain Name System'],['DNSSEC','Domain Name System Security Extensions'],['DoS','Denial of Service'],['DPO','Data Protection Officer'],['DR','Disaster Recovery'],['DRP','Disaster Recovery Plan'],['DSA','Digital Signature Algorithm'],['DSGVO','Datenschutz-Grundverordnung (German GDPR)'],['EAP','Extensible Authentication Protocol'],['ECB','Electronic Code Book'],['ECDHE','Elliptic Curve Diffie-Hellman Ephemeral'],['ECDSA','Elliptic Curve Digital Signature Algorithm'],['EDR','Endpoint Detection and Response'],['EFS','Encrypted File System'],['ELK','Elasticsearch, Logstash, and Kibana'],['EMM','Enterprise Mobility Management'],['EMP','Electromagnetic Pulse'],['ESP','Encapsulating Security Payload'],['EV','Extended Validation'],['FDE','Full-Disk Encryption'],['FIM','File Integrity Monitoring'],['FIPS','Federal Information Processing Standards'],['FISMA','Federal Information Security Management Act'],['FTP','File Transfer Protocol'],['FTPS','File Transfer Protocol Secure'],['GCP','Google Cloud Platform'],['GDPR','General Data Protection Regulation'],['GPG','GNU Privacy Guard'],['GPO','Group Policy Object'],['GPS','Global Positioning System'],['GPU','Graphics Processing Unit'],['GRE','Generic Routing Encapsulation'],['HA','High Availability']],
+  4: [['HDD','Hard Disk Drive'],['HIDS','Host-Based Intrusion Detection System'],['HIPS','Host-Based Intrusion Prevention System'],['HMAC','Hash-Based Message Authentication Code'],['HOTP','HMAC-Based One-Time Password'],['HSM','Hardware Security Module'],['HTML','Hypertext Markup Language'],['HTTP','Hypertext Transfer Protocol'],['HTTPS','Hypertext Transfer Protocol Secure'],['HVAC','Heating, Ventilation, and Air Conditioning'],['IaaS','Infrastructure as a Service'],['IAM','Identity and Access Management'],['ICMP','Internet Control Message Protocol'],['ICS','Industrial Control System'],['IdP','Identity Provider'],['IDS','Intrusion Detection System'],['IEEE','Institute of Electrical and Electronics Engineers'],['IKE','Internet Key Exchange'],['IM','Instant Messaging'],['IMAP','Internet Message Access Protocol'],['IoC','Indicator of Compromise'],['IoT','Internet of Things'],['IP','Internet Protocol'],['IPS','Intrusion Prevention System'],['IPSec','Internet Protocol Security'],['IR','Incident Response'],['IRP','Incident Response Plan'],['ISA','Interconnection Security Agreement'],['ISP','Internet Service Provider'],['ISSO','Information Systems Security Officer'],['IV','Initialization Vector'],['KDC','Key Distribution Center'],['KEK','Key Encryption Key']],
+  5: [['L2TP','Layer 2 Tunneling Protocol'],['LDAP','Lightweight Directory Access Protocol'],['LDAPS','Lightweight Directory Access Protocol Secure'],['LEAP','Lightweight Extensible Authentication Protocol'],['MaaS','Malware as a Service'],['MAC','Mandatory Access Control / Media Access Control / Message Authentication Code'],['MAN','Metropolitan Area Network'],['MBR','Master Boot Record'],['MD5','Message Digest 5'],['MFA','Multifactor Authentication'],['MFD','Multifunction Device'],['MFP','Multifunction Printer'],['ML','Machine Learning'],['MOU','Memorandum of Understanding'],['MPLS','Multiprotocol Label Switching'],['MSA','Master Service Agreement'],['MSCHAP','Microsoft Challenge Handshake Authentication Protocol'],['MSP','Managed Service Provider'],['MSSP','Managed Security Service Provider'],['MTBF','Mean Time Between Failures'],['MTTF','Mean Time to Failure'],['MTTR','Mean Time to Repair'],['MTU','Maximum Transmission Unit'],['NAC','Network Access Control'],['NAT','Network Address Translation'],['NDA','Non-Disclosure Agreement'],['NFC','Near-Field Communication'],['NGFW','Next-Generation Firewall'],['NIDS','Network-Based Intrusion Detection System'],['NIPS','Network-Based Intrusion Prevention System'],['NIST','National Institute of Standards and Technology'],['NTFS','New Technology File System'],['NTLM','New Technology LAN Manager']],
+  6: [['NTP','Network Time Protocol'],['OAuth','Open Authorization'],['OCSP','Online Certificate Status Protocol'],['OID','Object Identifier'],['OS','Operating System'],['OSINT','Open-Source Intelligence'],['OT','Operational Technology'],['OTP','One-Time Password'],['OVAL','Open Vulnerability and Assessment Language'],['P12','PKCS #12'],['P2P','Peer to Peer'],['PaaS','Platform as a Service'],['PAM','Privileged Access Management'],['PAP','Password Authentication Protocol'],['PAT','Port Address Translation'],['PBKDF2','Password-Based Key Derivation Function 2'],['PCI DSS','Payment Card Industry Data Security Standard'],['PDU','Protocol Data Unit'],['PEAP','Protected Extensible Authentication Protocol'],['PED','Personal Electronic Device'],['PEM','Privacy Enhanced Mail'],['PFS','Perfect Forward Secrecy'],['PGP','Pretty Good Privacy'],['PHI','Protected Health Information'],['PII','Personally Identifiable Information'],['PIV','Personal Identity Verification'],['PKI','Public Key Infrastructure'],['PKCS','Public Key Cryptography Standards'],['POP','Post Office Protocol'],['POTS','Plain Old Telephone Service'],['PPP','Point-to-Point Protocol'],['PPTP','Point-to-Point Tunneling Protocol'],['PSK','Pre-Shared Key']],
+  7: [['PTZ','Pan-Tilt-Zoom'],['RA','Registration Authority / Risk Assessment'],['RACE','Research and Development in Advanced Communications in Europe'],['RAD','Rapid Application Development'],['RADIUS','Remote Authentication Dial-In User Service'],['RAID','Redundant Array of Inexpensive Disks'],['RAM','Random Access Memory'],['RAS','Remote Access Server'],['RAT','Remote Access Trojan'],['RBAC','Role-Based Access Control'],['RC4','Rivest Cipher 4'],['RDP','Remote Desktop Protocol'],['RFID','Radio Frequency Identification'],['RIPEMD','RACE Integrity Primitives Evaluation Message Digest'],['ROI','Return on Investment'],['RPO','Recovery Point Objective'],['RSA','Rivest, Shamir, and Adleman'],['RTBH','Remotely Triggered Black Hole'],['RTO','Recovery Time Objective'],['RTOS','Real-Time Operating System'],['RTP','Real-Time Transport Protocol'],['S/MIME','Secure/Multipurpose Internet Mail Extensions'],['SaaS','Software as a Service'],['SAML','Security Assertions Markup Language'],['SAN','Storage Area Network / Subject Alternative Name'],['SCADA','Supervisory Control and Data Acquisition'],['SCEP','Simple Certificate Enrollment Protocol'],['SD-WAN','Software-Defined Wide Area Network'],['SDN','Software-Defined Networking'],['SEAndroid','Security-Enhanced Android'],['SELinux','Security-Enhanced Linux'],['SHA','Secure Hashing Algorithm'],['SIEM','Security Information and Event Management']],
+  8: [['SIM','Subscriber Identity Module'],['SLA','Service-Level Agreement'],['SLE','Single Loss Expectancy'],['SMB','Server Message Block'],['SMS','Short Message Service'],['SMTP','Simple Mail Transfer Protocol'],['SMTPS','Simple Mail Transfer Protocol Secure'],['SNMP','Simple Network Management Protocol'],['SOAP','Simple Object Access Protocol'],['SOC','Security Operations Center'],['SOW','Statement of Work'],['SPF','Sender Policy Framework'],['SQL','Structured Query Language'],['SQLi','SQL Injection'],['SSH','Secure Shell'],['SSID','Service Set Identifier'],['SSL','Secure Sockets Layer'],['SSO','Single Sign-On'],['STP','Spanning Tree Protocol'],['TACACS+','Terminal Access Controller Access Control System Plus'],['TCP','Transmission Control Protocol'],['TGT','Ticket Granting Ticket'],['TKIP','Temporal Key Integrity Protocol'],['TLS','Transport Layer Security'],['TOTP','Time-Based One-Time Password'],['TPM','Trusted Platform Module'],['TTP','Tactics, Techniques, and Procedures'],['UAT','User Acceptance Testing'],['UAV','Unmanned Aerial Vehicle'],['UDP','User Datagram Protocol'],['UEFI','Unified Extensible Firmware Interface'],['UPS','Uninterruptible Power Supply']],
+  9: [['URI','Uniform Resource Identifier'],['URL','Uniform Resource Locator'],['USB','Universal Serial Bus'],['UTM','Unified Threat Management'],['UTP','Unshielded Twisted Pair'],['VBA','Visual Basic for Applications'],['VDE','Virtual Desktop Environment'],['VDI','Virtual Desktop Infrastructure'],['VLAN','Virtual Local Area Network'],['VLSM','Variable Length Subnet Masking'],['VM','Virtual Machine'],['VoIP','Voice over Internet Protocol'],['VPN','Virtual Private Network'],['VTC','Video Teleconferencing'],['WAF','Web Application Firewall'],['WAP','Wireless Access Point'],['WEP','Wired Equivalent Privacy'],['WIDS','Wireless Intrusion Detection System'],['WIPS','Wireless Intrusion Prevention System'],['WPA','Wi-Fi Protected Access'],['WPA2','Wi-Fi Protected Access 2'],['WPA3','Wi-Fi Protected Access 3'],['WPS','Wi-Fi Protected Setup'],['XDR','Extended Detection and Response'],['XML','Extensible Markup Language'],['XOR','Exclusive Or'],['XSS','Cross-Site Scripting'],['XSRF','Cross-Site Request Forgery'],['ZTA','Zero Trust Architecture']]
 };
+
+// Module-level storage for the dynamically built quiz (rebuilt each render/retake)
+let _activeAcronymQuiz = {};
+
+function buildAcronymQuiz(weekNum) {
+  const data = ACRONYM_DATA[weekNum];
+  if (!data) return [];
+  return data.map((item, idx) => {
+    const [acronym, correct] = item;
+    const others = data.filter((_, i) => i !== idx);
+    const shuffled = [...others].sort(() => Math.random() - 0.5).slice(0, 3);
+    const wrongDefs = shuffled.map(o => o[1]);
+    const correctPos = Math.floor(Math.random() * 4);
+    const opts = [...wrongDefs];
+    opts.splice(correctPos, 0, correct);
+    return { q: `What does <strong>${acronym}</strong> stand for?`, opts, ans: correctPos };
+  });
+}
 
 // PROJECT SUBMISSION FIELDS — one entry per week (1-8)
 const PROJECTS = {
@@ -3259,18 +3209,19 @@ function renderSubmitTab(w, p) {
 // PROJECT SUBMISSIONS
 // ══════════════════════════════════════════════
 function renderAcronymTab(weekNum) {
-  const quiz = ACRONYM_QUIZ[weekNum];
-  if (!quiz) return '<div class="card"><p>No acronym quiz for this week.</p></div>';
+  const data = ACRONYM_DATA[weekNum];
+  if (!data) return '<div class="card"><p>No acronym quiz for this week.</p></div>';
+  _activeAcronymQuiz[weekNum] = buildAcronymQuiz(weekNum);
   const saved = (state.acronymScores || {})[weekNum];
   return `<div class="card">
-    <h3 style="margin:0 0 4px 0;"><span class="icon">🔤</span> Week ${weekNum} Acronym Quiz</h3>
-    <div style="font-size:.8rem;color:var(--muted);margin-bottom:16px;">${quiz.length} questions — multiple choice. How well do you know your cyber alphabet?</div>
+    <h3 style="margin:0 0 4px 0;"><span class="icon">🔤</span> Week ${weekNum} — SY0-701 Acronym Drill</h3>
+    <div style="font-size:.8rem;color:var(--muted);margin-bottom:16px;">${data.length} acronyms — pick the correct definition for each. Wrong answers are drawn from the same week so distractors are real terms.</div>
     ${saved ? `<div style="margin-bottom:16px;padding:10px 14px;background:rgba(0,166,81,.08);border:1px solid rgba(0,166,81,.3);border-radius:8px;font-size:13px;">
       Last score: <strong>${saved.score}/${saved.total} (${saved.pct}%)</strong> ${saved.pct>=70?'✅ PASS':'— keep studying!'}
     </div>` : ''}
-    <div id="acronym-questions">${renderAcronymQuestions(quiz)}</div>
+    <div id="acronym-questions">${renderAcronymQuestions(_activeAcronymQuiz[weekNum])}</div>
     <button onclick="gradeAcronymQuiz(${weekNum})" id="btn-grade-acronym" style="width:100%;padding:12px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:16px;letter-spacing:.3px;">
-      ${saved ? '🔄 Retake Acronym Quiz' : '✅ Grade My Acronyms'}
+      ${saved ? '🔄 Retake Acronym Drill' : '✅ Grade My Acronyms'}
     </button>
     <div class="quiz-result-bar" id="acronym-result-bar" style="display:none;margin-top:12px;"></div>
     <div id="acronym-review-panel" style="margin-top:12px;"></div>
@@ -3291,7 +3242,7 @@ function renderAcronymQuestions(quiz) {
 }
 
 function gradeAcronymQuiz(weekNum) {
-  const quiz = ACRONYM_QUIZ[weekNum];
+  const quiz = _activeAcronymQuiz[weekNum];
   if (!quiz) return;
   let score = 0;
   let allAnswered = true;
@@ -3342,8 +3293,9 @@ function gradeAcronymQuiz(weekNum) {
 }
 
 function retakeAcronymQuiz(weekNum) {
+  _activeAcronymQuiz[weekNum] = buildAcronymQuiz(weekNum);
   const container = document.getElementById('acronym-questions');
-  if (container) container.innerHTML = renderAcronymQuestions(ACRONYM_QUIZ[weekNum]);
+  if (container) container.innerHTML = renderAcronymQuestions(_activeAcronymQuiz[weekNum]);
   const bar = document.getElementById('acronym-result-bar');
   if (bar) { bar.style.display = 'none'; bar.innerHTML = ''; }
   const review = document.getElementById('acronym-review-panel');
