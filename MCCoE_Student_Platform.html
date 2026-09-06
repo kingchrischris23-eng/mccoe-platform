@@ -726,6 +726,88 @@ hr { border-color: rgba(0,245,255,0.12) !important; }
 // ══════════════════════════════════════════════
 const INSTRUCTOR_EMAIL = 'jharbour@mccoe.org';
 
+// ACRONYM QUIZZES — one set per week, replaces Project tab
+const ACRONYM_QUIZ = {
+  1: [
+    { q: 'What does CIA stand for in cybersecurity?', opts: ['Cyber Intelligence Agency', 'Confidentiality, Integrity, Availability', 'Control, Investigate, Assess', 'Central Intelligence Architecture'], ans: 1 },
+    { q: 'What does DAD stand for (the opposite of the CIA Triad)?', opts: ['Data, Access, Defense', 'Disclosure, Alteration, Denial', 'Detection, Analysis, Defense', 'Data Audit Domain'], ans: 1 },
+    { q: 'What does AAA stand for in security frameworks?', opts: ['Authentication, Authorization, Accounting', 'Access, Audit, Alert', 'Administration, Authentication, Audit', 'Assurance, Authority, Access'], ans: 0 },
+    { q: 'What does NIST stand for?', opts: ['Network Infrastructure Security Team', 'National Institute of Standards and Technology', 'National Internet Security Trust', 'Network Integrity Standards Tool'], ans: 1 },
+    { q: 'What does CVE stand for?', opts: ['Cyber Vulnerability Exploit', 'Common Vulnerabilities and Exposures', 'Certified Vulnerability Expert', 'Cyber Vector Evaluation'], ans: 1 },
+    { q: 'What does CWE stand for?', opts: ['Common Weakness Enumeration', 'Certified Wireless Expert', 'Cyber War Exercise', 'Central Web Encryption'], ans: 0 },
+    { q: 'What does RMF stand for?', opts: ['Risk Mapping Framework', 'Risk Management Framework', 'Rapid Mitigation Function', 'Regional Management Form'], ans: 1 }
+  ],
+  2: [
+    { q: 'What does OSI stand for?', opts: ['Open Security Infrastructure', 'Open Systems Interconnection', 'Operational Security Interface', 'Online Security Interchange'], ans: 1 },
+    { q: 'What does TCP stand for?', opts: ['Transfer Control Protocol', 'Transmission Control Protocol', 'Traffic Control Process', 'Trusted Communication Protocol'], ans: 1 },
+    { q: 'What does DNS stand for?', opts: ['Digital Network Security', 'Domain Name System', 'Dynamic Network Service', 'Data Node Server'], ans: 1 },
+    { q: 'What does DHCP stand for?', opts: ['Dynamic Host Configuration Protocol', 'Data Host Control Protocol', 'Distributed Hardware Configuration Process', 'Digital Host Connectivity Protocol'], ans: 0 },
+    { q: 'What does VPN stand for?', opts: ['Virtual Private Network', 'Virtual Public Node', 'Verified Private Network', 'Virtual Protocol Network'], ans: 0 },
+    { q: 'What does DMZ stand for in networking?', opts: ['Data Management Zone', 'Demilitarized Zone', 'Distributed Media Zone', 'Domain Management Zone'], ans: 1 },
+    { q: 'What does ARP stand for?', opts: ['Advanced Routing Protocol', 'Address Resolution Protocol', 'Automatic Resource Processing', 'Authentication Request Protocol'], ans: 1 }
+  ],
+  3: [
+    { q: 'What does APT stand for?', opts: ['Automated Phishing Toolkit', 'Advanced Persistent Threat', 'Application Penetration Testing', 'Active Protocol Tracker'], ans: 1 },
+    { q: 'What does IOC stand for in threat intelligence?', opts: ['Internet of Compromise', 'Indicator of Compromise', 'Internal Operations Control', 'Index of Countermeasures'], ans: 1 },
+    { q: 'What does RAT stand for in malware?', opts: ['Remote Access Trojan', 'Rapid Attack Tool', 'Reconnaissance and Tracking', 'Remote Audit Terminal'], ans: 0 },
+    { q: 'What does TTP stand for?', opts: ['Tools, Techniques, and Procedures', 'Tactics, Techniques, and Procedures', 'Targeted Threat Profile', 'Threat Testing Protocol'], ans: 1 },
+    { q: 'What does OSINT stand for?', opts: ['Online Security Intelligence', 'Open Source Intelligence', 'Operational Security Integration', 'Organized System Inventory Tool'], ans: 1 },
+    { q: 'What does C2 stand for in malware operations?', opts: ['Code to Code', 'Command and Control', 'Core Communication', 'Cyber Configuration'], ans: 1 }
+  ],
+  4: [
+    { q: 'What does CLI stand for?', opts: ['Coded Logic Interface', 'Command Line Interface', 'Central Logging Infrastructure', 'Cyber Linux Integration'], ans: 1 },
+    { q: 'What does IDS stand for?', opts: ['Intrusion Detection System', 'Internal Data Security', 'Integrated Defense Software', 'Internet Defense Shield'], ans: 0 },
+    { q: 'What does IPS stand for?', opts: ['Internet Protection Service', 'Intrusion Prevention System', 'Integrated Policy Standard', 'Internal Packet Scanner'], ans: 1 },
+    { q: 'What does SIEM stand for?', opts: ['Security Information and Event Management', 'Secure Internet Event Monitor', 'System Integrity and Error Management', 'Security Intelligence and Endpoint Management'], ans: 0 },
+    { q: 'What does EDR stand for?', opts: ['Event Detection and Response', 'Endpoint Detection and Response', 'Enterprise Data Recovery', 'External Defense Response'], ans: 1 },
+    { q: 'What does WAF stand for?', opts: ['Wireless Access Framework', 'Web Application Firewall', 'Wide Area Filter', 'Wireless Authentication Function'], ans: 1 },
+    { q: 'What does DLP stand for?', opts: ['Data Loss Prevention', 'Digital Log Protocol', 'Dynamic Link Protection', 'Data Layer Policy'], ans: 0 }
+  ],
+  5: [
+    { q: 'What does SSH stand for?', opts: ['Secure Shell', 'System Shell Handler', 'Secure Socket Hosting', 'Standard Shell Host'], ans: 0 },
+    { q: 'What does FTP stand for?', opts: ['File Transfer Protocol', 'Firewall Testing Protocol', 'Fast Transmission Protocol', 'Federated Transfer Process'], ans: 0 },
+    { q: 'What does CFAA stand for?', opts: ['Computer Forensics and Analysis Act', 'Computer Fraud and Abuse Act', 'Certified Federal Access Authority', 'Cyber Fraud and Audit Act'], ans: 1 },
+    { q: 'What does PID stand for in Linux?', opts: ['Program Identification Directory', 'Process Identifier', 'Permission ID', 'Port Interface Descriptor'], ans: 1 },
+    { q: 'What does BASH stand for?', opts: ['Basic Automated Shell Host', 'Bourne Again Shell', 'Binary Application Shell Handler', 'Background Application System Hub'], ans: 1 },
+    { q: 'What does GUI stand for?', opts: ['General User Interface', 'Graphical User Interface', 'Global Utility Integration', 'Graded User Input'], ans: 1 }
+  ],
+  6: [
+    { q: 'What does MFA stand for?', opts: ['Managed Firewall Access', 'Multi-Factor Authentication', 'Monitored File Access', 'Maximum Firewall Authority'], ans: 1 },
+    { q: 'What does BEC stand for?', opts: ['Browser Exploit Code', 'Business Email Compromise', 'Backend Encryption Control', 'Basic Email Configuration'], ans: 1 },
+    { q: 'What does DMARC stand for?', opts: ['Domain Mail Authentication and Reporting Control', 'Domain-based Message Authentication, Reporting, and Conformance', 'Digital Mail Access and Relay Control', 'Distributed Message Authentication and Relay Configuration'], ans: 1 },
+    { q: 'What does SPF stand for in email security?', opts: ['Spam Protection Filter', 'Sender Policy Framework', 'Secure Packet Forwarding', 'Standard Protocol Filter'], ans: 1 },
+    { q: 'What does DKIM stand for?', opts: ['DomainKeys Identified Mail', 'Digital Key Integration Module', 'Distributed Key Infrastructure Management', 'Domain Knowledge Identification Method'], ans: 0 },
+    { q: 'What does OTP stand for?', opts: ['Online Threat Protection', 'One-Time Password', 'Open Trust Protocol', 'Outbound Traffic Policy'], ans: 1 }
+  ],
+  7: [
+    { q: 'What does NGFW stand for?', opts: ['Network Gateway Filtering Wizard', 'Next-Generation Firewall', 'Node Guardian Firewall Wrapper', 'Network Guard and Filter Watchdog'], ans: 1 },
+    { q: 'What does SOC stand for in cybersecurity?', opts: ['System Operations Control', 'Security Operations Center', 'Secure Output Controller', 'System Output Console'], ans: 1 },
+    { q: 'What does MDR stand for?', opts: ['Multi-Device Response', 'Managed Detection and Response', 'Mobile Defense Resource', 'Monitored Detection Record'], ans: 1 },
+    { q: 'What does UEBA stand for?', opts: ['Unified Endpoint Behavior Analysis', 'User and Entity Behavior Analytics', 'Universal Event and Behavior Auditing', 'User Entry Blocking Application'], ans: 1 },
+    { q: 'What does NAC stand for?', opts: ['Network Access Control', 'Node Authentication Certificate', 'Network Audit Console', 'Networked Application Controller'], ans: 0 },
+    { q: 'What does XDR stand for?', opts: ['Extended Device Response', 'Extended Detection and Response', 'External Data Recovery', 'Extra Domain Routing'], ans: 1 }
+  ],
+  8: [
+    { q: 'What does IR stand for in cybersecurity?', opts: ['Intrusion Report', 'Incident Response', 'Internal Review', 'Integrity Risk'], ans: 1 },
+    { q: 'What does CSIRT stand for?', opts: ['Cyber Security Intelligence and Response Team', 'Computer Security Incident Response Team', 'Central Security Incident Reporting Team', 'Cyber System Integrity Response Team'], ans: 1 },
+    { q: 'What does MTTR stand for?', opts: ['Mean Time to Remediate', 'Mean Time to Recover', 'Maximum Threat to Response', 'Managed Time to Reboot'], ans: 1 },
+    { q: 'What does MTTD stand for?', opts: ['Mean Time to Detect', 'Maximum Threat Trigger Date', 'Managed Threat and Triage Decisions', 'Mean Time to Defend'], ans: 0 },
+    { q: 'What does RTO stand for?', opts: ['Risk Threshold Overview', 'Recovery Time Objective', 'Response Time Operation', 'Risk Transfer Order'], ans: 1 },
+    { q: 'What does RPO stand for?', opts: ['Response Point Operation', 'Recovery Point Objective', 'Risk Protocol Overview', 'Restore Position Order'], ans: 1 },
+    { q: 'What does BCP stand for?', opts: ['Business Cyber Policy', 'Business Continuity Plan', 'Backup Control Process', 'Breach Containment Protocol'], ans: 1 }
+  ],
+  9: [
+    { q: 'What does CompTIA stand for?', opts: ['Computer Technology Integration Authority', 'Computing Technology Industry Association', 'Certified Professional Technology Integration Agency', 'Computer Training and Industry Alliance'], ans: 1 },
+    { q: 'What does CISSP stand for?', opts: ['Certified Information Systems Security Professional', 'Certified Internet Security and Systems Protocol', 'Central Information Security Specialist Program', 'Comprehensive IT Security and Safety Protocol'], ans: 0 },
+    { q: 'What does CISA stand for (the certification)?', opts: ['Certified Internet Security Analyst', 'Certified Information Systems Auditor', 'Cyber Infrastructure Security Authority', 'Certified Information Security Assessor'], ans: 1 },
+    { q: 'What does CISM stand for?', opts: ['Certified Information Security Manager', 'Cyber Intelligence and Security Monitor', 'Certified IT Security Management', 'Central Information Security Model'], ans: 0 },
+    { q: 'What does CEH stand for?', opts: ['Computer Ethics Handbook', 'Certified Ethical Hacker', 'Cyber Exploitation Handbook', 'Certified Enterprise Hacker'], ans: 1 },
+    { q: 'What does OSCP stand for?', opts: ['Open Source Certification Program', 'Offensive Security Certified Professional', 'Online Security Credential Pathway', 'Operational Security Certified Practitioner'], ans: 1 },
+    { q: 'What does GRC stand for?', opts: ['Global Risk and Compliance', 'Governance, Risk, and Compliance', 'General Response Capability', 'Government Risk Controls'], ans: 1 },
+    { q: 'What does NOC stand for?', opts: ['Network Operations Center', 'National Operations Command', 'Network Output Controller', 'Node Operations Console'], ans: 0 }
+  ]
+};
+
 // PROJECT SUBMISSION FIELDS — one entry per week (1-8)
 const PROJECTS = {
   1: { incident:'Target Data Breach (2013)', type:'Part 1 — Deep Dive', maxScore:50, fields:[
@@ -2779,7 +2861,7 @@ function enterApp() {
   renderStudentDashboard();
   initLibraryFromFirebase();
   updateStreak();
-  setTimeout(() => { loadJobReadiness(); loadDueDates(); loadProjectSubmissions(); }, 400);
+  setTimeout(() => { loadJobReadiness(); loadDueDates(); loadAcronymScores(); }, 400);
 }
 
 function doLogout() {
@@ -3001,7 +3083,7 @@ function renderWeek(num) {
       <button class="tab active" data-tab="content" onclick="switchTab('content')">📖 Content</button>
       <button class="tab" data-tab="quiz" onclick="switchTab('quiz')">📝 Quiz</button>
       <button class="tab" data-tab="lab" onclick="switchTab('lab')">🔬 Lab</button>
-      ${w.num <= 8 ? `<button class="tab" data-tab="project" onclick="switchTab('project')" id="tab-btn-project" style="${(state.projectSubmissions && state.projectSubmissions[w.num] && state.projectSubmissions[w.num].submittedAt) ? 'border-bottom:3px solid var(--green);' : ''}">📋 Project</button>` : ''}
+      <button class="tab" data-tab="acronym" onclick="switchTab('acronym')" id="tab-btn-acronym" style="${(state.acronymScores && state.acronymScores[w.num]) ? 'border-bottom:3px solid var(--green);' : ''}">🔤 Acronyms</button>
       <button class="tab" data-tab="submit" onclick="switchTab('submit')">📤 Submit</button>
     </div>
 
@@ -3100,8 +3182,8 @@ function renderWeek(num) {
       ${renderSubmitTab(w, p)}
     </div>
 
-    <!-- PROJECT TAB -->
-    ${w.num <= 8 ? `<div class="tab-panel" id="tab-project">${renderProjectTab(w.num)}</div>` : ''}
+    <!-- ACRONYM TAB -->
+    <div class="tab-panel" id="tab-acronym">${renderAcronymTab(w.num)}</div>
   `;
 
   // Restore graded quiz state if student navigates back to this week
@@ -3176,121 +3258,111 @@ function renderSubmitTab(w, p) {
 // ══════════════════════════════════════════════
 // PROJECT SUBMISSIONS
 // ══════════════════════════════════════════════
-function renderProjectTab(weekNum) {
-  const proj = PROJECTS[weekNum];
-  if (!proj) return '<div class="card"><p>No project for this week.</p></div>';
-  const saved = state.projectSubmissions && state.projectSubmissions[weekNum];
-  const submitted = saved && saved.submittedAt;
-  const grade = saved && saved.grade;
-
-  const fieldHTML = proj.fields.map(f => {
-    const val = (saved && saved.answers && saved.answers[f.id]) ? saved.answers[f.id] : '';
-    const escaped = val.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    return `<div style="margin-bottom:18px;">
-      <label style="display:block;font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.4;">${f.label}</label>
-      ${f.type==='textarea'
-        ? `<textarea id="proj-${weekNum}-${f.id}" rows="3" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;font-size:.82rem;font-family:inherit;resize:vertical;background:var(--card);color:var(--text);box-sizing:border-box;" placeholder="Type your answer here..." oninput="saveProjectDraft(${weekNum})"${submitted?' readonly':''}>${val}</textarea>`
-        : `<input type="text" id="proj-${weekNum}-${f.id}" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;font-size:.82rem;font-family:inherit;background:var(--card);color:var(--text);box-sizing:border-box;" placeholder="Type your answer here..." value="${escaped}" oninput="saveProjectDraft(${weekNum})"${submitted?' readonly':''}>`
-      }
-    </div>`;
-  }).join('');
-
-  const gradeHTML = grade ? `
-    <div style="background:rgba(0,166,81,.08);border:1px solid rgba(0,166,81,.3);border-radius:8px;padding:14px;margin-top:16px;">
-      <div style="font-weight:700;color:var(--green);margin-bottom:6px;">✅ Graded by Instructor</div>
-      <div style="font-size:.85rem;margin-bottom:4px;">Score: <strong>${grade.score} / ${proj.maxScore}</strong> (${Math.round(grade.score/proj.maxScore*100)}%)</div>
-      ${grade.feedback ? `<div style="font-size:.82rem;color:var(--text);margin-top:8px;line-height:1.5;"><strong>Instructor Feedback:</strong><br>${grade.feedback}</div>` : ''}
-    </div>` : '';
-
+function renderAcronymTab(weekNum) {
+  const quiz = ACRONYM_QUIZ[weekNum];
+  if (!quiz) return '<div class="card"><p>No acronym quiz for this week.</p></div>';
+  const saved = (state.acronymScores || {})[weekNum];
   return `<div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
-      <div>
-        <h3 style="margin:0 0 4px 0;"><span class="icon">📋</span> Project ${weekNum}</h3>
-        <div style="font-size:.8rem;font-weight:600;color:var(--blue);margin-bottom:2px;">${proj.incident}</div>
-        <div style="font-size:.72rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;">${proj.type} &bull; Max ${proj.maxScore} pts</div>
-      </div>
-      ${submitted ? '<span style="background:var(--green);color:#fff;font-size:.72rem;font-weight:700;padding:4px 12px;border-radius:12px;">✅ SUBMITTED</span>' : '<span style="background:rgba(245,166,35,.15);color:var(--yellow);font-size:.72rem;font-weight:700;padding:4px 12px;border-radius:12px;border:1px solid var(--yellow);">DRAFT</span>'}
-    </div>
-    ${submitted ? `<div style="font-size:.78rem;color:var(--muted);margin-bottom:14px;padding:8px 12px;background:rgba(0,166,81,.06);border-radius:6px;">Submitted ${new Date(submitted).toLocaleString()} — answers are locked. Contact your instructor to request changes.</div>` : ''}
-    ${fieldHTML}
-    ${!submitted ? `<button onclick="submitProject(${weekNum})" style="width:100%;padding:12px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:8px;letter-spacing:.3px;">📤 Submit Project ${weekNum} to Instructor</button>` : ''}
-    ${gradeHTML}
+    <h3 style="margin:0 0 4px 0;"><span class="icon">🔤</span> Week ${weekNum} Acronym Quiz</h3>
+    <div style="font-size:.8rem;color:var(--muted);margin-bottom:16px;">${quiz.length} questions — multiple choice. How well do you know your cyber alphabet?</div>
+    ${saved ? `<div style="margin-bottom:16px;padding:10px 14px;background:rgba(0,166,81,.08);border:1px solid rgba(0,166,81,.3);border-radius:8px;font-size:13px;">
+      Last score: <strong>${saved.score}/${saved.total} (${saved.pct}%)</strong> ${saved.pct>=70?'✅ PASS':'— keep studying!'}
+    </div>` : ''}
+    <div id="acronym-questions">${renderAcronymQuestions(quiz)}</div>
+    <button onclick="gradeAcronymQuiz(${weekNum})" id="btn-grade-acronym" style="width:100%;padding:12px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:.9rem;font-weight:700;cursor:pointer;margin-top:16px;letter-spacing:.3px;">
+      ${saved ? '🔄 Retake Acronym Quiz' : '✅ Grade My Acronyms'}
+    </button>
+    <div class="quiz-result-bar" id="acronym-result-bar" style="display:none;margin-top:12px;"></div>
+    <div id="acronym-review-panel" style="margin-top:12px;"></div>
   </div>`;
 }
 
-function saveProjectDraft(weekNum) {
-  const proj = PROJECTS[weekNum];
-  if (!proj) return;
-  if (!state.projectSubmissions) state.projectSubmissions = {};
-  if (!state.projectSubmissions[weekNum]) state.projectSubmissions[weekNum] = {};
-  if (state.projectSubmissions[weekNum].submittedAt) return;
-  const answers = {};
-  proj.fields.forEach(f => {
-    const el = document.getElementById('proj-' + weekNum + '-' + f.id);
-    if (el) answers[f.id] = el.value;
-  });
-  state.projectSubmissions[weekNum].answers = answers;
-  const key = state.student.tempId ? 'mccoe_student_state_' + state.student.tempId : 'mccoe_student_state';
-  localStorage.setItem(key, JSON.stringify(state));
-  // Also save draft to Firebase so answers survive browser close / device switch
-  if (_fbDb && state.student.tempId) {
-    _fbDb.ref('mccoe_submissions/' + state.student.tempId + '/week' + weekNum).update({ answers: answers });
-  }
+function renderAcronymQuestions(quiz) {
+  return quiz.map((q, qi) => `
+    <div class="quiz-q">
+      <div class="quiz-q-text"><span class="quiz-q-num">Q${qi+1}.</span> ${q.q}</div>
+      <div class="quiz-options">
+        ${q.opts.map((opt, oi) => `
+          <label class="quiz-opt" id="aq-opt-${qi}-${oi}">
+            <input type="radio" name="aq${qi}" value="${oi}"> ${opt}
+          </label>`).join('')}
+      </div>
+    </div>`).join('');
 }
 
-function submitProject(weekNum) {
-  const proj = PROJECTS[weekNum];
-  if (!proj) return;
-  const answers = {};
-  let hasContent = false;
-  proj.fields.forEach(f => {
-    const el = document.getElementById('proj-' + weekNum + '-' + f.id);
-    const val = el ? el.value.trim() : '';
-    if (val.length > 0) hasContent = true;
-    answers[f.id] = val;
+function gradeAcronymQuiz(weekNum) {
+  const quiz = ACRONYM_QUIZ[weekNum];
+  if (!quiz) return;
+  let score = 0;
+  let allAnswered = true;
+
+  quiz.forEach((q, qi) => {
+    const selected = document.querySelector(`input[name="aq${qi}"]:checked`);
+    if (!selected) { allAnswered = false; return; }
+    const val = parseInt(selected.value);
+    const correct = q.ans;
+    q.opts.forEach((opt, oi) => {
+      const label = document.getElementById(`aq-opt-${qi}-${oi}`);
+      if (!label) return;
+      label.classList.remove('correct','wrong','selected');
+      if (oi === correct) label.classList.add('correct');
+      else if (oi === val && val !== correct) label.classList.add('wrong');
+    });
+    if (val === correct) score++;
   });
-  if (!hasContent) { alert('Please answer at least one question before submitting.'); return; }
-  if (!confirm('Submit Project ' + weekNum + '?\n\nYour answers will be locked and sent to your instructor for grading.')) return;
-  if (!state.projectSubmissions) state.projectSubmissions = {};
-  const entry = {
-    answers,
-    weekNum,
-    studentName: state.student.name,
-    studentId:   state.student.assignedId || state.student.tempId,
-    tempId:      state.student.tempId,
-    incident:    proj.incident,
-    projectType: proj.type,
-    maxScore:    proj.maxScore,
-    submittedAt: new Date().toISOString()
-  };
-  state.projectSubmissions[weekNum] = entry;
+
+  if (!allAnswered) { alert('Please answer all questions before grading.'); return; }
+
+  const total = quiz.length;
+  const pct = Math.round(score/total*100);
+
+  if (!state.acronymScores) state.acronymScores = {};
+  state.acronymScores[weekNum] = { score, total, pct, completedAt: new Date().toISOString() };
+  saveState();
+
   if (_fbDb && state.student.tempId) {
-    _fbDb.ref('mccoe_submissions/' + state.student.tempId + '/week' + weekNum).set(entry);
+    _fbDb.ref('mccoe_acronyms/' + state.student.tempId + '/week' + weekNum).set({
+      score, total, pct,
+      studentName: state.student.name,
+      studentId: state.student.assignedId || state.student.tempId,
+      completedAt: new Date().toISOString()
+    });
   }
-  const key = state.student.tempId ? 'mccoe_student_state_' + state.student.tempId : 'mccoe_student_state';
-  localStorage.setItem(key, JSON.stringify(state));
-  renderWeek(weekNum);
-  switchTab('project');
-  alert('✅ Project ' + weekNum + ' submitted! Your instructor will review and grade it.');
+
+  const bar = document.getElementById('acronym-result-bar');
+  bar.style.display = 'block';
+  bar.className = `quiz-result-bar ${pct>=70?'pass':'fail'}`;
+  bar.innerHTML = `Score: ${score}/${total} — ${pct}% ${pct>=70?'✅ PASS — Great work!':'❌ Keep studying — aim for 70%+'}`;
+
+  const btn = document.getElementById('btn-grade-acronym');
+  if (btn) { btn.textContent = '🔄 Retake Acronym Quiz'; btn.onclick = () => retakeAcronymQuiz(weekNum); }
+
+  document.querySelectorAll('input[name^="aq"]').forEach(r => r.disabled = true);
+  _showQuizReview(quiz, 'aq', 'acronym-review-panel', 'Acronym Review');
 }
 
-function loadProjectSubmissions() {
+function retakeAcronymQuiz(weekNum) {
+  const container = document.getElementById('acronym-questions');
+  if (container) container.innerHTML = renderAcronymQuestions(ACRONYM_QUIZ[weekNum]);
+  const bar = document.getElementById('acronym-result-bar');
+  if (bar) { bar.style.display = 'none'; bar.innerHTML = ''; }
+  const review = document.getElementById('acronym-review-panel');
+  if (review) review.innerHTML = '';
+  const btn = document.getElementById('btn-grade-acronym');
+  if (btn) { btn.textContent = '✅ Grade My Acronyms'; btn.onclick = () => gradeAcronymQuiz(weekNum); }
+}
+
+function loadAcronymScores() {
   if (!_fbDb || !state.student.tempId) return;
-  _fbDb.ref('mccoe_submissions/' + state.student.tempId).once('value', snap => {
+  _fbDb.ref('mccoe_acronyms/' + state.student.tempId).once('value', snap => {
     const data = snap.val();
     if (!data) return;
-    if (!state.projectSubmissions) state.projectSubmissions = {};
+    if (!state.acronymScores) state.acronymScores = {};
     Object.keys(data).forEach(k => {
       const weekNum = parseInt(k.replace('week',''));
-      if (!isNaN(weekNum)) {
-        state.projectSubmissions[weekNum] = data[k];
-      }
+      if (!isNaN(weekNum)) state.acronymScores[weekNum] = data[k];
     });
-    const key = state.student.tempId ? 'mccoe_student_state_' + state.student.tempId : 'mccoe_student_state';
-    localStorage.setItem(key, JSON.stringify(state));
-    // Re-render project tab if it's currently open so saved answers appear
-    const projTab = document.getElementById('tab-project');
-    if (projTab && projTab.classList.contains('active')) switchTab('project');
+    saveState();
   });
 }
 
@@ -3355,8 +3427,8 @@ function gradeQuiz(weekNum) {
   const hint = document.getElementById('quiz-submit-hint');
   if (hint) hint.style.display = 'block';
 
-  // disable inputs
-  document.querySelectorAll('input[type=radio]').forEach(r => r.disabled = true);
+  // disable inputs (scoped to quiz tab so acronym radios stay enabled)
+  document.querySelectorAll('#tab-quiz input[type=radio]').forEach(r => r.disabled = true);
 
   // Build wrong-answer review panel
   _showQuizReview(w.quiz, 'q', 'quiz-review-panel', w.title);
@@ -3757,8 +3829,8 @@ function _showQuizReview(questions, namePrefix, panelId, topicTitle) {
 
 function retakeQuiz(weekNum) {
   const w = WEEKS.find(x => x.num === weekNum);
-  // Re-enable and uncheck all radios
-  document.querySelectorAll('input[type=radio]').forEach(r => { r.disabled = false; r.checked = false; });
+  // Re-enable and uncheck quiz radios only
+  document.querySelectorAll('#tab-quiz input[type=radio]').forEach(r => { r.disabled = false; r.checked = false; });
   // Remove highlight classes from all option labels
   w.quiz.forEach((q, qi) => {
     q.opts.forEach((opt, oi) => {
