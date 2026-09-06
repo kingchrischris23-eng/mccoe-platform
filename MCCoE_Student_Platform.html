@@ -3293,7 +3293,7 @@ function gradeAcronymQuiz(weekNum) {
   if (btn) { btn.textContent = '🔄 Retake Acronym Quiz'; btn.onclick = () => retakeAcronymQuiz(weekNum); }
 
   document.querySelectorAll('input[name^="aq"]').forEach(r => r.disabled = true);
-  _showQuizReview(quiz, 'aq', 'acronym-review-panel', 'Acronym Review');
+  _showAcronymReview(quiz, 'acronym-review-panel');
 }
 
 function retakeAcronymQuiz(weekNum) {
@@ -3776,6 +3776,43 @@ function _showQuizReview(questions, namePrefix, panelId, topicTitle) {
       '<div class="quiz-review-wrong">✗ You chose: ' + w.chosen + '</div>' +
       '<div class="quiz-review-correct">✓ Correct answer: ' + w.correct + '</div>' +
       '</div>';
+  });
+
+  html += '</div>';
+  panel.innerHTML = html;
+  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function _showAcronymReview(quiz, panelId) {
+  const panel = document.getElementById(panelId);
+  if (!panel) return;
+
+  const results = [];
+  quiz.forEach((q, qi) => {
+    const sel = document.querySelector(`input[name="aq${qi}"]:checked`);
+    if (!sel) return;
+    const chosen = parseInt(sel.value);
+    results.push({ acronym: q.acronym, correct: q.opts[q.ans], chosen: q.opts[chosen], isWrong: chosen !== q.ans });
+  });
+
+  const wrongs = results.filter(r => r.isWrong);
+  if (!wrongs.length) {
+    panel.innerHTML = '<div class="quiz-review-panel"><div class="quiz-review-all-pass">🎯 Perfect! Every acronym correct — excellent work!</div></div>';
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    return;
+  }
+
+  let html = `<div class="quiz-review-panel">
+    <div class="quiz-review-header">📖 MISSED ACRONYMS — ${wrongs.length} of ${quiz.length} to review</div>`;
+
+  wrongs.forEach(w => {
+    html += `<div class="quiz-review-item" style="padding:14px 16px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+        <span style="font-size:1.2rem;font-weight:900;color:var(--cyan);font-family:var(--font-h);letter-spacing:2px;background:rgba(0,245,255,.07);padding:3px 14px;border-radius:6px;border:1px solid rgba(0,245,255,.25);">${w.acronym}</span>
+      </div>
+      <div class="quiz-review-wrong" style="margin-bottom:4px;">✗ You chose: ${w.chosen}</div>
+      <div class="quiz-review-correct">✓ ${w.acronym} = ${w.correct}</div>
+    </div>`;
   });
 
   html += '</div>';
