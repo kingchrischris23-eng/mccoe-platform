@@ -4214,6 +4214,7 @@ function saveLibrary(lib) {
 function initLibraryFromFirebase() {
   if (!_fbDb) { _libraryCache = DEFAULT_LIBRARY.slice(); return; }
   _fbDb.ref('mccoe_library').once('value', snap => {
+    if (_libraryCache !== null) return;
     const data = snap.val();
     _libraryCache = data
       ? Object.values(data).sort((a, b) => a.id - b.id)
@@ -4315,9 +4316,12 @@ function addLibraryItem() {
   const desc  = document.getElementById('lib-inp-desc').value.trim();
   if (!title || !url) { alert('Please enter at least a title and URL.'); return; }
   const lib = getLibrary();
-  const newId = lib.length ? Math.max(...lib.map(x=>x.id)) + 1 : 1;
+  const newId = lib.length ? Math.max(...lib.map(x => x.id || 0)) + 1 : 1;
   lib.push({ id:newId, title, url, category:cat, desc: desc || '' });
   saveLibrary(lib);
+  document.getElementById('lib-inp-title').value = '';
+  document.getElementById('lib-inp-url').value = '';
+  document.getElementById('lib-inp-desc').value = '';
   renderLibrary();
 }
 
