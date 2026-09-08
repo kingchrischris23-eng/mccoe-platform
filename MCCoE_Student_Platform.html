@@ -4205,8 +4205,7 @@ function getLibrary() {
 function saveLibrary(lib) {
   _libraryCache = lib.slice();
   if (_fbDb) {
-    const obj = {};
-    lib.forEach(function(item) { obj['r' + item.id] = item; });
+    const obj = lib.reduce((acc,r) => { acc['lib_' + r.id] = r; return acc; }, {});
     _fbDb.ref('mccoe_library').set(obj);
   }
 }
@@ -4217,7 +4216,7 @@ function initLibraryFromFirebase() {
     if (_libraryCache !== null) return;
     const data = snap.val();
     _libraryCache = data
-      ? Object.values(data).sort((a, b) => a.id - b.id)
+      ? Object.values(data).filter(Boolean).sort((a, b) => a.id - b.id)
       : DEFAULT_LIBRARY.slice();
   });
 }
