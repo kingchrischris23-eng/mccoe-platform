@@ -2060,7 +2060,9 @@ function fbSaveLibrary(lib) {
   _libraryCache = lib.slice();
   if (_fbDb) {
     const obj = lib.reduce((acc,r) => { acc[r.id] = r; return acc; }, {});
-    _fbDb.ref('mccoe_library').set(obj);
+    _fbDb.ref('mccoe_library').set(obj, err => {
+      if (err) alert('Firebase save failed: ' + err.message + '\n\nAdd "mccoe_library": {".read":true,".write":true} to your Firebase rules.');
+    });
   }
 }
 
