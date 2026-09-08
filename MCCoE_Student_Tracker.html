@@ -2042,21 +2042,22 @@ const DEFAULT_LIBRARY = [
 let _libraryCache = null;
 
 function initLibrary() {
-  if (!_fbDb) { _libraryCache = DEFAULT_LIBRARY; return; }
+  if (!_fbDb) { _libraryCache = DEFAULT_LIBRARY.slice(); return; }
   _fbDb.ref('mccoe_library').once('value', snap => {
+    if (_libraryCache !== null) return;
     if (!snap.val()) {
       _fbDb.ref('mccoe_library').set(DEFAULT_LIBRARY.reduce((acc,r) => { acc[r.id] = r; return acc; }, {}));
-      _libraryCache = DEFAULT_LIBRARY;
+      _libraryCache = DEFAULT_LIBRARY.slice();
     } else {
-      _libraryCache = Object.values(snap.val());
+      _libraryCache = Object.values(snap.val()).sort((a,b) => a.id - b.id);
     }
   });
 }
 
-function getLibraryAdmin() { return _libraryCache || DEFAULT_LIBRARY; }
+function getLibraryAdmin() { return (_libraryCache || DEFAULT_LIBRARY).slice(); }
 
 function fbSaveLibrary(lib) {
-  _libraryCache = lib;
+  _libraryCache = lib.slice();
   if (_fbDb) {
     const obj = lib.reduce((acc,r) => { acc[r.id] = r; return acc; }, {});
     _fbDb.ref('mccoe_library').set(obj);
