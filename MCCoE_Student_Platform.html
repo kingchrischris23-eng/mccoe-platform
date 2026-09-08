@@ -4199,25 +4199,25 @@ const DEFAULT_LIBRARY = [
 let _libraryCache = null;
 
 function getLibrary() {
-  return _libraryCache || DEFAULT_LIBRARY;
+  return (_libraryCache || DEFAULT_LIBRARY).slice();
 }
 
 function saveLibrary(lib) {
-  _libraryCache = lib;
+  _libraryCache = lib.slice();
   if (_fbDb) {
     const obj = {};
-    lib.forEach(function(item, i) { obj['item' + i] = item; });
+    lib.forEach(function(item) { obj['r' + item.id] = item; });
     _fbDb.ref('mccoe_library').set(obj);
   }
 }
 
 function initLibraryFromFirebase() {
-  if (!_fbDb) { _libraryCache = DEFAULT_LIBRARY; return; }
-  _fbDb.ref('mccoe_library').on('value', snap => {
+  if (!_fbDb) { _libraryCache = DEFAULT_LIBRARY.slice(); return; }
+  _fbDb.ref('mccoe_library').once('value', snap => {
     const data = snap.val();
-    _libraryCache = data ? Object.values(data) : DEFAULT_LIBRARY;
-    const content = document.getElementById('main-content');
-    if (content && content.querySelector('#lib-search')) renderLibrary();
+    _libraryCache = data
+      ? Object.values(data).sort((a, b) => a.id - b.id)
+      : DEFAULT_LIBRARY.slice();
   });
 }
 
