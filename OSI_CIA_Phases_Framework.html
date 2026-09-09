@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>OSI + CIA + 5 Phases Framework — MCCoE</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#0a1628;font-family:'Segoe UI',sans-serif;color:#e0e8f0;padding:24px;}
+
+  /* HEADER */
+  .header{text-align:center;padding:32px 20px 24px;margin-bottom:32px;}
+  .header .logo{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#EE2207;font-weight:700;margin-bottom:8px;}
+  .header h1{font-size:2rem;font-weight:900;color:#fff;margin-bottom:6px;}
+  .header p{font-size:14px;color:#8faac0;max-width:600px;margin:0 auto;}
+
+  /* LEGEND */
+  .legend{display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin-bottom:36px;}
+  .legend-item{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;}
+  .legend-dot{width:14px;height:14px;border-radius:50%;}
+  .c-dot{background:#38bdf8;}
+  .i-dot{background:#4ade80;}
+  .a-dot{background:#f87171;}
+  .osi-dot{background:#a78bfa;}
+  .kill-dot{background:#fb923c;}
+
+  /* PHASE CARDS */
+  .phases{display:flex;flex-direction:column;gap:20px;max-width:1100px;margin:0 auto;}
+  .phase-card{background:#0f2035;border-radius:16px;border:1px solid #1e3a5f;overflow:hidden;display:grid;grid-template-columns:200px 1fr;transition:transform .2s;}
+  .phase-card:hover{transform:translateY(-2px);}
+
+  .phase-left{padding:24px 20px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;border-right:1px solid #1e3a5f;}
+  .phase-num{font-size:36px;font-weight:900;line-height:1;}
+  .phase-name{font-size:15px;font-weight:800;margin-top:6px;text-transform:uppercase;letter-spacing:1px;}
+  .phase-icon{font-size:28px;margin-bottom:8px;}
+
+  .phase-right{padding:20px 24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+
+  .section-label{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;opacity:.6;}
+
+  /* KILL CHAIN */
+  .kill-chain-box{background:#1a1a2e;border-radius:10px;padding:14px;border-left:3px solid #fb923c;}
+  .kill-chain-phase{font-size:13px;font-weight:700;color:#fb923c;margin-bottom:4px;}
+  .kill-chain-desc{font-size:12px;color:#8faac0;line-height:1.5;}
+
+  /* OSI LAYERS */
+  .osi-box{background:#1a1a2e;border-radius:10px;padding:14px;border-left:3px solid #a78bfa;}
+  .osi-layer{display:inline-flex;align-items:center;gap:6px;background:#12122a;border:1px solid #a78bfa33;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700;color:#a78bfa;margin:3px 3px 3px 0;}
+  .osi-layer span{color:#e0e8f0;font-weight:400;}
+
+  /* CIA */
+  .cia-box{background:#1a1a2e;border-radius:10px;padding:14px;border-left:3px solid #e2e8f0;}
+  .cia-pill{display:flex;align-items:center;gap:8px;margin-bottom:8px;border-radius:8px;padding:8px 12px;}
+  .cia-pill.conf{background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.25);}
+  .cia-pill.integ{background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.25);}
+  .cia-pill.avail{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.25);}
+  .cia-badge{font-size:10px;font-weight:900;padding:2px 7px;border-radius:20px;letter-spacing:1px;}
+  .cia-pill.conf .cia-badge{background:#38bdf8;color:#0a1628;}
+  .cia-pill.integ .cia-badge{background:#4ade80;color:#0a1628;}
+  .cia-pill.avail .cia-badge{background:#f87171;color:#0a1628;}
+  .cia-text{font-size:11px;color:#c0d0e0;line-height:1.4;}
+  .cia-primary{font-size:10px;font-weight:700;color:#EE2207;margin-top:4px;}
+
+  /* PHASE COLORS */
+  .p1 .phase-left{background:linear-gradient(135deg,#1a2a3a,#0f2035);}
+  .p1 .phase-num{color:#38bdf8;}
+  .p2 .phase-left{background:linear-gradient(135deg,#1a2a3a,#0f2035);}
+  .p2 .phase-num{color:#a78bfa;}
+  .p3 .phase-left{background:linear-gradient(135deg,#2a1a1a,#1a0f0f);}
+  .p3 .phase-num{color:#EE2207;}
+  .p4 .phase-left{background:linear-gradient(135deg,#1a2a1a,#0f1f0f);}
+  .p4 .phase-num{color:#4ade80;}
+  .p5 .phase-left{background:linear-gradient(135deg,#2a2a1a,#1f1a0f);}
+  .p5 .phase-num{color:#fb923c;}
+
+  /* BOTTOM SUMMARY */
+  .summary{max-width:1100px;margin:32px auto 0;background:#0f2035;border-radius:16px;padding:28px 32px;border:1px solid #1e3a5f;}
+  .summary h2{font-size:1.1rem;font-weight:800;color:#fff;margin-bottom:20px;text-align:center;text-transform:uppercase;letter-spacing:2px;}
+  .summary-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+  .summary-col{text-align:center;}
+  .summary-col h3{font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid;}
+  .summary-col.c h3{color:#38bdf8;border-color:#38bdf8;}
+  .summary-col.i h3{color:#4ade80;border-color:#4ade80;}
+  .summary-col.a h3{color:#f87171;border-color:#f87171;}
+  .summary-col p{font-size:12px;color:#8faac0;line-height:1.7;}
+
+  .footer{text-align:center;margin-top:32px;font-size:11px;color:#3a5a7a;letter-spacing:1px;}
+
+  @media(max-width:800px){
+    .phase-card{grid-template-columns:1fr;}
+    .phase-left{border-right:none;border-bottom:1px solid #1e3a5f;padding:16px;}
+    .phase-right{grid-template-columns:1fr;}
+    .summary-grid{grid-template-columns:1fr;}
+  }
+  @media print{
+    body{background:#fff;color:#000;padding:12px;}
+    .phase-card{background:#f8f8f8;border:1px solid #ccc;break-inside:avoid;}
+    .phase-left{background:#eee!important;}
+    .kill-chain-box,.osi-box,.cia-box{background:#f0f0f0;}
+    .summary{background:#f8f8f8;}
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">Missouri Cybersecurity Center of Excellence</div>
+  <h1>OSI Model + CIA Triad + 5 Phases of Hacking</h1>
+  <p>How every layer of the OSI model and every pillar of the CIA Triad is at risk during each phase of a cyberattack</p>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot c-dot"></div> Confidentiality</div>
+  <div class="legend-item"><div class="legend-dot i-dot"></div> Integrity</div>
+  <div class="legend-item"><div class="legend-dot a-dot"></div> Availability</div>
+  <div class="legend-item"><div class="legend-dot osi-dot"></div> OSI Layer</div>
+  <div class="legend-item"><div class="legend-dot kill-dot"></div> Kill Chain Phase</div>
+</div>
+
+<div class="phases">
+
+  <!-- PHASE 1 -->
+  <div class="phase-card p1">
+    <div class="phase-left">
+      <div class="phase-icon">🔍</div>
+      <div class="phase-num">01</div>
+      <div class="phase-name">Reconnaissance</div>
+    </div>
+    <div class="phase-right">
+      <div class="kill-chain-box">
+        <div class="section-label">Kill Chain Phase</div>
+        <div class="kill-chain-phase">Reconnaissance</div>
+        <div class="kill-chain-desc">Attacker gathers OSINT — identifying targets, IP ranges, employee names, email patterns, and exposed services before any contact with the target.</div>
+      </div>
+      <div class="osi-box">
+        <div class="section-label">OSI Layers Involved</div>
+        <div class="osi-layer">L7 <span>Application</span></div>
+        <div class="osi-layer">L3 <span>Network</span></div>
+        <div class="osi-layer">L2 <span>Data Link</span></div>
+        <div style="font-size:11px;color:#8faac0;margin-top:8px;">DNS lookups, web scraping, ICMP ping sweeps to map the network</div>
+      </div>
+      <div class="cia-box">
+        <div class="section-label">CIA Triad Impact</div>
+        <div class="cia-pill conf">
+          <span class="cia-badge">C</span>
+          <div>
+            <div class="cia-text">Information that should be private is being harvested</div>
+            <div class="cia-primary">★ PRIMARY RISK</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2 -->
+  <div class="phase-card p2">
+    <div class="phase-left">
+      <div class="phase-icon">📡</div>
+      <div class="phase-num">02</div>
+      <div class="phase-name">Scanning &amp; Enumeration</div>
+    </div>
+    <div class="phase-right">
+      <div class="kill-chain-box">
+        <div class="section-label">Kill Chain Phase</div>
+        <div class="kill-chain-phase">Weaponization</div>
+        <div class="kill-chain-desc">Attacker actively probes the target — port scans, service version detection, OS fingerprinting — to identify exploitable weaknesses.</div>
+      </div>
+      <div class="osi-box">
+        <div class="section-label">OSI Layers Involved</div>
+        <div class="osi-layer">L7 <span>Application</span></div>
+        <div class="osi-layer">L4 <span>Transport</span></div>
+        <div class="osi-layer">L3 <span>Network</span></div>
+        <div style="font-size:11px;color:#8faac0;margin-top:8px;">nmap TCP/UDP port scans, banner grabbing, service enumeration</div>
+      </div>
+      <div class="cia-box">
+        <div class="section-label">CIA Triad Impact</div>
+        <div class="cia-pill conf">
+          <span class="cia-badge">C</span>
+          <div><div class="cia-text">Hidden services and versions exposed<div class="cia-primary">★ PRIMARY RISK</div></div></div>
+        </div>
+        <div class="cia-pill avail">
+          <span class="cia-badge">A</span>
+          <div><div class="cia-text">Aggressive scans can overload systems</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3 -->
+  <div class="phase-card p3">
+    <div class="phase-left">
+      <div class="phase-icon">💥</div>
+      <div class="phase-num">03</div>
+      <div class="phase-name">Gaining Access</div>
+    </div>
+    <div class="phase-right">
+      <div class="kill-chain-box">
+        <div class="section-label">Kill Chain Phase</div>
+        <div class="kill-chain-phase">Delivery → Exploitation</div>
+        <div class="kill-chain-desc">Attacker launches the attack — exploiting vulnerabilities to gain a foothold. All three CIA pillars are threatened simultaneously.</div>
+      </div>
+      <div class="osi-box">
+        <div class="section-label">OSI Layers Involved</div>
+        <div class="osi-layer">L7 <span>Application</span></div>
+        <div class="osi-layer">L5 <span>Session</span></div>
+        <div class="osi-layer">L4 <span>Transport</span></div>
+        <div class="osi-layer">L3 <span>Network</span></div>
+        <div class="osi-layer">L2 <span>Data Link</span></div>
+        <div class="osi-layer">L1 <span>Physical</span></div>
+        <div style="font-size:11px;color:#8faac0;margin-top:8px;">SQL injection (L7), session hijacking (L5), ARP spoofing (L2), USB drops (L1)</div>
+      </div>
+      <div class="cia-box">
+        <div class="section-label">CIA Triad Impact</div>
+        <div class="cia-pill conf">
+          <span class="cia-badge">C</span>
+          <div><div class="cia-text">Credentials and data stolen<div class="cia-primary">★ ALL THREE AT RISK</div></div></div>
+        </div>
+        <div class="cia-pill integ">
+          <span class="cia-badge">I</span>
+          <div><div class="cia-text">Malicious code injected, data modified</div></div>
+        </div>
+        <div class="cia-pill avail">
+          <span class="cia-badge">A</span>
+          <div><div class="cia-text">Systems can be crashed or disabled</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 4 -->
+  <div class="phase-card p4">
+    <div class="phase-left">
+      <div class="phase-icon">🔗</div>
+      <div class="phase-num">04</div>
+      <div class="phase-name">Maintaining Access</div>
+    </div>
+    <div class="phase-right">
+      <div class="kill-chain-box">
+        <div class="section-label">Kill Chain Phase</div>
+        <div class="kill-chain-phase">Installation → C2</div>
+        <div class="kill-chain-desc">Attacker installs backdoors and establishes command and control — ensuring they can return even if the initial vulnerability is patched.</div>
+      </div>
+      <div class="osi-box">
+        <div class="section-label">OSI Layers Involved</div>
+        <div class="osi-layer">L7 <span>Application</span></div>
+        <div class="osi-layer">L6 <span>Presentation</span></div>
+        <div class="osi-layer">L4 <span>Transport</span></div>
+        <div style="font-size:11px;color:#8faac0;margin-top:8px;">Reverse shells over TCP (L4), encrypted C2 channels (L6), web shells (L7)</div>
+      </div>
+      <div class="cia-box">
+        <div class="section-label">CIA Triad Impact</div>
+        <div class="cia-pill conf">
+          <span class="cia-badge">C</span>
+          <div><div class="cia-text">Ongoing data exfiltration &amp; eavesdropping</div></div>
+        </div>
+        <div class="cia-pill integ">
+          <span class="cia-badge">I</span>
+          <div><div class="cia-text">System files modified, rootkits installed<div class="cia-primary">★ PRIMARY RISK</div></div></div>
+        </div>
+        <div class="cia-pill avail">
+          <span class="cia-badge">A</span>
+          <div><div class="cia-text">Attacker can take systems offline at will</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 5 -->
+  <div class="phase-card p5">
+    <div class="phase-left">
+      <div class="phase-icon">🧹</div>
+      <div class="phase-num">05</div>
+      <div class="phase-name">Covering Tracks</div>
+    </div>
+    <div class="phase-right">
+      <div class="kill-chain-box">
+        <div class="section-label">Kill Chain Phase</div>
+        <div class="kill-chain-phase">Actions on Objectives</div>
+        <div class="kill-chain-desc">Attacker erases evidence — deleting logs, altering timestamps, hiding malware — to avoid detection and maintain long-term presence.</div>
+      </div>
+      <div class="osi-box">
+        <div class="section-label">OSI Layers Involved</div>
+        <div class="osi-layer">L7 <span>Application</span></div>
+        <div class="osi-layer">L3 <span>Network</span></div>
+        <div style="font-size:11px;color:#8faac0;margin-top:8px;">Log deletion at application layer, traffic obfuscation and IP spoofing at network layer</div>
+      </div>
+      <div class="cia-box">
+        <div class="section-label">CIA Triad Impact</div>
+        <div class="cia-pill integ">
+          <span class="cia-badge">I</span>
+          <div>
+            <div class="cia-text">Log files deleted or altered — audit records are data too</div>
+            <div class="cia-primary">★ PRIMARY RISK — hardest to detect</div>
+          </div>
+        </div>
+        <div class="cia-pill conf">
+          <span class="cia-badge">C</span>
+          <div><div class="cia-text">Attacker's identity and methods concealed</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SUMMARY -->
+<div class="summary">
+  <h2>Key Takeaways — CIA Triad Across All Phases</h2>
+  <div class="summary-grid">
+    <div class="summary-col c">
+      <h3>Confidentiality</h3>
+      <p>At risk from the very first phase. The moment an attacker successfully performs recon, private information has already been compromised. Phases 1, 2, 3, and 4 all threaten confidentiality.</p>
+    </div>
+    <div class="summary-col i">
+      <h3>Integrity</h3>
+      <p>The most underestimated threat. Integrity is attacked in Phase 3 (data manipulation), Phase 4 (system file modification), and Phase 5 (log tampering). If logs are gone, investigations fail.</p>
+    </div>
+    <div class="summary-col a">
+      <h3>Availability</h3>
+      <p>Often overlooked until it's too late. Even passive scanning (Phase 2) can degrade availability. By Phase 4, the attacker controls whether your systems stay online at all.</p>
+    </div>
+  </div>
+</div>
+
+<div class="footer">Missouri Cybersecurity Center of Excellence &nbsp;|&nbsp; OSI + CIA + 5 Phases Framework &nbsp;|&nbsp; 2026</div>
+
+</body>
+</html>
