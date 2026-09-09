@@ -1266,12 +1266,16 @@ select option { background:var(--surface); color:var(--text); }
   <div class="table-wrap" style="margin-bottom:20px;">
     <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:end;">
       <div class="form-group">
-        <label>Student Name</label>
-        <input type="text" id="rub-student" placeholder="Enter student name">
+        <label>Select Student</label>
+        <select id="rub-student-select" onchange="onRubricStudentChange(this)">
+          <option value="">— Choose a student —</option>
+        </select>
+        <input type="hidden" id="rub-student">
+        <input type="hidden" id="rub-id">
       </div>
       <div class="form-group">
         <label>Student ID</label>
-        <input type="text" id="rub-id" placeholder="MCCoE-XXX">
+        <input type="text" id="rub-id-display" readonly placeholder="Auto-filled from dropdown" style="background:rgba(255,255,255,0.04);color:var(--cyan);cursor:default;">
       </div>
       <div class="form-group">
         <label>Framework Used by Student</label>
@@ -2665,8 +2669,30 @@ const RUBRIC_DESCRIPTORS = {
 
 let _rubricSelections = {};
 
+function populateRubricStudentDropdown() {
+  const sel = document.getElementById('rub-student-select');
+  if (!sel) return;
+  const sorted = [...students].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  sel.innerHTML = '<option value="">— Choose a student —</option>' +
+    sorted.map(s => {
+      const id = s.studentId || '';
+      const label = s.name + (id ? ' — ' + id : '');
+      return `<option value="${s.name}|${id}">${label}</option>`;
+    }).join('');
+}
+
+function onRubricStudentChange(sel) {
+  const parts = (sel.value || '').split('|');
+  const name = parts[0] || '';
+  const id   = parts[1] || '';
+  document.getElementById('rub-student').value   = name;
+  document.getElementById('rub-id').value         = id;
+  document.getElementById('rub-id-display').value = id;
+}
+
 function initRubricGrader() {
   _rubricSelections = {};
+  populateRubricStudentDropdown();
   const container = document.getElementById('rub-categories');
   if (!container) return;
   container.innerHTML = RUBRIC_CATS.map(cat => `
