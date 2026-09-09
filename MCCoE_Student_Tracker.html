@@ -651,6 +651,9 @@ select option { background:var(--surface); color:var(--text); }
     <span class="nav-icon">&#127915;</span> SOC Tickets
   </button>
   <div class="nav-section">Resources</div>
+  <button class="nav-btn" onclick="showView('rubric',this)">
+    <span class="nav-icon">📝</span> Exec Summary Rubric
+  </button>
   <button class="nav-btn" onclick="showView('cheatsheet',this)">
     <span class="nav-icon">📋</span> Cheat Sheet
   </button>
@@ -1250,6 +1253,72 @@ select option { background:var(--surface); color:var(--text); }
   </div>
   <div id="ctf-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;"></div>
   <div id="ctf-table-wrap"></div>
+</div>
+
+<!-- ═══ EXEC SUMMARY RUBRIC ═══ -->
+<div id="view-rubric" class="view">
+  <div class="page-header">
+    <div><h2>📝 Executive Summary Rubric</h2><p>Grade student executive summaries — 100 points total</p></div>
+    <button class="btn btn-red" onclick="printRubricGrade()">🖨 Print Grade Sheet</button>
+  </div>
+
+  <!-- Student + Framework selector -->
+  <div class="table-wrap" style="margin-bottom:20px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;align-items:end;">
+      <div class="form-group">
+        <label>Student Name</label>
+        <input type="text" id="rub-student" placeholder="Enter student name">
+      </div>
+      <div class="form-group">
+        <label>Student ID</label>
+        <input type="text" id="rub-id" placeholder="MCCoE-XXX">
+      </div>
+      <div class="form-group">
+        <label>Framework Used by Student</label>
+        <select id="rub-framework">
+          <option value="Cyber Kill Chain">Cyber Kill Chain</option>
+          <option value="MITRE ATT&CK">MITRE ATT&CK</option>
+          <option value="NIST">NIST Framework</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rubric categories -->
+  <div id="rub-categories" style="display:flex;flex-direction:column;gap:14px;margin-bottom:24px;"></div>
+
+  <!-- Score bar -->
+  <div class="table-wrap" style="margin-bottom:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div style="font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Total Score</div>
+        <div id="rub-total" style="font-size:2.5rem;font-weight:900;color:var(--red);">0 / 100</div>
+        <div id="rub-grade" style="font-size:1rem;font-weight:700;color:var(--muted);margin-top:2px;">—</div>
+      </div>
+      <button class="btn btn-red" onclick="saveRubricGrade()" style="font-size:1rem;padding:14px 32px;">💾 Save Grade to Firebase</button>
+    </div>
+    <div style="margin-top:12px;background:var(--bg);border-radius:8px;height:12px;overflow:hidden;">
+      <div id="rub-bar" style="height:100%;background:var(--red);width:0%;border-radius:8px;transition:width .4s;"></div>
+    </div>
+  </div>
+
+  <!-- Comments -->
+  <div class="table-wrap" style="margin-bottom:20px;">
+    <div style="font-size:.75rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;">Instructor Comments</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="form-group"><label>Strengths</label><textarea id="rub-strengths" rows="3" placeholder="What the student did well..."></textarea></div>
+      <div class="form-group"><label>Areas for Improvement</label><textarea id="rub-improve" rows="3" placeholder="What needs work..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- Saved grades table -->
+  <div class="table-wrap">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <div style="font-size:.75rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;">Saved Grades</div>
+      <button class="btn btn-outline" style="font-size:.75rem;padding:5px 12px;" onclick="loadRubricGrades()">↻ Refresh</button>
+    </div>
+    <div id="rub-saved-wrap"></div>
+  </div>
 </div>
 
 <!-- ═══ CHEAT SHEET ═══ -->
@@ -2293,6 +2362,7 @@ function showView(name, btn) {
   if(name==='employer')     renderEmployerSelect();
   if(name==='submissions')  renderSubmissionsView();
   if(name==='library')      initLibrary(renderLibraryAdmin);
+  if(name==='rubric')       { initRubricGrader(); loadRubricGrades(); }
   if(name==='academy')      loadAcademyScores();
   if(name==='acronym')      loadAcronymScores();
   if(name==='pentest')      loadPentestScores();
@@ -2568,6 +2638,148 @@ function loadAcademyScores() {
       </div>`;
   });
 }
+
+// ════════════════════════════════════════════
+//  EXECUTIVE SUMMARY RUBRIC GRADER
+// ════════════════════════════════════════════
+const RUBRIC_CATS = [
+  { key:'spelling',    label:'Spelling & Punctuation',                      max:15, levels:[15,12,8,4],   desc:'Writing quality, grammar, and professional tone' },
+  { key:'overview',    label:'Executive Overview',                           max:20, levels:[20,15,10,5],  desc:'Clear summary of incident, scope, and impact for a non-technical audience' },
+  { key:'cia',         label:'CIA Triad Analysis',                           max:20, levels:[20,15,10,5],  desc:'Correct identification of violated CIA pillars with specific evidence' },
+  { key:'methodology', label:'Attacker Methodology',                         max:20, levels:[20,15,10,5],  desc:'How the attacker gained access, moved through the system, and achieved their goal' },
+  { key:'framework',   label:'Framework Application (Kill Chain/MITRE/NIST)',max:15, levels:[15,12,8,4],  desc:'Accurate mapping of the incident to the chosen framework with correct terminology' },
+  { key:'remediation', label:'Remediation Plan',                             max:10, levels:[10,8,5,2],   desc:'Specific, actionable recommendations tied to the vulnerabilities exploited' }
+];
+
+const RUBRIC_LEVEL_LABELS = ['Excellent','Proficient','Developing','Beginning'];
+const RUBRIC_LEVEL_COLORS = ['#22c55e','#3b82f6','#f59e0b','#ef4444'];
+
+const RUBRIC_DESCRIPTORS = {
+  spelling:    ['No errors. Writing is polished and professional.','1-2 minor errors that do not distract from the message.','3-5 errors. Somewhat distracting but still readable.','Numerous errors. Significantly impacts credibility.'],
+  overview:    ['Clear, concise summary of incident, scope, and business impact. Written for a non-technical executive.','Covers most elements with mostly appropriate language for executives.','Missing 1-2 key elements or too technical for a non-technical reader.','Vague, missing major elements, or written for a technical audience.'],
+  cia:         ['Accurately identifies all violated CIA pillars with specific evidence from the incident.','Correctly identifies violated pillars with some supporting evidence.','Partially identifies pillars or provides limited supporting evidence.','CIA Triad mentioned but incorrectly applied or missing.'],
+  methodology: ['Clearly explains how the attacker gained access, moved through the system, and achieved their objective.','Explains most of the attack path with reasonable detail. Minor gaps.','Describes the attack at a surface level. Missing key phases or steps.','Attack methodology is vague, inaccurate, or largely absent.'],
+  framework:   ['Framework clearly labeled. Incident accurately and specifically mapped with correct terminology.','Framework labeled and mostly applied correctly. Minor gaps or terminology issues.','Framework identified but mapping is incomplete or partially incorrect.','Framework mentioned in name only. No meaningful application to the incident.'],
+  remediation: ['3+ specific, actionable recommendations tied directly to the vulnerabilities exploited.','2-3 recommendations that are mostly specific and tied to the incident.','General recommendations not clearly tied to specific vulnerabilities.','Remediation is vague, missing, or not relevant to the incident.']
+};
+
+let _rubricSelections = {};
+
+function initRubricGrader() {
+  _rubricSelections = {};
+  const container = document.getElementById('rub-categories');
+  if (!container) return;
+  container.innerHTML = RUBRIC_CATS.map(cat => `
+    <div class="table-wrap" style="padding:16px 20px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+        <div>
+          <div style="font-weight:700;font-size:.95rem;color:var(--text);">${cat.label}</div>
+          <div style="font-size:.78rem;color:var(--muted);margin-top:2px;">${cat.desc}</div>
+        </div>
+        <div style="font-size:.8rem;font-weight:700;color:var(--red);">Max: ${cat.max} pts</div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;">
+        ${RUBRIC_LEVEL_LABELS.map((lbl,i) => `
+          <label style="cursor:pointer;">
+            <input type="radio" name="rub_${cat.key}" value="${cat.levels[i]}" onchange="updateRubricScore()" style="display:none;">
+            <div class="rub-option" id="rub-opt-${cat.key}-${i}"
+              style="border:2px solid var(--border);border-radius:10px;padding:10px 12px;text-align:center;transition:all .2s;background:var(--card);">
+              <div style="font-size:.75rem;font-weight:800;color:${RUBRIC_LEVEL_COLORS[i]};letter-spacing:.5px;margin-bottom:4px;">${lbl}</div>
+              <div style="font-size:1.1rem;font-weight:900;color:var(--text);margin-bottom:6px;">${cat.levels[i]} pts</div>
+              <div style="font-size:.7rem;color:var(--muted);line-height:1.4;">${RUBRIC_DESCRIPTORS[cat.key][i]}</div>
+            </div>
+          </label>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  // Add click handlers for visual selection
+  RUBRIC_CATS.forEach(cat => {
+    RUBRIC_LEVEL_LABELS.forEach((_, i) => {
+      const opt = document.getElementById('rub-opt-' + cat.key + '-' + i);
+      if (opt) opt.parentElement.addEventListener('click', () => {
+        RUBRIC_LEVEL_LABELS.forEach((_, j) => {
+          const o = document.getElementById('rub-opt-' + cat.key + '-' + j);
+          if (o) o.style.cssText = 'border:2px solid var(--border);border-radius:10px;padding:10px 12px;text-align:center;transition:all .2s;background:var(--card);';
+        });
+        opt.style.cssText = `border:2px solid ${RUBRIC_LEVEL_COLORS[i]};border-radius:10px;padding:10px 12px;text-align:center;transition:all .2s;background:var(--card);box-shadow:0 0 0 3px ${RUBRIC_LEVEL_COLORS[i]}33;`;
+        _rubricSelections[cat.key] = cat.levels[i];
+        updateRubricScore();
+      });
+    });
+  });
+  updateRubricScore();
+}
+
+function updateRubricScore() {
+  const total = Object.values(_rubricSelections).reduce((s,v) => s+v, 0);
+  const el = document.getElementById('rub-total');
+  const gl = document.getElementById('rub-grade');
+  const bar = document.getElementById('rub-bar');
+  if (!el) return;
+  el.textContent = total + ' / 100';
+  el.style.color = total >= 90 ? '#22c55e' : total >= 80 ? '#3b82f6' : total >= 70 ? '#f59e0b' : total >= 60 ? '#f97316' : '#ef4444';
+  const grade = total >= 90 ? 'A' : total >= 80 ? 'B' : total >= 70 ? 'C' : total >= 60 ? 'D' : 'F';
+  gl.textContent = 'Letter Grade: ' + grade;
+  if (bar) bar.style.width = total + '%';
+}
+
+function saveRubricGrade() {
+  const student = document.getElementById('rub-student')?.value.trim();
+  const sid     = document.getElementById('rub-id')?.value.trim();
+  const fw      = document.getElementById('rub-framework')?.value;
+  if (!student) { alert('Please enter the student name.'); return; }
+  if (Object.keys(_rubricSelections).length < 6) { alert('Please select a level for all 6 categories.'); return; }
+  const total = Object.values(_rubricSelections).reduce((s,v) => s+v, 0);
+  const grade = total >= 90 ? 'A' : total >= 80 ? 'B' : total >= 70 ? 'C' : total >= 60 ? 'D' : 'F';
+  const record = {
+    student, sid, framework: fw, scores: _rubricSelections, total, grade,
+    strengths: document.getElementById('rub-strengths')?.value || '',
+    improve:   document.getElementById('rub-improve')?.value || '',
+    gradedAt:  new Date().toISOString(), gradedBy: 'Chris King'
+  };
+  if (_fbDb) {
+    _fbDb.ref('mccoe_rubric').push(record, err => {
+      if (err) alert('Save failed: ' + err.message);
+      else { alert('Grade saved for ' + student + '!'); loadRubricGrades(); }
+    });
+  } else {
+    alert('Firebase not connected. Grade not saved.');
+  }
+}
+
+function loadRubricGrades() {
+  const wrap = document.getElementById('rub-saved-wrap');
+  if (!wrap || !_fbDb) return;
+  wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;">Loading...</div>';
+  _fbDb.ref('mccoe_rubric').once('value', snap => {
+    const data = snap.val();
+    if (!data) { wrap.innerHTML = '<div style="color:var(--muted);font-size:.85rem;">No grades saved yet.</div>'; return; }
+    const grades = Object.entries(data).map(([k,v]) => ({...v, fbKey:k})).sort((a,b) => b.gradedAt.localeCompare(a.gradedAt));
+    wrap.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:.82rem;">
+      <tr style="background:var(--navy);color:#fff;">
+        <th style="padding:8px 12px;text-align:left;">Student</th>
+        <th style="padding:8px 12px;text-align:left;">ID</th>
+        <th style="padding:8px 12px;text-align:left;">Framework</th>
+        <th style="padding:8px 12px;text-align:center;">Score</th>
+        <th style="padding:8px 12px;text-align:center;">Grade</th>
+        <th style="padding:8px 12px;text-align:left;">Date</th>
+      </tr>
+      ${grades.map((g,i) => `
+        <tr style="background:${i%2===0?'var(--card)':'var(--bg)'};">
+          <td style="padding:8px 12px;font-weight:600;">${g.student}</td>
+          <td style="padding:8px 12px;color:var(--muted);">${g.sid||'-'}</td>
+          <td style="padding:8px 12px;color:var(--cyan);">${g.framework||'-'}</td>
+          <td style="padding:8px 12px;text-align:center;font-weight:800;color:${g.total>=70?'#22c55e':'#ef4444'};">${g.total}</td>
+          <td style="padding:8px 12px;text-align:center;font-weight:800;">${g.grade}</td>
+          <td style="padding:8px 12px;color:var(--muted);">${g.gradedAt?g.gradedAt.slice(0,10):'-'}</td>
+        </tr>`).join('')}
+    </table>`;
+  });
+}
+
+function printRubricGrade() { window.print(); }
 
 // ════════════════════════════════════════════
 //  ACRONYM DRILL SCORES
