@@ -3696,12 +3696,13 @@ function setStars(key, n) {
 }
 
 function submitStudentSurvey() {
+  const tempId = state.student && state.student.tempId;
   if (!_surveyStars.rating) { alert('Please rate today\'s training.'); return; }
   const topic = document.getElementById('sv-topic')?.value.trim();
   if (!topic) { alert('Please enter today\'s topic.'); return; }
   const record = {
-    studentName:  studentName || 'Unknown',
-    studentId:    studentMcCoEId || '',
+    studentName:  (state.student && state.student.name) || 'Unknown',
+    studentId:    (state.student && state.student.assignedId) || '',
     rating:       _surveyStars.rating,
     confidence:   _surveyStars.confidence || 0,
     instruction:  _surveyStars.instruction || 0,
