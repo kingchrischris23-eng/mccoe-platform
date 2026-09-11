@@ -84,6 +84,25 @@ body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monosp
 
 .back-btn{display:inline-block;font-size:.75rem;color:var(--muted);text-decoration:none;margin-bottom:24px;padding:6px 12px;border:1px solid var(--border);border-radius:6px;}
 .back-btn:hover{color:var(--text);border-color:rgba(255,255,255,.2);}
+/* WORKSHEET FORM STYLES */
+.ws-input{width:100%;min-height:80px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;font-family:'Share Tech Mono',monospace;font-size:.85rem;padding:12px;border-radius:8px;resize:vertical;line-height:1.6;}
+.ws-input:focus{outline:none;border-color:var(--red);background:rgba(0,0,0,.5);}
+.ws-input::placeholder{color:var(--muted);}
+.tech-form-card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;}
+.tfc-header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);background:rgba(0,0,0,.2);}
+.tfc-badge{font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--red);background:rgba(238,34,7,.12);border:1px solid rgba(238,34,7,.3);padding:4px 10px;border-radius:6px;white-space:nowrap;}
+.tfc-name{font-size:.88rem;font-weight:700;color:var(--text);flex:1;}
+.tfc-tag{font-size:.62rem;color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--border);padding:2px 8px;border-radius:4px;white-space:nowrap;}
+.tfc-field{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.04);}
+.tfc-field:last-child{border-bottom:none;}
+.tfc-label{display:block;font-size:.78rem;color:var(--red);letter-spacing:.3px;margin-bottom:8px;line-height:1.5;}
+#student-banner{background:rgba(238,34,7,.08);border:1px solid rgba(238,34,7,.25);border-radius:8px;padding:12px 18px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+#student-banner .sb-name{font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--text);}
+#student-banner .sb-id{font-size:.75rem;color:var(--muted);}
+#submit-btn{display:block;width:100%;padding:16px;background:var(--red);color:#fff;font-family:'Orbitron',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:1.5px;border:none;border-radius:8px;cursor:pointer;margin-top:24px;transition:opacity .2s;}
+#submit-btn:hover{opacity:.85;}
+#submit-btn:disabled{opacity:.4;cursor:not-allowed;}
+#submit-status{text-align:center;font-size:.85rem;margin-top:12px;min-height:22px;}
 </style>
 </head>
 <body>
@@ -325,91 +344,183 @@ body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monosp
   </div>
 
   <div class="intro-box">
-    <strong>Instructions:</strong> Use what you learned in Steps 1–3 to complete this worksheet. Yellow items are given to you as a scaffold — fill in the blanks.
-    Then use <a href="https://attack.mitre.org" target="_blank" style="color:var(--cyan);">attack.mitre.org</a> to look up each technique and add the defensive mitigation from the ATT&CK page.<br><br>
-    Click <strong>SUBMIT MAPPING</strong> at the bottom when finished — your instructor will receive your answers automatically.
+    <strong>Instructions:</strong> Use what you learned in Steps 1–3 to complete this worksheet. Red badges are given — fill in every text box.
+    Use <a href="https://attack.mitre.org" target="_blank" style="color:var(--cyan);">attack.mitre.org</a> for defensive mitigations.<br><br>
+    Click <strong>SUBMIT MAPPING</strong> at the bottom when finished — your instructor receives your answers automatically.
   </div>
 
-  <div class="ws-section">
-    <div class="ws-title">// PART A — WORKED EXAMPLE (Completed for you — study this format)</div>
-    <div class="ws-row hdr-row">
-      <div class="ws-cell hdr-cell">Technique ID</div>
-      <div class="ws-cell hdr-cell">Technique Name</div>
-      <div class="ws-cell hdr-cell">How Used in Colonial Pipeline</div>
-      <div class="ws-cell hdr-cell">One Defensive Mitigation</div>
+  <!-- PART A: WORKED EXAMPLE -->
+  <div style="margin-bottom:28px;">
+    <div class="sec-title" style="margin-bottom:16px;">// PART A — WORKED EXAMPLE &nbsp;<span style="font-size:.72rem;color:var(--green);font-family:'Share Tech Mono',monospace;letter-spacing:0;">Study this format before you start Part B</span></div>
+    <div style="background:#0d1f0d;border:1px solid rgba(0,230,118,.25);border-radius:12px;padding:20px 24px;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <span style="font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--green);">T1078</span>
+        <span style="font-size:.85rem;color:rgba(255,255,255,.85);font-weight:700;">Valid Accounts</span>
+        <span style="font-size:.65rem;background:rgba(0,230,118,.15);border:1px solid rgba(0,230,118,.3);color:var(--green);padding:2px 8px;border-radius:4px;margin-left:auto;">COMPLETED EXAMPLE</span>
+      </div>
+      <div style="margin-bottom:12px;">
+        <div style="font-size:.72rem;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;">How it was used in Colonial Pipeline</div>
+        <div style="font-size:.85rem;color:var(--text);line-height:1.7;padding:12px;background:rgba(0,0,0,.3);border-radius:6px;">Attackers used a stolen employee VPN password found on the dark web to authenticate directly into Colonial's network. Because the credential was valid, no alert was triggered. No MFA was in place to stop them.</div>
+      </div>
+      <div>
+        <div style="font-size:.72rem;color:var(--green);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;">One defensive mitigation</div>
+        <div style="font-size:.85rem;color:var(--text);line-height:1.7;padding:12px;background:rgba(0,0,0,.3);border-radius:6px;">Enforce Multi-Factor Authentication (MFA) on all remote access systems. A stolen password alone is useless if a second factor (authenticator app, hardware key) is also required.</div>
+      </div>
     </div>
-    <div class="ws-row">
-      <div class="ws-cell ws-given">T1078</div>
-      <div class="ws-cell ws-given">Valid Accounts</div>
-      <div class="ws-cell ws-given">Attackers used a stolen employee VPN password found on the dark web to authenticate directly into Colonial's network. No MFA was in place to stop them.</div>
-      <div class="ws-cell ws-given">Enforce Multi-Factor Authentication (MFA) on all remote access systems. A stolen password alone is useless if a second factor (authenticator app, hardware key) is required.</div>
-    </div>
-    <div class="ws-note">⬆ This is what a complete, professional answer looks like. Notice: specific technique ID, exact name, concrete explanation tied to THIS incident (not generic), and a specific defense (not just "better security").</div>
+    <div class="ws-note" style="margin-top:10px;">⬆ Notice: specific technique ID, exact name, concrete detail tied to THIS incident, and a specific named control — not just "improve security."</div>
   </div>
 
-  <div class="ws-section">
-    <div class="ws-title">// PART B — YOUR TURN (Fill in the blanks)</div>
-    <div class="ws-row hdr-row">
-      <div class="ws-cell hdr-cell">Technique ID</div>
-      <div class="ws-cell hdr-cell">Technique Name</div>
-      <div class="ws-cell hdr-cell">How Used in Colonial Pipeline</div>
-      <div class="ws-cell hdr-cell">One Defensive Mitigation</div>
+  <!-- PART B: STUDENT CARDS -->
+  <div style="margin-bottom:28px;">
+    <div class="sec-title" style="margin-bottom:16px;">// PART B — YOUR TURN &nbsp;<span style="font-size:.72rem;color:var(--muted);font-family:'Share Tech Mono',monospace;letter-spacing:0;">Complete every field on all 6 technique cards</span></div>
+
+    <!-- T1133 -->
+    <div class="tech-form-card">
+      <div class="tfc-header">
+        <div class="tfc-badge">T1133</div>
+        <div class="tfc-name">External Remote Services</div>
+        <div class="tfc-tag">Initial Access</div>
+      </div>
+      <div class="tfc-field">
+        <label class="tfc-label">How was this technique used in the Colonial Pipeline attack?</label>
+        <textarea id="t1133-how" class="ws-input" placeholder="Type your answer..."></textarea>
+      </div>
+      <div class="tfc-field">
+        <label class="tfc-label">What is one defensive mitigation? (Look up T1133 on attack.mitre.org → Mitigations tab)</label>
+        <textarea id="t1133-def" class="ws-input" placeholder="Type your answer..."></textarea>
+      </div>
     </div>
-    <div class="ws-row">
-      <div class="ws-cell ws-given">T1133</div>
-      <div class="ws-cell ws-given">External Remote Services</div>
-      <div class="ws-cell ws-blank"><textarea id="t1133-how" class="ws-input" placeholder="Describe how the VPN was used as the entry point in this incident..."></textarea></div>
-      <div class="ws-cell ws-blank"><textarea id="t1133-def" class="ws-input" placeholder="Look up T1133 on attack.mitre.org → Mitigations tab → list one..."></textarea></div>
+
+    <!-- T1021 -->
+    <div class="tech-form-card">
+      <div class="tfc-header">
+        <div class="tfc-badge">T1021</div>
+        <div class="tfc-name" style="color:var(--muted);font-style:italic;">What is this technique called? ↓</div>
+        <div class="tfc-tag">Lateral Movement</div>
+      </div>
+      <div class="tfc-field">
+        <label class="tfc-label">What is the full name of technique T1021?</label>
+        <textarea id="t1021-name" class="ws-input" style="min-height:52px;" placeholder="Type your answer..."></textarea>
+      </div>
+      <div class="tfc-field">
+        <label class="tfc-label">How did attackers use this technique to move through Colonial's network after VPN access?</label>
+        <textarea id="t1021-how" class="ws-input" placeholder="Type your answer..."></textarea>
+      </div>
+      <div class="tfc-field">
+        <label class="tfc-label">What architecture change would have stopped this lateral movement?</label>
+        <textarea id="t1021-def" class="ws-input" placeholder="Type your answer..."></textarea>
+      </div>
     </div>
-    <div class="ws-row">
-      <div class="ws-cell ws-given">T1021</div>
-      <div class="ws-cell ws-blank"><textarea id="t1021-name" class="ws-input" placeholder="What is this technique called?"></textarea></div>
-      <div class="ws-cell ws-blank"><textarea id="t1021-how" class="ws-input" placeholder="How did attackers move through the network after gaining VPN access?"></textarea></div>
-      <div class="ws-cell ws-blank"><textarea id="t1021-def" class="ws-input" placeholder="What architecture change would have stopped lateral movement?"></textarea></div>
+
+    <!-- T1048 — ID blank, name given -->
+    <div class="tech-form-card">
+      <div class="tfc-header">
+        <div class="tfc-badge" style="background:rgba(255,214,0,.15);border-color:rgba(255,214,0,.4);color:var(--yellow);">? ? ? ?</div>
+        <div class="tfc-name">Exfiltration Over Alternative Protocol</div>
+        <div class="tfc-tag">Exfiltration</div>
+      </div>
+      <div class="tfc-field">
+        <label class="tfc-label">What is the MITRE ATT&CK Technique ID for "Exfiltration Over Alternative Protocol"?</label>
+        <textarea id="t1048-id" class="ws-input" style="min-height:52px;" placeholder="Type the technique ID (e.g. T1XXX)..."></textarea>
+      </div>
+      <div class="tfc-field">
+        <label class="tfc-label">How did DarkSide use this technique — what did they steal and when?</label>
+        <textarea id="t1048-how" class="ws-input" placeholder="Type your answer..."></textarea>
+      </div>
+      <div class="tfc-field">
+        <label class="tfc-label">What tool monitors outbound data transfers and would have detected this?</label>
+        <textarea id="t1048-def" class="ws-input" placeholder="Type your answer..."></textarea>
+      </div>
     </div>
-    <div class="ws-row">
-      <div class="ws-cell ws-blank"><textarea id="t1048-id" class="ws-input" placeholder="What is the Technique ID? (Hint: Exfiltration Over Alt Protocol)"></textarea></div>
-      <div class="ws-cell ws-blank" style="font-size:.78rem;color:var(--yellow);padding:12px;">Exfiltration Over Alternative Protocol</div>
-      <div class="ws-cell ws-blank"><textarea id="t1048-how" class="ws-input" placeholder="How did DarkSide steal 100GB before deploying ransomware?"></textarea></div>
-      <div class="ws-cell ws-blank"><textarea id="t1048-def" class="ws-input" placeholder="What tool monitors outbound data transfers?"></textarea></div>
+
+    <!-- T1490 — both ID and name blank -->
+    <div class="tech-form-card">
+      <div class="tfc-header">
+        <div class="tfc-badge" style="background:rgba(255,214,0,.15);border-color:rgba(255,214,0,.4);color:var(--yellow);">? ? ? ?</div>
+        <div class="tfc-name" style="color:var(--muted);font-style:italic;">Identify this technique ↓</div>
+        <div class="tfc-tag">Impact</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 20px 0;">
+        <div class="tfc-field" style="padding:0;border:none;">
+          <label class="tfc-label">What is the Technique ID?</label>
+          <textarea id="t1490-id" class="ws-input" style="min-height:52px;" placeholder="T1XXX..."></textarea>
+        </div>
+        <div class="tfc-field" style="padding:0;border:none;">
+          <label class="tfc-label">What is the Technique Name?</label>
+          <textarea id="t1490-name" class="ws-input" style="min-height:52px;" placeholder="Hint: involves deleting backups..."></textarea>
+        </div>
+      </div>
+      <div class="tfc-field">
+        <label class="tfc-label">What specific backup feature did DarkSide delete before deploying ransomware, and why?</label>
+        <textarea id="t1490-how" class="ws-input" placeholder="Type your answer..."></textarea>
+      </div>
+      <div class="tfc-field">
+        <label class="tfc-label">What type of backup can ransomware NOT reach or delete?</label>
+        <textarea id="t1490-def" class="ws-input" placeholder="Type your answer..."></textarea>
+      </div>
     </div>
-    <div class="ws-row">
-      <div class="ws-cell ws-blank"><textarea id="t1490-id" class="ws-input" placeholder="What is the Technique ID?"></textarea></div>
-      <div class="ws-cell ws-blank"><textarea id="t1490-name" class="ws-input" placeholder="What technique involves deleting backups?"></textarea></div>
-      <div class="ws-cell ws-blank"><textarea id="t1490-how" class="ws-input" placeholder="What specific backup feature did DarkSide delete before encrypting?"></textarea></div>
-      <div class="ws-cell ws-blank"><textarea id="t1490-def" class="ws-input" placeholder="What type of backup can ransomware NOT reach?"></textarea></div>
+
+    <!-- T1486 -->
+    <div class="tech-form-card">
+      <div class="tfc-header">
+        <div class="tfc-badge">T1486</div>
+        <div class="tfc-name" style="color:var(--muted);font-style:italic;">What is this technique called? ↓</div>
+        <div class="tfc-tag">Impact</div>
+      </div>
+      <div class="tfc-field">
+        <label class="tfc-label">What is the full name of technique T1486?</label>
+        <textarea id="t1486-name" class="ws-input" style="min-height:52px;" placeholder="Type your answer..."></textarea>
+      </div>
+      <div class="tfc-field">
+        <label class="tfc-label">What exactly did DarkSide ransomware do to Colonial Pipeline's files?</label>
+        <textarea id="t1486-how" class="ws-input" placeholder="Type your answer..."></textarea>
+      </div>
+      <div class="tfc-field">
+        <label class="tfc-label">What endpoint security tool can detect and stop ransomware encryption behavior in real time?</label>
+        <textarea id="t1486-def" class="ws-input" placeholder="Type your answer..."></textarea>
+      </div>
     </div>
-    <div class="ws-row">
-      <div class="ws-cell ws-given">T1486</div>
-      <div class="ws-cell ws-blank"><textarea id="t1486-name" class="ws-input" placeholder="What is this technique called?"></textarea></div>
-      <div class="ws-cell ws-blank"><textarea id="t1486-how" class="ws-input" placeholder="Describe what DarkSide ransomware did to Colonial's files..."></textarea></div>
-      <div class="ws-cell ws-blank"><textarea id="t1486-def" class="ws-input" placeholder="What endpoint security tool detects ransomware behavior in real time?"></textarea></div>
+
+    <!-- T1489 -->
+    <div class="tech-form-card">
+      <div class="tfc-header">
+        <div class="tfc-badge">T1489</div>
+        <div class="tfc-name">Service Stop</div>
+        <div class="tfc-tag">Impact</div>
+      </div>
+      <div class="tfc-field">
+        <label class="tfc-label">Why did Colonial Pipeline shut down 5,500 miles of pipeline, and what was the national impact?</label>
+        <textarea id="t1489-how" class="ws-input" placeholder="Type your answer..."></textarea>
+      </div>
+      <div class="tfc-field">
+        <label class="tfc-label">What network design principle would have made this OT shutdown unnecessary?</label>
+        <textarea id="t1489-def" class="ws-input" placeholder="Type your answer..."></textarea>
+      </div>
     </div>
-    <div class="ws-row">
-      <div class="ws-cell ws-given">T1489</div>
-      <div class="ws-cell ws-given">Service Stop</div>
-      <div class="ws-cell ws-blank"><textarea id="t1489-how" class="ws-input" placeholder="Why did Colonial shut down the pipeline, and what was the national impact?"></textarea></div>
-      <div class="ws-cell ws-blank"><textarea id="t1489-def" class="ws-input" placeholder="What network design principle would have prevented this from being necessary?"></textarea></div>
-    </div>
-    <div class="ws-note">💡 Hints: Look up each technique ID at attack.mitre.org. Click the Mitigations tab for defensive recommendations. Use the Technique Breakdown tab (Step 3) if you get stuck.</div>
+
+    <div class="ws-note">💡 Stuck? Use the Technique Breakdown tab (Step 3) or search the technique ID at attack.mitre.org → Mitigations tab.</div>
   </div>
 
-  <div class="ws-section">
-    <div class="ws-title">// PART C — CRITICAL THINKING (Written response)</div>
-    <div style="margin-bottom:20px;">
-      <div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:8px;">Question 1: The Chain Reaction</div>
-      <div style="font-size:.8rem;color:rgba(255,255,255,.7);line-height:1.8;margin-bottom:12px;">T1078 (Valid Accounts) is listed under TWO tactics: Initial Access AND Persistence. Why does the same technique appear in multiple tactics? What does this tell you about how attackers think about maintaining access?</div>
-      <textarea id="crit-q1" class="ws-input" style="min-height:90px;" placeholder="Write your answer here..."></textarea>
-    </div>
-    <div style="margin-bottom:20px;">
-      <div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:8px;">Question 2: The Defender's View</div>
-      <div style="font-size:.8rem;color:rgba(255,255,255,.7);line-height:1.8;margin-bottom:12px;">Look at the 14 Tactic columns in Step 1. Several tactics have NO confirmed techniques for Colonial Pipeline (Execution, Discovery, Credential Access, etc.). Does this mean those phases didn't happen — or does it mean something else? Explain.</div>
-      <textarea id="crit-q2" class="ws-input" style="min-height:90px;" placeholder="Write your answer here..."></textarea>
-    </div>
-    <div>
-      <div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:8px;">Question 3: One Control to Rule Them All</div>
-      <div style="font-size:.8rem;color:rgba(255,255,255,.7);line-height:1.8;margin-bottom:12px;">If Colonial Pipeline could have implemented only ONE security control before May 7, 2021 — which one would have had the greatest impact on preventing or limiting this attack? Justify your answer using specific ATT&CK technique IDs.</div>
-      <textarea id="crit-q3" class="ws-input" style="min-height:90px;" placeholder="Write your answer here..."></textarea>
+  <!-- PART C: CRITICAL THINKING -->
+  <div>
+    <div class="sec-title" style="margin-bottom:16px;">// PART C — CRITICAL THINKING</div>
+
+    <div class="tech-form-card">
+      <div style="padding:20px 24px;">
+        <div style="font-size:.72rem;color:var(--red);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;">Question 1 — The Chain Reaction</div>
+        <div style="font-size:.85rem;color:rgba(255,255,255,.75);line-height:1.7;margin-bottom:12px;">T1078 (Valid Accounts) is listed under TWO tactics: Initial Access AND Persistence. Why does the same technique appear in multiple tactics? What does this tell you about how attackers think about maintaining access?</div>
+        <textarea id="crit-q1" class="ws-input" style="min-height:100px;" placeholder="Type your answer..."></textarea>
+      </div>
+      <div style="padding:0 24px 20px;">
+        <div style="font-size:.72rem;color:var(--red);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;">Question 2 — The Defender's View</div>
+        <div style="font-size:.85rem;color:rgba(255,255,255,.75);line-height:1.7;margin-bottom:12px;">Several tactics have NO confirmed techniques for Colonial Pipeline (Execution, Discovery, etc.). Does this mean those phases didn't happen — or does it mean something else? Explain.</div>
+        <textarea id="crit-q2" class="ws-input" style="min-height:100px;" placeholder="Type your answer..."></textarea>
+      </div>
+      <div style="padding:0 24px 24px;">
+        <div style="font-size:.72rem;color:var(--red);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;">Question 3 — One Control to Rule Them All</div>
+        <div style="font-size:.85rem;color:rgba(255,255,255,.75);line-height:1.7;margin-bottom:12px;">If Colonial Pipeline could have implemented only ONE security control before May 7, 2021 — which one would have had the greatest impact? Justify using specific ATT&CK technique IDs.</div>
+        <textarea id="crit-q3" class="ws-input" style="min-height:100px;" placeholder="Type your answer..."></textarea>
+      </div>
     </div>
 
     <button id="submit-btn" onclick="submitMITREMapping()">🗺️ SUBMIT MAPPING</button>
