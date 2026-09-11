@@ -817,7 +817,7 @@ select option { background:var(--surface); color:var(--text); }
   <div class="page-header">
     <div>
       <h2>📋 Surveys</h2>
-      <p>Weekly student check-ins, program feedback, and admin daily surveys</p>
+      <p>Student daily surveys, weekly check-ins, program feedback, and admin entries</p>
     </div>
     <button class="btn btn-outline" onclick="loadAllSurveyData()">↻ Refresh</button>
   </div>
@@ -826,7 +826,7 @@ select option { background:var(--surface); color:var(--text); }
   <div style="display:flex;gap:0;margin-bottom:24px;border-radius:8px;overflow:hidden;border:1px solid var(--border);max-width:560px;">
     <button id="svtab-checkins" onclick="showSurveyTab('checkins')"
       style="flex:1;padding:10px 14px;border:none;background:var(--red);color:#fff;font-weight:700;font-size:.82rem;cursor:pointer;font-family:inherit;letter-spacing:.3px;">
-      📅 Weekly Check-Ins
+      📅 Student Surveys
     </button>
     <button id="svtab-feedback" onclick="showSurveyTab('feedback')"
       style="flex:1;padding:10px 14px;border:none;background:var(--card);color:var(--muted);font-weight:700;font-size:.82rem;cursor:pointer;font-family:inherit;letter-spacing:.3px;">
@@ -4938,36 +4938,61 @@ function renderCheckinTable() {
   if (!wrap) return;
   const weekFilter = (document.getElementById('sv-filter-week') || {}).value || 'all';
   const stuFilter  = (document.getElementById('sv-filter-student') || {}).value || 'all';
+  const starStr = n => n ? '★'.repeat(n)+'☆'.repeat(5-n) : '—';
   let rows = _allCheckins.filter(c =>
     (weekFilter === 'all' || String(c.week) === weekFilter) &&
     (stuFilter  === 'all' || c.studentName === stuFilter)
   );
   if (cnt) cnt.textContent = rows.length + ' response' + (rows.length === 1 ? '' : 's');
-  if (!rows.length) { wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><div>No check-ins found.</div></div>'; return; }
-  wrap.innerHTML = rows.map(c => `
-    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px;">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
-        <div>
-          <div style="font-weight:700;font-size:.95rem;color:var(--white);">${c.studentName} <span style="color:var(--muted);font-weight:400;font-size:.8rem;">(${c.studentMccoId})</span></div>
-          <div style="font-size:.78rem;color:var(--blue);font-weight:700;margin-top:2px;">Week ${c.week}</div>
+  if (!rows.length) { wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">📅</div><div>No surveys found.</div></div>'; return; }
+  wrap.innerHTML = rows.map(c => {
+    const isDaily = !!c.rating;
+    const weekLabel = isDaily
+      ? '📋 Daily Survey — ' + (c.date || (c.submittedAt||'').split('T')[0] || '')
+      : 'Week ' + (c.week || '?');
+    const weekColor = isDaily ? 'var(--green)' : 'var(--blue)';
+    const badges = isDaily
+      ? `<div style="background:var(--bg);border-radius:8px;padding:8px 14px;min-width:130px;">
+          <div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">Overall Rating</div>
+          <div style="font-size:.95rem;color:var(--yellow);">${starStr(c.rating)}</div>
         </div>
-        <div style="font-size:.72rem;color:var(--muted);">${c.submittedDisplay || c.submittedAt || ''}</div>
-      </div>
-      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;">
         <div style="background:var(--bg);border-radius:8px;padding:8px 14px;min-width:130px;">
+          <div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">Confidence</div>
+          <div style="font-size:.95rem;color:var(--yellow);">${starStr(c.confidence)}</div>
+        </div>
+        <div style="background:var(--bg);border-radius:8px;padding:8px 14px;min-width:130px;">
+          <div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">Instruction</div>
+          <div style="font-size:.95rem;color:var(--yellow);">${starStr(c.instruction)}</div>
+        </div>`
+      : `<div style="background:var(--bg);border-radius:8px;padding:8px 14px;min-width:130px;">
           <div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">Mood</div>
           <div style="font-size:.85rem;font-weight:700;color:var(--white);">${moodLabels[c.mood] || '—'}</div>
         </div>
         <div style="background:var(--bg);border-radius:8px;padding:8px 14px;min-width:160px;">
           <div style="font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">Confidence</div>
           <div style="font-size:.85rem;font-weight:700;color:var(--yellow);">${confLabels[c.confidence] || '—'}</div>
+        </div>`;
+    const body = isDaily
+      ? (c.topic    ? `<div style="margin-bottom:10px;"><div style="font-size:.7rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Today's Topic</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${c.topic.replace(/</g,'&lt;')}</div></div>` : '') +
+        (c.challenge? `<div style="margin-bottom:10px;"><div style="font-size:.7rem;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Challenges</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${c.challenge.replace(/</g,'&lt;')}</div></div>` : '') +
+        (c.improve  ? `<div><div style="font-size:.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">How to Improve</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${c.improve.replace(/</g,'&lt;')}</div></div>` : '')
+      : (c.learned  ? `<div style="margin-bottom:10px;"><div style="font-size:.7rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">What I Learned</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${c.learned.replace(/</g,'&lt;')}</div></div>` : '') +
+        (c.challenge? `<div style="margin-bottom:10px;"><div style="font-size:.7rem;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Challenges</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${c.challenge.replace(/</g,'&lt;')}</div></div>` : '') +
+        (c.questions? `<div style="margin-bottom:10px;"><div style="font-size:.7rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Questions for Instructor</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${c.questions.replace(/</g,'&lt;')}</div></div>` : '') +
+        (c.goal     ? `<div><div style="font-size:.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Goal for Next Week</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${c.goal.replace(/</g,'&lt;')}</div></div>` : '');
+    return `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
+        <div>
+          <div style="font-weight:700;font-size:.95rem;color:var(--white);">${c.studentName} <span style="color:var(--muted);font-weight:400;font-size:.8rem;">(${c.studentMccoId})</span></div>
+          <div style="font-size:.78rem;color:${weekColor};font-weight:700;margin-top:2px;">${weekLabel}</div>
         </div>
+        <div style="font-size:.72rem;color:var(--muted);">${c.submittedDisplay || c.submittedAt || ''}</div>
       </div>
-      ${c.learned ? `<div style="margin-bottom:10px;"><div style="font-size:.7rem;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">What I Learned</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${c.learned.replace(/</g,'&lt;')}</div></div>` : ''}
-      ${c.challenge ? `<div style="margin-bottom:10px;"><div style="font-size:.7rem;font-weight:700;color:var(--yellow);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Challenges</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${c.challenge.replace(/</g,'&lt;')}</div></div>` : ''}
-      ${c.questions ? `<div style="margin-bottom:10px;"><div style="font-size:.7rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Questions for Instructor</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${c.questions.replace(/</g,'&lt;')}</div></div>` : ''}
-      ${c.goal ? `<div><div style="font-size:.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Goal for Next Week</div><div style="font-size:.83rem;color:var(--text);line-height:1.6;white-space:pre-wrap;">${c.goal.replace(/</g,'&lt;')}</div></div>` : ''}
-    </div>`).join('');
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;">${badges}</div>
+      ${body}
+    </div>`;
+  }).join('');
 }
 
 function renderFeedbackTable() {
