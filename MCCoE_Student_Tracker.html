@@ -650,6 +650,9 @@ select option { background:var(--surface); color:var(--text); }
   <button class="nav-btn" onclick="showView('tickets',this)">
     <span class="nav-icon">&#127915;</span> SOC Tickets
   </button>
+  <button class="nav-btn" onclick="showView('mitre',this)">
+    <span class="nav-icon">🗺️</span> MITRE Mapping
+  </button>
   <div class="nav-section">Resources</div>
   <button class="nav-btn" onclick="showView('rubric',this)">
     <span class="nav-icon">📝</span> Exec Summary Rubric
@@ -1254,6 +1257,18 @@ select option { background:var(--surface); color:var(--text); }
   </div>
   <div id="ctf-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:24px;"></div>
   <div id="ctf-table-wrap"></div>
+</div>
+
+<!-- ═══ MITRE MAPPING SUBMISSIONS ═══ -->
+<div id="view-mitre" class="view">
+  <div class="page-header">
+    <div>
+      <h2>🗺️ MITRE ATT&CK Mapping Submissions</h2>
+      <p>Student worksheet submissions from the Colonial Pipeline MITRE ATT&CK Mapping Tool</p>
+    </div>
+    <button class="btn-primary" onclick="loadMITRESubmissions()">↻ Refresh</button>
+  </div>
+  <div id="mitre-submissions-wrap"></div>
 </div>
 
 <!-- ═══ EXEC SUMMARY RUBRIC ═══ -->
@@ -2375,6 +2390,7 @@ function showView(name, btn) {
   if(name==='blueteam')     loadBlueTeamScores();
   if(name==='ctf')          loadCTFScores();
   if(name==='tickets')      loadTicketManager();
+  if(name==='mitre')        loadMITRESubmissions();
   if(name==='schedule')     loadSchedule();
   if(name==='content')      loadContentManager();
 }
@@ -6540,6 +6556,128 @@ function tkShowTab(tab) {
   document.getElementById('tk-tab-progress').style.background = tab==='progress' ? 'rgba(0,245,255,0.1)' : 'transparent';
   document.getElementById('tk-tab-progress').style.color      = tab==='progress' ? 'var(--cyan)' : 'var(--muted)';
   if (tab === 'progress') renderTkProgress();
+}
+
+// ════════════════════════════════════════════
+//  MITRE MAPPING SUBMISSIONS
+// ════════════════════════════════════════════
+function loadMITRESubmissions() {
+  const wrap = document.getElementById('mitre-submissions-wrap');
+  if (!_fbDb) {
+    wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div>Firebase not connected</div></div>';
+    return;
+  }
+  wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">🗺️</div><div>Loading submissions...</div></div>';
+  _fbDb.ref('mccoe_mitre').once('value', snap => {
+    const all = snap.val() || {};
+    const keys = Object.keys(all);
+    if (!keys.length) {
+      wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div>No MITRE mapping submissions yet</div></div>';
+      return;
+    }
+
+    // Collect latest submission per student
+    const rows = [];
+    keys.forEach(key => {
+      const dates = Object.keys(all[key]).sort().reverse();
+      const latest = all[key][dates[0]];
+      rows.push({ key, date: dates[0], sub: latest, allDates: dates });
+    });
+    rows.sort((a,b) => (a.sub.name||'').localeCompare(b.sub.name||''));
+
+    const TECHNIQUES = [
+      { id:'T1133', label:'T1133 — External Remote Services', fields:[
+        {fld:'t1133.how',  label:'How Used'},
+        {fld:'t1133.defense', label:'Defense'}
+      ]},
+      { id:'T1021', label:'T1021 — Remote Services (Lateral Movement)', fields:[
+        {fld:'t1021.name', label:'Technique Name'},
+        {fld:'t1021.how',  label:'How Used'},
+        {fld:'t1021.defense', label:'Defense'}
+      ]},
+      { id:'T1048', label:'T1048 — Exfiltration Over Alt Protocol', fields:[
+        {fld:'t1048.id',   label:'Technique ID (student-identified)'},
+        {fld:'t1048.how',  label:'How Used'},
+        {fld:'t1048.defense', label:'Defense'}
+      ]},
+      { id:'T1490', label:'T1490 — Inhibit System Recovery', fields:[
+        {fld:'t1490.id',   label:'Technique ID (student-identified)'},
+        {fld:'t1490.name', label:'Technique Name (student-identified)'},
+        {fld:'t1490.how',  label:'How Used'},
+        {fld:'t1490.defense', label:'Defense'}
+      ]},
+      { id:'T1486', label:'T1486 — Data Encrypted for Impact', fields:[
+        {fld:'t1486.name', label:'Technique Name'},
+        {fld:'t1486.how',  label:'How Used'},
+        {fld:'t1486.defense', label:'Defense'}
+      ]},
+      { id:'T1489', label:'T1489 — Service Stop', fields:[
+        {fld:'t1489.how',  label:'How Used'},
+        {fld:'t1489.defense', label:'Defense'}
+      ]}
+    ];
+
+    function getVal(obj, path) {
+      return path.split('.').reduce((o,k) => (o && o[k] !== undefined ? o[k] : ''), obj);
+    }
+
+    const html = rows.map((r,ri) => {
+      const pb = r.sub.partB || {};
+      const pc = r.sub.partC || {};
+      const submittedFmt = r.date + (r.sub.submitted ? ' @ ' + r.sub.submitted.split('T')[1].slice(0,5) : '');
+
+      const techRows = TECHNIQUES.map(tech => {
+        const fieldRows = tech.fields.map(f => {
+          const val = getVal(pb, f.fld) || '<span style="color:var(--muted);font-style:italic;">— not answered —</span>';
+          return `<tr>
+            <td style="padding:7px 10px;font-size:.72rem;color:var(--muted);white-space:nowrap;vertical-align:top;">${f.label}</td>
+            <td style="padding:7px 10px;font-size:.8rem;color:var(--text);line-height:1.6;">${val}</td>
+          </tr>`;
+        }).join('');
+        return `<div style="margin-bottom:14px;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:.72rem;color:var(--red);letter-spacing:.5px;margin-bottom:6px;">${tech.label}</div>
+          <table style="width:100%;border-collapse:collapse;background:rgba(0,0,0,.3);border-radius:6px;overflow:hidden;">${fieldRows}</table>
+        </div>`;
+      }).join('');
+
+      const critRows = [
+        {q:'Q1 — The Chain Reaction', val: pc.q1},
+        {q:'Q2 — The Defender\'s View', val: pc.q2},
+        {q:'Q3 — One Control to Rule Them All', val: pc.q3}
+      ].map(({q,val}) => `<div style="margin-bottom:12px;">
+        <div style="font-size:.72rem;color:var(--cyan);margin-bottom:4px;">${q}</div>
+        <div style="font-size:.8rem;color:var(--text);line-height:1.6;padding:8px;background:rgba(0,0,0,.3);border-radius:4px;">${val || '<span style="color:var(--muted);font-style:italic;">— not answered —</span>'}</div>
+      </div>`).join('');
+
+      const prevDates = r.allDates.length > 1
+        ? `<span style="color:var(--muted);font-size:.7rem;">(${r.allDates.length} submission${r.allDates.length>1?'s':''})</span>`
+        : '';
+
+      return `<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;cursor:pointer;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+          <div>
+            <span style="font-family:'Orbitron',sans-serif;font-size:.9rem;color:var(--text);">${r.sub.name || r.key}</span>
+            <span style="font-size:.72rem;color:var(--muted);margin-left:10px;">${r.sub.studentId || ''}</span>
+            ${prevDates}
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span style="font-size:.72rem;color:var(--muted);">📅 ${submittedFmt}</span>
+            <span style="font-size:.8rem;color:var(--red);">▼ Expand</span>
+          </div>
+        </div>
+        <div style="display:none;padding:20px;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--red);letter-spacing:1px;margin-bottom:14px;">PART B — TECHNIQUE MAPPING</div>
+          ${techRows}
+          <div style="font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--cyan);letter-spacing:1px;margin:16px 0 12px;">PART C — CRITICAL THINKING</div>
+          ${critRows}
+        </div>
+      </div>`;
+    }).join('');
+
+    wrap.innerHTML = `<div style="margin-bottom:16px;font-size:.8rem;color:var(--muted);">${rows.length} student submission${rows.length!==1?'s':''} — click any card to expand answers</div>` + html;
+  }, err => {
+    wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><div>Firebase error: ${err.message}</div></div>`;
+  });
 }
 
 function loadTicketManager() {

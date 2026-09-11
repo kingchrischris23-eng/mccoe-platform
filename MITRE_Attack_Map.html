@@ -314,10 +314,20 @@ body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monosp
 <!-- PANEL 4: WORKSHEET -->
 <div id="panel-worksheet" class="panel">
   <div class="sec-title">// STUDENT MAPPING WORKSHEET</div>
+
+  <!-- Student identity banner -->
+  <div id="student-banner">
+    <div>
+      <div class="sb-name" id="sb-name-text">Not signed in</div>
+      <div class="sb-id" id="sb-id-text">Launch this tool from the Hub checklist to auto-fill your name</div>
+    </div>
+    <div style="font-size:.7rem;color:var(--muted);">Your answers are saved when you click Submit</div>
+  </div>
+
   <div class="intro-box">
     <strong>Instructions:</strong> Use what you learned in Steps 1–3 to complete this worksheet. Yellow items are given to you as a scaffold — fill in the blanks.
     Then use <a href="https://attack.mitre.org" target="_blank" style="color:var(--cyan);">attack.mitre.org</a> to look up each technique and add the defensive mitigation from the ATT&CK page.<br><br>
-    Submit your completed answers as part of your Project 3 Executive Summary (Section 4 — MITRE ATT&CK Techniques).
+    Click <strong>SUBMIT MAPPING</strong> at the bottom when finished — your instructor will receive your answers automatically.
   </div>
 
   <div class="ws-section">
@@ -348,38 +358,38 @@ body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monosp
     <div class="ws-row">
       <div class="ws-cell ws-given">T1133</div>
       <div class="ws-cell ws-given">External Remote Services</div>
-      <div class="ws-cell ws-blank">[ Describe how the VPN was used as the entry point in this incident ]</div>
-      <div class="ws-cell ws-blank">[ Look up T1133 on attack.mitre.org → Mitigations tab → list one ]</div>
+      <div class="ws-cell ws-blank"><textarea id="t1133-how" class="ws-input" placeholder="Describe how the VPN was used as the entry point in this incident..."></textarea></div>
+      <div class="ws-cell ws-blank"><textarea id="t1133-def" class="ws-input" placeholder="Look up T1133 on attack.mitre.org → Mitigations tab → list one..."></textarea></div>
     </div>
     <div class="ws-row">
       <div class="ws-cell ws-given">T1021</div>
-      <div class="ws-cell ws-blank">[ What is this technique called? ]</div>
-      <div class="ws-cell ws-blank">[ How did attackers move through the network after gaining VPN access? ]</div>
-      <div class="ws-cell ws-blank">[ What architecture change would have stopped lateral movement? ]</div>
+      <div class="ws-cell ws-blank"><textarea id="t1021-name" class="ws-input" placeholder="What is this technique called?"></textarea></div>
+      <div class="ws-cell ws-blank"><textarea id="t1021-how" class="ws-input" placeholder="How did attackers move through the network after gaining VPN access?"></textarea></div>
+      <div class="ws-cell ws-blank"><textarea id="t1021-def" class="ws-input" placeholder="What architecture change would have stopped lateral movement?"></textarea></div>
     </div>
     <div class="ws-row">
-      <div class="ws-cell ws-blank">[ What ID? ]</div>
-      <div class="ws-cell ws-blank">[ Exfiltration Over Alternative Protocol ]</div>
-      <div class="ws-cell ws-blank">[ How did DarkSide steal 100GB before deploying ransomware? ]</div>
-      <div class="ws-cell ws-blank">[ What tool monitors outbound data transfers? ]</div>
+      <div class="ws-cell ws-blank"><textarea id="t1048-id" class="ws-input" placeholder="What is the Technique ID? (Hint: Exfiltration Over Alt Protocol)"></textarea></div>
+      <div class="ws-cell ws-blank" style="font-size:.78rem;color:var(--yellow);padding:12px;">Exfiltration Over Alternative Protocol</div>
+      <div class="ws-cell ws-blank"><textarea id="t1048-how" class="ws-input" placeholder="How did DarkSide steal 100GB before deploying ransomware?"></textarea></div>
+      <div class="ws-cell ws-blank"><textarea id="t1048-def" class="ws-input" placeholder="What tool monitors outbound data transfers?"></textarea></div>
     </div>
     <div class="ws-row">
-      <div class="ws-cell ws-blank">[ What ID? ]</div>
-      <div class="ws-cell ws-blank">[ What technique involves deleting backups? ]</div>
-      <div class="ws-cell ws-blank">[ What specific backup feature did DarkSide delete before encrypting? ]</div>
-      <div class="ws-cell ws-blank">[ What type of backup can ransomware NOT reach? ]</div>
+      <div class="ws-cell ws-blank"><textarea id="t1490-id" class="ws-input" placeholder="What is the Technique ID?"></textarea></div>
+      <div class="ws-cell ws-blank"><textarea id="t1490-name" class="ws-input" placeholder="What technique involves deleting backups?"></textarea></div>
+      <div class="ws-cell ws-blank"><textarea id="t1490-how" class="ws-input" placeholder="What specific backup feature did DarkSide delete before encrypting?"></textarea></div>
+      <div class="ws-cell ws-blank"><textarea id="t1490-def" class="ws-input" placeholder="What type of backup can ransomware NOT reach?"></textarea></div>
     </div>
     <div class="ws-row">
       <div class="ws-cell ws-given">T1486</div>
-      <div class="ws-cell ws-blank">[ What is this technique called? ]</div>
-      <div class="ws-cell ws-blank">[ Describe what DarkSide ransomware did to Colonial's files ]</div>
-      <div class="ws-cell ws-blank">[ What endpoint security tool detects ransomware behavior in real time? ]</div>
+      <div class="ws-cell ws-blank"><textarea id="t1486-name" class="ws-input" placeholder="What is this technique called?"></textarea></div>
+      <div class="ws-cell ws-blank"><textarea id="t1486-how" class="ws-input" placeholder="Describe what DarkSide ransomware did to Colonial's files..."></textarea></div>
+      <div class="ws-cell ws-blank"><textarea id="t1486-def" class="ws-input" placeholder="What endpoint security tool detects ransomware behavior in real time?"></textarea></div>
     </div>
     <div class="ws-row">
       <div class="ws-cell ws-given">T1489</div>
       <div class="ws-cell ws-given">Service Stop</div>
-      <div class="ws-cell ws-blank">[ Why did Colonial shut down the pipeline, and what was the national impact? ]</div>
-      <div class="ws-cell ws-blank">[ What network design principle would have prevented this from being necessary? ]</div>
+      <div class="ws-cell ws-blank"><textarea id="t1489-how" class="ws-input" placeholder="Why did Colonial shut down the pipeline, and what was the national impact?"></textarea></div>
+      <div class="ws-cell ws-blank"><textarea id="t1489-def" class="ws-input" placeholder="What network design principle would have prevented this from being necessary?"></textarea></div>
     </div>
     <div class="ws-note">💡 Hints: Look up each technique ID at attack.mitre.org. Click the Mitigations tab for defensive recommendations. Use the Technique Breakdown tab (Step 3) if you get stuck.</div>
   </div>
@@ -389,27 +399,113 @@ body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monosp
     <div style="margin-bottom:20px;">
       <div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:8px;">Question 1: The Chain Reaction</div>
       <div style="font-size:.8rem;color:rgba(255,255,255,.7);line-height:1.8;margin-bottom:12px;">T1078 (Valid Accounts) is listed under TWO tactics: Initial Access AND Persistence. Why does the same technique appear in multiple tactics? What does this tell you about how attackers think about maintaining access?</div>
-      <div style="border:1px solid var(--border);border-radius:6px;padding:12px;min-height:80px;font-size:.78rem;color:var(--muted);">[ Write your answer here ]</div>
+      <textarea id="crit-q1" class="ws-input" style="min-height:90px;" placeholder="Write your answer here..."></textarea>
     </div>
     <div style="margin-bottom:20px;">
       <div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:8px;">Question 2: The Defender's View</div>
       <div style="font-size:.8rem;color:rgba(255,255,255,.7);line-height:1.8;margin-bottom:12px;">Look at the 14 Tactic columns in Step 1. Several tactics have NO confirmed techniques for Colonial Pipeline (Execution, Discovery, Credential Access, etc.). Does this mean those phases didn't happen — or does it mean something else? Explain.</div>
-      <div style="border:1px solid var(--border);border-radius:6px;padding:12px;min-height:80px;font-size:.78rem;color:var(--muted);">[ Write your answer here ]</div>
+      <textarea id="crit-q2" class="ws-input" style="min-height:90px;" placeholder="Write your answer here..."></textarea>
     </div>
     <div>
       <div style="font-size:.82rem;font-weight:700;color:var(--text);margin-bottom:8px;">Question 3: One Control to Rule Them All</div>
       <div style="font-size:.8rem;color:rgba(255,255,255,.7);line-height:1.8;margin-bottom:12px;">If Colonial Pipeline could have implemented only ONE security control before May 7, 2021 — which one would have had the greatest impact on preventing or limiting this attack? Justify your answer using specific ATT&CK technique IDs.</div>
-      <div style="border:1px solid var(--border);border-radius:6px;padding:12px;min-height:80px;font-size:.78rem;color:var(--muted);">[ Write your answer here ]</div>
+      <textarea id="crit-q3" class="ws-input" style="min-height:90px;" placeholder="Write your answer here..."></textarea>
     </div>
+
+    <button id="submit-btn" onclick="submitMITREMapping()">🗺️ SUBMIT MAPPING</button>
+    <div id="submit-status"></div>
   </div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 <script>
+var _fbDb = null;
+(function(){
+  try {
+    var app = firebase.initializeApp({
+      apiKey:"AIzaSyBpK8uLCD0_m83a1xFiOQVaS1PKWSGcEc8",
+      authDomain:"mccoe-platform-a9710.firebaseapp.com",
+      databaseURL:"https://mccoe-platform-a9710-default-rtdb.firebaseio.com",
+      projectId:"mccoe-platform-a9710"
+    });
+    _fbDb = firebase.database(app);
+  } catch(e) { console.warn('Firebase init error:', e); }
+})();
+
 function showPanel(name, btn) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
   document.querySelectorAll('.step').forEach(s => s.classList.remove('on'));
   document.getElementById('panel-' + name).classList.add('on');
   if (btn) btn.classList.add('on');
+}
+
+// Read student identity from URL params (passed by Hub SSO)
+(function(){
+  var sp = new URLSearchParams(window.location.search);
+  var name = sp.get('name') || localStorage.getItem('hub_name') || '';
+  var id   = sp.get('id')   || localStorage.getItem('hub_id')   || '';
+  if (name) {
+    document.getElementById('sb-name-text').textContent = name;
+    document.getElementById('sb-id-text').textContent   = id || 'No student ID on file';
+    document.getElementById('student-banner').style.borderColor = 'rgba(0,230,118,.35)';
+  }
+})();
+
+function submitMITREMapping() {
+  var sp   = new URLSearchParams(window.location.search);
+  var name = sp.get('name') || localStorage.getItem('hub_name') || '';
+  var id   = sp.get('id')   || localStorage.getItem('hub_id')   || '';
+
+  if (!name) {
+    alert('Could not identify you. Please launch this tool from your Hub checklist so your name is passed automatically.');
+    return;
+  }
+  if (!_fbDb) {
+    alert('Firebase not connected. Please check your internet connection and try again.');
+    return;
+  }
+
+  var data = {
+    name: name,
+    studentId: id || '',
+    submitted: new Date().toISOString(),
+    partB: {
+      t1133: { how: v('t1133-how'), defense: v('t1133-def') },
+      t1021: { name: v('t1021-name'), how: v('t1021-how'), defense: v('t1021-def') },
+      t1048: { id: v('t1048-id'), how: v('t1048-how'), defense: v('t1048-def') },
+      t1490: { id: v('t1490-id'), name: v('t1490-name'), how: v('t1490-how'), defense: v('t1490-def') },
+      t1486: { name: v('t1486-name'), how: v('t1486-how'), defense: v('t1486-def') },
+      t1489: { how: v('t1489-how'), defense: v('t1489-def') }
+    },
+    partC: { q1: v('crit-q1'), q2: v('crit-q2'), q3: v('crit-q3') }
+  };
+
+  var key  = (id || name).replace(/[^a-zA-Z0-9_-]/g, '-');
+  var date = new Date().toISOString().split('T')[0];
+  var btn  = document.getElementById('submit-btn');
+  var status = document.getElementById('submit-status');
+
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+  status.textContent = '';
+
+  _fbDb.ref('mccoe_mitre/' + key + '/' + date).set(data, function(err) {
+    btn.disabled = false;
+    btn.textContent = '🗺️ SUBMIT MAPPING';
+    if (err) {
+      status.style.color = '#ff5252';
+      status.textContent = '❌ Error: ' + err.message;
+    } else {
+      status.style.color = 'var(--green)';
+      status.textContent = '✅ Mapping submitted! Your instructor can now review your answers in the Admin Tracker.';
+    }
+  });
+}
+
+function v(id) {
+  var el = document.getElementById(id);
+  return el ? el.value.trim() : '';
 }
 </script>
 </body>
