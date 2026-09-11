@@ -517,6 +517,20 @@ footer strong {
   <div class="hero-divider"></div>
 </section>
 
+<!-- ══════════ THIS WEEK PANEL ══════════ -->
+<div id="this-week-panel" style="display:none;max-width:1100px;margin:0 auto 48px;padding:0 24px;">
+  <div style="border:1px solid rgba(238,34,7,0.35);border-radius:16px;padding:28px 32px;background:rgba(238,34,7,0.04);backdrop-filter:blur(10px);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px;">
+      <div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:3px;color:#ee2207;margin-bottom:7px;">📅 THIS WEEK'S CHECKLIST</div>
+        <div id="tw-week-title" style="font-size:1.25rem;font-weight:800;color:#fff;letter-spacing:.3px;"></div>
+      </div>
+      <div id="tw-week-num" style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.35);border:1px solid rgba(255,255,255,0.12);padding:5px 16px;border-radius:20px;"></div>
+    </div>
+    <div id="tw-groups" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:12px;"></div>
+  </div>
+</div>
+
 <!-- ══════════ 2x2 PILLAR GRID ══════════ -->
 <div class="triangle-wrapper" id="triangleWrapper">
   <div class="pillar-grid">
@@ -995,6 +1009,7 @@ function hubLoginSuccess(name, id, doLog) {
   }
 
   document.getElementById('hub-login-overlay').style.display = 'none';
+  renderThisWeekPanel(name, id);
 }
 
 function hubLogout() {
@@ -1010,6 +1025,132 @@ function hubLogout() {
 }
 
 // ── Restore session on load ──
+// ── This Week Checklist ──
+var PROGRAM_START = new Date('2026-08-31');
+function getCurrentWeek() {
+  var days = Math.floor((new Date() - PROGRAM_START) / (1000*60*60*24));
+  return Math.min(9, Math.max(1, Math.floor(days/7) + 1));
+}
+var WEEK_TASKS = {
+  1:{title:'Cybersecurity Foundations',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 1 Content',p:'p1',w:1},{t:'📝 Take Week 1 Quiz',p:'p1',w:1},
+      {t:'🔤 Acronym Drill',p:'p1',w:1},{t:'🔬 Complete Lab Activity',p:'p1',w:1}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'🎮 Quiz: Cyber Foundations',p:'p2'},{t:'🔒 Password Checker',p:'p2'},{t:'🎣 Phishing Spotter',p:'p2'}]}
+  ]},
+  2:{title:'Network Fundamentals',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 2 Content',p:'p1',w:2},{t:'📝 Take Week 2 Quiz',p:'p1',w:2},
+      {t:'🔤 Acronym Drill',p:'p1',w:2},{t:'🔬 Complete Lab Activity',p:'p1',w:2}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'🎮 Quiz: Network Security',p:'p2'},{t:'🖥️ SOC Simulator',p:'p2'}]},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
+      {t:'📄 Project 1: Target Breach — Deep Dive (50 pts)',p:'p3',proj:1}]}
+  ]},
+  3:{title:'Threat Landscape',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 3 Content',p:'p1',w:3},{t:'📝 Take Week 3 Quiz',p:'p1',w:3},
+      {t:'🔤 Acronym Drill',p:'p1',w:3},{t:'🔬 Complete Lab Activity',p:'p1',w:3}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'🎮 Quiz: Threat Landscape',p:'p2'},{t:'🃏 Flashcard Drill',p:'p2'}]},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
+      {t:'📄 Project 2: Target Breach — Frameworks & Writing (100 pts)',p:'p3',proj:2}]}
+  ]},
+  4:{title:'Core Classes',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 4 Content',p:'p1',w:4},{t:'📝 Take Week 4 Quiz',p:'p1',w:4},
+      {t:'🔤 Acronym Drill',p:'p1',w:4},{t:'🔬 Complete Lab Activity',p:'p1',w:4}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'🎮 Quiz: OS & Linux',p:'p2'},{t:'🎮 Quiz: Access Control',p:'p2'}]},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
+      {t:'📄 Project 3: Colonial Pipeline — Deep Dive (50 pts)',p:'p3',proj:3}]},
+    {icon:'🔓',label:'Pillar 4 — Ethical Hacking Lab',color:'#00ff41',items:[
+      {t:'🕵️ Phase 1: Reconnaissance',p:'p4'},{t:'🔍 Phase 2: Scanning & Enumeration',p:'p4'}]}
+  ]},
+  5:{title:'Kali Linux Fundamentals',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 5 Content',p:'p1',w:5},{t:'📝 Take Week 5 Quiz',p:'p1',w:5},
+      {t:'🔤 Acronym Drill',p:'p1',w:5},{t:'🔬 Complete Lab Activity',p:'p1',w:5}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'🎮 Quiz: Kali & Pentesting',p:'p2'}]},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
+      {t:'📄 Project 4: Colonial Pipeline — Frameworks & Writing (100 pts)',p:'p3',proj:4}]},
+    {icon:'🔓',label:'Pillar 4 — Ethical Hacking Lab',color:'#00ff41',items:[
+      {t:'💥 Phase 3: Exploitation',p:'p4'},{t:'👁️ Phase 4: Post-Exploitation',p:'p4'},{t:'📊 Phase 5: Reporting & Capstone',p:'p4'}]}
+  ]},
+  6:{title:'Human Factors',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 6 Content',p:'p1',w:6},{t:'📝 Take Week 6 Quiz',p:'p1',w:6},
+      {t:'🔤 Acronym Drill',p:'p1',w:6},{t:'🔬 Complete Lab Activity',p:'p1',w:6}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'🎮 Quiz: Social Engineering',p:'p2'},{t:'🎣 Phishing Spotter Challenge',p:'p2'}]},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
+      {t:'📄 Project 5: SolarWinds — Deep Dive (50 pts)',p:'p3',proj:5}]}
+  ]},
+  7:{title:'Defensive Security & Tools',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 7 Content',p:'p1',w:7},{t:'📝 Take Week 7 Quiz',p:'p1',w:7},
+      {t:'🔤 Acronym Drill',p:'p1',w:7},{t:'🔬 Complete Lab Activity',p:'p1',w:7}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'🎮 Quiz: Defensive Security',p:'p2'},{t:'🖥️ SOC Simulator',p:'p2'}]},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
+      {t:'📄 Project 6: SolarWinds — Frameworks & Writing (100 pts)',p:'p3',proj:6}]},
+    {icon:'🛡️',label:'Pillar 5 — Blue Team Lab',color:'#00f5ff',items:[
+      {t:'📋 Phase 1: Log Analysis',p:'p5'},{t:'🔍 Phase 2: Threat Detection',p:'p5'},{t:'📦 Phase 3: Packet Analysis',p:'p5'}]}
+  ]},
+  8:{title:'Incident Response Basics',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 8 Content',p:'p1',w:8},{t:'📝 Take Week 8 Quiz',p:'p1',w:8},
+      {t:'🔤 Acronym Drill',p:'p1',w:8},{t:'🔬 Complete Lab Activity',p:'p1',w:8}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'🎮 Quiz: Incident Response',p:'p2'},{t:'🎮 Quiz: Security Operations',p:'p2'},{t:'🖥️ SOC Simulator',p:'p2'}]},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
+      {t:'📄 Project 7: Equifax — Deep Dive (50 pts)',p:'p3',proj:7}]},
+    {icon:'🛡️',label:'Pillar 5 — Blue Team Lab',color:'#00f5ff',items:[
+      {t:'🚨 Phase 4: Incident Response',p:'p5'},{t:'📝 Phase 5: Defensive Report',p:'p5'}]}
+  ]},
+  9:{title:'Cybersecurity Careers & Capstone',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 9 Content',p:'p1',w:9},{t:'📝 Take Week 9 Quiz',p:'p1',w:9},
+      {t:'🔤 Acronym Drill',p:'p1',w:9},{t:'🔬 Complete Lab Activity',p:'p1',w:9}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'🎮 Quiz: Careers & Certs',p:'p2'},{t:'🎮 Quiz: Cloud Security',p:'p2'},{t:'🃏 Complete All Flashcard Decks',p:'p2'}]},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
+      {t:'📄 Project 8: Equifax — Frameworks & Writing (100 pts)',p:'p3',proj:8}]},
+    {icon:'🚩',label:'CTF — Capture The Flag',color:'#ffd700',items:[
+      {t:'🚩 Complete All 4 CTF Scenarios (12 Flags)',p:'ctf'}]}
+  ]}
+};
+
+function renderThisWeekPanel(hubName, hubId) {
+  var panel = document.getElementById('this-week-panel');
+  if (!panel) return;
+  var wk = getCurrentWeek();
+  var data = WEEK_TASKS[wk];
+  if (!data) return;
+  var p = '?name=' + encodeURIComponent(hubName) + '&id=' + encodeURIComponent(hubId);
+  document.getElementById('tw-week-title').textContent = 'Week ' + wk + ': ' + data.title;
+  document.getElementById('tw-week-num').textContent = 'WEEK ' + wk + ' OF 9';
+  var html = data.groups.map(function(g) {
+    var items = g.items.map(function(item) {
+      var href = '#', tgt = '', oc = '';
+      if (item.p === 'p1')  { href = 'MCCoE_Student_Platform.html' + p + '&week=' + item.w; tgt = 'target="_blank"'; }
+      else if (item.p === 'p2') { href = 'CyberSec_Academy.html' + p; tgt = 'target="_blank"'; }
+      else if (item.p === 'p3') { oc = 'onclick="openProjectSubmit(' + item.proj + ');return false;"'; }
+      else if (item.p === 'p4') { href = 'Pillar4_EthicalHacking.html' + p; tgt = 'target="_blank"'; }
+      else if (item.p === 'p5') { href = 'Pillar5_BlueTeam.html' + p; tgt = 'target="_blank"'; }
+      else if (item.p === 'ctf') { href = 'MCCoE_CTF.html' + p; tgt = 'target="_blank"'; }
+      return '<a href="' + href + '" ' + tgt + ' ' + oc + ' style="display:block;padding:7px 11px;margin-bottom:5px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.85);text-decoration:none;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);transition:background .15s,border-color .15s;" onmouseover="this.style.background=\'rgba(255,255,255,0.11)\';this.style.borderColor=\'rgba(255,255,255,0.22)\';" onmouseout="this.style.background=\'rgba(255,255,255,0.05)\';this.style.borderColor=\'rgba(255,255,255,0.07)\';">' + item.t + '</a>';
+    }).join('');
+    return '<div style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px 16px;">' +
+      '<div style="font-family:\'Orbitron\',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;color:' + g.color + ';margin-bottom:10px;">' + g.icon + ' ' + g.label + '</div>' +
+      items + '</div>';
+  }).join('');
+  document.getElementById('tw-groups').innerHTML = html;
+  panel.style.display = 'block';
+}
+
 window.addEventListener('DOMContentLoaded', function() {
   var sp   = new URLSearchParams(window.location.search);
   var name = sp.get('name') || localStorage.getItem('hub_name');

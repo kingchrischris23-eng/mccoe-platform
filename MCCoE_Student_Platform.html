@@ -2488,6 +2488,8 @@ window.addEventListener('beforeunload', () => { if (_sessionStartMs) _writeHours
             if (_raw) { try { const _s = JSON.parse(_raw); if (_s.student && _s.progress) state = _s; } catch(e){} }
             state.student = { name: _match.name, cohort: _match.cohort || '', tempId: _hubId, assignedId: _match.assignedId || null };
             enterApp();
+            const _wkParam = parseInt(_p.get('week'));
+            if (_wkParam >= 1 && _wkParam <= 9) setTimeout(() => renderWeek(_wkParam), 150);
             startHoursTracking(_hubId);
             const _now = new Date(); const _ts = _now.toISOString();
             const _lr = _fbDb.ref('mccoe_logins/' + _hubId);
