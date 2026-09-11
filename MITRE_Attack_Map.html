@@ -112,7 +112,10 @@ body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monosp
     <div class="hdr-title">⚔️ MITRE ATT&CK — COLONIAL PIPELINE MAPPING</div>
     <div class="hdr-sub">MCCoE Cybersecurity Apprenticeship · Project 3 Learning Tool</div>
   </div>
-  <div style="font-size:.72rem;color:var(--muted);text-align:right;">attack.mitre.org<br><span style="color:var(--red);">Enterprise Matrix · 14 Tactics</span></div>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div style="font-size:.72rem;color:var(--muted);text-align:right;">attack.mitre.org<br><span style="color:var(--red);">Enterprise Matrix · 14 Tactics</span></div>
+    <a id="hub-btn" href="MCCoE_Hub.html" style="font-family:'Orbitron',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:1px;color:#fff;background:var(--red);border:none;padding:8px 16px;border-radius:6px;cursor:pointer;text-decoration:none;white-space:nowrap;">⌂ HUB</a>
+  </div>
 </div>
 
 <!-- STEP NAV -->
@@ -560,6 +563,8 @@ function showPanel(name, btn) {
     document.getElementById('sb-name-text').textContent = name;
     document.getElementById('sb-id-text').textContent   = id || 'No student ID on file';
     document.getElementById('student-banner').style.borderColor = 'rgba(0,230,118,.35)';
+    var p = '?name=' + encodeURIComponent(name) + '&id=' + encodeURIComponent(id);
+    document.getElementById('hub-btn').href = 'MCCoE_Hub.html' + p;
   }
 })();
 
