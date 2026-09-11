@@ -1136,7 +1136,7 @@ function renderThisWeekPanel(hubName, hubId) {
     sel.innerHTML = titles.map(function(t, i) {
       var n = i + 1;
       var label = 'Week ' + n + ' — ' + t + (n === wk ? '  ◄ Current Week' : '');
-      return '<option value="' + n + '"' + (n === wk ? ' selected' : '') + '>' + label + '</option>';
+      return '<option value="' + n + '"' + (n === wk ? ' selected' : '') + ' style="color:#111;background:#f0f0f0;">' + label + '</option>';
     }).join('');
   }
   _renderWeekTasks(wk);
