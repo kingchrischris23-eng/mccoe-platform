@@ -525,7 +525,18 @@ footer strong {
         <div style="font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:3px;color:#ee2207;margin-bottom:7px;">📅 THIS WEEK'S CHECKLIST</div>
         <div id="tw-week-title" style="font-size:1.25rem;font-weight:800;color:#fff;letter-spacing:.3px;"></div>
       </div>
-      <div id="tw-week-num" style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,0.35);border:1px solid rgba(255,255,255,0.12);padding:5px 16px;border-radius:20px;"></div>
+      <select id="tw-week-select" onchange="switchWeekChecklist(parseInt(this.value))"
+        style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1px;color:#fff;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.18);padding:7px 14px;border-radius:8px;cursor:pointer;outline:none;">
+        <option value="1">Week 1 — Cybersecurity Foundations</option>
+        <option value="2">Week 2 — Network Fundamentals</option>
+        <option value="3">Week 3 — Threat Landscape</option>
+        <option value="4">Week 4 — Core Classes</option>
+        <option value="5">Week 5 — Kali Linux Fundamentals</option>
+        <option value="6">Week 6 — Human Factors</option>
+        <option value="7">Week 7 — Defensive Security &amp; Tools</option>
+        <option value="8">Week 8 — Incident Response Basics</option>
+        <option value="9">Week 9 — Careers &amp; Capstone</option>
+      </select>
     </div>
     <div id="tw-groups" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:12px;"></div>
   </div>
@@ -1123,15 +1134,26 @@ var WEEK_TASKS = {
   ]}
 };
 
+var _twName = '', _twId = '';
 function renderThisWeekPanel(hubName, hubId) {
+  _twName = hubName; _twId = hubId;
   var panel = document.getElementById('this-week-panel');
   if (!panel) return;
   var wk = getCurrentWeek();
+  var sel = document.getElementById('tw-week-select');
+  if (sel) sel.value = wk;
+  _renderWeekTasks(wk);
+  panel.style.display = 'block';
+}
+function switchWeekChecklist(wk) {
+  document.getElementById('tw-week-title').textContent = 'Week ' + wk + ': ' + (WEEK_TASKS[wk] ? WEEK_TASKS[wk].title : '');
+  _renderWeekTasks(wk);
+}
+function _renderWeekTasks(wk) {
   var data = WEEK_TASKS[wk];
   if (!data) return;
-  var p = '?name=' + encodeURIComponent(hubName) + '&id=' + encodeURIComponent(hubId);
+  var p = '?name=' + encodeURIComponent(_twName) + '&id=' + encodeURIComponent(_twId);
   document.getElementById('tw-week-title').textContent = 'Week ' + wk + ': ' + data.title;
-  document.getElementById('tw-week-num').textContent = 'WEEK ' + wk + ' OF 9';
   var html = data.groups.map(function(g) {
     var items = g.items.map(function(item) {
       var href = '#', tgt = '', oc = '';
@@ -1148,7 +1170,6 @@ function renderThisWeekPanel(hubName, hubId) {
       items + '</div>';
   }).join('');
   document.getElementById('tw-groups').innerHTML = html;
-  panel.style.display = 'block';
 }
 
 window.addEventListener('DOMContentLoaded', function() {
