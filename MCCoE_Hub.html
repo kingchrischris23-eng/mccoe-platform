@@ -1011,10 +1011,12 @@ function hubLogout() {
 
 // ── Restore session on load ──
 window.addEventListener('DOMContentLoaded', function() {
-  var name = localStorage.getItem('hub_name');
-  var id   = localStorage.getItem('hub_id');
+  var sp   = new URLSearchParams(window.location.search);
+  var name = sp.get('name') || localStorage.getItem('hub_name');
+  var id   = sp.get('id')   || localStorage.getItem('hub_id');
   if (name && id) {
     hubLoginSuccess(name, id, false);
+    if (sp.get('name')) window.history.replaceState({}, '', window.location.pathname);
   }
   // else: overlay stays visible for login
 });

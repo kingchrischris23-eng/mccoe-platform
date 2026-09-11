@@ -215,7 +215,7 @@ footer strong{color:var(--green)}
   </div>
   <div style="display:flex;align-items:center;gap:12px;">
     <div class="header-badge">▶ PILLAR 04 — ACTIVE</div>
-    <a href="#" onclick="if(window.opener&&!window.opener.closed){window.opener.focus();window.close();}else{window.location.href='MCCoE_Hub.html';}return false;" class="back-btn">← Hub</a>
+    <a href="#" onclick="var _n=encodeURIComponent(_studentName||''),_i=encodeURIComponent(_studentId||'');window.location.href='MCCoE_Hub.html'+(_n||_i?'?name='+_n+'&id='+_i:'');return false;" class="back-btn">← Hub</a>
   </div>
 </header>
 
