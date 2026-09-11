@@ -71,7 +71,7 @@ const _db = firebase.database();
 <header>
   <div class="logo">MCCoE &#8212; PILLAR 5</div>
   <div style="font-family:'Share Tech Mono',monospace;font-size:.75rem;color:var(--muted)">BLUE TEAM DEFENSE LAB</div>
-  <a href="MCCoE_Hub.html" style="font-size:.75rem;color:var(--muted);text-decoration:none">&#8592; Hub</a>
+  <a href="#" onclick="if(window.opener&&!window.opener.closed){window.opener.focus();window.close();}else{window.location.href='MCCoE_Hub.html';}return false;" style="font-size:.75rem;color:var(--muted);text-decoration:none">&#8592; Hub</a>
 </header>
 <div id="student-banner" class="student-banner"></div>
 <div class="hero">
