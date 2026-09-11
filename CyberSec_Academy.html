@@ -412,6 +412,17 @@ function endBoot() {
   initSOC();
   initPH();
   initCurriculum();
+  (function(){
+    var _cp = parseInt((new URLSearchParams(window.location.search)).get('cur'));
+    if (!isNaN(_cp) && _cp >= 0 && _cp < WEEKS.length) {
+      wkCurrent = _cp;
+      document.querySelectorAll('.wk-chip').forEach(function(c,i){ c.classList.toggle('on', i===_cp); });
+      renderWeek();
+      var _curNavBtn = null;
+      document.querySelectorAll('.nb').forEach(function(b){ if (b.getAttribute('onclick') && b.getAttribute('onclick').indexOf("'cur'")!==-1) _curNavBtn=b; });
+      showScr('cur', _curNavBtn);
+    }
+  })();
   initFC();
   loadCustomContent();
 }
