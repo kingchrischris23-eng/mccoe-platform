@@ -526,17 +526,7 @@ footer strong {
         <div id="tw-week-title" style="font-size:1.25rem;font-weight:800;color:#fff;letter-spacing:.3px;"></div>
       </div>
       <select id="tw-week-select" onchange="switchWeekChecklist(parseInt(this.value))"
-        style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1px;color:#fff;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.18);padding:7px 14px;border-radius:8px;cursor:pointer;outline:none;">
-        <option value="1">Week 1 — Cybersecurity Foundations</option>
-        <option value="2">Week 2 — Network Fundamentals</option>
-        <option value="3">Week 3 — Threat Landscape</option>
-        <option value="4">Week 4 — Core Classes</option>
-        <option value="5">Week 5 — Kali Linux Fundamentals</option>
-        <option value="6">Week 6 — Human Factors</option>
-        <option value="7">Week 7 — Defensive Security &amp; Tools</option>
-        <option value="8">Week 8 — Incident Response Basics</option>
-        <option value="9">Week 9 — Careers &amp; Capstone</option>
-      </select>
+        style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1px;color:#fff;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.18);padding:7px 14px;border-radius:8px;cursor:pointer;outline:none;"></select>
     </div>
     <div id="tw-groups" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:12px;"></div>
   </div>
@@ -1141,7 +1131,14 @@ function renderThisWeekPanel(hubName, hubId) {
   if (!panel) return;
   var wk = getCurrentWeek();
   var sel = document.getElementById('tw-week-select');
-  if (sel) sel.value = wk;
+  if (sel) {
+    var titles = ['Cybersecurity Foundations','Network Fundamentals','Threat Landscape','Core Classes','Kali Linux Fundamentals','Human Factors','Defensive Security & Tools','Incident Response Basics','Careers & Capstone'];
+    sel.innerHTML = titles.map(function(t, i) {
+      var n = i + 1;
+      var label = 'Week ' + n + ' — ' + t + (n === wk ? '  ◄ Current Week' : '');
+      return '<option value="' + n + '"' + (n === wk ? ' selected' : '') + '>' + label + '</option>';
+    }).join('');
+  }
   _renderWeekTasks(wk);
   panel.style.display = 'block';
 }
