@@ -820,6 +820,7 @@ select option { background:var(--surface); color:var(--text); }
       <p>Student daily surveys, weekly check-ins, program feedback, and admin entries</p>
     </div>
     <button class="btn btn-outline" onclick="loadAllSurveyData()">↻ Refresh</button>
+    <span id="sv-load-status" style="font-size:.8rem;margin-left:12px;"></span>
   </div>
 
   <!-- Survey Sub-Tabs -->
@@ -4866,7 +4867,12 @@ function showSurveyTab(tab) {
 }
 
 function loadAllSurveyData() {
-  if (!_fbDb) return;
+  var statusEl = document.getElementById('sv-load-status');
+  if (statusEl) { statusEl.textContent = '⏳ Loading from Firebase...'; statusEl.style.color = 'var(--muted)'; }
+  if (!_fbDb) {
+    if (statusEl) { statusEl.textContent = '⚠️ Firebase not connected. Check internet connection.'; statusEl.style.color = 'var(--red)'; }
+    return;
+  }
   // Load check-ins
   _fbDb.ref('mccoe_checkins').once('value', function(snap) {
     const raw = snap.val() || {};
@@ -4890,12 +4896,24 @@ function loadAllSurveyData() {
     });
     _allCheckins.sort((a,b) => (b.submittedAt || '').localeCompare(a.submittedAt || ''));
 
+    if (statusEl) {
+      if (_allCheckins.length) {
+        statusEl.textContent = '✅ Loaded ' + _allCheckins.length + ' survey response' + (_allCheckins.length===1?'':'s') + ' from Firebase.';
+        statusEl.style.color = 'var(--green)';
+      } else {
+        statusEl.textContent = 'ℹ️ Firebase connected — no survey submissions found yet.';
+        statusEl.style.color = 'var(--muted)';
+      }
+    }
+
     // Populate student filter
     const uniqueNames = [...new Set(_allCheckins.map(c => c.studentName).filter(Boolean))].sort();
     const ciStu = document.getElementById('sv-filter-student');
     if (ciStu) ciStu.innerHTML = '<option value="all">All Students</option>' + uniqueNames.map(n=>`<option value="${n}">${n}</option>`).join('');
 
     renderCheckinTable();
+  }, function(err) {
+    if (statusEl) { statusEl.textContent = '❌ Firebase read error: ' + err.message; statusEl.style.color = 'var(--red)'; }
   });
 
   // Load feedback
