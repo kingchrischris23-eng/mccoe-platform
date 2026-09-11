@@ -965,8 +965,8 @@ function hubMsg(text, color) {
 }
 
 function hubLoginSuccess(name, id, doLog) {
-  sessionStorage.setItem('hub_name', name);
-  sessionStorage.setItem('hub_id', id);
+  localStorage.setItem('hub_name', name);
+  localStorage.setItem('hub_id', id);
 
   var p = '?name=' + encodeURIComponent(name) + '&id=' + encodeURIComponent(id);
   var c1 = document.getElementById('card-p1');
@@ -998,8 +998,8 @@ function hubLoginSuccess(name, id, doLog) {
 }
 
 function hubLogout() {
-  sessionStorage.removeItem('hub_name');
-  sessionStorage.removeItem('hub_id');
+  localStorage.removeItem('hub_name');
+  localStorage.removeItem('hub_id');
   document.getElementById('hub-login-overlay').style.display = 'flex';
   document.getElementById('hub-student-badge').style.display = 'none';
   document.getElementById('hub-logout-btn').style.display = 'none';
@@ -1011,8 +1011,8 @@ function hubLogout() {
 
 // ── Restore session on load ──
 window.addEventListener('DOMContentLoaded', function() {
-  var name = sessionStorage.getItem('hub_name');
-  var id   = sessionStorage.getItem('hub_id');
+  var name = localStorage.getItem('hub_name');
+  var id   = localStorage.getItem('hub_id');
   if (name && id) {
     hubLoginSuccess(name, id, false);
   }
@@ -1102,7 +1102,7 @@ var _currentProjectNum = null;
 var _projectStatuses = {};
 
 function loadAllProjectStatuses() {
-  var id = sessionStorage.getItem('hub_id');
+  var id = localStorage.getItem('hub_id');
   if (!id || !_hubDb) return;
   _hubDb.ref('mccoe_submissions/' + id).once('value', function(snap) {
     var data = snap.val() || {};
@@ -1140,8 +1140,8 @@ function updateSubmitButtons() {
 }
 
 function openProjectSubmit(n) {
-  var hubName = sessionStorage.getItem('hub_name');
-  var hubId   = sessionStorage.getItem('hub_id');
+  var hubName = localStorage.getItem('hub_name');
+  var hubId   = localStorage.getItem('hub_id');
   if (!hubName || !hubId) {
     alert('Please sign in first to submit your project answers.');
     closeCurriculum();
@@ -1192,8 +1192,8 @@ function openProjectSubmit(n) {
 
 function submitProjectHub() {
   var proj = HUB_PROJECTS[_currentProjectNum];
-  var hubName = sessionStorage.getItem('hub_name');
-  var hubId   = sessionStorage.getItem('hub_id');
+  var hubName = localStorage.getItem('hub_name');
+  var hubId   = localStorage.getItem('hub_id');
   if (!hubId) { alert('Session expired. Please sign in again.'); return; }
   var answers = {};
   var hasContent = false;
