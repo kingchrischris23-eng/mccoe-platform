@@ -1397,14 +1397,14 @@ function openProjectSubmit(n) {
   var saved = _projectStatuses[n] || {};
   var submitted = !!saved.submittedAt;
   var grade = saved.grade;
-  var draft = !submitted ? JSON.parse(localStorage.getItem('mccoe_proj_draft_' + n) || 'null') : null;
+  var draft = JSON.parse(localStorage.getItem('mccoe_proj_draft_' + n) || 'null');
 
   var fieldsHTML = proj.fields.map(function(f) {
     var val = (saved.answers && saved.answers[f.id]) ? saved.answers[f.id] : (draft && draft.answers && draft.answers[f.id] ? draft.answers[f.id] : '');
     var escaped = val.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     var inp = f.ta
-      ? '<textarea id="hp-' + n + '-' + f.id + '" rows="3" style="width:100%;padding:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(167,139,250,0.3);border-radius:6px;color:#fff;font-family:\'Rajdhani\',sans-serif;font-size:14px;resize:vertical;outline:none;box-sizing:border-box;" placeholder="Type your answer..."' + (submitted?' readonly':'') + '>' + val + '</textarea>'
-      : '<input type="text" id="hp-' + n + '-' + f.id + '" value="' + escaped + '" style="width:100%;padding:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(167,139,250,0.3);border-radius:6px;color:#fff;font-family:\'Rajdhani\',sans-serif;font-size:14px;outline:none;box-sizing:border-box;" placeholder="Type your answer..."' + (submitted?' readonly':'') + '>';
+      ? '<textarea id="hp-' + n + '-' + f.id + '" rows="3" style="width:100%;padding:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(167,139,250,0.3);border-radius:6px;color:#fff;font-family:\'Rajdhani\',sans-serif;font-size:14px;resize:vertical;outline:none;box-sizing:border-box;" placeholder="Type your answer...">' + val + '</textarea>'
+      : '<input type="text" id="hp-' + n + '-' + f.id + '" value="' + escaped + '" style="width:100%;padding:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(167,139,250,0.3);border-radius:6px;color:#fff;font-family:\'Rajdhani\',sans-serif;font-size:14px;outline:none;box-sizing:border-box;" placeholder="Type your answer...">';
     return '<div style="margin-bottom:18px;"><div style="font-size:11px;color:rgba(167,139,250,0.9);font-weight:700;margin-bottom:7px;line-height:1.5;letter-spacing:.3px;">' + f.label + '</div>' + inp + '</div>';
   }).join('');
 
@@ -1419,19 +1419,20 @@ function openProjectSubmit(n) {
   }
 
   var draftInfo = '';
-  if (!submitted && draft && draft.savedAt) {
+  if (draft && draft.savedAt) {
     var draftTime = new Date(draft.savedAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
     draftInfo = '<div style="font-size:11px;color:rgba(167,139,250,0.6);font-family:\'Share Tech Mono\',monospace;margin-bottom:10px;">📋 Draft restored — last saved ' + draftTime + '</div>';
   }
 
-  var submitBtn = submitted ? '' :
+  var submitBtn =
+    (submitted ? '<div style="margin-bottom:10px;font-size:11px;color:rgba(255,165,0,0.8);font-family:\'Share Tech Mono\',monospace;">⚠ Resubmitting will replace your previous answers and reset your grade.</div>' : '') +
     draftInfo +
     '<div id="proj-draft-status" style="font-size:11px;color:rgba(167,139,250,0.55);font-family:\'Share Tech Mono\',monospace;margin-bottom:8px;min-height:16px;"></div>' +
     '<div style="display:flex;gap:10px;margin-top:4px;">' +
       '<button onclick="saveDraftHub()" style="flex:1;padding:11px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.35);color:#a78bfa;font-family:\'Orbitron\',monospace;font-size:10px;font-weight:700;letter-spacing:1.5px;border-radius:6px;cursor:pointer;transition:all .2s;" onmouseover="this.style.background=\'rgba(167,139,250,0.18)\'" onmouseout="this.style.background=\'rgba(167,139,250,0.08)\'">' +
       '💾 &nbsp; SAVE DRAFT</button>' +
-      '<button onclick="submitProjectHub()" style="flex:2;padding:11px;background:linear-gradient(135deg,rgba(167,139,250,0.3),rgba(167,139,250,0.15));border:1px solid rgba(167,139,250,0.6);color:#fff;font-family:\'Orbitron\',monospace;font-size:11px;font-weight:700;letter-spacing:2px;border-radius:6px;cursor:pointer;transition:all .2s;" onmouseover="this.style.background=\'rgba(167,139,250,0.4)\'" onmouseout="this.style.background=\'linear-gradient(135deg,rgba(167,139,250,0.3),rgba(167,139,250,0.15))\'">' +
-      '&#9654; &nbsp; SUBMIT PROJECT ' + n + '</button>' +
+      '<button onclick="submitProjectHub()" style="flex:2;padding:11px;background:' + (submitted ? 'linear-gradient(135deg,rgba(245,166,35,0.3),rgba(245,166,35,0.15));border:1px solid rgba(245,166,35,0.6)' : 'linear-gradient(135deg,rgba(167,139,250,0.3),rgba(167,139,250,0.15));border:1px solid rgba(167,139,250,0.6)') + ';color:#fff;font-family:\'Orbitron\',monospace;font-size:11px;font-weight:700;letter-spacing:2px;border-radius:6px;cursor:pointer;transition:all .2s;">' +
+      (submitted ? '🔄 &nbsp; RESUBMIT PROJECT ' + n : '&#9654; &nbsp; SUBMIT PROJECT ' + n) + '</button>' +
     '</div>';
 
   var rubricRows = (HUB_RUBRIC[n] || []).map(function(r) {
@@ -1465,10 +1466,8 @@ function openProjectSubmit(n) {
 
   document.getElementById('proj-submit-modal').style.display = 'flex';
 
-  if (!submitted) {
-    if (_autosaveTimer) clearInterval(_autosaveTimer);
-    _autosaveTimer = setInterval(saveDraftHub, 2 * 60 * 1000);
-  }
+  if (_autosaveTimer) clearInterval(_autosaveTimer);
+  _autosaveTimer = setInterval(saveDraftHub, 2 * 60 * 1000);
 }
 
 function saveDraftHub() {
@@ -1503,7 +1502,11 @@ function submitProjectHub() {
     answers[f.id] = val;
   });
   if (!hasContent) { alert('Please answer at least one question before submitting.'); return; }
-  if (!confirm('Submit Project ' + _currentProjectNum + '?\n\nYour answers will be locked and sent to your instructor for grading.')) return;
+  var alreadySubmitted = !!(_projectStatuses[_currentProjectNum] && _projectStatuses[_currentProjectNum].submittedAt);
+  var confirmMsg = alreadySubmitted
+    ? 'Resubmit Project ' + _currentProjectNum + '?\n\nThis will replace your previous answers and reset your grade. Your instructor will need to re-grade.'
+    : 'Submit Project ' + _currentProjectNum + '?\n\nYour answers will be sent to your instructor for grading.';
+  if (!confirm(confirmMsg)) return;
   var entry = {
     answers: answers,
     weekNum: _currentProjectNum,
