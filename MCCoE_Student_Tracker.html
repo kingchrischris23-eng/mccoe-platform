@@ -5568,6 +5568,71 @@ const PROJECT_META = {
   8:{incident:'Equifax Breach (2017)',type:'Part 2 — Frameworks & Writing',max:100}
 };
 
+const GRADING_RUBRIC = {
+  1: { questions: [
+    { w:8,  kp:'Target Corporation attacked; HVAC contractor Fazio Mechanical used as entry point; 40 million credit/debit card numbers stolen; malware on POS systems; Nov-Dec 2013' },
+    { w:8,  kp:'Confidentiality: 40M card numbers stolen; Integrity: POS malware altered transactions; Availability: systems taken offline after discovery' },
+    { w:8,  kp:'Delivery (phishing to Fazio) or Exploitation (using stolen contractor credentials to access Target network)' },
+    { w:8,  kp:'T1566 Phishing, T1078 Valid Accounts (contractor credentials), T1059 Command and Scripting Interpreter' },
+    { w:6,  kp:'No major public CVEs; BlackPOS/Kaptoxa malware; accept "None publicly identified" as correct' },
+    { w:8,  kp:'Network segmentation isolating payment systems from vendor access, MFA for third-party vendors, or least-privilege access — must explain why' }
+  ]},
+  2: { questions: [
+    { w:20, kp:'Identify: no vendor risk management; Protect: no MFA, poor segmentation; Detect: FireEye alerts ignored; Respond: slow response; Recover: delayed customer notification' },
+    { w:20, kp:'Social engineering/phishing simulation against vendors, network segmentation testing, POS vulnerability assessment, or third-party access review' },
+    { w:20, kp:'3-5 sentences; non-technical language; covers what happened, financial/reputational impact, third-party access cause, and lessons learned; appropriate for board audience' },
+    { w:20, kp:'3 specific recommendations such as: MFA for all vendor access, network segmentation isolating POS, real-time SIEM monitoring with escalation, third-party vendor risk assessments' },
+    { w:20, kp:'PCI-DSS violations; explain how each applies specifically to Target failure around cardholder data protection and network segmentation requirements' }
+  ]},
+  3: { questions: [
+    { w:8,  kp:'DarkSide ransomware; compromised VPN credentials found on dark web; no MFA on VPN; Colonial shut down 5,500 miles of pipeline; 6-day shutdown; Southeast US fuel shortages; $4.4M ransom paid' },
+    { w:8,  kp:'Confidentiality: employee/business data stolen (double extortion); Integrity: billing systems encrypted; Availability: pipeline operations halted 6 days causing fuel shortages' },
+    { w:8,  kp:'Initial Access or Exploitation phase — compromised VPN credentials used to gain entry' },
+    { w:8,  kp:'T1133 External Remote Services (VPN), T1078 Valid Accounts (compromised credentials), T1486 Data Encrypted for Impact, T1490 Inhibit System Recovery' },
+    { w:8,  kp:'Compromised/reused VPN password found on dark web; no MFA was enabled on the VPN account; legacy VPN profile not actively monitored' },
+    { w:8,  kp:'MFA on all remote access/VPN, or IT/OT network segmentation — must explain why it would have prevented or limited the attack' }
+  ]},
+  4: { questions: [
+    { w:20, kp:'Identify: no asset inventory/vuln management; Protect: no MFA on VPN, no IT/OT segmentation; Detect: credential compromise not detected before attack; Respond: no IR plan; Recover: no tested OT backup/recovery' },
+    { w:20, kp:'Credential stuffing attack on VPN, external network pentest, dark web credential monitoring simulation, or IT/OT segmentation assessment' },
+    { w:20, kp:'3-5 sentences; Congressional/non-technical level; covers attack vector (compromised VPN credentials), national fuel supply disruption, response, and prevention recommendations' },
+    { w:20, kp:'3 specific: MFA on all remote access, IT/OT network segmentation, tested backup/recovery procedures, dark web credential monitoring, or incident response planning' },
+    { w:20, kp:'TSA Pipeline Security Directives (SD-02A and 02B issued after the attack); NERC CIP; answer should note this attack directly prompted new federal pipeline security regulations' }
+  ]},
+  5: { questions: [
+    { w:8,  kp:'Russian SVR/Cozy Bear APT; SUNBURST backdoor inserted into SolarWinds Orion software update; 18,000+ organizations downloaded trojanized update; US government agencies impacted (Treasury, State, DHS); active 9+ months undetected' },
+    { w:8,  kp:'Confidentiality: classified government emails/data accessed; Integrity: trusted software update was trojanized; Availability: massive remediation, agencies had to disconnect Orion systems' },
+    { w:8,  kp:'Weaponization or Delivery phase — backdoor inserted during software build process; trojanized update was the delivery mechanism' },
+    { w:8,  kp:'T1195.002 Supply Chain Compromise: Software Supply Chain; T1195; T1078 Valid Accounts; T1071 Application Layer Protocol (C2 via DNS); T1027 Obfuscated Files' },
+    { w:8,  kp:'CVE-2020-10148 (SolarWinds Orion API authentication bypass); also acceptable: noting the attack was primarily TTP-based rather than CVE-based' },
+    { w:8,  kp:'Code signing verification, software composition analysis, zero-trust architecture, or enhanced monitoring for unusual traffic from trusted tools' }
+  ]},
+  6: { questions: [
+    { w:20, kp:'Identify: no software supply chain risk management; Protect: no code integrity verification; Detect: dormancy + legitimate traffic blending evaded detection 9+ months; Respond: no supply chain compromise playbook; Recover: massive coordinated federal response required' },
+    { w:20, kp:'Red team supply chain attack simulation, dependency confusion attack, malicious update injection test, or third-party software integrity assessment' },
+    { w:20, kp:'3-5 sentences; addresses federal CIO concern; covers scale (18K+ orgs), how trusted update mechanism was exploited, government data at risk, and key remediation steps' },
+    { w:20, kp:'3 specific: software bill of materials (SBOM), cryptographic code signing for all updates, zero-trust architecture, enhanced anomaly detection, or stronger vendor security requirements' },
+    { w:20, kp:'FedRAMP (cloud authorization for federal systems); FISMA (federal information security); CMMC (defense contractors); EO 14028 on Improving the Nations Cybersecurity (issued after SolarWinds)' }
+  ]},
+  7: { questions: [
+    { w:8,  kp:'147 million Americans affected; Apache Struts CVE-2017-5638 exploited; patch available 2 months prior but not applied; SSNs, birth dates, addresses, driver licenses, credit card numbers stolen; breach lasted 78 days undetected' },
+    { w:8,  kp:'Confidentiality: 147M SSNs and PII stolen; Integrity: data potentially modified during 78-day dwell time; Availability: credit monitoring services disrupted, Equifax website taken offline' },
+    { w:8,  kp:'Exploitation phase — attackers directly exploited unpatched Apache Struts vulnerability (CVE-2017-5638) via the dispute portal web application' },
+    { w:8,  kp:'T1190 Exploit Public-Facing Application (Apache Struts RCE); T1078 Valid Accounts; T1083 File and Directory Discovery; T1041 Exfiltration Over C2 Channel' },
+    { w:8,  kp:'CVE-2017-5638 — remote code execution flaw in Apache Struts web framework used in Equifax dispute portal; patch released March 2017, breach began May 2017' },
+    { w:8,  kp:'Timely patch management (patching CVE-2017-5638 within the 2-month window), web application firewall, vulnerability scanning, or network segmentation to limit lateral movement' }
+  ]},
+  8: { questions: [
+    { w:20, kp:'Identify: failed vuln management, CVE-2017-5638 known 2 months; Protect: no WAF, expired TLS cert blinded inspection for 19 months; Detect: traffic inspection disabled due to expired cert, 78-day dwell; Respond: delayed internal response; Recover: no tested breach notification plan' },
+    { w:20, kp:'Web application pentest targeting known CVEs, vulnerability scan of public-facing applications, or specifically Apache Struts exploitation test against the dispute portal' },
+    { w:20, kp:'3-5 sentences; Congressional testimony level; covers magnitude (147M Americans), root cause (failure to patch known CVE), duration (78 days undetected), and organizational governance failure' },
+    { w:20, kp:'3 specific: automated patch management with SLAs, web application firewall, certificate lifecycle management, network segmentation, or data minimization (not retaining unnecessary PII)' },
+    { w:20, kp:'FCRA (Fair Credit Reporting Act — Equifax handles consumer credit data); GDPR (European customers affected); state breach notification laws; FTC Act Section 5 (unfair/deceptive practices)' }
+  ]}
+};
+
+let _gradeModalSub = null;
+
 function handleImportFiles(files) {
   if (!files || !files.length) return;
   let loaded = 0;
@@ -5698,6 +5763,7 @@ function openGradeModal(tempId, weekNum) {
   _fbDb.ref('mccoe_submissions/' + tempId + '/week' + weekNum).once('value', snap => {
     const sub = snap.val();
     if (!sub) { content.innerHTML = '<div>Submission not found.</div>'; return; }
+    _gradeModalSub = sub;
     const meta = PROJECT_META[weekNum];
     const grade = sub.grade || {};
     const FIELD_LABELS = {
@@ -5789,8 +5855,12 @@ function openGradeModal(tempId, weekNum) {
             <textarea id="grade-feedback-input" rows="3" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font-size:.82rem;font-family:inherit;resize:vertical;box-sizing:border-box;" placeholder="Write feedback for the student...">${grade.feedback || ''}</textarea>
           </div>
         </div>
-        <button onclick="saveGrade()" style="margin-top:14px;padding:10px 28px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;">💾 Save Grade</button>
-        ${grade.score !== undefined ? `<span style="margin-left:12px;font-size:.78rem;color:var(--muted);">Last graded: ${new Date(grade.gradedAt).toLocaleString()}</span>` : ''}
+        <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;align-items:center;">
+          <button onclick="aiGradeSubmission()" id="btn-ai-grade" style="padding:10px 20px;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;white-space:nowrap;">🤖 AI Grade</button>
+          <button onclick="saveGrade()" style="padding:10px 28px;background:var(--green);color:#fff;border:none;border-radius:8px;font-size:.88rem;font-weight:700;cursor:pointer;">💾 Save Grade</button>
+          <span id="ai-grade-status" style="font-size:.75rem;color:var(--muted);"></span>
+        </div>
+        ${grade.score !== undefined ? `<div style="margin-top:8px;font-size:.75rem;color:var(--muted);">Last graded: ${new Date(grade.gradedAt).toLocaleString()} <button onclick="clearAiKey()" style="margin-left:16px;padding:2px 8px;font-size:.7rem;background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--muted);">🔑 Change AI Key</button></div>` : `<div style="margin-top:8px;"><button onclick="clearAiKey()" style="padding:2px 8px;font-size:.7rem;background:none;border:1px solid var(--border);border-radius:4px;cursor:pointer;color:var(--muted);">🔑 Change AI Key</button></div>`}
       </div>`;
   });
 }
@@ -5823,6 +5893,77 @@ function closeGradeModal() {
   document.getElementById('grade-modal').style.display = 'none';
   _gradeModalTempId = null;
   _gradeModalWeek = null;
+  _gradeModalSub = null;
+}
+
+function clearAiKey() {
+  localStorage.removeItem('mccoe_ai_key');
+  const status = document.getElementById('ai-grade-status');
+  if (status) { status.textContent = 'API key cleared — click AI Grade to enter a new one.'; status.style.color = 'var(--yellow)'; }
+}
+
+function aiGradeSubmission() {
+  let apiKey = localStorage.getItem('mccoe_ai_key');
+  if (!apiKey) {
+    apiKey = prompt('Enter your Anthropic API key to enable AI grading.\n(Stored locally in your browser — only sent to Anthropic):');
+    if (!apiKey || !apiKey.trim()) return;
+    apiKey = apiKey.trim();
+    localStorage.setItem('mccoe_ai_key', apiKey);
+  }
+
+  const weekNum = _gradeModalWeek;
+  const rubric = GRADING_RUBRIC[weekNum];
+  const sub = _gradeModalSub;
+  if (!rubric || !sub || !sub.answers) { alert('Submission data not available.'); return; }
+
+  const btn = document.getElementById('btn-ai-grade');
+  const status = document.getElementById('ai-grade-status');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Grading...'; }
+  if (status) { status.textContent = 'Analyzing answers...'; status.style.color = 'var(--muted)'; }
+
+  const qLines = rubric.questions.map(function(q, i) {
+    const answer = sub.answers['q' + (i+1)] || 'No answer provided.';
+    return 'Q' + (i+1) + ' (' + q.w + ' pts) — Key points expected: ' + q.kp + '\nStudent answer: ' + answer;
+  }).join('\n\n');
+
+  const meta = PROJECT_META[weekNum];
+  const promptText = 'You are grading a student project submission for a cybersecurity apprenticeship program.\n\nProject: ' + meta.incident + ' — ' + meta.type + '\nMax score: ' + meta.max + ' points\n\nGrade each question against the expected key points. Award partial credit for partially correct answers. Be fair but rigorous.\n\n' + qLines + '\n\nReturn ONLY a valid JSON object with exactly these two fields:\n{"score": <integer 0 to ' + meta.max + '>, "feedback": "<2-4 sentences of specific constructive feedback for the student>"}\n\nNo text outside the JSON object.';
+
+  fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 512,
+      messages: [{ role: 'user', content: promptText }]
+    })
+  })
+  .then(function(r) {
+    if (r.status === 401) { localStorage.removeItem('mccoe_ai_key'); throw new Error('Invalid API key — cleared. Try again.'); }
+    if (!r.ok) throw new Error('API error: ' + r.status);
+    return r.json();
+  })
+  .then(function(data) {
+    var text = data.content[0].text.trim();
+    var match = text.match(/\{[\s\S]*\}/);
+    if (!match) throw new Error('Could not parse AI response.');
+    var result = JSON.parse(match[0]);
+    var scoreEl = document.getElementById('grade-score-input');
+    var feedbackEl = document.getElementById('grade-feedback-input');
+    if (scoreEl) scoreEl.value = Math.min(Math.max(0, Math.round(result.score)), meta.max);
+    if (feedbackEl) feedbackEl.value = result.feedback || '';
+    if (btn) { btn.disabled = false; btn.textContent = '🤖 AI Grade'; }
+    if (status) { status.textContent = '✓ AI suggested ' + Math.round(result.score) + '/' + meta.max + ' — review and save'; status.style.color = 'var(--green)'; }
+  })
+  .catch(function(err) {
+    if (btn) { btn.disabled = false; btn.textContent = '🤖 AI Grade'; }
+    if (status) { status.textContent = '⚠ ' + err.message; status.style.color = 'var(--red)'; }
+  });
 }
 
 function updateSubBadge(count) {
