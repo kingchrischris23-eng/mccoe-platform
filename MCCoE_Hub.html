@@ -1278,6 +1278,69 @@ const HUB_PROJECTS = {
   ]}
 };
 
+const HUB_RUBRIC = {
+  1: [
+    { pts:8,  label:'Incident Overview',    guide:'Name the victim organization, how attackers got in (third-party vendor), what data was stolen, and when it occurred.' },
+    { pts:8,  label:'CIA Triad Impact',     guide:'Address all three pillars: Confidentiality (what data was exposed), Integrity (was data altered?), Availability (were systems disrupted?). Be specific to this incident.' },
+    { pts:8,  label:'Kill Chain Phase',     guide:'Identify the specific Cyber Kill Chain phase when attackers first gained access and briefly explain why.' },
+    { pts:8,  label:'MITRE ATT&CK',        guide:'Include at least one technique ID (e.g. T1566) and its name. Explain how it was used in this attack.' },
+    { pts:6,  label:'CVEs',                guide:'List known CVEs or clearly state "None publicly identified." Partial credit for a reasonable attempt.' },
+    { pts:8,  label:'Preventive Control',  guide:'Name one specific security control and explain exactly why it would have prevented this breach. Vague answers score low.' }
+  ],
+  2: [
+    { pts:20, label:'NIST CSF Failures',   guide:'Cover all five functions (Identify, Protect, Detect, Respond, Recover) with a specific failure from this incident for each.' },
+    { pts:20, label:'Pentest Technique',   guide:'Name a specific technique (not just "a pentest") and explain how it would have exposed the vulnerability before attackers found it.' },
+    { pts:20, label:'Executive Summary',   guide:'3–5 sentences. No technical jargon. Must cover: what happened, the impact, the root cause, and a recommendation. Written for a board of directors.' },
+    { pts:20, label:'Remediation',         guide:'List exactly 3 recommendations. Each must be specific and actionable — not generic like "better security." Explain each briefly.' },
+    { pts:20, label:'Compliance Violations', guide:'Name the specific framework(s) violated and explain how this incident violated them. Just naming a framework without explanation scores partial credit.' }
+  ],
+  3: [
+    { pts:8,  label:'Incident Overview',   guide:'Name the threat actor, how they got in (credential type and why it worked), the real-world impact (fuel supply, duration), and the ransom outcome.' },
+    { pts:8,  label:'CIA Triad Impact',    guide:'Address all three pillars specifically to this attack — what data was exposed, what systems were corrupted/encrypted, and what operations were unavailable.' },
+    { pts:8,  label:'Kill Chain Phase',    guide:'Identify the Kill Chain phase for initial access and briefly explain why.' },
+    { pts:8,  label:'MITRE ATT&CK',       guide:'Include at least one technique ID and name. T1133 and T1486 are the most relevant — explain how they apply.' },
+    { pts:8,  label:'Vulnerability Exploited', guide:'Describe the specific credential/access weakness exploited. Why was it exploitable? What was missing that would have stopped it?' },
+    { pts:8,  label:'Preventive Control', guide:'Name one control and explain directly how it would have stopped or significantly limited this specific attack.' }
+  ],
+  4: [
+    { pts:20, label:'NIST CSF Failures',  guide:'Cover all five functions with evidence from the Colonial Pipeline incident specifically. Generic answers score low.' },
+    { pts:20, label:'Pentest Technique',  guide:'Name a specific technique and explain how it would have exposed the credential/access weakness before the attack.' },
+    { pts:20, label:'Executive Summary',  guide:'3–5 sentences for a Congressional/non-technical audience. Cover: attack method, national impact, why it happened, and what should change.' },
+    { pts:20, label:'Remediation',        guide:'3 specific, actionable recommendations. Each should directly address a failure identified in this incident.' },
+    { pts:20, label:'Compliance Violations', guide:'Name the relevant pipeline/critical infrastructure regulations and explain how this attack exposed gaps in compliance.' }
+  ],
+  5: [
+    { pts:8,  label:'Incident Overview',  guide:'Name the threat actor, explain how the supply chain was compromised (the software build process), the scale (organizations affected), and how long it went undetected.' },
+    { pts:8,  label:'CIA Triad Impact',   guide:'Address all three pillars: what data was accessed, how software integrity was compromised, and what systems had to be taken offline.' },
+    { pts:8,  label:'Kill Chain Phase',   guide:'Identify where in the Kill Chain the backdoor was inserted and explain why this phase is significant for supply chain attacks.' },
+    { pts:8,  label:'MITRE ATT&CK',      guide:'T1195.002 (Supply Chain Compromise) is the primary technique. Include the ID and name, and explain how it was executed.' },
+    { pts:8,  label:'CVEs',              guide:'List CVE-2020-10148 or note the attack was primarily technique-based. Explain the vulnerability briefly.' },
+    { pts:8,  label:'Preventive Control', guide:'Name a control specific to supply chain attacks (not just "better antivirus") and explain why it addresses this threat.' }
+  ],
+  6: [
+    { pts:20, label:'NIST CSF Failures', guide:'All five functions with SolarWinds-specific evidence. Focus on why the attack evaded detection for 9+ months and what framework controls failed.' },
+    { pts:20, label:'Pentest Technique', guide:'Name a technique that simulates supply chain compromise — explain how it tests whether an organization would catch a trojanized software update.' },
+    { pts:20, label:'Executive Summary', guide:'3–5 sentences for a federal CIO. Cover: how the trust model was exploited, scale of government impact, and top remediation priorities.' },
+    { pts:20, label:'Remediation',       guide:'3 specific recommendations targeting supply chain risk. SBOM, code signing, and zero-trust are relevant examples — explain each.' },
+    { pts:20, label:'Compliance Frameworks', guide:'Name relevant federal frameworks (FedRAMP, FISMA, CMMC, EO 14028) and explain how this attack exposed gaps in each.' }
+  ],
+  7: [
+    { pts:8,  label:'Incident Overview', guide:'Number of people affected, what data was stolen, the specific CVE exploited, why the patch was not applied, and how long the breach lasted undetected.' },
+    { pts:8,  label:'CIA Triad Impact',  guide:'All three pillars specific to Equifax: the scale of PII exposure, potential data integrity issues during the 78-day dwell, and service availability impact.' },
+    { pts:8,  label:'Kill Chain Phase',  guide:'Identify the phase when attackers exploited the web application and explain what made this entry point vulnerable.' },
+    { pts:8,  label:'MITRE ATT&CK',     guide:'T1190 (Exploit Public-Facing Application) is the primary technique. Include the ID, name, and explain how it applies to this breach.' },
+    { pts:8,  label:'CVE',              guide:'Name CVE-2017-5638 and describe it as a remote code execution flaw in Apache Struts. Mention the patch timing (released March 2017, breach began May 2017).' },
+    { pts:8,  label:'Preventive Control', guide:'Address the specific failure (unpatched known CVE). What control would have caught or prevented it, and how?' }
+  ],
+  8: [
+    { pts:20, label:'NIST CSF Failures', guide:'All five functions with Equifax-specific evidence. The expired TLS certificate (19 months) that disabled traffic inspection is a critical Detect failure — include it.' },
+    { pts:20, label:'Pentest Technique', guide:'Name a technique targeting web application CVEs and explain how it would have identified CVE-2017-5638 in the dispute portal before attackers.' },
+    { pts:20, label:'Executive Summary', guide:'3–5 sentences at Congressional testimony level. Cover: magnitude (147M Americans), root cause (failure to patch a known CVE), duration (78 days), and organizational governance failure.' },
+    { pts:20, label:'Remediation',       guide:'3 specific recommendations. Address the actual failures: patch management SLAs, WAF deployment, certificate lifecycle management, or data minimization.' },
+    { pts:20, label:'Legal Violations',  guide:'Name FCRA, GDPR (European customers), and relevant state breach notification laws. Explain how each applies to Equifax specifically.' }
+  ]
+};
+
 var _currentProjectNum = null;
 var _projectStatuses = {};
 var _autosaveTimer = null;
@@ -1371,12 +1434,31 @@ function openProjectSubmit(n) {
       '&#9654; &nbsp; SUBMIT PROJECT ' + n + '</button>' +
     '</div>';
 
+  var rubricRows = (HUB_RUBRIC[n] || []).map(function(r) {
+    return '<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(167,139,250,0.1);">' +
+      '<div style="min-width:34px;text-align:center;font-family:\'Orbitron\',monospace;font-size:10px;font-weight:700;color:#a78bfa;padding-top:2px;">' + r.pts + 'pt</div>' +
+      '<div><div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.85);margin-bottom:2px;">' + r.label + '</div>' +
+      '<div style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.5;">' + r.guide + '</div></div>' +
+    '</div>';
+  }).join('');
+
+  var rubricPanel = rubricRows ? (
+    '<div style="margin-bottom:20px;border:1px solid rgba(167,139,250,0.25);border-radius:8px;overflow:hidden;">' +
+      '<button onclick="(function(){var p=document.getElementById(\'rub-panel-' + n + '\');var a=document.getElementById(\'rub-arrow-' + n + '\');var open=p.style.display===\'block\';p.style.display=open?\'none\':\'block\';a.textContent=open?\'▼\':\'▲\';})()" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(167,139,250,0.08);border:none;cursor:pointer;color:#a78bfa;font-family:\'Orbitron\',monospace;font-size:10px;font-weight:700;letter-spacing:1.5px;">' +
+        '<span>📋 &nbsp; GRADING RUBRIC — WHAT YOU WILL BE SCORED ON</span>' +
+        '<span id="rub-arrow-' + n + '">▼</span>' +
+      '</button>' +
+      '<div id="rub-panel-' + n + '" style="display:none;padding:12px 14px;">' + rubricRows + '</div>' +
+    '</div>'
+  ) : '';
+
   document.getElementById('proj-modal-content').innerHTML =
     '<div style="margin-bottom:20px;">' +
       '<div style="font-family:\'Orbitron\',monospace;font-size:10px;color:#a78bfa;letter-spacing:2px;margin-bottom:6px;">PROJECT ' + n + ' &nbsp;|&nbsp; ' + proj.incident.toUpperCase() + '</div>' +
       '<div style="font-size:12px;color:rgba(255,255,255,0.5);font-family:\'Share Tech Mono\',monospace;letter-spacing:1px;">' + proj.type + ' &bull; Max ' + proj.max + ' pts</div>' +
       (submitted ? '<div style="margin-top:8px;font-size:11px;color:rgba(0,200,83,0.8);font-family:\'Share Tech Mono\',monospace;">Submitted ' + new Date(saved.submittedAt).toLocaleString() + ' — answers locked</div>' : '') +
     '</div>' +
+    rubricPanel +
     fieldsHTML +
     submitBtn +
     gradeHTML;
