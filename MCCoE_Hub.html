@@ -1280,6 +1280,7 @@ const HUB_PROJECTS = {
 
 var _currentProjectNum = null;
 var _projectStatuses = {};
+var _autosaveTimer = null;
 
 function loadAllProjectStatuses() {
   var id = localStorage.getItem('hub_id');
@@ -1333,9 +1334,10 @@ function openProjectSubmit(n) {
   var saved = _projectStatuses[n] || {};
   var submitted = !!saved.submittedAt;
   var grade = saved.grade;
+  var draft = !submitted ? JSON.parse(localStorage.getItem('mccoe_proj_draft_' + n) || 'null') : null;
 
   var fieldsHTML = proj.fields.map(function(f) {
-    var val = (saved.answers && saved.answers[f.id]) ? saved.answers[f.id] : '';
+    var val = (saved.answers && saved.answers[f.id]) ? saved.answers[f.id] : (draft && draft.answers && draft.answers[f.id] ? draft.answers[f.id] : '');
     var escaped = val.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     var inp = f.ta
       ? '<textarea id="hp-' + n + '-' + f.id + '" rows="3" style="width:100%;padding:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(167,139,250,0.3);border-radius:6px;color:#fff;font-family:\'Rajdhani\',sans-serif;font-size:14px;resize:vertical;outline:none;box-sizing:border-box;" placeholder="Type your answer..."' + (submitted?' readonly':'') + '>' + val + '</textarea>'
@@ -1353,9 +1355,21 @@ function openProjectSubmit(n) {
       '</div>';
   }
 
+  var draftInfo = '';
+  if (!submitted && draft && draft.savedAt) {
+    var draftTime = new Date(draft.savedAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    draftInfo = '<div style="font-size:11px;color:rgba(167,139,250,0.6);font-family:\'Share Tech Mono\',monospace;margin-bottom:10px;">📋 Draft restored — last saved ' + draftTime + '</div>';
+  }
+
   var submitBtn = submitted ? '' :
-    '<button onclick="submitProjectHub()" style="width:100%;padding:13px;background:linear-gradient(135deg,rgba(167,139,250,0.3),rgba(167,139,250,0.15));border:1px solid rgba(167,139,250,0.6);color:#fff;font-family:\'Orbitron\',monospace;font-size:11px;font-weight:700;letter-spacing:2px;border-radius:6px;cursor:pointer;margin-top:8px;transition:all .2s;" onmouseover="this.style.background=\'rgba(167,139,250,0.4)\'" onmouseout="this.style.background=\'linear-gradient(135deg,rgba(167,139,250,0.3),rgba(167,139,250,0.15))\'">' +
-    '▶ &nbsp; SUBMIT PROJECT ' + n + '</button>';
+    draftInfo +
+    '<div id="proj-draft-status" style="font-size:11px;color:rgba(167,139,250,0.55);font-family:\'Share Tech Mono\',monospace;margin-bottom:8px;min-height:16px;"></div>' +
+    '<div style="display:flex;gap:10px;margin-top:4px;">' +
+      '<button onclick="saveDraftHub()" style="flex:1;padding:11px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.35);color:#a78bfa;font-family:\'Orbitron\',monospace;font-size:10px;font-weight:700;letter-spacing:1.5px;border-radius:6px;cursor:pointer;transition:all .2s;" onmouseover="this.style.background=\'rgba(167,139,250,0.18)\'" onmouseout="this.style.background=\'rgba(167,139,250,0.08)\'">' +
+      '💾 &nbsp; SAVE DRAFT</button>' +
+      '<button onclick="submitProjectHub()" style="flex:2;padding:11px;background:linear-gradient(135deg,rgba(167,139,250,0.3),rgba(167,139,250,0.15));border:1px solid rgba(167,139,250,0.6);color:#fff;font-family:\'Orbitron\',monospace;font-size:11px;font-weight:700;letter-spacing:2px;border-radius:6px;cursor:pointer;transition:all .2s;" onmouseover="this.style.background=\'rgba(167,139,250,0.4)\'" onmouseout="this.style.background=\'linear-gradient(135deg,rgba(167,139,250,0.3),rgba(167,139,250,0.15))\'">' +
+      '&#9654; &nbsp; SUBMIT PROJECT ' + n + '</button>' +
+    '</div>';
 
   document.getElementById('proj-modal-content').innerHTML =
     '<div style="margin-bottom:20px;">' +
@@ -1368,6 +1382,29 @@ function openProjectSubmit(n) {
     gradeHTML;
 
   document.getElementById('proj-submit-modal').style.display = 'flex';
+
+  if (!submitted) {
+    if (_autosaveTimer) clearInterval(_autosaveTimer);
+    _autosaveTimer = setInterval(saveDraftHub, 2 * 60 * 1000);
+  }
+}
+
+function saveDraftHub() {
+  if (!_currentProjectNum) return;
+  var proj = HUB_PROJECTS[_currentProjectNum];
+  var answers = {};
+  proj.fields.forEach(function(f) {
+    var el = document.getElementById('hp-' + _currentProjectNum + '-' + f.id);
+    if (el) answers[f.id] = el.value;
+  });
+  localStorage.setItem('mccoe_proj_draft_' + _currentProjectNum, JSON.stringify({ answers: answers, savedAt: new Date().toISOString() }));
+  var statusEl = document.getElementById('proj-draft-status');
+  if (statusEl) {
+    var t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    statusEl.textContent = '✓ Draft saved at ' + t;
+    statusEl.style.color = 'rgba(0,200,83,0.75)';
+    setTimeout(function() { if (statusEl) statusEl.style.color = 'rgba(167,139,250,0.55)'; }, 3000);
+  }
 }
 
 function submitProjectHub() {
@@ -1396,18 +1433,21 @@ function submitProjectHub() {
     maxScore: proj.max,
     submittedAt: new Date().toISOString()
   };
-  _hubDb.ref('mccoe_submissions/' + hubId + '/week' + _currentProjectNum).set(entry, function(err) {
+  var projNum = _currentProjectNum;
+  _hubDb.ref('mccoe_submissions/' + hubId + '/week' + projNum).set(entry, function(err) {
     if (err) { alert('Error submitting: ' + err.message); return; }
-    _projectStatuses[_currentProjectNum] = entry;
+    localStorage.removeItem('mccoe_proj_draft_' + projNum);
+    _projectStatuses[projNum] = entry;
     updateSubmitButtons();
     closeProjectModal();
-    alert('✅ Project ' + _currentProjectNum + ' submitted! Your instructor will review and grade it.');
+    alert('✅ Project ' + projNum + ' submitted! Your instructor will review and grade it.');
   });
 }
 
 function closeProjectModal() {
   document.getElementById('proj-submit-modal').style.display = 'none';
   _currentProjectNum = null;
+  if (_autosaveTimer) { clearInterval(_autosaveTimer); _autosaveTimer = null; }
 }
 </script>
 </body>
