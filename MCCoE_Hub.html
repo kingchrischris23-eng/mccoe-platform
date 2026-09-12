@@ -1280,64 +1280,108 @@ const HUB_PROJECTS = {
 
 const HUB_RUBRIC = {
   1: [
-    { pts:8,  label:'Incident Overview',    guide:'Name the victim organization, how attackers got in (third-party vendor), what data was stolen, and when it occurred.' },
-    { pts:8,  label:'CIA Triad Impact',     guide:'Address all three pillars: Confidentiality (what data was exposed), Integrity (was data altered?), Availability (were systems disrupted?). Be specific to this incident.' },
-    { pts:8,  label:'Kill Chain Phase',     guide:'Identify the specific Cyber Kill Chain phase when attackers first gained access and briefly explain why.' },
-    { pts:8,  label:'MITRE ATT&CK',        guide:'Include at least one technique ID (e.g. T1566) and its name. Explain how it was used in this attack.' },
-    { pts:6,  label:'CVEs',                guide:'List known CVEs or clearly state "None publicly identified." Partial credit for a reasonable attempt.' },
-    { pts:8,  label:'Preventive Control',  guide:'Name one specific security control and explain exactly why it would have prevented this breach. Vague answers score low.' }
+    { pts:8,  label:'Incident Overview',   guide:'Name the victim, how attackers got in, what was stolen, and when.',
+      checks:['Named the victim organization (Target)','Identified the entry point (HVAC vendor / third-party contractor)','Stated what was stolen (40M credit/debit card numbers)','Mentioned the timeframe (Nov–Dec 2013)'] },
+    { pts:8,  label:'CIA Triad Impact',    guide:'Address all three pillars specifically to this incident.',
+      checks:['Confidentiality — described what data was exposed','Integrity — addressed whether data or systems were altered','Availability — addressed whether systems were taken offline'] },
+    { pts:8,  label:'Kill Chain Phase',    guide:'Name the specific phase and briefly explain why it applies.',
+      checks:['Named a specific Cyber Kill Chain phase','Briefly explained why that phase applies to this attack'] },
+    { pts:8,  label:'MITRE ATT&CK',       guide:'Include at least one T-number, the name, and how it was used.',
+      checks:['Included at least one technique ID (T-number)','Named the technique','Explained how it was used in this attack'] },
+    { pts:6,  label:'CVEs',               guide:'List known CVEs or state "None publicly identified."',
+      checks:['Listed known CVEs or clearly stated "None publicly identified"'] },
+    { pts:8,  label:'Preventive Control', guide:'Name one specific control and explain why it would have prevented this breach.',
+      checks:['Named one specific security control','Explained exactly why it would have prevented this breach'] }
   ],
   2: [
-    { pts:20, label:'NIST CSF Failures',   guide:'Cover all five functions (Identify, Protect, Detect, Respond, Recover) with a specific failure from this incident for each.' },
-    { pts:20, label:'Pentest Technique',   guide:'Name a specific technique (not just "a pentest") and explain how it would have exposed the vulnerability before attackers found it.' },
-    { pts:20, label:'Executive Summary',   guide:'3–5 sentences. No technical jargon. Must cover: what happened, the impact, the root cause, and a recommendation. Written for a board of directors.' },
-    { pts:20, label:'Remediation',         guide:'List exactly 3 recommendations. Each must be specific and actionable — not generic like "better security." Explain each briefly.' },
-    { pts:20, label:'Compliance Violations', guide:'Name the specific framework(s) violated and explain how this incident violated them. Just naming a framework without explanation scores partial credit.' }
+    { pts:20, label:'NIST CSF Failures',  guide:'Cover all five functions with a Target-specific failure for each.',
+      checks:['Identify — named a specific failure (e.g. no vendor risk management)','Protect — named a specific failure (e.g. no MFA, poor segmentation)','Detect — named a specific failure (e.g. ignored FireEye alerts)','Respond — named a specific failure (e.g. slow breach response)','Recover — named a specific failure (e.g. delayed customer notification)'] },
+    { pts:20, label:'Pentest Technique',  guide:'Name a specific technique and explain how it would have found the vulnerability.',
+      checks:['Named a specific technique (not just "a pentest")','Explained how it would have exposed the specific vulnerability before attackers'] },
+    { pts:20, label:'Executive Summary',  guide:'3–5 sentences, no jargon, written for a board of directors.',
+      checks:['Written in 3–5 sentences','Uses non-technical language (board of directors audience)','Covers what happened and the impact','Includes the root cause and a recommendation'] },
+    { pts:20, label:'Remediation',        guide:'Exactly 3 specific, actionable recommendations — not generic.',
+      checks:['Listed exactly 3 recommendations','Each recommendation is specific and actionable (not generic)','Each recommendation is briefly explained'] },
+    { pts:20, label:'Compliance Violations', guide:'Name the framework(s) and explain how the incident violated each.',
+      checks:['Named at least one specific compliance framework (e.g. PCI-DSS)','Explained how this incident violated that framework'] }
   ],
   3: [
-    { pts:8,  label:'Incident Overview',   guide:'Name the threat actor, how they got in (credential type and why it worked), the real-world impact (fuel supply, duration), and the ransom outcome.' },
-    { pts:8,  label:'CIA Triad Impact',    guide:'Address all three pillars specifically to this attack — what data was exposed, what systems were corrupted/encrypted, and what operations were unavailable.' },
-    { pts:8,  label:'Kill Chain Phase',    guide:'Identify the Kill Chain phase for initial access and briefly explain why.' },
-    { pts:8,  label:'MITRE ATT&CK',       guide:'Include at least one technique ID and name. T1133 and T1486 are the most relevant — explain how they apply.' },
-    { pts:8,  label:'Vulnerability Exploited', guide:'Describe the specific credential/access weakness exploited. Why was it exploitable? What was missing that would have stopped it?' },
-    { pts:8,  label:'Preventive Control', guide:'Name one control and explain directly how it would have stopped or significantly limited this specific attack.' }
+    { pts:8,  label:'Incident Overview',  guide:'Name the threat actor, how they got in, the real-world impact, and the ransom outcome.',
+      checks:['Named the threat actor (DarkSide ransomware group)','Explained how they got in (compromised VPN credentials, no MFA)','Described the real-world impact (fuel shortages, 6-day shutdown)','Mentioned the ransom amount ($4.4M) or outcome'] },
+    { pts:8,  label:'CIA Triad Impact',   guide:'Address all three pillars specifically to this attack.',
+      checks:['Confidentiality — data stolen (double extortion)','Integrity — billing/IT systems encrypted','Availability — pipeline shutdown and fuel supply disruption'] },
+    { pts:8,  label:'Kill Chain Phase',   guide:'Name the specific phase for initial access and explain why.',
+      checks:['Named a specific Kill Chain phase','Briefly explained why that phase applies'] },
+    { pts:8,  label:'MITRE ATT&CK',      guide:'T1133 and T1486 are the most relevant. Include ID, name, and how it applies.',
+      checks:['Included at least one technique ID (T-number)','Named the technique','Explained how it applies to this specific attack'] },
+    { pts:8,  label:'Vulnerability Exploited', guide:'Name the specific credential weakness and what was missing that allowed it.',
+      checks:['Named the specific credential weakness (reused/compromised VPN password)','Explained what was missing that allowed it (no MFA enabled on VPN)'] },
+    { pts:8,  label:'Preventive Control', guide:'Name one control and explain how it would have stopped this specific attack.',
+      checks:['Named one specific control (e.g. MFA on VPN, IT/OT segmentation)','Explained how it would have stopped or significantly limited this attack'] }
   ],
   4: [
-    { pts:20, label:'NIST CSF Failures',  guide:'Cover all five functions with evidence from the Colonial Pipeline incident specifically. Generic answers score low.' },
-    { pts:20, label:'Pentest Technique',  guide:'Name a specific technique and explain how it would have exposed the credential/access weakness before the attack.' },
-    { pts:20, label:'Executive Summary',  guide:'3–5 sentences for a Congressional/non-technical audience. Cover: attack method, national impact, why it happened, and what should change.' },
-    { pts:20, label:'Remediation',        guide:'3 specific, actionable recommendations. Each should directly address a failure identified in this incident.' },
-    { pts:20, label:'Compliance Violations', guide:'Name the relevant pipeline/critical infrastructure regulations and explain how this attack exposed gaps in compliance.' }
+    { pts:20, label:'NIST CSF Failures',  guide:'All five functions with Colonial Pipeline-specific evidence.',
+      checks:['Identify — specific failure (e.g. no asset inventory/vulnerability management)','Protect — specific failure (e.g. no MFA on VPN, no IT/OT segmentation)','Detect — specific failure (e.g. credential compromise not detected before attack)','Respond — specific failure (e.g. no incident response plan)','Recover — specific failure (e.g. no tested OT backup/recovery procedures)'] },
+    { pts:20, label:'Pentest Technique',  guide:'Name a specific technique targeting credential/VPN security.',
+      checks:['Named a specific technique targeting credential or remote access security','Explained how it would have revealed the VPN vulnerability before attackers'] },
+    { pts:20, label:'Executive Summary',  guide:'3–5 sentences for a Congressional/non-technical audience.',
+      checks:['Written in 3–5 sentences','Appropriate for Congressional/non-technical audience','Covers the attack method and national impact','Addresses why it happened and what should change'] },
+    { pts:20, label:'Remediation',        guide:'3 specific recommendations that directly address failures in this incident.',
+      checks:['Listed exactly 3 recommendations','Each directly addresses a failure from Colonial Pipeline','Each is specific and actionable'] },
+    { pts:20, label:'Compliance Violations', guide:'Name relevant pipeline/infrastructure regulations and explain the gaps.',
+      checks:['Named TSA Pipeline Security Directives or equivalent regulation','Explained how this incident exposed compliance gaps'] }
   ],
   5: [
-    { pts:8,  label:'Incident Overview',  guide:'Name the threat actor, explain how the supply chain was compromised (the software build process), the scale (organizations affected), and how long it went undetected.' },
-    { pts:8,  label:'CIA Triad Impact',   guide:'Address all three pillars: what data was accessed, how software integrity was compromised, and what systems had to be taken offline.' },
-    { pts:8,  label:'Kill Chain Phase',   guide:'Identify where in the Kill Chain the backdoor was inserted and explain why this phase is significant for supply chain attacks.' },
-    { pts:8,  label:'MITRE ATT&CK',      guide:'T1195.002 (Supply Chain Compromise) is the primary technique. Include the ID and name, and explain how it was executed.' },
-    { pts:8,  label:'CVEs',              guide:'List CVE-2020-10148 or note the attack was primarily technique-based. Explain the vulnerability briefly.' },
-    { pts:8,  label:'Preventive Control', guide:'Name a control specific to supply chain attacks (not just "better antivirus") and explain why it addresses this threat.' }
+    { pts:8,  label:'Incident Overview',  guide:'Name the threat actor, how the supply chain was compromised, scale, and detection timeline.',
+      checks:['Named the threat actor (Russian SVR / Cozy Bear APT)','Explained how the supply chain was compromised (trojanized software update)','Stated the scale (18,000+ organizations, government agencies)','Mentioned how long it went undetected (9+ months)'] },
+    { pts:8,  label:'CIA Triad Impact',   guide:'Address all three pillars specifically to this attack.',
+      checks:['Confidentiality — government/classified data accessed','Integrity — trusted software update was trojanized','Availability — agencies forced to disconnect Orion systems'] },
+    { pts:8,  label:'Kill Chain Phase',   guide:'Identify where the backdoor was inserted and why this phase matters for supply chain attacks.',
+      checks:['Named the Kill Chain phase where the backdoor was inserted','Explained why this phase is significant for supply chain attacks'] },
+    { pts:8,  label:'MITRE ATT&CK',      guide:'T1195.002 (Supply Chain Compromise) is the primary technique.',
+      checks:['Included T1195.002 or T1195 (Supply Chain Compromise)','Named the technique','Explained how it was executed in this attack'] },
+    { pts:8,  label:'CVEs',              guide:'List CVE-2020-10148 or explain the attack was primarily technique-based.',
+      checks:['Listed CVE-2020-10148 or explained the attack was primarily technique-based','Briefly described the vulnerability'] },
+    { pts:8,  label:'Preventive Control', guide:'Name a control specific to supply chain attacks and explain why it helps.',
+      checks:['Named a control specific to supply chain attacks (not just "better antivirus")','Explained how it addresses the specific threat vector used'] }
   ],
   6: [
-    { pts:20, label:'NIST CSF Failures', guide:'All five functions with SolarWinds-specific evidence. Focus on why the attack evaded detection for 9+ months and what framework controls failed.' },
-    { pts:20, label:'Pentest Technique', guide:'Name a technique that simulates supply chain compromise — explain how it tests whether an organization would catch a trojanized software update.' },
-    { pts:20, label:'Executive Summary', guide:'3–5 sentences for a federal CIO. Cover: how the trust model was exploited, scale of government impact, and top remediation priorities.' },
-    { pts:20, label:'Remediation',       guide:'3 specific recommendations targeting supply chain risk. SBOM, code signing, and zero-trust are relevant examples — explain each.' },
-    { pts:20, label:'Compliance Frameworks', guide:'Name relevant federal frameworks (FedRAMP, FISMA, CMMC, EO 14028) and explain how this attack exposed gaps in each.' }
+    { pts:20, label:'NIST CSF Failures',  guide:'All five functions with SolarWinds-specific evidence — focus on 9-month evasion.',
+      checks:['Identify — supply chain risk management failure','Protect — code integrity/verification failure','Detect — explained why 9+ months of evasion was possible','Respond — no supply chain compromise playbook existed','Recover — scale of coordinated federal remediation required'] },
+    { pts:20, label:'Pentest Technique',  guide:'Name a technique that simulates supply chain compromise and explain what it tests.',
+      checks:['Named a technique that simulates supply chain compromise','Explained how it tests whether a trojanized update would be caught'] },
+    { pts:20, label:'Executive Summary',  guide:'3–5 sentences for a federal CIO — cover scale, trust exploitation, and remediation.',
+      checks:['Written in 3–5 sentences','Addresses a federal CIO\'s concerns specifically','Covers scale (18K+ orgs) and how the trust model was exploited','Includes top remediation priorities'] },
+    { pts:20, label:'Remediation',        guide:'3 specific recommendations targeting supply chain risk.',
+      checks:['Listed exactly 3 recommendations targeting supply chain risk','Each is specific (e.g. SBOM, code signing, zero-trust — not generic)','Each recommendation is briefly explained'] },
+    { pts:20, label:'Compliance Frameworks', guide:'Name at least two federal frameworks and explain how this attack exposed gaps.',
+      checks:['Named at least two relevant federal frameworks (FedRAMP, FISMA, CMMC, EO 14028)','Explained how this attack exposed gaps in each framework named'] }
   ],
   7: [
-    { pts:8,  label:'Incident Overview', guide:'Number of people affected, what data was stolen, the specific CVE exploited, why the patch was not applied, and how long the breach lasted undetected.' },
-    { pts:8,  label:'CIA Triad Impact',  guide:'All three pillars specific to Equifax: the scale of PII exposure, potential data integrity issues during the 78-day dwell, and service availability impact.' },
-    { pts:8,  label:'Kill Chain Phase',  guide:'Identify the phase when attackers exploited the web application and explain what made this entry point vulnerable.' },
-    { pts:8,  label:'MITRE ATT&CK',     guide:'T1190 (Exploit Public-Facing Application) is the primary technique. Include the ID, name, and explain how it applies to this breach.' },
-    { pts:8,  label:'CVE',              guide:'Name CVE-2017-5638 and describe it as a remote code execution flaw in Apache Struts. Mention the patch timing (released March 2017, breach began May 2017).' },
-    { pts:8,  label:'Preventive Control', guide:'Address the specific failure (unpatched known CVE). What control would have caught or prevented it, and how?' }
+    { pts:8,  label:'Incident Overview',  guide:'People affected, data stolen, CVE exploited, patch timing failure, how long undetected.',
+      checks:['Stated the number of people affected (147 million)','Named the specific CVE exploited (CVE-2017-5638)','Explained the patch timing failure (patch available 2 months prior)','Stated what data was stolen (SSNs, PII)','Mentioned the breach went undetected for 78 days'] },
+    { pts:8,  label:'CIA Triad Impact',   guide:'All three pillars specific to the Equifax breach.',
+      checks:['Confidentiality — 147M records including SSNs stolen','Integrity — potential data modification during 78-day dwell time','Availability — services disrupted, website taken offline'] },
+    { pts:8,  label:'Kill Chain Phase',   guide:'Name the phase for web application exploitation and explain why.',
+      checks:['Named the Exploitation phase','Explained what made the web application vulnerable (unpatched CVE)'] },
+    { pts:8,  label:'MITRE ATT&CK',      guide:'T1190 (Exploit Public-Facing Application) is the primary technique.',
+      checks:['Included T1190 (Exploit Public-Facing Application)','Named the technique','Explained how it applies to this specific breach'] },
+    { pts:8,  label:'CVE',               guide:'Name CVE-2017-5638, describe it as RCE in Apache Struts, and mention patch timing.',
+      checks:['Named CVE-2017-5638 specifically','Described it as a remote code execution flaw in Apache Struts','Mentioned patch timing (released March 2017, breach began May 2017)'] },
+    { pts:8,  label:'Preventive Control', guide:'Address the actual failure (unpatched CVE) with a specific control.',
+      checks:['Named the specific control that addresses the actual failure','Explained how it would have prevented or caught the attack'] }
   ],
   8: [
-    { pts:20, label:'NIST CSF Failures', guide:'All five functions with Equifax-specific evidence. The expired TLS certificate (19 months) that disabled traffic inspection is a critical Detect failure — include it.' },
-    { pts:20, label:'Pentest Technique', guide:'Name a technique targeting web application CVEs and explain how it would have identified CVE-2017-5638 in the dispute portal before attackers.' },
-    { pts:20, label:'Executive Summary', guide:'3–5 sentences at Congressional testimony level. Cover: magnitude (147M Americans), root cause (failure to patch a known CVE), duration (78 days), and organizational governance failure.' },
-    { pts:20, label:'Remediation',       guide:'3 specific recommendations. Address the actual failures: patch management SLAs, WAF deployment, certificate lifecycle management, or data minimization.' },
-    { pts:20, label:'Legal Violations',  guide:'Name FCRA, GDPR (European customers), and relevant state breach notification laws. Explain how each applies to Equifax specifically.' }
+    { pts:20, label:'NIST CSF Failures',  guide:'All five functions — the expired TLS cert disabling traffic inspection is a critical Detect failure.',
+      checks:['Identify — patch management failure (CVE known 2 months)','Protect — no WAF; expired TLS certificate disabled traffic inspection for 19 months','Detect — 78-day dwell time; explained why traffic inspection failed','Respond — delayed internal response after discovery','Recover — no tested breach notification or data recovery plan'] },
+    { pts:20, label:'Pentest Technique',  guide:'Name web application testing targeting known CVEs and explain how it finds CVE-2017-5638.',
+      checks:['Named web application penetration testing targeting known CVEs','Explained how it would have found CVE-2017-5638 before attackers'] },
+    { pts:20, label:'Executive Summary',  guide:'3–5 sentences at Congressional testimony level — cover magnitude, root cause, duration, and governance.',
+      checks:['Written in 3–5 sentences','Appropriate for Congressional testimony','Covers magnitude (147M Americans) and root cause','Addresses 78-day detection failure and organizational governance failure'] },
+    { pts:20, label:'Remediation',        guide:'3 specific recommendations addressing actual Equifax failures.',
+      checks:['Listed exactly 3 specific recommendations','Addresses actual failures: patch SLAs, WAF, certificate management, or data minimization','Each recommendation is briefly explained'] },
+    { pts:20, label:'Legal Violations',   guide:'Name FCRA, GDPR, and state breach notification laws — explain how each applies.',
+      checks:['Named FCRA (Equifax handles consumer credit data)','Named GDPR (European customers affected)','Named state breach notification laws or FTC Act Section 5','Explained how each applies to Equifax specifically'] }
   ]
 };
 
@@ -1399,13 +1443,27 @@ function openProjectSubmit(n) {
   var grade = saved.grade;
   var draft = JSON.parse(localStorage.getItem('mccoe_proj_draft_' + n) || 'null');
 
-  var fieldsHTML = proj.fields.map(function(f) {
+  var fieldsHTML = proj.fields.map(function(f, fIdx) {
     var val = (saved.answers && saved.answers[f.id]) ? saved.answers[f.id] : (draft && draft.answers && draft.answers[f.id] ? draft.answers[f.id] : '');
     var escaped = val.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     var inp = f.ta
       ? '<textarea id="hp-' + n + '-' + f.id + '" rows="3" style="width:100%;padding:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(167,139,250,0.3);border-radius:6px;color:#fff;font-family:\'Rajdhani\',sans-serif;font-size:14px;resize:vertical;outline:none;box-sizing:border-box;" placeholder="Type your answer...">' + val + '</textarea>'
       : '<input type="text" id="hp-' + n + '-' + f.id + '" value="' + escaped + '" style="width:100%;padding:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(167,139,250,0.3);border-radius:6px;color:#fff;font-family:\'Rajdhani\',sans-serif;font-size:14px;outline:none;box-sizing:border-box;" placeholder="Type your answer...">';
-    return '<div style="margin-bottom:18px;"><div style="font-size:11px;color:rgba(167,139,250,0.9);font-weight:700;margin-bottom:7px;line-height:1.5;letter-spacing:.3px;">' + f.label + '</div>' + inp + '</div>';
+    var rubricItem = HUB_RUBRIC[n] && HUB_RUBRIC[n][fIdx];
+    var checklistHTML = '';
+    if (rubricItem && rubricItem.checks && rubricItem.checks.length) {
+      checklistHTML = '<div style="margin-top:8px;padding:8px 10px;background:rgba(167,139,250,0.04);border-radius:6px;border:1px solid rgba(167,139,250,0.12);">' +
+        '<div style="font-size:10px;color:rgba(167,139,250,0.55);font-weight:700;margin-bottom:6px;letter-spacing:.5px;">CHECKLIST — tick off each point as you write</div>' +
+        rubricItem.checks.map(function(c, ci) {
+          var cid = 'chk-' + n + '-' + f.id + '-' + ci;
+          return '<label style="display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;cursor:pointer;">' +
+            '<input type="checkbox" id="' + cid + '" style="margin-top:2px;accent-color:#a78bfa;flex-shrink:0;width:13px;height:13px;">' +
+            '<span style="font-size:11px;color:rgba(255,255,255,0.55);line-height:1.5;">' + c + '</span>' +
+          '</label>';
+        }).join('') +
+      '</div>';
+    }
+    return '<div style="margin-bottom:20px;"><div style="font-size:11px;color:rgba(167,139,250,0.9);font-weight:700;margin-bottom:7px;line-height:1.5;letter-spacing:.3px;">' + f.label + '</div>' + inp + checklistHTML + '</div>';
   }).join('');
 
   var gradeHTML = '';
