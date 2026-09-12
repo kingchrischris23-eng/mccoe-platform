@@ -1062,7 +1062,10 @@ var WEEK_TASKS = {
       {t:'🎮 Quiz: Threat Landscape',p:'p2'},{t:'🃏 Flashcard Drill',p:'p2'}]},
     {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
       {t:'📄 Project 3: Colonial Pipeline — Deep Dive (50 pts)',p:'p3',proj:3},
-      {t:'🗺️ MITRE ATT&CK Mapping Tool — Wednesday Activity',p:'tool',url:'MITRE_Attack_Map.html'}]}
+      {t:'🗺️ MITRE ATT&CK Mapping Tool — Wednesday Activity',p:'tool',url:'MITRE_Attack_Map.html'},
+      {t:'📰 Source Doc: CISA Advisory AA21-131A (Official PDF)',p:'ext',url:'https://www.cisa.gov/sites/default/files/publications/AA21-131A_Darkside_Ransomware.pdf'},
+      {t:'🏛️ Source Doc: CEO Senate Testimony — June 8 2021 (Official PDF)',p:'ext',url:'https://www.hsgac.senate.gov/wp-content/uploads/imo/media/doc/Testimony-Blount-2021-06-08.pdf'},
+      {t:'🔍 Source Doc: CISA — What We Learned Two Years Later',p:'ext',url:'https://www.cisa.gov/news-events/news/attack-colonial-pipeline-what-weve-learned-what-weve-done-over-past-two-years'}]}
   ]},
   4:{title:'Core Classes',groups:[
     {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
@@ -1175,6 +1178,7 @@ function _renderWeekTasks(wk) {
       else if (item.p === 'p5') { href = 'Pillar5_BlueTeam.html' + p; tgt = 'target="_blank"'; }
       else if (item.p === 'ctf') { href = 'MCCoE_CTF.html' + p; tgt = 'target="_blank"'; }
       else if (item.p === 'tool') { href = item.url + p; tgt = 'target="_blank"'; }
+      else if (item.p === 'ext')  { href = item.url; tgt = 'target="_blank"'; }
       return '<a href="' + href + '" ' + tgt + ' ' + oc + ' style="display:block;padding:7px 11px;margin-bottom:5px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.85);text-decoration:none;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);transition:background .15s,border-color .15s;" onmouseover="this.style.background=\'rgba(255,255,255,0.11)\';this.style.borderColor=\'rgba(255,255,255,0.22)\';" onmouseout="this.style.background=\'rgba(255,255,255,0.05)\';this.style.borderColor=\'rgba(255,255,255,0.07)\';">' + item.t + '</a>';
     }).join('');
     return '<div style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px 16px;">' +
