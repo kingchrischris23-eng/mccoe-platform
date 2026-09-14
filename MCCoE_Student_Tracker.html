@@ -2129,7 +2129,7 @@ function startFirebaseRegistryListener() {
         }
       });
     });
-    if (changed) renderDashboard();
+    if (changed) { saveData(); renderDashboard(); }
   });
 }
 
