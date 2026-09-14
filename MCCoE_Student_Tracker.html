@@ -3458,6 +3458,19 @@ function renderDashboard() {
   Object.values(_loginsCache).forEach(ld => {
     if (ld && ld.history && Object.values(ld.history).some(h => h.date === today)) loginsToday++;
   });
+  // If cache not loaded yet, fire a direct read and update the KPI element when done
+  if (loginsToday === 0 && _fbDb && Object.keys(_loginsCache).length === 0) {
+    _fbDb.ref('mccoe_logins').once('value', snap => {
+      const data = snap.val() || {};
+      _loginsCache = data;
+      let count = 0;
+      Object.values(data).forEach(ld => {
+        if (ld && ld.history && Object.values(ld.history).some(h => h.date === today)) count++;
+      });
+      const el = document.getElementById('kpi-portal-today');
+      if (el) el.textContent = count;
+    });
+  }
 
   document.getElementById('kpiGrid').innerHTML = `
     <div class="kpi-card red" onclick="showKpiChart('total')" style="cursor:pointer;" title="Click for chart"><div class="kpi-icon">👥</div><div class="kpi-label">Total Apprentices</div><div class="kpi-value">${total}</div><div class="kpi-sub">Active cohort · <span style="color:rgba(0,245,255,.5);font-size:.65rem;">📊 View chart</span></div></div>

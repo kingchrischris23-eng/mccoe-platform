@@ -1193,7 +1193,11 @@ window.addEventListener('DOMContentLoaded', function() {
   var name = sp.get('name') || localStorage.getItem('hub_name');
   var id   = sp.get('id')   || localStorage.getItem('hub_id');
   if (name && id) {
-    hubLoginSuccess(name, id, false);
+    var today = new Date().toISOString().split('T')[0];
+    var lastDate = localStorage.getItem('hub_last_login_date');
+    var doLog = (lastDate !== today);
+    if (doLog) localStorage.setItem('hub_last_login_date', today);
+    hubLoginSuccess(name, id, doLog);
     if (sp.get('name')) window.history.replaceState({}, '', window.location.pathname);
   }
   // else: overlay stays visible for login
