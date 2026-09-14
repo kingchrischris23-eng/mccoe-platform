@@ -3320,10 +3320,24 @@ function deleteDeadline(key) {
 // ════════════════════════════════════════════
 //  HELPERS
 // ════════════════════════════════════════════
+function _submissionWeeksForStudent(s) {
+  let weeksData = s.portalTempId ? _submissionsCache[s.portalTempId] : null;
+  if (!weeksData && s.name) {
+    for (const key of Object.keys(_submissionsCache)) {
+      const wks = _submissionsCache[key];
+      const anyWeek = wks['week1'] || wks['week2'] || wks['week3'];
+      if (anyWeek && anyWeek.studentName && anyWeek.studentName.toLowerCase().trim() === s.name.toLowerCase().trim()) {
+        weeksData = wks;
+        break;
+      }
+    }
+  }
+  return weeksData || null;
+}
 function _projectScoresForStudent(s) {
   const scores = [];
-  if (!s.portalTempId || !_submissionsCache[s.portalTempId]) return scores;
-  const weeksData = _submissionsCache[s.portalTempId];
+  const weeksData = _submissionWeeksForStudent(s);
+  if (!weeksData) return scores;
   [1,2,3,4,5,6,7,8].forEach(n => {
     const sub = weeksData['week' + n];
     if (sub && sub.grade && sub.grade.score != null) {
@@ -3977,9 +3991,8 @@ function _buildKpiData(type) {
       const dateMap = {};
       students.forEach(s => {
         const entries = [];
-        // Pull from live submissions cache
-        if (s.portalTempId && _submissionsCache[s.portalTempId]) {
-          const weeksData = _submissionsCache[s.portalTempId];
+        const weeksData = _submissionWeeksForStudent(s);
+        if (weeksData) {
           [1,2,3,4,5,6,7,8].forEach(n => {
             const sub = weeksData['week' + n];
             if (sub && sub.grade && sub.grade.score != null) {
@@ -3989,7 +4002,6 @@ function _buildKpiData(type) {
             }
           });
         }
-        // Fall back to scoreLog for manually-entered scores
         if (!entries.length) (s.scoreLog||[]).forEach(e => entries.push(e));
         entries.forEach(e => {
           if (!dateMap[e.date]) dateMap[e.date] = {sum:0,n:0};
