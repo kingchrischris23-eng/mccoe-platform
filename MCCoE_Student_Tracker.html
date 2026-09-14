@@ -2109,6 +2109,17 @@ function startFirebaseRegistryListener() {
   // Load graded project scores into _submissionsCache for performance KPI + chart
   _fbDb.ref('mccoe_submissions').once('value', snap => {
     _submissionsCache = snap.val() || {};
+    const keys = Object.keys(_submissionsCache);
+    let gradedCount = 0;
+    keys.forEach(k => {
+      [1,2,3,4,5,6,7,8].forEach(n => {
+        const sub = _submissionsCache[k]['week'+n];
+        if (sub && sub.grade) gradedCount++;
+      });
+    });
+    console.log('[MCCoE] Submissions cache: ' + keys.length + ' students, ' + gradedCount + ' graded projects');
+    console.log('[MCCoE] Cache keys:', keys);
+    console.log('[MCCoE] Student portalTempIds:', students.map(s=>s.name+':'+s.portalTempId));
     renderDashboard();
   });
 }
