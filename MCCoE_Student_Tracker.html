@@ -2104,6 +2104,33 @@ function startFirebaseRegistryListener() {
       if (active && active.id === 'view-students') renderStudents();
     }
   });
+
+  // Pull graded project scores from mccoe_submissions and backfill scoreLog for performance chart
+  _fbDb.ref('mccoe_submissions').once('value', snap => {
+    const allSubs = snap.val();
+    if (!allSubs) return;
+    let changed = false;
+    students.forEach(s => {
+      if (!s.portalTempId || !allSubs[s.portalTempId]) return;
+      const weeksData = allSubs[s.portalTempId];
+      if (!s.scoreLog) s.scoreLog = [];
+      if (!s.scores) s.scores = [];
+      [1,2,3,4,5,6,7,8].forEach(n => {
+        const sub = weeksData['week' + n];
+        if (!sub || !sub.grade || sub.grade.score == null) return;
+        const topic = 'Project ' + n;
+        const max = sub.grade.maxScore || PROJECT_META[n].max;
+        const pct = Math.round(sub.grade.score / max * 100);
+        const date = (sub.grade.gradedAt || sub.submittedAt || new Date().toISOString()).split('T')[0];
+        if (!s.scoreLog.find(e => e.topic === topic)) {
+          s.scoreLog.push({ date, topic, score: pct });
+          s.scores.push(pct);
+          changed = true;
+        }
+      });
+    });
+    if (changed) renderDashboard();
+  });
 }
 
 function syncRegistry() {
