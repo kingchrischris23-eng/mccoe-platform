@@ -2326,11 +2326,9 @@ function startLoginListener() {
     // Refresh attendance view if open
     const av = document.getElementById('view-attendance');
     if (av && av.classList.contains('active')) renderAttendance();
-    // Refresh portal-logins-today KPI
+    // Refresh portal-logins-today KPI — count directly from cache, no student match needed
     let loginsToday = 0;
-    students.forEach(s => {
-      if (!s.portalTempId) return;
-      const ld = _loginsCache[s.portalTempId];
+    Object.values(_loginsCache).forEach(ld => {
       if (ld && ld.history && Object.values(ld.history).some(h => h.date === today)) loginsToday++;
     });
     const kpiEl = document.getElementById('kpi-portal-today');
@@ -3457,9 +3455,7 @@ function renderDashboard() {
 
   const today = new Date().toISOString().split('T')[0];
   let loginsToday = 0;
-  students.forEach(s => {
-    if (!s.portalTempId) return;
-    const ld = _loginsCache[s.portalTempId];
+  Object.values(_loginsCache).forEach(ld => {
     if (ld && ld.history && Object.values(ld.history).some(h => h.date === today)) loginsToday++;
   });
 
