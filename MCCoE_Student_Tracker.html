@@ -1807,6 +1807,7 @@ const FIREBASE_CONFIG = {
 
 let _fbDb = null;
 let _loginsCache = {};
+let _submissionsCache = {};
 (function initFirebase() {
   try {
     if (FIREBASE_CONFIG.apiKey.startsWith('PASTE_')) return;
@@ -2105,31 +2106,10 @@ function startFirebaseRegistryListener() {
     }
   });
 
-  // Pull graded project scores from mccoe_submissions and backfill scoreLog for performance chart
+  // Load graded project scores into _submissionsCache for performance KPI + chart
   _fbDb.ref('mccoe_submissions').once('value', snap => {
-    const allSubs = snap.val();
-    if (!allSubs) return;
-    let changed = false;
-    students.forEach(s => {
-      if (!s.portalTempId || !allSubs[s.portalTempId]) return;
-      const weeksData = allSubs[s.portalTempId];
-      if (!s.scoreLog) s.scoreLog = [];
-      if (!s.scores) s.scores = [];
-      [1,2,3,4,5,6,7,8].forEach(n => {
-        const sub = weeksData['week' + n];
-        if (!sub || !sub.grade || sub.grade.score == null) return;
-        const topic = 'Project ' + n;
-        const max = sub.grade.maxScore || PROJECT_META[n].max;
-        const pct = Math.round(sub.grade.score / max * 100);
-        const date = (sub.grade.gradedAt || sub.submittedAt || new Date().toISOString()).split('T')[0];
-        if (!s.scoreLog.find(e => e.topic === topic)) {
-          s.scoreLog.push({ date, topic, score: pct });
-          s.scores.push(pct);
-          changed = true;
-        }
-      });
-    });
-    if (changed) { saveData(); renderDashboard(); }
+    _submissionsCache = snap.val() || {};
+    renderDashboard();
   });
 }
 
@@ -3340,7 +3320,24 @@ function deleteDeadline(key) {
 // ════════════════════════════════════════════
 //  HELPERS
 // ════════════════════════════════════════════
-function avgScore(s)     { const sc = s.scores || []; return sc.length ? Math.round(sc.reduce((a,b)=>a+b,0)/sc.length) : 0; }
+function _projectScoresForStudent(s) {
+  const scores = [];
+  if (!s.portalTempId || !_submissionsCache[s.portalTempId]) return scores;
+  const weeksData = _submissionsCache[s.portalTempId];
+  [1,2,3,4,5,6,7,8].forEach(n => {
+    const sub = weeksData['week' + n];
+    if (sub && sub.grade && sub.grade.score != null) {
+      const max = sub.grade.maxScore || PROJECT_META[n].max;
+      scores.push(Math.round(sub.grade.score / max * 100));
+    }
+  });
+  return scores;
+}
+function avgScore(s) {
+  const fromCache = _projectScoresForStudent(s);
+  const sc = fromCache.length ? fromCache : (s.scores || []);
+  return sc.length ? Math.round(sc.reduce((a,b)=>a+b,0)/sc.length) : 0;
+}
 function attendRate(s)   {
   const recs = Object.values(s.attendance || {});
   if(!recs.length) return 100;
@@ -3978,10 +3975,27 @@ function _buildKpiData(type) {
 
     case 'performance': {
       const dateMap = {};
-      students.forEach(s => (s.scoreLog||[]).forEach(e => {
-        if (!dateMap[e.date]) dateMap[e.date] = {sum:0,n:0};
-        dateMap[e.date].sum += e.score; dateMap[e.date].n++;
-      }));
+      students.forEach(s => {
+        const entries = [];
+        // Pull from live submissions cache
+        if (s.portalTempId && _submissionsCache[s.portalTempId]) {
+          const weeksData = _submissionsCache[s.portalTempId];
+          [1,2,3,4,5,6,7,8].forEach(n => {
+            const sub = weeksData['week' + n];
+            if (sub && sub.grade && sub.grade.score != null) {
+              const max = sub.grade.maxScore || PROJECT_META[n].max;
+              const date = (sub.grade.gradedAt || sub.submittedAt || '').split('T')[0];
+              if (date) entries.push({ date, score: Math.round(sub.grade.score / max * 100) });
+            }
+          });
+        }
+        // Fall back to scoreLog for manually-entered scores
+        if (!entries.length) (s.scoreLog||[]).forEach(e => entries.push(e));
+        entries.forEach(e => {
+          if (!dateMap[e.date]) dateMap[e.date] = {sum:0,n:0};
+          dateMap[e.date].sum += e.score; dateMap[e.date].n++;
+        });
+      });
       const labels = Object.keys(dateMap).sort();
       if (!labels.length) return { labels:[], datasets:[] };
       const data = labels.map(d => Math.round(dateMap[d].sum/dateMap[d].n));
