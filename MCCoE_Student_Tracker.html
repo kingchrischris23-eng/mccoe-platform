@@ -2081,6 +2081,29 @@ function startFirebaseRegistryListener() {
       if (active.id === 'view-employer')    renderEmployerSelect();
     }
   });
+
+  // Pull auto-tracked hours from mccoe_hours and sync to s.hours
+  _fbDb.ref('mccoe_hours').once('value', snap => {
+    const allHours = snap.val();
+    if (!allHours) return;
+    let changed = false;
+    students.forEach(s => {
+      if (!s.portalTempId) return;
+      const entry = allHours[s.portalTempId];
+      if (!entry || !entry.totalMinutes) return;
+      const hrs = Math.round(entry.totalMinutes / 60);
+      if (hrs !== s.hours) {
+        s.hours = hrs;
+        changed = true;
+      }
+    });
+    if (changed) {
+      saveData();
+      renderDashboard();
+      const active = document.querySelector('.view.active');
+      if (active && active.id === 'view-students') renderStudents();
+    }
+  });
 }
 
 function syncRegistry() {
