@@ -2462,6 +2462,66 @@ function stopHoursTracking() {
 window.addEventListener('beforeunload', () => { if (_sessionStartMs) _writeHoursSnapshot(); });
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ── Idle timeout — 30 min idle → 2 min warning → auto logout ─────────────────
+const IDLE_LIMIT_MS   = 30 * 60 * 1000;
+const WARNING_SECS    = 120;
+let _idleTimer        = null;
+let _warningTimer     = null;
+let _warningInterval  = null;
+let _idleWarningShown = false;
+
+function _resetIdleTimer() {
+  if (_idleWarningShown) _dismissIdleWarning();
+  clearTimeout(_idleTimer);
+  if (document.getElementById('login-screen') && document.getElementById('login-screen').style.display !== 'none') return;
+  _idleTimer = setTimeout(_showIdleWarning, IDLE_LIMIT_MS);
+}
+
+function _showIdleWarning() {
+  if (_idleWarningShown) return;
+  _idleWarningShown = true;
+  let secsLeft = WARNING_SECS;
+  const overlay = document.createElement('div');
+  overlay.id = 'idle-warning-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);';
+  overlay.innerHTML = `
+    <div style="background:#0d1f36;border:2px solid var(--red);border-radius:14px;padding:36px 40px;max-width:380px;width:90%;text-align:center;box-shadow:0 0 40px rgba(238,34,7,.3);">
+      <div style="font-size:2.5rem;margin-bottom:12px;">⏳</div>
+      <div style="font-family:var(--font-h);font-size:1.1rem;font-weight:700;color:var(--red);margin-bottom:8px;">Are you still there?</div>
+      <div style="font-size:.88rem;color:var(--muted);margin-bottom:20px;line-height:1.6;">You've been inactive for 30 minutes.<br>You'll be logged out in <strong id="idle-countdown" style="color:#fff;font-size:1.1rem;">${secsLeft}</strong> seconds.</div>
+      <button onclick="window._dismissIdleWarning()" style="padding:12px 32px;background:var(--red);color:#fff;border:none;border-radius:8px;font-size:.95rem;font-weight:700;cursor:pointer;font-family:var(--font-h);letter-spacing:.5px;">Stay Logged In</button>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  _warningInterval = setInterval(() => {
+    secsLeft--;
+    const el = document.getElementById('idle-countdown');
+    if (el) el.textContent = secsLeft;
+    if (secsLeft <= 0) {
+      clearInterval(_warningInterval);
+      _warningInterval = null;
+      _idleWarningShown = false;
+      document.body.removeChild(overlay);
+      doLogout();
+    }
+  }, 1000);
+}
+
+function _dismissIdleWarning() {
+  _idleWarningShown = false;
+  clearInterval(_warningInterval);
+  _warningInterval = null;
+  const overlay = document.getElementById('idle-warning-overlay');
+  if (overlay) overlay.remove();
+  _resetIdleTimer();
+}
+window._dismissIdleWarning = _dismissIdleWarning;
+
+['mousemove','keydown','mousedown','touchstart','scroll','click'].forEach(function(evt) {
+  document.addEventListener(evt, _resetIdleTimer, { passive: true });
+});
+// ─────────────────────────────────────────────────────────────────────────────
+
 (function initFirebase() {
   try {
     if (FIREBASE_CONFIG.apiKey.startsWith('PASTE_')) return; // not configured yet
@@ -2491,6 +2551,7 @@ window.addEventListener('beforeunload', () => { if (_sessionStartMs) _writeHours
             const _wkParam = parseInt(_p.get('week'));
             if (_wkParam >= 1 && _wkParam <= 9) setTimeout(() => renderWeek(_wkParam), 150);
             startHoursTracking(_hubId);
+            _resetIdleTimer();
             const _now = new Date(); const _ts = _now.toISOString();
             const _lr = _fbDb.ref('mccoe_logins/' + _hubId);
             _lr.child('lastLogin').set(_ts);
@@ -2645,6 +2706,7 @@ function verifyAndLogin() {
     };
     enterApp();
     startHoursTracking(_selectedProfile.tempId);
+    _resetIdleTimer();
     // Record portal login event in Firebase
     if (_fbDb && _selectedProfile) {
       const _now = new Date();
@@ -2826,6 +2888,9 @@ function enterApp() {
 }
 
 function doLogout() {
+  clearTimeout(_idleTimer);
+  clearInterval(_warningInterval);
+  _idleWarningShown = false;
   stopHoursTracking();
   saveState();
   _selectedProfile = null;
