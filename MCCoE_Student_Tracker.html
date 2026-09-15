@@ -1808,6 +1808,7 @@ const FIREBASE_CONFIG = {
 let _fbDb = null;
 let _loginsCache = {};
 let _submissionsCache = {};
+let _progressCache = {};
 (function initFirebase() {
   try {
     if (FIREBASE_CONFIG.apiKey.startsWith('PASTE_')) return;
@@ -2120,6 +2121,12 @@ function startFirebaseRegistryListener() {
     console.log('[MCCoE] Submissions cache: ' + keys.length + ' students, ' + gradedCount + ' graded projects');
     console.log('[MCCoE] Cache keys:', keys);
     console.log('[MCCoE] Student portalTempIds:', students.map(s=>s.name+':'+s.portalTempId));
+    renderDashboard();
+  });
+
+  // Load quiz scores from mccoe_progress for Avg Performance KPI
+  _fbDb.ref('mccoe_progress').once('value', snap => {
+    _progressCache = snap.val() || {};
     renderDashboard();
   });
 }
@@ -3358,9 +3365,25 @@ function _projectScoresForStudent(s) {
   });
   return scores;
 }
+function _quizScoresFromProgress(s) {
+  const key = s.portalTempId;
+  if (!key || !_progressCache[key]) return [];
+  const prog = _progressCache[key].progress || {};
+  const pcts = [];
+  [1,2,3,4,5,6,7,8].forEach(n => {
+    const w = prog[n] || {};
+    if (w.quizScore != null && w.quizTotal) {
+      pcts.push(Math.round((w.quizScore / w.quizTotal) * 100));
+    }
+  });
+  return pcts;
+}
 function avgScore(s) {
-  const fromCache = _projectScoresForStudent(s);
-  const sc = fromCache.length ? fromCache : (s.scores || []);
+  const fromProjects = _projectScoresForStudent(s);
+  if (fromProjects.length) return Math.round(fromProjects.reduce((a,b)=>a+b,0)/fromProjects.length);
+  const fromProgress = _quizScoresFromProgress(s);
+  if (fromProgress.length) return Math.round(fromProgress.reduce((a,b)=>a+b,0)/fromProgress.length);
+  const sc = s.scores || [];
   return sc.length ? Math.round(sc.reduce((a,b)=>a+b,0)/sc.length) : 0;
 }
 function attendRate(s)   {
