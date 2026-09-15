@@ -2885,6 +2885,24 @@ function enterApp() {
   initLibraryFromFirebase();
   updateStreak();
   setTimeout(() => { loadJobReadiness(); loadDueDates(); loadAcronymScores(); }, 400);
+  // Sync progress from Firebase so reflections/scores survive across devices
+  if (_fbDb && state.student.tempId) {
+    _fbDb.ref('mccoe_progress/' + state.student.tempId).once('value', snap => {
+      const fb = snap.val();
+      if (fb && fb.progress) {
+        // Merge: Firebase wins for any week that exists there
+        state.progress = Object.assign({}, state.progress, fb.progress);
+        if (fb.softSkills) state.softSkills = Object.assign({}, state.softSkills, fb.softSkills);
+        if (fb.game && fb.game.xp > (state.game.xp || 0)) state.game = fb.game;
+        saveState();
+        buildNav();
+        updateOverallProgress();
+        renderStudentDashboard();
+        // Refresh current week view if open so textarea fills in
+        if (currentWeek) renderWeek(currentWeek);
+      }
+    });
+  }
 }
 
 function doLogout() {
@@ -4140,6 +4158,11 @@ function submitWeek(weekNum) {
       reflScore:   p.reflection.length > 50 ? '15/15' : '8/15'
     }
   };
+
+  // Save to Firebase so admin tracker sees it immediately
+  if (_fbDb && state.student.tempId) {
+    _fbDb.ref('mccoe_submissions/' + state.student.tempId + '/week' + w.num).set(submission);
+  }
 
   // Save submission file
   const blob = new Blob([JSON.stringify(submission, null, 2)], {type:'application/json'});
