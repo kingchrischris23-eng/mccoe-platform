@@ -1132,7 +1132,10 @@ select option { background:var(--surface); color:var(--text); }
       <h2>🎮 Academy Scores</h2>
       <p>Live CyberSec Academy activity — quiz, SOC simulator, and phishing scores per student</p>
     </div>
-    <button class="btn btn-outline" onclick="loadAcademyScores()">↻ Refresh</button>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-outline" onclick="loadAcademyScores()">↻ Refresh</button>
+      <button class="btn" style="background:var(--red);color:#fff;" onclick="fixInflatedAcademyScores()">🔧 Fix Inflated Scores</button>
+    </div>
   </div>
 
   <!-- Tab toggle -->
@@ -2614,6 +2617,35 @@ function saveAcademyGrade(studentKey, week, value) {
   if (!_fbDb) return;
   var score = value === '' ? null : Math.min(100, Math.max(0, parseInt(value)));
   _fbDb.ref('mccoe_academy/' + studentKey + '/weeklyGrades/' + week).set(score);
+}
+
+function fixInflatedAcademyScores() {
+  if (!_fbDb) { alert('Firebase not connected.'); return; }
+  if (!confirm('This will cap all students\' quiz points at 100 and recalculate their total scores. Continue?')) return;
+  _fbDb.ref('mccoe_academy').once('value', snap => {
+    const data = snap.val();
+    if (!data) { alert('No Academy scores found.'); return; }
+    const updates = {};
+    let fixed = 0;
+    Object.entries(data).forEach(([key, d]) => {
+      const quizPts  = Math.min(d.quizPts  || 0, 100);
+      const socPts   = d.socPts   || 0;
+      const phishPts = d.phishPts || 0;
+      const flashPts = d.flashPts || 0;
+      const newTotal = quizPts + socPts + phishPts + flashPts;
+      if (newTotal !== (d.totalScore || 0) || quizPts !== (d.quizPts || 0)) {
+        updates['mccoe_academy/' + key + '/quizPts']    = quizPts;
+        updates['mccoe_academy/' + key + '/totalScore'] = newTotal;
+        fixed++;
+      }
+    });
+    if (!fixed) { alert('No inflated scores found — all students look clean.'); return; }
+    _fbDb.ref().update(updates, err => {
+      if (err) { alert('Error: ' + err.message); return; }
+      alert('Fixed ' + fixed + ' student record(s). Scores are now capped at 100 quiz pts.');
+      loadAcademyScores();
+    });
+  });
 }
 
 function loadAcademyScores() {
