@@ -638,9 +638,13 @@ function buildCatFilter() {
   }).join('');
 }
 function setCategory(c) {
+  score -= _quizPts;
+  _quizPts = 0;
   activeCategory = c;
   QS = c==='All' ? QS_ALL.slice() : QS_ALL.filter(function(q){ return q.c===c; });
   qi = 0;
+  document.getElementById('pts').textContent = score;
+  updateRank();
   buildCatFilter();
   renderQ();
 }
@@ -648,9 +652,13 @@ function setCategory(c) {
 var qi = 0, answered = false;
 
 function initQuiz() {
+  score -= _quizPts;
+  _quizPts = 0;
   qi = 0;
   QS = QS_ALL.slice();
   activeCategory = 'All';
+  document.getElementById('pts').textContent = score;
+  updateRank();
   buildCatFilter();
   renderQ();
 }
