@@ -3551,7 +3551,8 @@ function renderDashboard() {
   // KPIs
   const total     = students.length || 1;
   const avgAtt    = Math.round(students.reduce((a,s)=>a+attendRate(s),0)/total);
-  const avgSc     = Math.round(students.reduce((a,s)=>a+avgScore(s),0)/total);
+  const scoredStudents = students.filter(s => avgScore(s) > 0);
+  const avgSc     = scoredStudents.length ? Math.round(scoredStudents.reduce((a,s)=>a+avgScore(s),0)/scoredStudents.length) : 0;
   const totalHrs  = students.reduce((a,s)=>a+(s.hours||0),0);
   const certsPassed = students.reduce((a,s)=>a+Object.values(s.certs||{}).filter(v=>v==='passed').length,0);
   const withSurveys = students.filter(s=>(s.surveys||[]).length);
@@ -3858,7 +3859,8 @@ function renderLoginMap() {
         const ld = s.portalTempId ? _loginsCache[s.portalTempId] : null;
         return ld && ld.lastLogin && (now - new Date(ld.lastLogin).getTime()) < 86400000;
       }).length;
-      const avgSc = Math.round(students.reduce((a, s) => a + avgScore(s), 0) / (students.length || 1));
+      const _sc = students.filter(s => avgScore(s) > 0);
+      const avgSc = _sc.length ? Math.round(_sc.reduce((a, s) => a + avgScore(s), 0) / _sc.length) : 0;
 
       [['TARGETS', students.length, '#00f5ff'],
        ['ONLINE',  activeNow,       '#00ff41'],
