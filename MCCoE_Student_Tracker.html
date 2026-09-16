@@ -6098,11 +6098,25 @@ function saveManualScore() {
       gradedBy: localStorage.getItem('mccoe_admin_user') || 'Admin'
     }
   };
-  _fbDb.ref('mccoe_submissions/' + _gradeModalTempId + '/week' + _gradeModalWeek).set(manualSub, err => {
+  const savedTempId = _gradeModalTempId;
+  const savedWeek   = _gradeModalWeek;
+  _fbDb.ref('mccoe_submissions/' + savedTempId + '/week' + savedWeek).set(manualSub, err => {
     if (err) { alert('Error saving score: ' + err.message); return; }
     closeGradeModal();
-    renderSubmissionsView();
-    alert('✅ Score saved for ' + stuName + ' — Project ' + _gradeModalWeek + ': ' + score + '/' + meta.max + ' pts');
+    const pct = Math.round(score / meta.max * 100);
+    const col = pct >= 80 ? 'var(--green)' : pct >= 60 ? 'var(--yellow)' : 'var(--red)';
+    document.querySelectorAll('#submissions-matrix-wrap button').forEach(btn => {
+      const m = btn.getAttribute('onclick') || '';
+      if (m.includes("openGradeModal('" + savedTempId + "'," + savedWeek + ")") ||
+          m.includes('openGradeModal("' + savedTempId + '",' + savedWeek + ')')) {
+        btn.style.background = 'rgba(0,166,81,.12)';
+        btn.style.border = '1px solid rgba(0,166,81,.4)';
+        btn.style.color = col;
+        btn.style.fontWeight = '700';
+        btn.innerHTML = score + '/' + meta.max + '<br><span style="font-size:.62rem;opacity:.8;">' + pct + '%</span>';
+      }
+    });
+    alert('Score saved — ' + stuName + ' Project ' + savedWeek + ': ' + score + '/' + meta.max + ' pts');
   });
 }
 
