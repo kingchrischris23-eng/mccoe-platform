@@ -6954,11 +6954,14 @@ function loadMITRESubmissions() {
     // Collect latest submission per student
     const rows = [];
     keys.forEach(key => {
-      const dates = Object.keys(all[key]).sort().reverse();
+      const dates = Object.keys(all[key]).filter(k => k !== 'grade').sort().reverse();
+      if (!dates.length) return;
       const latest = all[key][dates[0]];
+      const stuMatch = students.find(s => s.portalTempId === key);
+      if (stuMatch && !latest.name) latest.name = stuMatch.name;
       rows.push({ key, date: dates[0], sub: latest, allDates: dates });
     });
-    rows.sort((a,b) => (a.sub.name||'').localeCompare(b.sub.name||''));
+    rows.sort((a,b) => (a.sub.name||a.key).localeCompare(b.sub.name||b.key));
 
     const TECHNIQUES = [
       { id:'T1133', label:'T1133 — External Remote Services', fields:[

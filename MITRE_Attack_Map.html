@@ -644,7 +644,7 @@ function loadMITREGrade() {
   var sp   = new URLSearchParams(window.location.search);
   var name = sp.get('name') || localStorage.getItem('hub_name') || '';
   var id   = sp.get('id')   || localStorage.getItem('hub_id')   || '';
-  if (!name || !_fbDb) return;
+  if ((!name && !id) || !_fbDb) return;
   var key = (id || name).replace(/[^a-zA-Z0-9_-]/g, '-');
   _fbDb.ref('mccoe_mitre/' + key + '/grade').once('value', function(snap) {
     var grade = snap.val();
