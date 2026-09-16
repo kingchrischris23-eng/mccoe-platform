@@ -7028,23 +7028,36 @@ function loadMITRESubmissions() {
         ? `<span style="color:var(--muted);font-size:.7rem;">(${r.allDates.length} submission${r.allDates.length>1?'s':''})</span>`
         : '';
 
-      return `<div style="background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;">
-        <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;cursor:pointer;" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
-          <div>
+      const existingGrade = all[r.key].grade;
+      const gradeBadge = existingGrade
+        ? `<span style="background:rgba(0,166,81,.15);border:1px solid rgba(0,166,81,.4);color:var(--green);font-size:.72rem;font-weight:700;padding:3px 10px;border-radius:20px;">${existingGrade.score}/50 pts</span>`
+        : '';
+
+      return `<div id="mitre-card-${ri}" style="background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;">
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <div style="cursor:pointer;" onclick="document.getElementById('mitre-body-${ri}').style.display=document.getElementById('mitre-body-${ri}').style.display==='none'?'block':'none'">
             <span style="font-family:'Orbitron',sans-serif;font-size:.9rem;color:var(--text);">${r.sub.name || r.key}</span>
             <span style="font-size:.72rem;color:var(--muted);margin-left:10px;">${r.sub.studentId || ''}</span>
             ${prevDates}
           </div>
-          <div style="display:flex;align-items:center;gap:12px;">
-            <span style="font-size:.72rem;color:var(--muted);">📅 ${submittedFmt}</span>
-            <span style="font-size:.8rem;color:var(--red);">▼ Expand</span>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            ${gradeBadge}
+            <button onclick="aiGradeMITRE('${r.key}','${r.date}',${ri})" style="padding:6px 14px;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;border:none;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;">🤖 AI Grade</button>
+            <span id="mitre-grade-status-${ri}" style="font-size:.72rem;color:var(--muted);"></span>
+            <span style="font-size:.72rem;color:var(--muted);cursor:pointer;" onclick="document.getElementById('mitre-body-${ri}').style.display=document.getElementById('mitre-body-${ri}').style.display==='none'?'block':'none'">📅 ${submittedFmt} ▼</span>
           </div>
         </div>
-        <div style="display:none;padding:20px;">
+        <div id="mitre-body-${ri}" style="display:none;padding:20px;">
           <div style="font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--red);letter-spacing:1px;margin-bottom:14px;">PART B — TECHNIQUE MAPPING</div>
           ${techRows}
           <div style="font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--cyan);letter-spacing:1px;margin:16px 0 12px;">PART C — CRITICAL THINKING</div>
           ${critRows}
+          <div id="mitre-grade-result-${ri}">
+            ${existingGrade ? `<div style="margin-top:16px;padding:14px;background:rgba(0,166,81,.08);border:1px solid rgba(0,166,81,.3);border-radius:8px;">
+              <div style="font-size:.72rem;color:var(--green);font-weight:700;margin-bottom:6px;">AI GRADE — ${existingGrade.score}/50 pts &nbsp;|&nbsp; Graded ${existingGrade.gradedAt ? existingGrade.gradedAt.slice(0,10) : ''}</div>
+              <div style="font-size:.82rem;color:var(--text);line-height:1.7;white-space:pre-wrap;">${existingGrade.feedback || ''}</div>
+            </div>` : ''}
+          </div>
         </div>
       </div>`;
     }).join('');
@@ -7052,6 +7065,140 @@ function loadMITRESubmissions() {
     wrap.innerHTML = `<div style="margin-bottom:16px;font-size:.8rem;color:var(--muted);">${rows.length} student submission${rows.length!==1?'s':''} — click any card to expand answers</div>` + html;
   }, err => {
     wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">❌</div><div>Firebase error: ${err.message}</div></div>`;
+  });
+}
+
+function aiGradeMITRE(studentKey, dateKey, cardIdx) {
+  let apiKey = localStorage.getItem('mccoe_ai_key');
+  if (!apiKey) {
+    apiKey = prompt('Enter your Anthropic API key to enable AI grading.\n(Stored locally in your browser — only sent to Anthropic):');
+    if (!apiKey || !apiKey.trim()) return;
+    apiKey = apiKey.trim();
+    localStorage.setItem('mccoe_ai_key', apiKey);
+  }
+
+  const statusEl = document.getElementById('mitre-grade-status-' + cardIdx);
+  const resultEl = document.getElementById('mitre-grade-result-' + cardIdx);
+  const bodyEl   = document.getElementById('mitre-body-' + cardIdx);
+  if (statusEl) { statusEl.textContent = 'Grading...'; statusEl.style.color = 'var(--yellow)'; }
+  if (bodyEl && bodyEl.style.display === 'none') bodyEl.style.display = 'block';
+
+  _fbDb.ref('mccoe_mitre/' + studentKey + '/' + dateKey).once('value', snap => {
+    const sub = snap.val();
+    if (!sub) { if (statusEl) statusEl.textContent = 'No submission data.'; return; }
+    const pb = sub.partB || {};
+    const pc = sub.partC || {};
+
+    const promptText = `You are grading a cybersecurity student's MITRE ATT&CK mapping worksheet about the 2021 Colonial Pipeline ransomware attack.
+
+Grade out of 50 points using this rubric:
+PART B — Technique Mapping (30 pts, 5 pts per technique):
+- T1133 External Remote Services: How Used + Defense
+- T1021 Remote Services (Lateral Movement): Name + How Used + Defense
+- T1048 Exfiltration Over Alt Protocol: Technique ID + How Used + Defense
+- T1490 Inhibit System Recovery: Technique ID + Name + How Used + Defense
+- T1486 Data Encrypted for Impact: Name + How Used + Defense
+- T1489 Service Stop: How Used + Defense
+
+PART C — Critical Thinking (20 pts):
+- Q1 "The Chain Reaction" (7 pts): Explain how the techniques connected in sequence
+- Q2 "The Defender's View" (7 pts): Which detection/prevention control would have had the most impact
+- Q3 "One Control to Rule Them All" (6 pts): Recommend one MITRE mitigation and justify it
+
+STUDENT ANSWERS:
+PART B:
+T1133 — How Used: ${pb.t1133 && pb.t1133.how || '(blank)'}
+T1133 — Defense: ${pb.t1133 && pb.t1133.defense || '(blank)'}
+T1021 — Name: ${pb.t1021 && pb.t1021.name || '(blank)'}
+T1021 — How Used: ${pb.t1021 && pb.t1021.how || '(blank)'}
+T1021 — Defense: ${pb.t1021 && pb.t1021.defense || '(blank)'}
+T1048 — ID: ${pb.t1048 && pb.t1048.id || '(blank)'}
+T1048 — How Used: ${pb.t1048 && pb.t1048.how || '(blank)'}
+T1048 — Defense: ${pb.t1048 && pb.t1048.defense || '(blank)'}
+T1490 — ID: ${pb.t1490 && pb.t1490.id || '(blank)'}
+T1490 — Name: ${pb.t1490 && pb.t1490.name || '(blank)'}
+T1490 — How Used: ${pb.t1490 && pb.t1490.how || '(blank)'}
+T1490 — Defense: ${pb.t1490 && pb.t1490.defense || '(blank)'}
+T1486 — Name: ${pb.t1486 && pb.t1486.name || '(blank)'}
+T1486 — How Used: ${pb.t1486 && pb.t1486.how || '(blank)'}
+T1486 — Defense: ${pb.t1486 && pb.t1486.defense || '(blank)'}
+T1489 — How Used: ${pb.t1489 && pb.t1489.how || '(blank)'}
+T1489 — Defense: ${pb.t1489 && pb.t1489.defense || '(blank)'}
+
+PART C:
+Q1: ${pc.q1 || '(blank)'}
+Q2: ${pc.q2 || '(blank)'}
+Q3: ${pc.q3 || '(blank)'}
+
+Respond in this exact format:
+SCORE: [number out of 50]
+PART_B_SCORE: [number out of 30]
+PART_C_SCORE: [number out of 20]
+FEEDBACK: [2-4 sentences of specific, constructive feedback. Mention what was strong and what needs improvement.]`;
+
+    fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 512,
+        messages: [{ role: 'user', content: promptText }]
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { if (statusEl) { statusEl.textContent = 'API error: ' + data.error.message; statusEl.style.color = 'var(--red)'; } return; }
+      const text = (data.content && data.content[0] && data.content[0].text) || '';
+      const scoreMatch    = text.match(/SCORE:\s*(\d+)/);
+      const feedbackMatch = text.match(/FEEDBACK:\s*([\s\S]+)/);
+      if (!scoreMatch) { if (statusEl) { statusEl.textContent = 'Could not parse AI response.'; statusEl.style.color = 'var(--red)'; } return; }
+      const score    = Math.min(50, Math.max(0, parseInt(scoreMatch[1])));
+      const feedback = feedbackMatch ? feedbackMatch[1].trim() : text;
+
+      if (resultEl) {
+        resultEl.innerHTML = `<div style="margin-top:16px;padding:14px;background:rgba(21,101,192,.1);border:1px solid rgba(21,101,192,.4);border-radius:8px;">
+          <div style="font-size:.75rem;color:#64b5f6;font-weight:700;margin-bottom:10px;">AI GRADE SUGGESTION — ${score}/50 pts</div>
+          <div style="font-size:.82rem;color:var(--text);line-height:1.7;margin-bottom:14px;white-space:pre-wrap;">${feedback}</div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <label style="font-size:.8rem;color:var(--text);">Final Score:</label>
+            <input id="mitre-final-score-${cardIdx}" type="number" min="0" max="50" value="${score}"
+              style="width:65px;padding:6px 8px;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:.9rem;font-weight:700;text-align:center;">
+            <span style="font-size:.8rem;color:var(--muted);">/ 50 pts</span>
+            <button onclick="saveMITREGrade('${studentKey}',${cardIdx},'${sub.name || studentKey}')" style="padding:7px 18px;background:var(--green);color:#000;border:none;border-radius:6px;font-size:.8rem;font-weight:700;cursor:pointer;">💾 Save Grade</button>
+          </div>
+        </div>`;
+      }
+      if (statusEl) { statusEl.textContent = 'Done — review and save below.'; statusEl.style.color = 'var(--green)'; }
+    })
+    .catch(e => { if (statusEl) { statusEl.textContent = 'Network error.'; statusEl.style.color = 'var(--red)'; } });
+  });
+}
+
+function saveMITREGrade(studentKey, cardIdx, stuName) {
+  const scoreEl = document.getElementById('mitre-final-score-' + cardIdx);
+  if (!scoreEl) return;
+  const score = parseInt(scoreEl.value);
+  if (isNaN(score) || score < 0 || score > 50) { alert('Enter a score between 0 and 50.'); return; }
+  const resultEl  = document.getElementById('mitre-grade-result-' + cardIdx);
+  const feedbackEl = resultEl ? resultEl.querySelector('[style*="pre-wrap"]') : null;
+  const feedback  = feedbackEl ? feedbackEl.textContent.trim() : '';
+  const grade = { score, maxScore: 50, feedback, gradedAt: new Date().toISOString(), gradedBy: localStorage.getItem('mccoe_admin_user') || 'Admin' };
+  _fbDb.ref('mccoe_mitre/' + studentKey + '/grade').set(grade, err => {
+    if (err) { alert('Error saving: ' + err.message); return; }
+    if (resultEl) {
+      resultEl.innerHTML = `<div style="margin-top:16px;padding:14px;background:rgba(0,166,81,.08);border:1px solid rgba(0,166,81,.3);border-radius:8px;">
+        <div style="font-size:.72rem;color:var(--green);font-weight:700;margin-bottom:6px;">AI GRADE — ${score}/50 pts &nbsp;|&nbsp; Saved</div>
+        <div style="font-size:.82rem;color:var(--text);line-height:1.7;white-space:pre-wrap;">${feedback}</div>
+      </div>`;
+    }
+    const statusEl = document.getElementById('mitre-grade-status-' + cardIdx);
+    if (statusEl) { statusEl.textContent = score + '/50 saved'; statusEl.style.color = 'var(--green)'; }
+    alert('Grade saved — ' + stuName + ': ' + score + '/50 pts');
   });
 }
 
