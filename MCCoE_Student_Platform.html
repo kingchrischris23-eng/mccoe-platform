@@ -2399,8 +2399,14 @@ function saveState() {
 }
 function getWeekProgress(num) {
   if (!state.progress[num]) state.progress[num] = { quizScore:null, quizTotal:null, labsChecked:[], objectivesChecked:[], reflection:'', submitted:false };
-  if (!state.progress[num].objectivesChecked) state.progress[num].objectivesChecked = [];
-  return state.progress[num];
+  const p = state.progress[num];
+  if (!Array.isArray(p.labsChecked))      p.labsChecked      = [];
+  if (!Array.isArray(p.objectivesChecked)) p.objectivesChecked = [];
+  if (p.reflection === undefined)          p.reflection        = '';
+  if (p.quizScore  === undefined)          p.quizScore         = null;
+  if (p.quizTotal  === undefined)          p.quizTotal         = null;
+  if (p.submitted  === undefined)          p.submitted         = false;
+  return p;
 }
 function getSoftSkillProgress(id) {
   if (!state.softSkills) state.softSkills = {};
