@@ -528,6 +528,20 @@ body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monosp
 
     <button id="submit-btn" onclick="submitMITREMapping()">🗺️ SUBMIT MAPPING</button>
     <div id="submit-status"></div>
+    <div id="mitre-grade-panel" style="display:none;margin-top:24px;background:rgba(0,166,81,.08);border:1px solid rgba(0,166,81,.35);border-radius:12px;padding:20px 24px;">
+      <div style="font-family:'Orbitron',sans-serif;font-size:.8rem;color:#00e676;letter-spacing:1px;margin-bottom:12px;">// YOUR GRADE</div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px;flex-wrap:wrap;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:2rem;color:#00e676;" id="grade-score-display">—</div>
+        <div>
+          <div style="font-size:.75rem;color:rgba(255,255,255,.5);">out of 50 points</div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,.4);margin-top:2px;" id="grade-date-display"></div>
+        </div>
+      </div>
+      <div style="font-size:.85rem;color:rgba(255,255,255,.8);line-height:1.8;white-space:pre-wrap;" id="grade-feedback-display"></div>
+    </div>
+    <div id="no-grade-panel" style="display:none;margin-top:16px;padding:12px 18px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);border-radius:8px;font-size:.8rem;color:rgba(255,255,255,.45);text-align:center;">
+      No grade yet — your instructor will grade your submission and it will appear here automatically.
+    </div>
   </div>
 </div>
 
@@ -566,6 +580,7 @@ function showPanel(name, btn) {
     var p = '?name=' + encodeURIComponent(name) + '&id=' + encodeURIComponent(id);
     document.getElementById('hub-btn').href = 'MCCoE_Hub.html' + p;
   }
+  setTimeout(loadMITREGrade, 1200);
 })();
 
 function submitMITREMapping() {
@@ -614,7 +629,8 @@ function submitMITREMapping() {
       status.textContent = '❌ Error: ' + err.message;
     } else {
       status.style.color = 'var(--green)';
-      status.textContent = '✅ Mapping submitted! Your instructor can now review your answers in the Admin Tracker.';
+      status.textContent = '✅ Mapping submitted! Your instructor will grade it and your score will appear below.';
+      loadMITREGrade();
     }
   });
 }
@@ -622,6 +638,30 @@ function submitMITREMapping() {
 function v(id) {
   var el = document.getElementById(id);
   return el ? el.value.trim() : '';
+}
+
+function loadMITREGrade() {
+  var sp   = new URLSearchParams(window.location.search);
+  var name = sp.get('name') || localStorage.getItem('hub_name') || '';
+  var id   = sp.get('id')   || localStorage.getItem('hub_id')   || '';
+  if (!name || !_fbDb) return;
+  var key = (id || name).replace(/[^a-zA-Z0-9_-]/g, '-');
+  _fbDb.ref('mccoe_mitre/' + key + '/grade').once('value', function(snap) {
+    var grade = snap.val();
+    var gPanel  = document.getElementById('mitre-grade-panel');
+    var ngPanel = document.getElementById('no-grade-panel');
+    if (!gPanel || !ngPanel) return;
+    if (grade && grade.score != null) {
+      document.getElementById('grade-score-display').textContent   = grade.score + '/50';
+      document.getElementById('grade-date-display').textContent    = grade.gradedAt ? 'Graded ' + grade.gradedAt.slice(0,10) : '';
+      document.getElementById('grade-feedback-display').textContent = grade.feedback || '';
+      gPanel.style.display  = 'block';
+      ngPanel.style.display = 'none';
+    } else {
+      gPanel.style.display  = 'none';
+      ngPanel.style.display = 'block';
+    }
+  });
 }
 </script>
 </body>
