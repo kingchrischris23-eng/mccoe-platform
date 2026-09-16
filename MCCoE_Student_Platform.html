@@ -2901,16 +2901,15 @@ function enterApp() {
     _fbDb.ref('mccoe_progress/' + state.student.tempId).once('value', snap => {
       const fb = snap.val();
       if (fb && fb.progress) {
-        // Merge: Firebase wins for any week that exists there
+        const wasOnWeek = currentWeek;
         state.progress = Object.assign({}, state.progress, fb.progress);
         if (fb.softSkills) state.softSkills = Object.assign({}, state.softSkills, fb.softSkills);
         if (fb.game && fb.game.xp > (state.game.xp || 0)) state.game = fb.game;
         saveState();
         buildNav();
         updateOverallProgress();
-        renderStudentDashboard();
-        // Refresh current week view if open so textarea fills in
-        if (currentWeek) renderWeek(currentWeek);
+        if (wasOnWeek) renderWeek(wasOnWeek);
+        else renderStudentDashboard();
       }
     });
   }
