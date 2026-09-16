@@ -5838,6 +5838,11 @@ function renderSubmissionsView() {
                   { name: all[tempId].week1?.studentName || all[tempId].week2?.studentName || tempId, studentId: '—' };
       rows.push({ tempId, name: stu.name, studentId: stu.studentId || '—', weeks: all[tempId] });
     });
+    students.forEach(s => {
+      if (!s.portalTempId) return;
+      if (rows.some(r => r.tempId === s.portalTempId)) return;
+      rows.push({ tempId: s.portalTempId, name: s.name, studentId: s.studentId || '—', weeks: {} });
+    });
     rows.sort((a,b) => a.name.localeCompare(b.name));
 
     let ungradedCount = 0;
