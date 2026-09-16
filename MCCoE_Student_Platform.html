@@ -2531,9 +2531,12 @@ window._dismissIdleWarning = _dismissIdleWarning;
       const data = snap.val() || {};
       _registryCache = Object.values(data);
       localStorage.setItem('mccoe_student_registry', JSON.stringify(_registryCache));
-      // Refresh returning-student list if currently visible
+      // Refresh returning-student lookup if currently visible and something is typed
       const panel = document.getElementById('panel-returning');
-      if (panel && panel.style.display !== 'none') buildReturningList();
+      if (panel && panel.style.display !== 'none') {
+        const inp = document.getElementById('returning-name-input');
+        if (inp && inp.value.trim().length >= 2) lookupReturningStudent(inp.value);
+      }
       // ── Hub SSO: auto-login if coming from Hub with URL params ──
       if (!_hubSSODone) {
         _hubSSODone = true;
@@ -4600,8 +4603,9 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeObjecti
 // INIT
 // ══════════════════════════════════════════════
 loadState();
-if (getRegistry().length) showLoginTab('returning');
-else showLoginTab('register');
+// Always start on Returning tab — Firebase will populate the student list within ~1 sec
+// even on a brand-new device. New students can click "New Student" if not found.
+showLoginTab('returning');
 </script>
 
 <!-- Objective Lesson Modal -->
