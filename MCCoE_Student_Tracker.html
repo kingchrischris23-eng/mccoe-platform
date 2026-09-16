@@ -5855,7 +5855,11 @@ function renderSubmissionsView() {
         const key = 'week' + n;
         const sub = row.weeks[key];
         if (!sub || !sub.submittedAt) {
-          return `<td style="padding:8px 6px;text-align:center;"><span style="font-size:.68rem;color:var(--muted);">—</span></td>`;
+          return `<td style="padding:6px;text-align:center;">
+            <button onclick="openGradeModal('${row.tempId}',${n})" style="background:transparent;border:1px dashed rgba(200,216,232,0.2);color:var(--muted);font-size:.65rem;font-weight:600;padding:4px 8px;border-radius:6px;cursor:pointer;width:100%;">
+              ➕<br><span style="font-size:.6rem;">Enter Score</span>
+            </button>
+          </td>`;
         }
         if (sub.grade) {
           const pct = Math.round(sub.grade.score / PROJECT_META[n].max * 100);
@@ -5915,7 +5919,30 @@ function openGradeModal(tempId, weekNum) {
 
   _fbDb.ref('mccoe_submissions/' + tempId + '/week' + weekNum).once('value', snap => {
     const sub = snap.val();
-    if (!sub) { content.innerHTML = '<div>Submission not found.</div>'; return; }
+    if (!sub) {
+      const meta = PROJECT_META[weekNum];
+      const stuName = (students.find(s => s.portalTempId === tempId) || {}).name || tempId;
+      content.innerHTML = `
+        <div style="margin-bottom:16px;">
+          <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Manual Score Entry</div>
+          <div style="font-size:1rem;font-weight:700;color:var(--text);">${stuName} — Project ${weekNum}: ${meta.incident} (${meta.type})</div>
+          <div style="font-size:.78rem;color:var(--yellow);margin-top:6px;">⚠ No digital submission found. Enter score from paper/email submission.</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+          <label style="font-size:.82rem;color:var(--text);font-weight:600;">Score:</label>
+          <input id="manual-score-input" type="number" min="0" max="${meta.max}" placeholder="0"
+            style="width:80px;padding:8px 10px;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:1rem;font-weight:700;text-align:center;">
+          <span style="font-size:.85rem;color:var(--muted);">/ ${meta.max} pts</span>
+        </div>
+        <div style="margin-bottom:16px;">
+          <label style="font-size:.82rem;color:var(--text);font-weight:600;display:block;margin-bottom:6px;">Feedback (optional):</label>
+          <textarea id="manual-feedback-input" placeholder="Enter feedback for student..."
+            style="width:100%;padding:10px;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:.82rem;resize:vertical;min-height:80px;box-sizing:border-box;"></textarea>
+        </div>
+        <button onclick="saveManualScore()" style="background:var(--green);color:#000;border:none;border-radius:8px;padding:10px 24px;font-weight:700;font-size:.85rem;cursor:pointer;">💾 Save Score</button>
+      `;
+      return;
+    }
     _gradeModalSub = sub;
     const meta = PROJECT_META[weekNum];
     const grade = sub.grade || {};
@@ -6039,6 +6066,38 @@ function saveGrade() {
     closeGradeModal();
     renderSubmissionsView();
     alert('✅ Grade saved! The student will see it the next time they open the Project tab.');
+  });
+}
+
+function saveManualScore() {
+  const scoreEl    = document.getElementById('manual-score-input');
+  const feedbackEl = document.getElementById('manual-feedback-input');
+  if (!scoreEl) return;
+  const score = parseInt(scoreEl.value);
+  const meta  = PROJECT_META[_gradeModalWeek];
+  if (isNaN(score) || score < 0 || score > meta.max) {
+    alert('Please enter a valid score between 0 and ' + meta.max + '.');
+    return;
+  }
+  const stuName = (students.find(s => s.portalTempId === _gradeModalTempId) || {}).name || _gradeModalTempId;
+  const manualSub = {
+    student: { name: stuName, tempId: _gradeModalTempId },
+    week: _gradeModalWeek,
+    submittedAt: new Date().toISOString(),
+    manualEntry: true,
+    grade: {
+      score,
+      maxScore: meta.max,
+      feedback: feedbackEl ? feedbackEl.value.trim() : '',
+      gradedAt: new Date().toISOString(),
+      gradedBy: localStorage.getItem('mccoe_admin_user') || 'Admin'
+    }
+  };
+  _fbDb.ref('mccoe_submissions/' + _gradeModalTempId + '/week' + _gradeModalWeek).set(manualSub, err => {
+    if (err) { alert('Error saving score: ' + err.message); return; }
+    closeGradeModal();
+    renderSubmissionsView();
+    alert('✅ Score saved for ' + stuName + ' — Project ' + _gradeModalWeek + ': ' + score + '/' + meta.max + ' pts');
   });
 }
 
