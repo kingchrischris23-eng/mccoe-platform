@@ -4175,11 +4175,6 @@ function submitWeek(weekNum) {
     }
   };
 
-  // Save to Firebase so admin tracker sees it immediately
-  if (_fbDb && state.student.tempId) {
-    _fbDb.ref('mccoe_submissions/' + state.student.tempId + '/week' + w.num).set(submission);
-  }
-
   // Save submission file
   const blob = new Blob([JSON.stringify(submission, null, 2)], {type:'application/json'});
   const url  = URL.createObjectURL(blob);
