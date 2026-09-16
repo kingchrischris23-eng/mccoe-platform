@@ -616,6 +616,11 @@ hr { border-color: rgba(0,245,255,0.12) !important; }
           onkeydown="if(event.key==='Enter')lookupReturningStudent(document.getElementById('returning-name-input').value)"
           style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:8px;outline:none;"
           autocomplete="off">
+        <div id="fb-connecting" style="font-size:12px;color:#aaa;margin-bottom:6px;display:flex;align-items:center;gap:6px;">
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#aaa;animation:fbpulse 1s infinite;"></span>
+          Connecting to student records...
+        </div>
+        <style>@keyframes fbpulse{0%,100%{opacity:.3}50%{opacity:1}}</style>
         <div id="returning-lookup-result" style="margin-bottom:8px;"></div>
         <div style="text-align:center;font-size:12px;color:#aaa;margin-top:6px;">New student? <a href="#" onclick="showLoginTab('register');return false;" style="color:var(--red);">Register here</a></div>
       </div>
@@ -2531,6 +2536,9 @@ window._dismissIdleWarning = _dismissIdleWarning;
       const data = snap.val() || {};
       _registryCache = Object.values(data);
       localStorage.setItem('mccoe_student_registry', JSON.stringify(_registryCache));
+      // Hide connecting indicator now that Firebase is ready
+      const fbConn = document.getElementById('fb-connecting');
+      if (fbConn) fbConn.style.display = 'none';
       // Refresh returning-student lookup if currently visible and something is typed
       const panel = document.getElementById('panel-returning');
       if (panel && panel.style.display !== 'none') {
