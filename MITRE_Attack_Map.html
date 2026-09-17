@@ -526,8 +526,12 @@ body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monosp
       </div>
     </div>
 
-    <button id="submit-btn" onclick="submitMITREMapping()">🗺️ SUBMIT MAPPING</button>
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:24px;">
+      <button id="submit-btn" onclick="submitMITREMapping()" style="flex:1;min-width:200px;">🗺️ SUBMIT MAPPING</button>
+      <button onclick="saveMITREDraft()" style="padding:14px 24px;background:rgba(0,245,255,.1);border:1px solid rgba(0,245,255,.3);color:var(--cyan);font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:1px;border-radius:8px;cursor:pointer;">💾 SAVE DRAFT</button>
+    </div>
     <div id="submit-status"></div>
+    <div id="draft-status" style="font-size:.75rem;color:var(--muted);margin-top:6px;text-align:right;"></div>
     <div id="mitre-grade-panel" style="display:none;margin-top:24px;background:rgba(0,166,81,.08);border:1px solid rgba(0,166,81,.35);border-radius:12px;padding:20px 24px;">
       <div style="font-family:'Orbitron',sans-serif;font-size:.8rem;color:#00e676;letter-spacing:1px;margin-bottom:12px;">// YOUR GRADE</div>
       <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px;flex-wrap:wrap;">
@@ -582,6 +586,13 @@ function showPanel(name, btn) {
     document.getElementById('hub-btn').href = 'MCCoE_Hub.html' + p;
   }
   setTimeout(loadMITREGrade, 1200);
+  setTimeout(loadMITREDraft, 400);
+  setTimeout(function() {
+    _DRAFT_FIELDS.forEach(function(fid) {
+      var el = document.getElementById(fid);
+      if (el) el.addEventListener('input', _scheduleDraftSave);
+    });
+  }, 600);
 })();
 
 function submitMITREMapping() {
@@ -631,6 +642,9 @@ function submitMITREMapping() {
     } else {
       status.style.color = 'var(--green)';
       status.textContent = '✅ Mapping submitted! Your instructor will grade it and your score will appear below.';
+      localStorage.removeItem(_draftKey());
+      var ds = document.getElementById('draft-status');
+      if (ds) ds.textContent = '';
       loadMITREGrade();
     }
   });
@@ -639,6 +653,54 @@ function submitMITREMapping() {
 function v(id) {
   var el = document.getElementById(id);
   return el ? el.value.trim() : '';
+}
+
+var _DRAFT_FIELDS = ['t1133-how','t1133-def','t1021-name','t1021-how','t1021-def',
+  't1048-id','t1048-how','t1048-def','t1490-id','t1490-name','t1490-how','t1490-def',
+  't1486-name','t1486-how','t1486-def','t1489-how','t1489-def','crit-q1','crit-q2','crit-q3'];
+var _draftTimer = null;
+
+function _draftKey() {
+  var sp = new URLSearchParams(window.location.search);
+  var id = sp.get('id') || localStorage.getItem('hub_id') || sp.get('name') || localStorage.getItem('hub_name') || 'anon';
+  return 'mitre_draft_' + id.replace(/[^a-zA-Z0-9_-]/g, '-');
+}
+
+function saveMITREDraft() {
+  var draft = {};
+  _DRAFT_FIELDS.forEach(function(fid) { draft[fid] = v(fid); });
+  draft._saved = new Date().toISOString();
+  localStorage.setItem(_draftKey(), JSON.stringify(draft));
+  var ds = document.getElementById('draft-status');
+  if (ds) {
+    var t = new Date();
+    ds.textContent = '💾 Draft saved at ' + t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  }
+}
+
+function loadMITREDraft() {
+  var raw = localStorage.getItem(_draftKey());
+  if (!raw) return;
+  try {
+    var draft = JSON.parse(raw);
+    var any = false;
+    _DRAFT_FIELDS.forEach(function(fid) {
+      if (draft[fid]) {
+        var el = document.getElementById(fid);
+        if (el) { el.value = draft[fid]; any = true; }
+      }
+    });
+    if (any && draft._saved) {
+      var ds = document.getElementById('draft-status');
+      var t = new Date(draft._saved);
+      if (ds) ds.textContent = '📂 Draft restored from ' + t.toLocaleDateString([], {month:'short',day:'numeric'}) + ' at ' + t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    }
+  } catch(e) {}
+}
+
+function _scheduleDraftSave() {
+  clearTimeout(_draftTimer);
+  _draftTimer = setTimeout(saveMITREDraft, 1500);
 }
 
 function loadMITREGrade() {
