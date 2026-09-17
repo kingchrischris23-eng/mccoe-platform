@@ -7243,6 +7243,59 @@ function loadRecoveryTool() {
 
   const knownIds = new Set(students.filter(s => s.portalTempId).map(s => s.portalTempId));
 
+  // Also scan deleted students for surviving Firebase data
+  Promise.all([
+    _fbDb.ref('mccoe_tracker_deletions').once('value'),
+    _fbDb.ref('mccoe_submissions').once('value'),
+    _fbDb.ref('mccoe_academy').once('value'),
+    _fbDb.ref('mccoe_checkins').once('value')
+  ]).then(([delSnap, subSnap, acadSnap, checkSnap]) => {
+    const deletions = delSnap.val() || {};
+    const subs  = subSnap.val()  || {};
+    const acad  = acadSnap.val() || {};
+    const checks= checkSnap.val()|| {};
+
+    const deletedWithData = Object.values(deletions).filter(d => {
+      const tid = d.portalTempId;
+      return tid && (subs[tid] || acad[tid] || checks[tid]);
+    });
+
+    if (deletedWithData.length) {
+      const studentOpts = students.map(s => `<option value="${s.portalTempId}">${s.name} (${s.studentId||'—'})</option>`).join('');
+      const deletedHtml = deletedWithData.map((d, i) => {
+        const tid = d.portalTempId;
+        const deletedDate = new Date(d.deletedAt).toLocaleDateString();
+        const hasSubs  = subs[tid]  ? Object.keys(subs[tid]).length  + ' project(s)' : null;
+        const hasAcad  = acad[tid]  ? 'academy scores' : null;
+        const hasChecks= checks[tid]? 'surveys' : null;
+        const found = [hasSubs, hasAcad, hasChecks].filter(Boolean).join(', ');
+        return `<div style="background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.3);border-radius:10px;padding:16px 20px;margin-bottom:12px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div>
+              <div style="font-size:.72rem;color:var(--yellow);font-weight:700;margin-bottom:4px;">DELETED STUDENT — Partial data still in Firebase</div>
+              <div style="font-family:monospace;font-size:.78rem;color:var(--muted);">${tid}</div>
+              <div style="font-size:.82rem;color:var(--text);margin-top:6px;">Deleted: ${deletedDate} &nbsp;·&nbsp; Surviving data: <span style="color:var(--green);">${found}</span></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+              <input id="restore-name-del-${i}" type="text" placeholder="Student name" value=""
+                style="padding:6px 10px;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:.8rem;width:160px;">
+              <button onclick="restoreDeletedStudent('${tid}','restore-name-del-${i}')"
+                style="padding:7px 16px;background:var(--yellow);color:#000;border:none;border-radius:6px;font-size:.8rem;font-weight:700;cursor:pointer;">
+                ↩ Restore
+              </button>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+
+      wrap.insertAdjacentHTML('afterbegin', `
+        <div style="margin-bottom:20px;">
+          <h3 style="font-size:.9rem;color:var(--yellow);margin-bottom:10px;">DELETED STUDENTS WITH SURVIVING DATA</h3>
+          ${deletedHtml}
+        </div>`);
+    }
+  }).catch(() => {});
+
   _fbDb.ref('mccoe_progress').once('value', snap => {
     const all = snap.val() || {};
     const orphans = Object.keys(all).filter(k => !knownIds.has(k));
@@ -7295,6 +7348,35 @@ function loadRecoveryTool() {
         ⚠ Found <strong>${orphans.length}</strong> orphaned record${orphans.length!==1?'s':''} — progress data in Firebase with no matching student. These are usually from re-registrations. Select the correct student and click Restore to recover their scores.
       </div>` + html;
   });
+}
+
+function restoreDeletedStudent(tempId, nameInputId) {
+  const nameEl = document.getElementById(nameInputId);
+  const name = nameEl ? nameEl.value.trim() : '';
+  if (!name) { alert('Please enter the student\'s name first.'); return; }
+  if (!confirm('Re-add ' + name + ' to the tracker?\n\nThis will restore their project submissions, academy scores, and surveys. Their quiz progress and login credentials are gone — they will need to re-register to log in again.')) return;
+
+  const assignedId = _nextAutoId();
+  const newEntry = {
+    id: 'reg_' + Date.now() + '_' + Math.random().toString(36).substr(2,5),
+    portalTempId: null,
+    studentId: assignedId,
+    name: name,
+    cohort: 'Cohort 2026-A',
+    startDate: new Date().toISOString().split('T')[0],
+    phase: 1, hours: 0, socHours: 0,
+    certs: { aplus:'not_started', netplus:'not_started', secplus:'not_started' },
+    employer: '', mentor: '', placement: 'active',
+    notes: 'Restored from deleted student record. Original Firebase ID: ' + tempId,
+    attendance: {}, scores: [], surveys: [], scoreLog: [],
+    notesLog: [{ date: new Date().toISOString().split('T')[0], author: 'Admin', tag: 'General', text: 'Student record restored. Original portal ID: ' + tempId + '. Student must re-register to regain login access.' }]
+  };
+  students.push(newEntry);
+  saveData();
+  renderStudents();
+  renderDashboard();
+  alert('✅ ' + name + ' has been restored to the tracker with ID ' + assignedId + '.\n\nNote: They will need to re-register on the Hub to get login access back. When they do, their surviving project submissions and academy scores will link up automatically.');
+  loadRecoveryTool();
 }
 
 function restoreOrphanData(orphanKey, selectId) {
