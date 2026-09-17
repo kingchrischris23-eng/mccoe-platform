@@ -1972,12 +1972,22 @@ function _assignMissingIds() {
 function _addRegistryEntry(entry) {
   const exists = students.find(s => s.portalTempId === entry.tempId);
   if (exists) return false;
-  // If a manually-added student with same name exists, link them instead of duplicating
-  const byName = students.find(s => !s.portalTempId && s.name && entry.name && s.name.toLowerCase() === entry.name.toLowerCase());
+  // If ANY student with same name exists (manual add OR re-registration), merge instead of duplicating
+  const byName = students.find(s => s.name && entry.name && s.name.toLowerCase() === entry.name.toLowerCase());
   if (byName) {
+    const oldTempId = byName.portalTempId;
     byName.portalTempId = entry.tempId;
     if (!byName.studentId && entry.assignedId) byName.studentId = entry.assignedId;
-    return true; // changed
+    // Copy Firebase progress/logins from old account to new tempId so no data is lost
+    if (_fbDb && oldTempId && oldTempId !== entry.tempId) {
+      const paths = ['mccoe_progress','mccoe_logins','mccoe_hours','mccoe_xp'];
+      paths.forEach(p => {
+        _fbDb.ref(p + '/' + oldTempId).once('value', snap => {
+          if (snap.val()) _fbDb.ref(p + '/' + entry.tempId).set(snap.val());
+        });
+      });
+    }
+    return true;
   }
   const assignedId = entry.assignedId || _nextAutoId();
   // Write the assigned ID back to Firebase so the student sees it too
@@ -2507,8 +2517,10 @@ function loadPendingApprovals() {
     pending.forEach(function(p) {
       var d = p.data;
       var regDate = d.registeredAt ? new Date(d.registeredAt).toLocaleDateString() : '—';
-      html += '<tr>' +
-        '<td><strong>' + (d.name || '—') + '</strong></td>' +
+      var isDup = students.some(function(s) { return s.name && d.name && s.name.toLowerCase() === d.name.toLowerCase(); });
+      var dupWarning = isDup ? '<div style="margin-top:4px;font-size:.7rem;color:var(--yellow);font-weight:700;">⚠ Name already exists — this may be a re-registration. Approving will merge with existing account.</div>' : '';
+      html += '<tr style="' + (isDup ? 'background:rgba(245,166,35,.06);' : '') + '">' +
+        '<td><strong>' + (d.name || '—') + '</strong>' + dupWarning + '</td>' +
         '<td>' + (d.cohort || '—') + '</td>' +
         '<td><span style="font-family:monospace;background:rgba(0,245,255,0.08);padding:2px 8px;border-radius:4px;">' + (d.assignedId || '—') + '</span></td>' +
         '<td>' + regDate + '</td>' +
