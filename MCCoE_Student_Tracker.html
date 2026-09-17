@@ -670,6 +670,9 @@ select option { background:var(--surface); color:var(--text); }
     <span class="nav-icon">📊</span> Live Scoreboard
   </a>
   <div class="nav-section">Admin Tools</div>
+  <button class="nav-btn" onclick="showView('recovery',this)">
+    <span class="nav-icon">🔍</span> Data Recovery
+  </button>
   <button class="nav-btn" onclick="showView('content',this)">
     <span class="nav-icon">⚙️</span> Content Manager
   </button>
@@ -1526,6 +1529,20 @@ select option { background:var(--surface); color:var(--text); }
   </div>
 
   <div id="schedule-list"><div style="color:rgba(200,216,232,0.4);font-size:.85rem;padding:20px 0">No deadlines set yet. Add one above.</div></div>
+</div>
+
+<!-- ═══ DATA RECOVERY ═══ -->
+<div id="view-recovery" class="view">
+  <div class="page-header">
+    <div>
+      <h2>🔍 Data Recovery</h2>
+      <p>Find orphaned student progress data in Firebase that no longer matches a current student account — recover lost quiz scores from re-registrations</p>
+    </div>
+    <button class="btn btn-outline" onclick="loadRecoveryTool()">↻ Scan Firebase</button>
+  </div>
+  <div id="recovery-wrap">
+    <div class="empty-state"><div class="empty-icon">🔍</div><div>Click Scan Firebase to find orphaned progress data</div></div>
+  </div>
 </div>
 
 <!-- ═══ CONTENT MANAGER ═══ -->
@@ -2452,6 +2469,7 @@ function showView(name, btn) {
   if(name==='mitre')        loadMITRESubmissions();
   if(name==='schedule')     loadSchedule();
   if(name==='content')      loadContentManager();
+  if(name==='recovery')     loadRecoveryTool();
 }
 
 // ════════════════════════════════════════════
@@ -7214,6 +7232,97 @@ function saveMITREGrade(studentKey, cardIdx, stuName) {
     const statusEl = document.getElementById('mitre-grade-status-' + cardIdx);
     if (statusEl) { statusEl.textContent = score + '/50 saved'; statusEl.style.color = 'var(--green)'; }
     alert('Grade saved — ' + stuName + ': ' + score + '/50 pts');
+  });
+}
+
+function loadRecoveryTool() {
+  const wrap = document.getElementById('recovery-wrap');
+  if (!wrap) return;
+  if (!_fbDb) { wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div>Firebase not connected</div></div>'; return; }
+  wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">🔍</div><div>Scanning Firebase...</div></div>';
+
+  const knownIds = new Set(students.filter(s => s.portalTempId).map(s => s.portalTempId));
+
+  _fbDb.ref('mccoe_progress').once('value', snap => {
+    const all = snap.val() || {};
+    const orphans = Object.keys(all).filter(k => !knownIds.has(k));
+
+    if (!orphans.length) {
+      wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">✅</div><div>No orphaned data found — all Firebase progress records match a current student.</div></div>';
+      return;
+    }
+
+    const rows = orphans.map(key => {
+      const prog = all[key].progress || {};
+      const weeks = [1,2,3,4,5,6,7,8].filter(n => prog[n] && prog[n].quizScore != null);
+      const scores = weeks.map(n => {
+        const w = prog[n];
+        return 'Wk' + n + ': ' + w.quizScore + '/' + w.quizTotal;
+      });
+      const xp    = all[key].game ? all[key].game.xp : 0;
+      const level = all[key].game ? all[key].game.level : 1;
+      return { key, weeks: weeks.length, scores, xp, level };
+    });
+
+    const studentOpts = students.map(s => `<option value="${s.portalTempId}">${s.name} (${s.studentId || '—'})</option>`).join('');
+
+    const html = rows.map((r, i) => `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:14px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <div>
+            <div style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Orphaned Firebase Key</div>
+            <div style="font-family:monospace;font-size:.82rem;color:var(--yellow);">${r.key}</div>
+            <div style="margin-top:8px;font-size:.8rem;color:var(--text);">
+              ${r.weeks} week${r.weeks!==1?'s':''} of quiz data &nbsp;·&nbsp; XP: ${r.xp} &nbsp;·&nbsp; Level ${r.level}
+            </div>
+            <div style="margin-top:4px;font-size:.75rem;color:var(--muted);">${r.scores.join(' &nbsp; ') || 'No quiz scores recorded'}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <select id="recover-target-${i}" style="padding:6px 10px;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:6px;font-size:.8rem;">
+              <option value="">— Select student to restore to —</option>
+              ${studentOpts}
+            </select>
+            <button onclick="restoreOrphanData('${r.key}', 'recover-target-${i}')"
+              style="padding:7px 16px;background:var(--green);color:#000;border:none;border-radius:6px;font-size:.8rem;font-weight:700;cursor:pointer;">
+              ↩ Restore
+            </button>
+          </div>
+        </div>
+      </div>`).join('');
+
+    wrap.innerHTML = `
+      <div style="background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.3);border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:.82rem;color:var(--yellow);">
+        ⚠ Found <strong>${orphans.length}</strong> orphaned record${orphans.length!==1?'s':''} — progress data in Firebase with no matching student. These are usually from re-registrations. Select the correct student and click Restore to recover their scores.
+      </div>` + html;
+  });
+}
+
+function restoreOrphanData(orphanKey, selectId) {
+  const sel = document.getElementById(selectId);
+  if (!sel || !sel.value) { alert('Please select a student to restore this data to.'); return; }
+  const targetTempId = sel.value;
+  const stu = students.find(s => s.portalTempId === targetTempId);
+  const stuName = stu ? stu.name : targetTempId;
+  if (!confirm('Restore orphaned data to ' + stuName + '?\n\nThis will copy quiz scores, XP, and progress from the old account into their current account. Their current data will be merged (existing scores are not overwritten).')) return;
+
+  const paths = ['mccoe_progress', 'mccoe_logins', 'mccoe_hours', 'mccoe_xp'];
+  let done = 0;
+  paths.forEach(p => {
+    _fbDb.ref(p + '/' + orphanKey).once('value', snap => {
+      const data = snap.val();
+      done++;
+      if (data) {
+        _fbDb.ref(p + '/' + targetTempId).once('value', existSnap => {
+          const existing = existSnap.val() || {};
+          const merged = Object.assign({}, data, existing);
+          _fbDb.ref(p + '/' + targetTempId).set(merged);
+        });
+      }
+      if (done === paths.length) {
+        alert('✅ Data restored to ' + stuName + '!\n\nHave them log out and back in — their quiz scores and XP will appear.');
+        loadRecoveryTool();
+      }
+    });
   });
 }
 
