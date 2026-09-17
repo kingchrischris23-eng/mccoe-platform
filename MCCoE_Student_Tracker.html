@@ -653,6 +653,9 @@ select option { background:var(--surface); color:var(--text); }
   <button class="nav-btn" onclick="showView('mitre',this)">
     <span class="nav-icon">🗺️</span> MITRE Mapping
   </button>
+  <button class="nav-btn" onclick="showView('nist',this)">
+    <span class="nav-icon">🏛️</span> NIST CSF Mapping
+  </button>
   <div class="nav-section">Resources</div>
   <button class="nav-btn" onclick="showView('rubric',this)">
     <span class="nav-icon">📝</span> Exec Summary Rubric
@@ -1275,6 +1278,18 @@ select option { background:var(--surface); color:var(--text); }
     <button class="btn-primary" onclick="loadMITRESubmissions()">↻ Refresh</button>
   </div>
   <div id="mitre-submissions-wrap"></div>
+</div>
+
+<!-- ═══ NIST CSF MAPPING SUBMISSIONS ═══ -->
+<div id="view-nist" class="view">
+  <div class="page-header">
+    <div>
+      <h2>🏛️ NIST CSF 2.0 Mapping Submissions</h2>
+      <p>Student worksheet submissions from the SolarWinds NIST CSF 2.0 Analysis Tool</p>
+    </div>
+    <button class="btn-primary" onclick="loadNISTSubmissions()">↻ Refresh</button>
+  </div>
+  <div id="nist-submissions-wrap"></div>
 </div>
 
 <!-- ═══ EXEC SUMMARY RUBRIC ═══ -->
@@ -2467,6 +2482,7 @@ function showView(name, btn) {
   if(name==='ctf')          loadCTFScores();
   if(name==='tickets')      loadTicketManager();
   if(name==='mitre')        loadMITRESubmissions();
+  if(name==='nist')         loadNISTSubmissions();
   if(name==='schedule')     loadSchedule();
   if(name==='content')      loadContentManager();
   if(name==='recovery')     loadRecoveryTool();
@@ -7230,6 +7246,209 @@ function saveMITREGrade(studentKey, cardIdx, stuName) {
       </div>`;
     }
     const statusEl = document.getElementById('mitre-grade-status-' + cardIdx);
+    if (statusEl) { statusEl.textContent = score + '/50 saved'; statusEl.style.color = 'var(--green)'; }
+    alert('Grade saved — ' + stuName + ': ' + score + '/50 pts');
+  });
+}
+
+// ─── NIST CSF MAPPING ───────────────────────────────────────────────────────
+
+function loadNISTSubmissions() {
+  const wrap = document.getElementById('nist-submissions-wrap');
+  if (!wrap) return;
+  if (!_fbDb) { wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><div>Firebase not connected</div></div>'; return; }
+  wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">⏳</div><div>Loading submissions...</div></div>';
+
+  _fbDb.ref('mccoe_nist').once('value', snap => {
+    const all = snap.val() || {};
+    const keys = Object.keys(all);
+    if (!keys.length) {
+      wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div>No NIST CSF mapping submissions yet</div></div>';
+      return;
+    }
+
+    const rows = [];
+    keys.forEach(key => {
+      const dates = Object.keys(all[key]).filter(k => k !== 'grade').sort().reverse();
+      if (!dates.length) return;
+      const latest = all[key][dates[0]];
+      const grade  = all[key].grade || null;
+      const stuMatch = students.find(s => s.portalTempId === key);
+      if (stuMatch && !latest.name) latest.name = stuMatch.name;
+      rows.push({ key, date: dates[0], sub: latest, grade });
+    });
+
+    if (!rows.length) {
+      wrap.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><div>No submissions found</div></div>';
+      return;
+    }
+
+    wrap.innerHTML = rows.map((r, ri) => {
+      const stuName   = r.sub.name || r.key;
+      const stuId     = r.sub.studentId || '—';
+      const submitted = r.sub.submitted ? new Date(r.sub.submitted).toLocaleDateString() : r.date;
+      const gradeHdr  = r.grade ? `<span style="font-size:.72rem;font-weight:700;color:var(--green);">${r.grade.score}/50 pts</span>` : `<span style="font-size:.72rem;color:var(--muted);">Not graded</span>`;
+
+      const fnLabels = {govern:'GV — Govern',identify:'ID — Identify',protect:'PR — Protect',detect:'DE — Detect',respond:'RS — Respond',recover:'RC — Recover'};
+
+      let partBHtml = '';
+      if (r.sub.partB) {
+        Object.keys(fnLabels).forEach(fn => {
+          const d = r.sub.partB[fn] || {};
+          partBHtml += `<div style="margin-bottom:14px;padding:12px 14px;background:rgba(0,0,0,.2);border-radius:8px;border-left:3px solid rgba(66,165,245,.3);">
+            <div style="font-size:.65rem;color:#64b5f6;font-weight:700;letter-spacing:.5px;margin-bottom:6px;text-transform:uppercase;">${fnLabels[fn]}</div>
+            <div style="font-size:.7rem;color:var(--muted);margin-bottom:2px;">Failure identified:</div>
+            <div style="font-size:.8rem;color:var(--text);margin-bottom:8px;white-space:pre-wrap;">${d.failure || '<em style="color:var(--muted)">No answer</em>'}</div>
+            <div style="font-size:.7rem;color:var(--muted);margin-bottom:2px;">Control proposed:</div>
+            <div style="font-size:.8rem;color:var(--text);white-space:pre-wrap;">${d.control || '<em style="color:var(--muted)">No answer</em>'}</div>
+          </div>`;
+        });
+      }
+
+      const cQ1 = r.sub.partC && r.sub.partC.q1 ? r.sub.partC.q1 : '';
+      const cQ2 = r.sub.partC && r.sub.partC.q2 ? r.sub.partC.q2 : '';
+      const cQ3 = r.sub.partC && r.sub.partC.q3 ? r.sub.partC.q3 : '';
+
+      const gradeSection = r.grade ? `<div style="margin-top:16px;padding:14px;background:rgba(0,166,81,.08);border:1px solid rgba(0,166,81,.3);border-radius:8px;">
+        <div style="font-size:.72rem;color:var(--green);font-weight:700;margin-bottom:6px;">SAVED GRADE — ${r.grade.score}/50 pts</div>
+        <div style="font-size:.82rem;color:var(--text);line-height:1.7;white-space:pre-wrap;">${r.grade.feedback || ''}</div>
+      </div>` : '';
+
+      return `<div id="nist-card-${ri}" style="background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;">
+        <div style="padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <div style="cursor:pointer;" onclick="document.getElementById('nist-body-${ri}').style.display=document.getElementById('nist-body-${ri}').style.display==='none'?'block':'none'">
+            <div style="font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--text);">${stuName} <span style="color:var(--muted);font-size:.72rem;">${stuId}</span></div>
+            <div style="font-size:.72rem;color:var(--muted);margin-top:2px;">SolarWinds NIST CSF 2.0 Analysis</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            ${gradeHdr}
+            <button onclick="aiGradeNIST('${r.key}','${r.date}',${ri})" style="padding:6px 14px;background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;border:none;border-radius:6px;font-size:.75rem;font-weight:700;cursor:pointer;">🤖 AI Grade</button>
+            <span id="nist-grade-status-${ri}" style="font-size:.72rem;color:var(--muted);"></span>
+            <span style="font-size:.72rem;color:var(--muted);cursor:pointer;" onclick="document.getElementById('nist-body-${ri}').style.display=document.getElementById('nist-body-${ri}').style.display==='none'?'block':'none'">📅 ${submitted} ▼</span>
+          </div>
+        </div>
+        <div id="nist-body-${ri}" style="display:none;padding:20px;">
+          <div style="font-size:.75rem;color:var(--muted);font-weight:700;letter-spacing:.5px;margin-bottom:12px;text-transform:uppercase;">Part B — 6 CSF Functions</div>
+          ${partBHtml}
+          <div style="font-size:.75rem;color:var(--muted);font-weight:700;letter-spacing:.5px;margin:16px 0 10px;text-transform:uppercase;">Part C — Critical Thinking</div>
+          ${[['Q1 — Trust is a Vulnerability',cQ1],['Q2 — GOVERN Function',cQ2],['Q3 — One Control',cQ3]].map(([lbl,ans])=>`<div style="margin-bottom:12px;"><div style="font-size:.7rem;color:#64b5f6;margin-bottom:4px;">${lbl}</div><div style="font-size:.82rem;color:var(--text);white-space:pre-wrap;">${ans || '<em style="color:var(--muted)">No answer</em>'}</div></div>`).join('')}
+          <div id="nist-grade-result-${ri}">
+            ${gradeSection}
+            <div style="margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <label style="font-size:.78rem;color:var(--muted);">Final Score (0–50):</label>
+              <input id="nist-final-score-${ri}" type="number" min="0" max="50" value="${r.grade ? r.grade.score : ''}"
+                style="width:70px;background:rgba(0,0,0,.4);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:.9rem;font-weight:700;">
+              <button onclick="saveNISTGrade('${r.key}',${ri},'${stuName}')" style="padding:7px 18px;background:var(--green);color:#000;border:none;border-radius:6px;font-size:.8rem;font-weight:700;cursor:pointer;">💾 Save Grade</button>
+            </div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  });
+}
+
+function aiGradeNIST(studentKey, dateKey, cardIdx) {
+  const aiKey = localStorage.getItem('mccoe_ai_key');
+  if (!aiKey) {
+    alert('No Anthropic API key found. Enter your key in Admin Tools → AI Grading Key.');
+    return;
+  }
+  if (!_fbDb) return;
+
+  const statusEl = document.getElementById('nist-grade-status-' + cardIdx);
+  const resultEl = document.getElementById('nist-grade-result-' + cardIdx);
+  const bodyEl   = document.getElementById('nist-body-' + cardIdx);
+
+  if (statusEl) { statusEl.textContent = '🤖 Grading...'; statusEl.style.color = '#64b5f6'; }
+  if (bodyEl) bodyEl.style.display = 'block';
+
+  _fbDb.ref('mccoe_nist/' + studentKey + '/' + dateKey).once('value', snap => {
+    const sub = snap.val();
+    if (!sub) { if (statusEl) statusEl.textContent = 'No submission found.'; return; }
+
+    const b = sub.partB || {};
+    const c = sub.partC || {};
+
+    const promptText = `You are grading a cybersecurity student's NIST CSF 2.0 worksheet about the 2020 SolarWinds supply chain attack.
+
+RUBRIC — 50 points total:
+PART B (30 points — 5 per function):
+Each function is worth 5 pts: Govern (GV), Identify (ID), Protect (PR), Detect (DE), Respond (RS), Recover (RC).
+For each: 5=specific, accurate failure + strong control; 4=mostly correct; 3=basic understanding; 2=vague; 1=minimal; 0=blank.
+
+PART C (20 points):
+- Q1 "Trust is a Vulnerability" (7 pts): Must explain WHY signing alone fails + name a defense-in-depth principle
+- Q2 "GOVERN Function" (7 pts): Must distinguish technical vs governance controls with SolarWinds examples
+- Q3 "One Control" (6 pts): Must name a specific function + specific control + justify with breach evidence
+
+STUDENT SUBMISSION:
+GOVERN: Failure: ${b.govern?.failure || ''} | Control: ${b.govern?.control || ''}
+IDENTIFY: Failure: ${b.identify?.failure || ''} | Control: ${b.identify?.control || ''}
+PROTECT: Failure: ${b.protect?.failure || ''} | Control: ${b.protect?.control || ''}
+DETECT: Failure: ${b.detect?.failure || ''} | Control: ${b.detect?.control || ''}
+RESPOND: Failure: ${b.respond?.failure || ''} | Control: ${b.respond?.control || ''}
+RECOVER: Failure: ${b.recover?.failure || ''} | Control: ${b.recover?.control || ''}
+Q1: ${c.q1 || ''}
+Q2: ${c.q2 || ''}
+Q3: ${c.q3 || ''}
+
+Return ONLY valid JSON (no markdown): {"score": <0-50>, "breakdown": {"govern":<0-5>,"identify":<0-5>,"protect":<0-5>,"detect":<0-5>,"respond":<0-5>,"recover":<0-5>,"q1":<0-7>,"q2":<0-7>,"q3":<0-6>}, "feedback": "<2-4 sentences with specific strengths and what to improve>"}`;
+
+    fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': aiKey, 'anthropic-version': '2023-06-01', 'content-type': 'application/json', 'anthropic-dangerous-direct-browser-access': 'true' },
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 600, messages: [{ role: 'user', content: promptText }] })
+    })
+    .then(r => r.json())
+    .then(data => {
+      const raw = data?.content?.[0]?.text || '';
+      let result;
+      try { result = JSON.parse(raw); } catch(e) { const m = raw.match(/\{[\s\S]*\}/); result = m ? JSON.parse(m[0]) : null; }
+      if (!result) throw new Error('Could not parse AI response');
+
+      const score   = result.score || 0;
+      const bk      = result.breakdown || {};
+      const feedback= result.feedback  || '';
+
+      const bkHtml = `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0;">
+        ${[['GV',bk.govern,5],['ID',bk.identify,5],['PR',bk.protect,5],['DE',bk.detect,5],['RS',bk.respond,5],['RC',bk.recover,5],['Q1',bk.q1,7],['Q2',bk.q2,7],['Q3',bk.q3,6]].map(([l,v,m])=>`<div style="background:rgba(0,0,0,.3);border-radius:6px;padding:6px 10px;font-size:.72rem;"><span style="color:var(--muted);">${l}: </span><span style="color:#64b5f6;font-weight:700;">${v||0}/${m}</span></div>`).join('')}
+      </div>`;
+
+      if (resultEl) resultEl.innerHTML = `<div style="margin-top:16px;padding:14px;background:rgba(21,101,192,.1);border:1px solid rgba(66,165,245,.3);border-radius:8px;">
+        <div style="font-size:.72rem;color:#64b5f6;font-weight:700;margin-bottom:6px;">AI GRADE — ${score}/50 pts</div>
+        ${bkHtml}
+        <div style="font-size:.82rem;color:var(--text);line-height:1.7;white-space:pre-wrap;margin-top:10px;">${feedback}</div>
+        <div style="margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <label style="font-size:.78rem;color:var(--muted);">Final Score (0–50):</label>
+          <input id="nist-final-score-${cardIdx}" type="number" min="0" max="50" value="${score}"
+            style="width:70px;background:rgba(0,0,0,.4);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:.9rem;font-weight:700;">
+          <button onclick="saveNISTGrade('${studentKey}',${cardIdx},'${sub.name || studentKey}')" style="padding:7px 18px;background:var(--green);color:#000;border:none;border-radius:6px;font-size:.8rem;font-weight:700;cursor:pointer;">💾 Save Grade</button>
+        </div>
+      </div>`;
+      if (statusEl) { statusEl.textContent = score + '/50 — review & save'; statusEl.style.color = '#64b5f6'; }
+    })
+    .catch(e => { if (statusEl) { statusEl.textContent = 'Error: ' + e.message; statusEl.style.color = 'var(--red)'; } });
+  });
+}
+
+function saveNISTGrade(studentKey, cardIdx, stuName) {
+  const scoreEl = document.getElementById('nist-final-score-' + cardIdx);
+  if (!scoreEl) return;
+  const score = parseInt(scoreEl.value);
+  if (isNaN(score) || score < 0 || score > 50) { alert('Enter a score between 0 and 50.'); return; }
+  const resultEl   = document.getElementById('nist-grade-result-' + cardIdx);
+  const feedbackEl = resultEl ? resultEl.querySelector('[style*="pre-wrap"]') : null;
+  const feedback   = feedbackEl ? feedbackEl.textContent.trim() : '';
+  const grade = { score, maxScore: 50, feedback, gradedAt: new Date().toISOString(), gradedBy: localStorage.getItem('mccoe_admin_user') || 'Admin' };
+  _fbDb.ref('mccoe_nist/' + studentKey + '/grade').set(grade, err => {
+    if (err) { alert('Error saving: ' + err.message); return; }
+    if (resultEl) {
+      resultEl.innerHTML = `<div style="margin-top:16px;padding:14px;background:rgba(0,166,81,.08);border:1px solid rgba(0,166,81,.3);border-radius:8px;">
+        <div style="font-size:.72rem;color:var(--green);font-weight:700;margin-bottom:6px;">AI GRADE — ${score}/50 pts &nbsp;|&nbsp; Saved</div>
+        <div style="font-size:.82rem;color:var(--text);line-height:1.7;white-space:pre-wrap;">${feedback}</div>
+      </div>`;
+    }
+    const statusEl = document.getElementById('nist-grade-status-' + cardIdx);
     if (statusEl) { statusEl.textContent = score + '/50 saved'; statusEl.style.color = 'var(--green)'; }
     alert('Grade saved — ' + stuName + ': ' + score + '/50 pts');
   });

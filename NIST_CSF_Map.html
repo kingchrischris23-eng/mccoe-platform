@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NIST CSF 2.0 — SolarWinds Supply Chain Attack | MCCoE</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1565c0;--blue-light:#42a5f5;--green:#00e676;--yellow:#ffd600;--cyan:#00f5ff;--bg:#0a0e1a;--card:#111827;--border:rgba(255,255,255,0.08);--text:#e2e8f0;--muted:#64748b}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;min-height:100vh;}
+
+#hdr{background:linear-gradient(135deg,#0a0e1a 0%,#030d1f 100%);border-bottom:2px solid var(--blue-light);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.hdr-title{font-family:'Orbitron',sans-serif;font-size:1.1rem;color:var(--blue-light);letter-spacing:2px;}
+.hdr-sub{font-size:.75rem;color:var(--muted);margin-top:4px;}
+
+.step-bar{display:flex;gap:0;overflow-x:auto;border-bottom:1px solid var(--border);}
+.step{flex:1;min-width:120px;padding:14px 16px;text-align:center;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;font-size:.72rem;letter-spacing:.5px;color:var(--muted);}
+.step:hover{background:rgba(66,165,245,.06);}
+.step.on{border-bottom-color:var(--blue-light);color:var(--text);background:rgba(66,165,245,.08);}
+.step-num{font-family:'Orbitron',sans-serif;font-size:1.1rem;color:var(--blue-light);display:block;margin-bottom:4px;}
+
+.panel{display:none;padding:32px;}
+.panel.on{display:block;}
+
+/* FUNCTION GRID */
+.fn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:28px;}
+.fn-card{border-radius:10px;padding:16px;border:1px solid var(--border);}
+.fn-id{font-size:.65rem;color:rgba(255,255,255,.4);letter-spacing:.5px;margin-bottom:4px;}
+.fn-name{font-family:'Orbitron',sans-serif;font-size:.85rem;font-weight:700;margin-bottom:6px;}
+.fn-desc{font-size:.75rem;color:rgba(255,255,255,.65);line-height:1.6;}
+.fn-badge{display:inline-block;font-size:.6rem;padding:2px 7px;border-radius:4px;margin-top:6px;font-weight:700;}
+.fn-fail{font-size:.7rem;color:var(--yellow);margin-top:8px;line-height:1.5;}
+
+/* Colors per function */
+.gov{background:rgba(83,52,131,.25);border-color:rgba(156,106,222,.35);}
+.gov .fn-name{color:#b39ddb;}
+.gov .fn-badge{background:rgba(156,106,222,.2);color:#b39ddb;border:1px solid rgba(156,106,222,.3);}
+.iden{background:rgba(21,101,192,.2);border-color:rgba(66,165,245,.35);}
+.iden .fn-name{color:#64b5f6;}
+.iden .fn-badge{background:rgba(66,165,245,.2);color:#64b5f6;border:1px solid rgba(66,165,245,.3);}
+.prot{background:rgba(0,121,107,.2);border-color:rgba(0,230,118,.25);}
+.prot .fn-name{color:#69f0ae;}
+.prot .fn-badge{background:rgba(0,230,118,.15);color:#69f0ae;border:1px solid rgba(0,230,118,.25);}
+.det{background:rgba(230,81,0,.2);border-color:rgba(255,183,77,.3);}
+.det .fn-name{color:#ffb74d;}
+.det .fn-badge{background:rgba(255,183,77,.2);color:#ffb74d;border:1px solid rgba(255,183,77,.3);}
+.rsp{background:rgba(183,28,28,.2);border-color:rgba(239,83,80,.3);}
+.rsp .fn-name{color:#ef9a9a;}
+.rsp .fn-badge{background:rgba(239,83,80,.2);color:#ef9a9a;border:1px solid rgba(239,83,80,.3);}
+.rec{background:rgba(1,87,155,.2);border-color:rgba(79,195,247,.3);}
+.rec .fn-name{color:#81d4fa;}
+.rec .fn-badge{background:rgba(79,195,247,.2);color:#81d4fa;border:1px solid rgba(79,195,247,.3);}
+
+/* STORY */
+.story-step{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:12px;display:flex;gap:16px;align-items:flex-start;}
+.story-num{background:var(--blue);color:#fff;font-family:'Orbitron',sans-serif;font-size:.8rem;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.story-title{font-size:.9rem;font-weight:700;color:var(--text);margin-bottom:4px;}
+.story-desc{font-size:.82rem;color:rgba(255,255,255,.7);line-height:1.6;margin-bottom:8px;}
+.story-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.story-tag{font-size:.65rem;background:rgba(66,165,245,.1);border:1px solid rgba(66,165,245,.25);color:#64b5f6;padding:2px 8px;border-radius:4px;}
+.story-tag.red{background:rgba(239,83,80,.1);border-color:rgba(239,83,80,.25);color:#ef9a9a;}
+.story-tag.yellow{background:rgba(255,183,77,.1);border-color:rgba(255,183,77,.25);color:#ffb74d;}
+
+/* BREAKDOWN CARDS */
+.fn-detail-card{border-radius:12px;margin-bottom:16px;overflow:hidden;border:1px solid var(--border);}
+.fdc-hdr{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);background:rgba(0,0,0,.2);}
+.fdc-fn{font-family:'Orbitron',sans-serif;font-size:.85rem;padding:4px 10px;border-radius:6px;white-space:nowrap;}
+.fdc-name{font-size:.9rem;font-weight:700;color:var(--text);flex:1;}
+.fdc-verdict{font-size:.7rem;padding:3px 9px;border-radius:4px;font-weight:700;}
+.fdc-body{padding:18px 20px;}
+.fdc-label{font-size:.65rem;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;margin-top:12px;}
+.fdc-label:first-child{margin-top:0;}
+.fdc-val{font-size:.84rem;color:var(--text);line-height:1.7;}
+.fdc-sub{font-size:.75rem;color:rgba(255,255,255,.6);margin-top:4px;line-height:1.6;}
+
+/* WORKSHEET */
+.ws-input{width:100%;min-height:80px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.1);color:#e2e8f0;font-family:'Share Tech Mono',monospace;font-size:.85rem;padding:12px;border-radius:8px;resize:vertical;line-height:1.6;}
+.ws-input:focus{outline:none;border-color:var(--blue-light);background:rgba(0,0,0,.5);}
+.ws-input::placeholder{color:var(--muted);}
+.fn-form-card{background:var(--card);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;}
+.ffc-header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);background:rgba(0,0,0,.2);}
+.ffc-badge{font-family:'Orbitron',sans-serif;font-size:.85rem;padding:4px 10px;border-radius:6px;white-space:nowrap;}
+.ffc-name{font-size:.88rem;font-weight:700;color:var(--text);flex:1;}
+.ffc-pts{font-size:.65rem;color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--border);padding:2px 8px;border-radius:4px;white-space:nowrap;}
+.ffc-field{padding:16px 20px;border-bottom:1px solid rgba(255,255,255,.04);}
+.ffc-field:last-child{border-bottom:none;}
+.ffc-label{display:block;font-size:.78rem;color:var(--blue-light);letter-spacing:.3px;margin-bottom:8px;line-height:1.5;}
+
+.sec-title{font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--blue-light);letter-spacing:1.5px;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.intro-box{background:rgba(66,165,245,.06);border:1px solid rgba(66,165,245,.2);border-radius:10px;padding:20px;margin-bottom:28px;font-size:.85rem;line-height:1.8;color:rgba(255,255,255,.85);}
+.intro-box strong{color:var(--blue-light);}
+.ws-note{font-size:.78rem;color:var(--muted);margin-top:12px;padding:10px;background:rgba(0,0,0,.3);border-radius:6px;border-left:3px solid var(--cyan);}
+
+#student-banner{background:rgba(66,165,245,.08);border:1px solid rgba(66,165,245,.25);border-radius:8px;padding:12px 18px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+#student-banner .sb-name{font-family:'Orbitron',sans-serif;font-size:.85rem;color:var(--text);}
+#student-banner .sb-id{font-size:.75rem;color:var(--muted);}
+#submit-btn{display:block;width:100%;padding:16px;background:var(--blue);color:#fff;font-family:'Orbitron',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:1.5px;border:none;border-radius:8px;cursor:pointer;transition:opacity .2s;}
+#submit-btn:hover{opacity:.85;}
+#submit-btn:disabled{opacity:.4;cursor:not-allowed;}
+#submit-status{text-align:center;font-size:.85rem;margin-top:12px;min-height:22px;}
+
+.sub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin:12px 0;}
+.sub-item{background:rgba(0,0,0,.3);border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:.75rem;}
+.sub-item strong{font-family:'Orbitron',sans-serif;font-size:.65rem;color:var(--blue-light);}
+</style>
+</head>
+<body>
+
+<div id="hdr">
+  <div>
+    <div class="hdr-title">🏛️ NIST CSF 2.0 — SOLARWINDS SUPPLY CHAIN ATTACK</div>
+    <div class="hdr-sub">MCCoE Cybersecurity Apprenticeship · Project 5 &amp; 6 Learning Tool</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div style="font-size:.72rem;color:var(--muted);text-align:right;">nist.gov/cyberframework<br><span style="color:var(--blue-light);">CSF 2.0 · 6 Functions</span></div>
+    <a id="hub-btn" href="MCCoE_Hub.html" style="font-family:'Orbitron',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:1px;color:#fff;background:var(--blue);border:none;padding:8px 16px;border-radius:6px;cursor:pointer;text-decoration:none;white-space:nowrap;">⌂ HUB</a>
+  </div>
+</div>
+
+<div id="student-banner">
+  <div class="sb-name">👤 <span id="sb-name-text">Not logged in — launch from Hub checklist</span></div>
+  <div class="sb-id" id="sb-id-text"></div>
+</div>
+
+<!-- STEP NAV -->
+<div class="step-bar">
+  <div class="step on" onclick="showPanel('framework',this)"><span class="step-num">01</span>THE FRAMEWORK</div>
+  <div class="step" onclick="showPanel('story',this)"><span class="step-num">02</span>ATTACK STORY</div>
+  <div class="step" onclick="showPanel('functions',this)"><span class="step-num">03</span>FUNCTION BREAKDOWN</div>
+  <div class="step" onclick="showPanel('worksheet',this)"><span class="step-num">04</span>STUDENT WORKSHEET</div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- PANEL 1: FRAMEWORK -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="panel-framework" class="panel on">
+  <div class="sec-title">// WHAT IS NIST CYBERSECURITY FRAMEWORK 2.0?</div>
+  <div class="intro-box">
+    The NIST Cybersecurity Framework (CSF) 2.0 is a set of <strong>voluntary guidelines</strong> published by the National Institute of Standards and Technology to help organizations manage cybersecurity risk. Released in 2024, version 2.0 added a critical new function: <strong>GOVERN</strong>.<br><br>
+    Where MITRE ATT&CK describes <em>how attackers operate</em>, NIST CSF 2.0 describes <em>how defenders should be organized</em>. The framework asks: "At each stage of a cyber event, what should your organization be doing?"<br><br>
+    The SolarWinds breach is a textbook case study for NIST CSF 2.0 because it exposed failures in <strong>every single function</strong> — from governance to recovery.
+  </div>
+
+  <div class="sec-title">// THE 6 CSF FUNCTIONS — SolarWinds Failures Highlighted</div>
+  <div class="fn-grid">
+    <div class="fn-card gov">
+      <div class="fn-id">GV</div>
+      <div class="fn-name">GOVERN</div>
+      <div class="fn-desc">Establish cybersecurity strategy, policies, roles, and oversight at the leadership level.</div>
+      <div class="fn-badge">NEW in CSF 2.0</div>
+      <div class="fn-fail">⚠ SolarWinds: No governance oversight of software build pipeline. Security was not a board-level priority.</div>
+    </div>
+    <div class="fn-card iden">
+      <div class="fn-id">ID</div>
+      <div class="fn-name">IDENTIFY</div>
+      <div class="fn-desc">Understand your assets, suppliers, and risks — know what you're protecting.</div>
+      <div class="fn-badge">Foundation</div>
+      <div class="fn-fail">⚠ SolarWinds: 18,000+ organizations had no visibility that Orion was a critical-dependency asset in their environment.</div>
+    </div>
+    <div class="fn-card prot">
+      <div class="fn-id">PR</div>
+      <div class="fn-name">PROTECT</div>
+      <div class="fn-desc">Implement safeguards to limit or contain cybersecurity events — access controls, training, data security.</div>
+      <div class="fn-badge">Prevention</div>
+      <div class="fn-fail">⚠ SolarWinds: Build system had no integrity checks. Malicious code was injected into the CI/CD pipeline and signed with a legitimate certificate.</div>
+    </div>
+    <div class="fn-card det">
+      <div class="fn-id">DE</div>
+      <div class="fn-name">DETECT</div>
+      <div class="fn-desc">Develop and implement activities to identify the occurrence of a cybersecurity event.</div>
+      <div class="fn-badge">Visibility</div>
+      <div class="fn-fail">⚠ SolarWinds: Attackers were inside networks for 9–14 months before FireEye discovered their own breach. No anomaly detection caught SUNBURST's beacon traffic.</div>
+    </div>
+    <div class="fn-card rsp">
+      <div class="fn-id">RS</div>
+      <div class="fn-name">RESPOND</div>
+      <div class="fn-desc">Take action regarding a detected cybersecurity incident — contain, analyze, communicate.</div>
+      <div class="fn-badge">Reaction</div>
+      <div class="fn-fail">⚠ SolarWinds: Response required a historic government-industry coordination (CISA Emergency Directive 21-01). Most victim organizations had no playbook for supply chain compromise.</div>
+    </div>
+    <div class="fn-card rec">
+      <div class="fn-id">RC</div>
+      <div class="fn-name">RECOVER</div>
+      <div class="fn-desc">Maintain plans for resilience and restore capabilities after a cybersecurity incident.</div>
+      <div class="fn-badge">Resilience</div>
+      <div class="fn-fail">⚠ SolarWinds: Affected organizations had to rebuild networks from scratch — not just patch a vulnerability. Some agencies took months to confirm they were clean.</div>
+    </div>
+  </div>
+
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:24px;">
+    <div style="font-family:'Orbitron',sans-serif;font-size:.75rem;color:var(--blue-light);letter-spacing:1px;margin-bottom:14px;">// CSF 2.0 vs CSF 1.1 — WHAT CHANGED</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;font-size:.82rem;">
+      <div>
+        <div style="color:var(--muted);font-size:.65rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">CSF 1.1 (2018) — 5 Functions</div>
+        <div style="color:rgba(255,255,255,.7);line-height:1.9;">Identify → Protect → Detect → Respond → Recover<br><span style="color:var(--muted);font-size:.75rem;">Security treated as a technical problem</span></div>
+      </div>
+      <div>
+        <div style="color:var(--blue-light);font-size:.65rem;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">CSF 2.0 (2024) — 6 Functions</div>
+        <div style="color:rgba(255,255,255,.7);line-height:1.9;"><span style="color:#b39ddb;font-weight:700;">Govern</span> → Identify → Protect → Detect → Respond → Recover<br><span style="color:var(--muted);font-size:.75rem;">Security is now a <strong>business governance</strong> problem</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ws-note">💡 <strong>Key insight:</strong> NIST CSF 2.0 added GOVERN because the SolarWinds breach (and others like it) showed that technical controls alone aren't enough. When leadership doesn't treat security as a core business function, no amount of firewalls or patches can compensate. The board must own cybersecurity risk.</div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- PANEL 2: ATTACK STORY -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="panel-story" class="panel">
+  <div class="sec-title">// THE SOLARWINDS SUPPLY CHAIN ATTACK — STEP BY STEP</div>
+  <div class="intro-box">
+    The SolarWinds attack (2020) is one of the most sophisticated cyber espionage operations ever conducted against the United States. Unlike Colonial Pipeline, where attackers entered through a stolen password, SolarWinds attackers <strong>compromised the software itself</strong> — turning a trusted IT management tool into a weapon delivered to 18,000+ customers including the US Treasury, DOJ, Pentagon, and Fortune 500 companies.
+  </div>
+
+  <div class="story-step">
+    <div class="story-num">1</div>
+    <div class="story-body">
+      <div class="story-title">Infiltrate the SolarWinds Build Environment (Oct 2019)</div>
+      <div class="story-desc">Russian SVR hackers (APT29 / Cozy Bear) gained access to SolarWinds' internal software development environment at least 14 months before discovery. They studied the build pipeline, learned how software was compiled and signed, and tested their malicious code as a trial run without deploying it.</div>
+      <div class="story-tags"><span class="story-tag red">GOVERN failure — No supply chain security policy</span><span class="story-tag red">PROTECT failure — Build system accessible</span><span class="story-tag yellow">T1195.002 — Supply Chain Compromise</span></div>
+    </div>
+  </div>
+
+  <div class="story-step">
+    <div class="story-num">2</div>
+    <div class="story-body">
+      <div class="story-title">Inject SUNSPOT Malware into the Build System (Feb 2020)</div>
+      <div class="story-desc">Attackers deployed a tool called SUNSPOT into SolarWinds' CI/CD (continuous integration/continuous delivery) pipeline. SUNSPOT monitored the build process and, when the Orion software was being compiled, it replaced a legitimate source file with a malicious version containing SUNBURST backdoor code — all while hiding its tracks.</div>
+      <div class="story-tags"><span class="story-tag red">PROTECT failure — No build integrity verification</span><span class="story-tag red">PROTECT failure — Code signing did not catch this</span><span class="story-tag yellow">Dwell time: 14+ months undetected</span></div>
+    </div>
+  </div>
+
+  <div class="story-step">
+    <div class="story-num">3</div>
+    <div class="story-body">
+      <div class="story-title">SolarWinds Orion Update Ships with SUNBURST (Mar–Jun 2020)</div>
+      <div class="story-desc">SolarWinds released software updates for Orion (versions 2019.4 through 2020.2.1) that contained the SUNBURST backdoor. Because the updates were digitally signed with SolarWinds' legitimate certificate, every security tool trusted them. Approximately 18,000 organizations installed the poisoned update.</div>
+      <div class="story-tags"><span class="story-tag red">IDENTIFY failure — Organizations didn't track software supply chain risk</span><span class="story-tag red">PROTECT failure — Trusted signature = no inspection</span><span class="story-tag yellow">18,000 organizations affected</span></div>
+    </div>
+  </div>
+
+  <div class="story-step">
+    <div class="story-num">4</div>
+    <div class="story-body">
+      <div class="story-title">SUNBURST Establishes Dormant Backdoor (Mar–May 2020)</div>
+      <div class="story-desc">After installation, SUNBURST waited 12–14 days before activating to avoid sandbox detection. It then checked whether it was in a security researcher's environment. If not, it began "beaconing" — sending periodic encrypted check-in calls to a command-and-control server disguised as legitimate Orion network traffic. Domain: avsvmcloud[.]com.</div>
+      <div class="story-tags"><span class="story-tag red">DETECT failure — C2 traffic blended with legitimate Orion traffic</span><span class="story-tag red">DETECT failure — 12-day delay bypassed most sandboxes</span></div>
+    </div>
+  </div>
+
+  <div class="story-step">
+    <div class="story-num">5</div>
+    <div class="story-body">
+      <div class="story-title">Selective Exploitation of High-Value Targets (May–Dec 2020)</div>
+      <div class="story-desc">From 18,000 infected organizations, attackers selectively activated full backdoor access in only ~100 high-value targets — US government agencies, defense contractors, and technology companies. They stole emails, security tools, and classified information. The targeted organizations had no idea anything was wrong — Orion appeared to be running normally.</div>
+      <div class="story-tags"><span class="story-tag red">DETECT failure — No anomaly detection on outbound data</span><span class="story-tag yellow">Victims: Treasury, DOJ, State Dept, DHS, FireEye</span></div>
+    </div>
+  </div>
+
+  <div class="story-step">
+    <div class="story-num">6</div>
+    <div class="story-body">
+      <div class="story-title">FireEye Discovers the Breach (Dec 8, 2020)</div>
+      <div class="story-desc">Cybersecurity firm FireEye noticed a suspicious second device registration on their own network attempting MFA enrollment — an attacker trying to add their phone to an employee's account. Investigating, FireEye discovered SUNBURST in their Orion installation. They immediately notified SolarWinds, Microsoft, and the US government.</div>
+      <div class="story-tags"><span class="story-tag">Discovery: external firm, not SolarWinds or victims</span><span class="story-tag red">DETECT failure — No internal detection for 9 months</span></div>
+    </div>
+  </div>
+
+  <div class="story-step">
+    <div class="story-num">7</div>
+    <div class="story-body">
+      <div class="story-title">Emergency Response & Recovery (Dec 2020 – months)</div>
+      <div class="story-desc">CISA issued Emergency Directive 21-01 — the strongest directive ever issued — ordering all federal agencies to immediately disconnect Orion. SolarWinds issued patches. Microsoft seized the C2 domain. But recovery was not simply "patch and restart" — affected organizations had to assume every credential, every secret, every token in systems touched by Orion was compromised and rebuild from scratch.</div>
+      <div class="story-tags"><span class="story-tag red">RESPOND failure — No playbook for supply chain compromise</span><span class="story-tag red">RECOVER failure — Full rebuild required, not a patch</span><span class="story-tag yellow">CISA ED 21-01 — mandatory federal disconnect</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- PANEL 3: FUNCTION BREAKDOWN -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="panel-functions" class="panel">
+  <div class="sec-title">// NIST CSF 2.0 FUNCTION ANALYSIS — SOLARWINDS</div>
+  <div class="intro-box">
+    For each of the 6 NIST CSF 2.0 functions, review: what subcategories apply, how SolarWinds failed that function, and what controls would have helped. Use these as your reference for the Student Worksheet.
+  </div>
+
+  <!-- GOVERN -->
+  <div class="fn-detail-card" style="border-color:rgba(156,106,222,.3);">
+    <div class="fdc-hdr" style="background:rgba(83,52,131,.25);">
+      <div class="fdc-fn" style="background:rgba(156,106,222,.2);border:1px solid rgba(156,106,222,.3);color:#b39ddb;">GV — GOVERN</div>
+      <div class="fdc-name">Organizational Cybersecurity Strategy &amp; Oversight</div>
+      <div class="fdc-verdict" style="background:rgba(239,83,80,.2);color:#ef9a9a;border:1px solid rgba(239,80,80,.3);">FAILED</div>
+    </div>
+    <div class="fdc-body">
+      <div class="fdc-label">What this function covers</div>
+      <div class="fdc-val">Leadership establishes cybersecurity roles, policies, and accountability. The board and C-suite own cyber risk as a business risk. Policies govern how software is developed, reviewed, and released.</div>
+      <div class="fdc-label">How SolarWinds failed GOVERN</div>
+      <div class="fdc-val">SolarWinds had no formal policy requiring security review of its build pipeline. The CEO later said security teams were stretched thin. There was no executive accountability for software supply chain risk. A 2019 internal email even noted that a SolarWinds server password ("solarwinds123") was exposed on GitHub for months.</div>
+      <div class="fdc-label">Key GOVERN subcategories that were absent</div>
+      <div class="fdc-sub">GV.PO-01 — Cybersecurity policy established and maintained<br>GV.RM-06 — Cybersecurity risk included in enterprise risk management<br>GV.SC-06 — Cybersecurity requirements for suppliers and third parties</div>
+      <div class="fdc-label">What control would have helped</div>
+      <div class="fdc-val">A formal Software Development Lifecycle (SDLC) security policy requiring independent security review of the build pipeline, plus board-level reporting on supply chain risk.</div>
+    </div>
+  </div>
+
+  <!-- IDENTIFY -->
+  <div class="fn-detail-card" style="border-color:rgba(66,165,245,.3);">
+    <div class="fdc-hdr" style="background:rgba(21,101,192,.2);">
+      <div class="fdc-fn" style="background:rgba(66,165,245,.2);border:1px solid rgba(66,165,245,.3);color:#64b5f6;">ID — IDENTIFY</div>
+      <div class="fdc-name">Asset Management &amp; Supply Chain Risk</div>
+      <div class="fdc-verdict" style="background:rgba(239,83,80,.2);color:#ef9a9a;border:1px solid rgba(239,80,80,.3);">FAILED</div>
+    </div>
+    <div class="fdc-body">
+      <div class="fdc-label">What this function covers</div>
+      <div class="fdc-val">Know every asset in your environment, including third-party software. Understand which vendors have access to your network and treat software updates from vendors as potential attack vectors — not automatic trust.</div>
+      <div class="fdc-label">How SolarWinds victims failed IDENTIFY</div>
+      <div class="fdc-val">Most of the 18,000 infected organizations had no Software Bill of Materials (SBOM) — they didn't know which systems ran Orion, what version, or what access it had. They also didn't track that Orion required admin-level access to the network, making it an extremely high-risk dependency.</div>
+      <div class="fdc-label">Key IDENTIFY subcategories that were absent</div>
+      <div class="fdc-sub">ID.AM-02 — Software and services inventoried<br>ID.SC-02 — Suppliers assessed for cybersecurity practices<br>ID.SC-04 — Suppliers monitored to confirm they meet commitments</div>
+      <div class="fdc-label">What control would have helped</div>
+      <div class="fdc-val">Maintaining a Software Bill of Materials (SBOM) for all third-party software, and conducting annual vendor security assessments — specifically evaluating whether SolarWinds' build process had integrity controls.</div>
+    </div>
+  </div>
+
+  <!-- PROTECT -->
+  <div class="fn-detail-card" style="border-color:rgba(0,230,118,.2);">
+    <div class="fdc-hdr" style="background:rgba(0,121,107,.2);">
+      <div class="fdc-fn" style="background:rgba(0,230,118,.15);border:1px solid rgba(0,230,118,.25);color:#69f0ae;">PR — PROTECT</div>
+      <div class="fdc-name">Build Pipeline Integrity &amp; Access Controls</div>
+      <div class="fdc-verdict" style="background:rgba(239,83,80,.2);color:#ef9a9a;border:1px solid rgba(239,80,80,.3);">CRITICAL FAILURE</div>
+    </div>
+    <div class="fdc-body">
+      <div class="fdc-label">What this function covers</div>
+      <div class="fdc-val">Implement safeguards: access controls, software integrity verification, network segmentation, encryption, and awareness training. The goal is to limit the impact when (not if) something goes wrong.</div>
+      <div class="fdc-label">How SolarWinds failed PROTECT</div>
+      <div class="fdc-val">The build server (where code is compiled) was not isolated from the rest of the network. Attackers were able to reach it and inject SUNSPOT without triggering alerts. There was no build integrity verification — no mechanism to detect that a source file had been swapped during compilation. The malicious code was signed with SolarWinds' legitimate certificate, meaning digital signing alone was not a sufficient control.</div>
+      <div class="fdc-label">Key PROTECT subcategories that were absent</div>
+      <div class="fdc-sub">PR.AC-03 — Remote access managed<br>PR.DS-01 — Data at rest protected<br>PR.IP-02 — Software development follows security practices (SSDLC)<br>PR.IP-12 — Vulnerabilities identified and remediated</div>
+      <div class="fdc-label">What control would have helped</div>
+      <div class="fdc-val">Reproducible builds with cryptographic hash verification of every compiled binary before signing — so any modification to source code would produce a different hash and fail the check. Also: isolating the build environment on a separate air-gapped or strictly firewalled network.</div>
+    </div>
+  </div>
+
+  <!-- DETECT -->
+  <div class="fn-detail-card" style="border-color:rgba(255,183,77,.25);">
+    <div class="fdc-hdr" style="background:rgba(230,81,0,.2);">
+      <div class="fdc-fn" style="background:rgba(255,183,77,.2);border:1px solid rgba(255,183,77,.3);color:#ffb74d;">DE — DETECT</div>
+      <div class="fdc-name">Anomaly Detection &amp; Continuous Monitoring</div>
+      <div class="fdc-verdict" style="background:rgba(239,83,80,.2);color:#ef9a9a;border:1px solid rgba(239,80,80,.3);">FAILED — 9–14 Months</div>
+    </div>
+    <div class="fdc-body">
+      <div class="fdc-label">What this function covers</div>
+      <div class="fdc-val">Continuously monitor systems and network traffic for anomalies. Establish baselines for normal behavior so deviations — like unusual outbound connections or unexpected admin tool activity — trigger alerts.</div>
+      <div class="fdc-label">How SolarWinds victims failed DETECT</div>
+      <div class="fdc-val">SUNBURST was designed to blend in: it used legitimate Orion network protocols, randomized beacon intervals (12–14 hour delays), and only activated in non-sandbox environments. Without behavioral baselines, security teams couldn't distinguish malicious Orion beaconing from normal Orion traffic. The SIEM logs existed but nobody was analyzing them for this pattern.</div>
+      <div class="fdc-label">Key DETECT subcategories that were absent</div>
+      <div class="fdc-sub">DE.AE-01 — Network activity baseline established<br>DE.AE-03 — Event data aggregated and correlated<br>DE.CM-01 — Network monitored to detect potential events<br>DE.CM-07 — Monitoring for unauthorized personnel, connections, devices</div>
+      <div class="fdc-label">What control would have helped</div>
+      <div class="fdc-val">DNS monitoring with anomaly detection — SUNBURST used DNS queries to resolve its C2 domain. Any tool that baselines DNS query patterns would have flagged the unusual subdomain patterns of avsvmcloud[.]com. UEBA (User and Entity Behavior Analytics) would also have flagged the anomalous beacon intervals.</div>
+    </div>
+  </div>
+
+  <!-- RESPOND -->
+  <div class="fn-detail-card" style="border-color:rgba(239,83,80,.25);">
+    <div class="fdc-hdr" style="background:rgba(183,28,28,.2);">
+      <div class="fdc-fn" style="background:rgba(239,83,80,.2);border:1px solid rgba(239,83,80,.3);color:#ef9a9a;">RS — RESPOND</div>
+      <div class="fdc-name">Incident Response &amp; Communication</div>
+      <div class="fdc-verdict" style="background:rgba(255,183,77,.15);color:#ffb74d;border:1px solid rgba(255,183,77,.3);">UNPREPARED</div>
+    </div>
+    <div class="fdc-body">
+      <div class="fdc-label">What this function covers</div>
+      <div class="fdc-val">Have a plan before an incident happens. Know who to call, how to contain a breach, how to communicate with stakeholders, and how to analyze what happened. Supply chain incidents require coordination across hundreds of organizations simultaneously.</div>
+      <div class="fdc-label">How organizations failed RESPOND</div>
+      <div class="fdc-val">No organization had an incident response playbook for "our trusted network management software is a backdoor." When CISA issued Emergency Directive 21-01, many agencies did not know which systems ran Orion or what "isolate Orion systems" even meant in practice. The response had to be improvised across 18,000 organizations in real time.</div>
+      <div class="fdc-label">Key RESPOND subcategories that were absent</div>
+      <div class="fdc-sub">RS.RP-01 — Response plan executed during or after incident<br>RS.CO-02 — Incidents reported per established criteria<br>RS.AN-01 — Notifications from detection systems investigated<br>RS.MI-01 — Incidents contained</div>
+      <div class="fdc-label">What control would have helped</div>
+      <div class="fdc-val">A pre-written supply chain compromise playbook with pre-authorized steps for isolating affected software, pre-identified escalation contacts at CISA, and pre-staged clean network segments for failover.</div>
+    </div>
+  </div>
+
+  <!-- RECOVER -->
+  <div class="fn-detail-card" style="border-color:rgba(79,195,247,.25);">
+    <div class="fdc-hdr" style="background:rgba(1,87,155,.2);">
+      <div class="fdc-fn" style="background:rgba(79,195,247,.2);border:1px solid rgba(79,195,247,.3);color:#81d4fa;">RC — RECOVER</div>
+      <div class="fdc-name">Recovery Planning &amp; Resilience</div>
+      <div class="fdc-verdict" style="background:rgba(239,83,80,.2);color:#ef9a9a;border:1px solid rgba(239,80,80,.3);">MONTHS-LONG</div>
+    </div>
+    <div class="fdc-body">
+      <div class="fdc-label">What this function covers</div>
+      <div class="fdc-val">Restore normal operations after a cybersecurity incident. This is more than rebooting systems — it means confirming the attacker is gone, systems are clean, and the root vulnerability is fixed so re-compromise doesn't happen immediately.</div>
+      <div class="fdc-label">How organizations failed RECOVER</div>
+      <div class="fdc-val">Because Orion had admin-level access to network infrastructure, recovery wasn't "patch Orion." It meant treating every credential, token, and certificate in the environment as compromised. Some agencies took months to complete recovery. Treasury and DOJ reportedly had to rebuild entire email systems. Determining whether attackers had persisted through mechanisms beyond SUNBURST took specialized forensic analysis most organizations couldn't perform internally.</div>
+      <div class="fdc-label">Key RECOVER subcategories that were absent</div>
+      <div class="fdc-sub">RC.RP-01 — Recovery plan executed during or after incident<br>RC.IM-01 — Recovery plan incorporates lessons learned<br>RC.CO-03 — Recovery activities communicated to stakeholders</div>
+      <div class="fdc-label">What control would have helped</div>
+      <div class="fdc-val">Pre-tested recovery procedures including credential rotation playbooks, clean image backups of critical systems stored offline, and a tiered asset classification system so high-risk assets (those with admin-level software like Orion) could be prioritized and rebuilt first.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════ -->
+<!-- PANEL 4: STUDENT WORKSHEET -->
+<!-- ══════════════════════════════════════════════ -->
+<div id="panel-worksheet" class="panel">
+  <div class="sec-title">// STUDENT WORKSHEET — NIST CSF 2.0 ANALYSIS</div>
+  <div id="student-banner" style="margin-top:0;"></div>
+
+  <div style="background:rgba(66,165,245,.06);border:1px solid rgba(66,165,245,.2);border-radius:10px;padding:18px 20px;margin-bottom:24px;font-size:.83rem;line-height:1.8;">
+    Apply NIST CSF 2.0 to the SolarWinds supply chain attack. For each of the 6 functions, identify the specific failure and propose a control. Then answer 3 critical thinking questions.<br>
+    <strong style="color:var(--blue-light);">Total: 50 points · Part B = 30 pts (5 pts per function) · Part C = 20 pts</strong>
+  </div>
+
+  <!-- PART B: 6 Functions -->
+  <div class="sec-title" style="margin-bottom:16px;">// PART B — 6 CSF FUNCTIONS APPLIED TO SOLARWINDS</div>
+
+  <!-- GV -->
+  <div class="fn-form-card">
+    <div class="ffc-header" style="background:rgba(83,52,131,.25);border-bottom-color:rgba(156,106,222,.2);">
+      <div class="ffc-badge" style="background:rgba(156,106,222,.2);border:1px solid rgba(156,106,222,.3);color:#b39ddb;">GV — GOVERN</div>
+      <div class="ffc-name">Organizational Strategy &amp; Oversight</div>
+      <div class="ffc-pts">5 pts</div>
+    </div>
+    <div class="ffc-field">
+      <label class="ffc-label" style="color:#b39ddb;">GOVERN was a new function added in CSF 2.0. What specific governance failure at SolarWinds allowed attackers to operate inside their build system for 14 months without leadership awareness?</label>
+      <textarea id="gov-fail" class="ws-input" placeholder="Type your answer..."></textarea>
+    </div>
+    <div class="ffc-field">
+      <label class="ffc-label" style="color:#b39ddb;">Name one GOVERN control (policy, process, or leadership action) that would have prevented or detected this failure.</label>
+      <textarea id="gov-ctrl" class="ws-input" style="min-height:60px;" placeholder="Type your answer..."></textarea>
+    </div>
+  </div>
+
+  <!-- ID -->
+  <div class="fn-form-card">
+    <div class="ffc-header" style="background:rgba(21,101,192,.2);border-bottom-color:rgba(66,165,245,.2);">
+      <div class="ffc-badge" style="background:rgba(66,165,245,.2);border:1px solid rgba(66,165,245,.3);color:#64b5f6;">ID — IDENTIFY</div>
+      <div class="ffc-name">Asset Management &amp; Supply Chain Risk</div>
+      <div class="ffc-pts">5 pts</div>
+    </div>
+    <div class="ffc-field">
+      <label class="ffc-label">What asset management gap meant that most of the 18,000 affected organizations didn't know they were at risk — even after SolarWinds announced the breach?</label>
+      <textarea id="id-fail" class="ws-input" placeholder="Type your answer..."></textarea>
+    </div>
+    <div class="ffc-field">
+      <label class="ffc-label">What is a Software Bill of Materials (SBOM), and how would one have helped here?</label>
+      <textarea id="id-ctrl" class="ws-input" placeholder="Type your answer..."></textarea>
+    </div>
+  </div>
+
+  <!-- PR -->
+  <div class="fn-form-card">
+    <div class="ffc-header" style="background:rgba(0,121,107,.2);border-bottom-color:rgba(0,230,118,.15);">
+      <div class="ffc-badge" style="background:rgba(0,230,118,.15);border:1px solid rgba(0,230,118,.25);color:#69f0ae;">PR — PROTECT</div>
+      <div class="ffc-name">Build Pipeline Integrity &amp; Access Controls</div>
+      <div class="ffc-pts">5 pts</div>
+    </div>
+    <div class="ffc-field">
+      <label class="ffc-label" style="color:#69f0ae;">SUNSPOT injected malicious code during the build process — after code review but before the final binary was signed. What specific PROTECT gap made this possible?</label>
+      <textarea id="pr-fail" class="ws-input" placeholder="Type your answer..."></textarea>
+    </div>
+    <div class="ffc-field">
+      <label class="ffc-label" style="color:#69f0ae;">Digital code signing did NOT catch SUNBURST. Explain why signing alone is not sufficient, and name a stronger build integrity control.</label>
+      <textarea id="pr-ctrl" class="ws-input" placeholder="Type your answer..."></textarea>
+    </div>
+  </div>
+
+  <!-- DE -->
+  <div class="fn-form-card">
+    <div class="ffc-header" style="background:rgba(230,81,0,.2);border-bottom-color:rgba(255,183,77,.2);">
+      <div class="ffc-badge" style="background:rgba(255,183,77,.2);border:1px solid rgba(255,183,77,.3);color:#ffb74d;">DE — DETECT</div>
+      <div class="ffc-name">Anomaly Detection &amp; Continuous Monitoring</div>
+      <div class="ffc-pts">5 pts</div>
+    </div>
+    <div class="ffc-field">
+      <label class="ffc-label" style="color:#ffb74d;">SUNBURST beaconed to its C2 server for 9 months before discovery. What made this traffic so hard to detect, and what monitoring gap allowed it to go unnoticed?</label>
+      <textarea id="de-fail" class="ws-input" placeholder="Type your answer..."></textarea>
+    </div>
+    <div class="ffc-field">
+      <label class="ffc-label" style="color:#ffb74d;">FireEye caught the breach by noticing an unexpected MFA device registration — not through traditional AV or IDS. What does this tell us about the type of detection controls needed for sophisticated attackers?</label>
+      <textarea id="de-ctrl" class="ws-input" placeholder="Type your answer..."></textarea>
+    </div>
+  </div>
+
+  <!-- RS -->
+  <div class="fn-form-card">
+    <div class="ffc-header" style="background:rgba(183,28,28,.2);border-bottom-color:rgba(239,83,80,.2);">
+      <div class="ffc-badge" style="background:rgba(239,83,80,.2);border:1px solid rgba(239,83,80,.3);color:#ef9a9a;">RS — RESPOND</div>
+      <div class="ffc-name">Incident Response &amp; Communication</div>
+      <div class="ffc-pts">5 pts</div>
+    </div>
+    <div class="ffc-field">
+      <label class="ffc-label" style="color:#ef9a9a;">When CISA issued Emergency Directive 21-01, why were most agencies unprepared to respond quickly? What was missing from their incident response plans?</label>
+      <textarea id="rs-fail" class="ws-input" placeholder="Type your answer..."></textarea>
+    </div>
+    <div class="ffc-field">
+      <label class="ffc-label" style="color:#ef9a9a;">A supply chain compromise differs from a direct network breach. Describe one key difference in how you would respond to each.</label>
+      <textarea id="rs-ctrl" class="ws-input" placeholder="Type your answer..."></textarea>
+    </div>
+  </div>
+
+  <!-- RC -->
+  <div class="fn-form-card">
+    <div class="ffc-header" style="background:rgba(1,87,155,.2);border-bottom-color:rgba(79,195,247,.2);">
+      <div class="ffc-badge" style="background:rgba(79,195,247,.2);border:1px solid rgba(79,195,247,.3);color:#81d4fa;">RC — RECOVER</div>
+      <div class="ffc-name">Recovery Planning &amp; Resilience</div>
+      <div class="ffc-pts">5 pts</div>
+    </div>
+    <div class="ffc-field">
+      <label class="ffc-label" style="color:#81d4fa;">Recovery from SolarWinds wasn't a patch — some agencies took months and had to rebuild entire systems. Why does a supply chain compromise require a more extensive recovery than a traditional malware infection?</label>
+      <textarea id="rc-fail" class="ws-input" placeholder="Type your answer..."></textarea>
+    </div>
+    <div class="ffc-field">
+      <label class="ffc-label" style="color:#81d4fa;">What is "blast radius" in the context of this breach, and how does knowing your blast radius in advance help you recover faster?</label>
+      <textarea id="rc-ctrl" class="ws-input" placeholder="Type your answer..."></textarea>
+    </div>
+  </div>
+
+  <div class="ws-note">💡 Stuck? Use the Function Breakdown tab (Step 3) or visit nist.gov/cyberframework to look up specific subcategory IDs.</div>
+
+  <!-- PART C -->
+  <div style="margin-top:32px;">
+    <div class="sec-title" style="margin-bottom:16px;">// PART C — CRITICAL THINKING</div>
+
+    <div class="fn-form-card">
+      <div style="padding:20px 24px;">
+        <div style="font-size:.72rem;color:var(--blue-light);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;">Question 1 — Trust is a Vulnerability (7 pts)</div>
+        <div style="font-size:.85rem;color:rgba(255,255,255,.75);line-height:1.7;margin-bottom:12px;">The PROTECT function says to use code signing to verify software integrity — and SolarWinds DID sign its updates. Yet the attack succeeded. How does this expose a fundamental limitation of the PROTECT function, and what principle should guide defenders when a trusted control is bypassed?</div>
+        <textarea id="crit-q1" class="ws-input" style="min-height:100px;" placeholder="Type your answer..."></textarea>
+      </div>
+      <div style="padding:0 24px 20px;">
+        <div style="font-size:.72rem;color:var(--blue-light);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;">Question 2 — The GOVERN Function &amp; SolarWinds (7 pts)</div>
+        <div style="font-size:.85rem;color:rgba(255,255,255,.75);line-height:1.7;margin-bottom:12px;">NIST CSF 2.0 added GOVERN specifically because incidents like SolarWinds showed that technical controls alone are insufficient. Explain in your own words: what is the difference between a technical security control and a governance control? Give one example of each from the SolarWinds case.</div>
+        <textarea id="crit-q2" class="ws-input" style="min-height:100px;" placeholder="Type your answer..."></textarea>
+      </div>
+      <div style="padding:0 24px 24px;">
+        <div style="font-size:.72rem;color:var(--blue-light);text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;">Question 3 — One Control to Rule Them All (6 pts)</div>
+        <div style="font-size:.85rem;color:rgba(255,255,255,.75);line-height:1.7;margin-bottom:12px;">If SolarWinds could have implemented only ONE NIST CSF 2.0 control before 2020 — which function and which specific control would have had the greatest impact on preventing or detecting this attack? Justify your choice with specific evidence from the SolarWinds breach.</div>
+        <textarea id="crit-q3" class="ws-input" style="min-height:100px;" placeholder="Type your answer..."></textarea>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:24px;">
+      <button id="submit-btn" onclick="submitNISTMapping()" style="flex:1;min-width:200px;">🏛️ SUBMIT NIST ANALYSIS</button>
+      <button onclick="saveNISTDraft()" style="padding:14px 24px;background:rgba(66,165,245,.1);border:1px solid rgba(66,165,245,.3);color:var(--blue-light);font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:1px;border-radius:8px;cursor:pointer;">💾 SAVE DRAFT</button>
+    </div>
+    <div id="submit-status"></div>
+    <div id="draft-status" style="font-size:.75rem;color:var(--muted);margin-top:6px;text-align:right;"></div>
+
+    <div id="nist-grade-panel" style="display:none;margin-top:24px;background:rgba(66,165,245,.08);border:1px solid rgba(66,165,245,.35);border-radius:12px;padding:20px 24px;">
+      <div style="font-family:'Orbitron',sans-serif;font-size:.8rem;color:var(--blue-light);letter-spacing:1px;margin-bottom:12px;">// YOUR GRADE</div>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px;flex-wrap:wrap;">
+        <div style="font-family:'Orbitron',sans-serif;font-size:2rem;color:var(--blue-light);" id="grade-score-display">—</div>
+        <div>
+          <div style="font-size:.75rem;color:rgba(255,255,255,.5);">out of 50 points</div>
+          <div style="font-size:.72rem;color:rgba(255,255,255,.4);margin-top:2px;" id="grade-date-display"></div>
+        </div>
+      </div>
+      <div style="font-size:.85rem;color:rgba(255,255,255,.8);line-height:1.8;white-space:pre-wrap;" id="grade-feedback-display"></div>
+    </div>
+    <div id="no-grade-panel" style="display:none;margin-top:16px;padding:16px 18px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);border-radius:8px;text-align:center;">
+      <div style="font-size:.8rem;color:rgba(255,255,255,.45);margin-bottom:10px;">Your submission is in — your instructor will grade it and your score will appear here automatically.</div>
+      <button onclick="loadNISTGrade()" style="padding:7px 18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);border-radius:6px;font-size:.78rem;cursor:pointer;">↻ Check for My Grade</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+<script>
+var _fbDb = null;
+(function(){
+  try {
+    var app = firebase.initializeApp({
+      apiKey:"AIzaSyBpK8uLCD0_m83a1xFiOQVaS1PKWSGcEc8",
+      authDomain:"mccoe-platform-a9710.firebaseapp.com",
+      databaseURL:"https://mccoe-platform-a9710-default-rtdb.firebaseio.com",
+      projectId:"mccoe-platform-a9710"
+    });
+    _fbDb = firebase.database(app);
+  } catch(e) { console.warn('Firebase init error:', e); }
+})();
+
+function showPanel(name, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('on'));
+  document.getElementById('panel-' + name).classList.add('on');
+  if (btn) btn.classList.add('on');
+}
+
+(function(){
+  var sp = new URLSearchParams(window.location.search);
+  var name = sp.get('name') || localStorage.getItem('hub_name') || '';
+  var id   = sp.get('id')   || localStorage.getItem('hub_id')   || '';
+  if (name) {
+    document.getElementById('sb-name-text').textContent = name;
+    document.getElementById('sb-id-text').textContent   = id || 'No student ID on file';
+    document.getElementById('student-banner').style.borderColor = 'rgba(66,165,245,.35)';
+    var p = '?name=' + encodeURIComponent(name) + '&id=' + encodeURIComponent(id);
+    document.getElementById('hub-btn').href = 'MCCoE_Hub.html' + p;
+  }
+  setTimeout(loadNISTGrade, 1200);
+  setTimeout(loadNISTDraft, 400);
+  setTimeout(function() {
+    _DRAFT_FIELDS.forEach(function(fid) {
+      var el = document.getElementById(fid);
+      if (el) el.addEventListener('input', _scheduleDraftSave);
+    });
+  }, 600);
+})();
+
+var _DRAFT_FIELDS = ['gov-fail','gov-ctrl','id-fail','id-ctrl','pr-fail','pr-ctrl',
+  'de-fail','de-ctrl','rs-fail','rs-ctrl','rc-fail','rc-ctrl','crit-q1','crit-q2','crit-q3'];
+var _draftTimer = null;
+
+function _draftKey() {
+  var sp = new URLSearchParams(window.location.search);
+  var id = sp.get('id') || localStorage.getItem('hub_id') || sp.get('name') || localStorage.getItem('hub_name') || 'anon';
+  return 'nist_draft_' + id.replace(/[^a-zA-Z0-9_-]/g, '-');
+}
+
+function saveNISTDraft() {
+  var draft = {};
+  _DRAFT_FIELDS.forEach(function(fid) {
+    var el = document.getElementById(fid);
+    draft[fid] = el ? el.value.trim() : '';
+  });
+  draft._saved = new Date().toISOString();
+  localStorage.setItem(_draftKey(), JSON.stringify(draft));
+  var ds = document.getElementById('draft-status');
+  if (ds) {
+    var t = new Date();
+    ds.textContent = '💾 Draft saved at ' + t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  }
+}
+
+function loadNISTDraft() {
+  var raw = localStorage.getItem(_draftKey());
+  if (!raw) return;
+  try {
+    var draft = JSON.parse(raw);
+    var any = false;
+    _DRAFT_FIELDS.forEach(function(fid) {
+      if (draft[fid]) {
+        var el = document.getElementById(fid);
+        if (el) { el.value = draft[fid]; any = true; }
+      }
+    });
+    if (any && draft._saved) {
+      var ds = document.getElementById('draft-status');
+      var t = new Date(draft._saved);
+      if (ds) ds.textContent = '📂 Draft restored from ' + t.toLocaleDateString([], {month:'short',day:'numeric'}) + ' at ' + t.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    }
+  } catch(e) {}
+}
+
+function _scheduleDraftSave() {
+  clearTimeout(_draftTimer);
+  _draftTimer = setTimeout(saveNISTDraft, 1500);
+}
+
+function v(id) {
+  var el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+
+function submitNISTMapping() {
+  var sp   = new URLSearchParams(window.location.search);
+  var name = sp.get('name') || localStorage.getItem('hub_name') || '';
+  var id   = sp.get('id')   || localStorage.getItem('hub_id')   || '';
+
+  if (!name) {
+    alert('Could not identify you. Please launch this tool from your Hub checklist so your name is passed automatically.');
+    return;
+  }
+  if (!_fbDb) {
+    alert('Firebase not connected. Please check your internet connection and try again.');
+    return;
+  }
+
+  var data = {
+    name: name,
+    studentId: id || '',
+    submitted: new Date().toISOString(),
+    partB: {
+      govern:  { failure: v('gov-fail'), control: v('gov-ctrl') },
+      identify:{ failure: v('id-fail'),  control: v('id-ctrl') },
+      protect: { failure: v('pr-fail'),  control: v('pr-ctrl') },
+      detect:  { failure: v('de-fail'),  control: v('de-ctrl') },
+      respond: { failure: v('rs-fail'),  control: v('rs-ctrl') },
+      recover: { failure: v('rc-fail'),  control: v('rc-ctrl') }
+    },
+    partC: { q1: v('crit-q1'), q2: v('crit-q2'), q3: v('crit-q3') }
+  };
+
+  var key    = (id || name).replace(/[^a-zA-Z0-9_-]/g, '-');
+  var date   = new Date().toISOString().split('T')[0];
+  var btn    = document.getElementById('submit-btn');
+  var status = document.getElementById('submit-status');
+
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+  status.textContent = '';
+
+  _fbDb.ref('mccoe_nist/' + key + '/' + date).set(data, function(err) {
+    btn.disabled = false;
+    btn.textContent = '🏛️ SUBMIT NIST ANALYSIS';
+    if (err) {
+      status.style.color = '#ff5252';
+      status.textContent = '❌ Error: ' + err.message;
+    } else {
+      status.style.color = 'var(--green)';
+      status.textContent = '✅ Analysis submitted! Your instructor will grade it and your score will appear below.';
+      localStorage.removeItem(_draftKey());
+      var ds = document.getElementById('draft-status');
+      if (ds) ds.textContent = '';
+      loadNISTGrade();
+    }
+  });
+}
+
+function loadNISTGrade() {
+  var sp   = new URLSearchParams(window.location.search);
+  var name = sp.get('name') || localStorage.getItem('hub_name') || '';
+  var id   = sp.get('id')   || localStorage.getItem('hub_id')   || '';
+  if ((!name && !id) || !_fbDb) return;
+  var key = (id || name).replace(/[^a-zA-Z0-9_-]/g, '-');
+  _fbDb.ref('mccoe_nist/' + key + '/grade').on('value', function(snap) {
+    var grade = snap.val();
+    var gPanel  = document.getElementById('nist-grade-panel');
+    var ngPanel = document.getElementById('no-grade-panel');
+    if (!gPanel || !ngPanel) return;
+    if (grade && grade.score != null) {
+      gPanel.style.display  = 'block';
+      ngPanel.style.display = 'none';
+      document.getElementById('grade-score-display').textContent = grade.score + '/50';
+      var d = new Date(grade.gradedAt || '');
+      document.getElementById('grade-date-display').textContent = isNaN(d) ? '' : 'Graded ' + d.toLocaleDateString();
+      document.getElementById('grade-feedback-display').textContent = grade.feedback || '';
+    } else {
+      var subKey = _fbDb.ref('mccoe_nist/' + key);
+      subKey.once('value', function(s2) {
+        var val = s2.val();
+        if (val && Object.keys(val).filter(k => k !== 'grade').length > 0) {
+          ngPanel.style.display = 'block';
+        }
+      });
+    }
+  });
+}
+</script>
+</body>
+</html>
