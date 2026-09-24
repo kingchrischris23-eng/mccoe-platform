@@ -8050,11 +8050,13 @@ function exportWeeklyReport() {
   Promise.all([
     _fbDb.ref('mccoe_submissions').once('value'),
     _fbDb.ref('mccoe_acronyms').once('value'),
-    _fbDb.ref('mccoe_academy').once('value')
-  ]).then(([subSnap, acroSnap, acadSnap]) => {
+    _fbDb.ref('mccoe_academy').once('value'),
+    _fbDb.ref('mccoe_progress').once('value')
+  ]).then(([subSnap, acroSnap, acadSnap, progSnap]) => {
     const allSubs  = subSnap.val()  || {};
     const allAcro  = acroSnap.val() || {};
     const allAcad  = acadSnap.val() || {};
+    const allProg  = progSnap.val() || {};
 
     // Submissions from this week's date range
     const thisWeekSubs = [];
@@ -8085,7 +8087,7 @@ function exportWeeklyReport() {
     const completionMap = {};
     students.forEach(s => {
       if (!s.portalTempId) return;
-      const prog = (_progressCache[s.portalTempId] || {}).progress || {};
+      const prog = (allProg[s.portalTempId] || {}).progress || {};
       const wProg = prog[weekNum] || {};
 
       // Quiz
