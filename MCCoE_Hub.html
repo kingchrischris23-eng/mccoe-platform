@@ -1076,7 +1076,7 @@ var WEEK_TASKS = {
       {t:'🎮 Quiz: OS & Linux',p:'p2'},{t:'🎮 Quiz: Access Control',p:'p2'}]},
     {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
       {t:'📄 Project 4: Colonial Pipeline — Frameworks & Writing (100 pts)',p:'p3',proj:4},
-      {t:'🗺️ MITRE ATT&CK Reference Tool',p:'tool',url:'MITRE_Attack_Map.html'},
+      {t:'🗺️ MITRE ATT&CK Reference Tool (Technique Breakdown)',p:'tool',url:'MITRE_Attack_Map.html?panel=techniques'},
       {t:'📰 Source Doc: CISA Advisory AA21-131A (Official PDF)',p:'ext',url:'https://www.cisa.gov/sites/default/files/publications/AA21-131A_Darkside_Ransomware.pdf'},
       {t:'🏛️ Source Doc: CEO Senate Testimony — June 8 2021 (Official PDF)',p:'ext',url:'https://www.hsgac.senate.gov/wp-content/uploads/imo/media/doc/Testimony-Blount-2021-06-08.pdf'},
       {t:'🔍 Source Doc: CISA — What We Learned Two Years Later',p:'ext',url:'https://www.cisa.gov/news-events/news/attack-colonial-pipeline-what-weve-learned-what-weve-done-over-past-two-years'}]},
@@ -1187,7 +1187,7 @@ function _renderWeekTasks(wk) {
       else if (item.p === 'p4') { href = 'Pillar4_EthicalHacking.html' + p; tgt = 'target="_blank"'; }
       else if (item.p === 'p5') { href = 'Pillar5_BlueTeam.html' + p; tgt = 'target="_blank"'; }
       else if (item.p === 'ctf') { href = 'MCCoE_CTF.html' + p; tgt = 'target="_blank"'; }
-      else if (item.p === 'tool') { href = item.url + p; tgt = 'target="_blank"'; }
+      else if (item.p === 'tool') { var sep = item.url.indexOf('?') >= 0 ? '&' : '?'; href = item.url + sep + 'name=' + encodeURIComponent(_twName) + '&id=' + encodeURIComponent(_twId); tgt = 'target="_blank"'; }
       else if (item.p === 'ext')  { href = item.url; tgt = 'target="_blank"'; }
       var ckKey = 'mccoe_chk_' + (_twId || 'guest') + '_w' + wk + '_i' + idx;
       var done = localStorage.getItem(ckKey) === '1';

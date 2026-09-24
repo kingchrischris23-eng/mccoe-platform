@@ -585,6 +585,8 @@ function showPanel(name, btn) {
     var p = '?name=' + encodeURIComponent(name) + '&id=' + encodeURIComponent(id);
     document.getElementById('hub-btn').href = 'MCCoE_Hub.html' + p;
   }
+  var panel = sp.get('panel');
+  if (panel) { var pBtn = document.querySelector('.step[onclick*="' + panel + '"]'); showPanel(panel, pBtn || null); }
   setTimeout(loadMITREGrade, 1200);
   setTimeout(loadMITREDraft, 400);
   setTimeout(function() {
