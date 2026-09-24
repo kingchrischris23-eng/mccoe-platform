@@ -8045,18 +8045,24 @@ function exportWeeklyReport() {
 
   const projNum = weekNum <= 8 ? weekNum : null;
 
-  if (!_fbDb) { buildWeeklyModal(weekNum, weekLabel, weekDates, DAY_LABELS, attendRows, cohortAvg, [], projNum, statusColor, statusLabel); return; }
+  if (!_fbDb) { buildWeeklyModal(weekNum, weekLabel, weekDates, DAY_LABELS, attendRows, cohortAvg, [], {}, {}, projNum, statusColor, statusLabel); return; }
 
-  _fbDb.ref('mccoe_submissions').once('value', snap => {
-    const allSubs = snap.val() || {};
+  Promise.all([
+    _fbDb.ref('mccoe_submissions').once('value'),
+    _fbDb.ref('mccoe_acronyms').once('value'),
+    _fbDb.ref('mccoe_academy').once('value')
+  ]).then(([subSnap, acroSnap, acadSnap]) => {
+    const allSubs  = subSnap.val()  || {};
+    const allAcro  = acroSnap.val() || {};
+    const allAcad  = acadSnap.val() || {};
+
+    // Submissions from this week's date range
     const thisWeekSubs = [];
     const wStartMs = weekStart.getTime();
     const wEndMs   = wStartMs + 4 * 86400000;
-
     Object.keys(allSubs).forEach(tempId => {
       const stu = students.find(s => s.portalTempId === tempId);
-      const stuName = stu ? stu.name : null;
-      if (!stuName) return;
+      if (!stu) return;
       Object.keys(allSubs[tempId]).forEach(key => {
         const sub = allSubs[tempId][key];
         if (!sub || !sub.submittedAt) return;
@@ -8065,7 +8071,7 @@ function exportWeeklyReport() {
         const n = parseInt(key.replace('week',''));
         const meta = PROJECT_META[n] || {};
         thisWeekSubs.push({
-          student: stuName,
+          student: stu.name,
           project: 'Project ' + n + ' — ' + (meta.incident || '') + ' (' + (meta.type || '') + ')',
           score: sub.grade ? sub.grade.score + '/' + (meta.max || '?') + ' pts' : 'Submitted — pending grade',
           graded: !!sub.grade,
@@ -8073,13 +8079,49 @@ function exportWeeklyReport() {
         });
       });
     });
-
     thisWeekSubs.sort((a,b) => a.student.localeCompare(b.student));
-    buildWeeklyModal(weekNum, weekLabel, weekDates, DAY_LABELS, attendRows, cohortAvg, thisWeekSubs, projNum, statusColor, statusLabel);
+
+    // Per-student completion data for matrix
+    const completionMap = {};
+    students.forEach(s => {
+      if (!s.portalTempId) return;
+      const prog = (_progressCache[s.portalTempId] || {}).progress || {};
+      const wProg = prog[weekNum] || {};
+
+      // Quiz
+      const quiz = wProg.quizScore != null && wProg.quizTotal
+        ? Math.round(wProg.quizScore / wProg.quizTotal * 100) + '%  (' + wProg.quizScore + '/' + wProg.quizTotal + ')'
+        : null;
+
+      // Acronym drill - keyed by tempId or name slug
+      const acroKey = s.portalTempId || s.name.replace(/\s+/g,'_').toLowerCase();
+      const acroEntry = (allAcro[acroKey] || {})['week' + weekNum];
+      const acronym = acroEntry ? acroEntry.pct + '%' : null;
+
+      // Project submission for this week
+      const stuSubs = allSubs[s.portalTempId] || {};
+      const projKey = 'week' + weekNum;
+      const projSub = stuSubs[projKey];
+      let project = null;
+      if (projSub && projSub.submittedAt) {
+        const meta = PROJECT_META[weekNum] || {};
+        project = projSub.grade
+          ? projSub.grade.score + '/' + (meta.max || '?') + ' pts'
+          : 'Submitted';
+      }
+
+      // Academy - total score / session count
+      const acadEntry = allAcad[s.portalTempId];
+      const academy = acadEntry ? (acadEntry.totalScore || 0) + ' pts' : null;
+
+      completionMap[s.name] = { quiz, acronym, project, academy };
+    });
+
+    buildWeeklyModal(weekNum, weekLabel, weekDates, DAY_LABELS, attendRows, cohortAvg, thisWeekSubs, completionMap, allSubs, projNum, statusColor, statusLabel);
   });
 }
 
-function buildWeeklyModal(weekNum, weekLabel, weekDates, DAY_LABELS, attendRows, cohortAvg, subs, projNum, statusColor, statusLabel) {
+function buildWeeklyModal(weekNum, weekLabel, weekDates, DAY_LABELS, attendRows, cohortAvg, subs, completionMap, allSubs, projNum, statusColor, statusLabel) {
   const EXCLUDED = ['Joey Harbour', 'Chris King', 'Carlos Resto'];
   const meta = projNum ? PROJECT_META[projNum] : null;
 
@@ -8186,6 +8228,38 @@ function buildWeeklyModal(weekNum, weekLabel, weekDates, DAY_LABELS, attendRows,
             <tbody>${subsHtml}</tbody>
           </table>
         </div>
+
+        <!-- Student Completion Matrix -->
+        <h3 style="font-size:.8rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ee2207;margin:0 0 12px;">Student Completion — Week ${weekNum}</h3>
+        ${(() => {
+          const rows = attendRows.map(r => {
+            const c = completionMap[r.name] || {};
+            const cell = (val, none) => val
+              ? `<td style="padding:8px 10px;text-align:center;font-size:.82rem;font-weight:700;color:#00875a;">${val}</td>`
+              : `<td style="padding:8px 10px;text-align:center;font-size:.78rem;color:#d1d5db;">${none||'—'}</td>`;
+            return `<tr style="border-bottom:1px solid #e5e7eb;">
+              <td style="padding:8px 12px;font-weight:600;font-size:.88rem;">${r.name}</td>
+              ${cell(c.quiz, 'Not taken')}
+              ${cell(c.acronym, 'Not done')}
+              ${cell(c.project, 'Not submitted')}
+              ${cell(c.academy, 'No activity')}
+            </tr>`;
+          }).join('');
+          return `<div style="overflow-x:auto;margin-bottom:28px;">
+            <table style="width:100%;border-collapse:collapse;font-size:.88rem;font-family:Calibri,sans-serif;">
+              <thead>
+                <tr style="background:#f3f4f6;">
+                  <th style="text-align:left;padding:10px 12px;font-size:.72rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Student</th>
+                  <th style="text-align:center;padding:10px;font-size:.72rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Week ${weekNum} Quiz</th>
+                  <th style="text-align:center;padding:10px;font-size:.72rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Acronym Drill</th>
+                  <th style="text-align:center;padding:10px;font-size:.72rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Project ${weekNum <= 8 ? weekNum : 8}</th>
+                  <th style="text-align:center;padding:10px;font-size:.72rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Academy Score</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>`;
+        })()}
 
         <!-- Week Checklist -->
         <h3 style="font-size:.8rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ee2207;margin:0 0 12px;">Week ${weekNum} Checklist</h3>
