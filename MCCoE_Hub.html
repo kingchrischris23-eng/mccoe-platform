@@ -1176,6 +1176,7 @@ function _renderWeekTasks(wk) {
   if (!data) return;
   var p = '?name=' + encodeURIComponent(_twName) + '&id=' + encodeURIComponent(_twId);
   document.getElementById('tw-week-title').textContent = 'Week ' + wk + ': ' + data.title;
+  var idx = 0;
   var html = data.groups.map(function(g) {
     var items = g.items.map(function(item) {
       var href = '#', tgt = '', oc = '';
@@ -1188,13 +1189,27 @@ function _renderWeekTasks(wk) {
       else if (item.p === 'ctf') { href = 'MCCoE_CTF.html' + p; tgt = 'target="_blank"'; }
       else if (item.p === 'tool') { href = item.url + p; tgt = 'target="_blank"'; }
       else if (item.p === 'ext')  { href = item.url; tgt = 'target="_blank"'; }
-      return '<a href="' + href + '" ' + tgt + ' ' + oc + ' style="display:block;padding:7px 11px;margin-bottom:5px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.85);text-decoration:none;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);transition:background .15s,border-color .15s;" onmouseover="this.style.background=\'rgba(255,255,255,0.11)\';this.style.borderColor=\'rgba(255,255,255,0.22)\';" onmouseout="this.style.background=\'rgba(255,255,255,0.05)\';this.style.borderColor=\'rgba(255,255,255,0.07)\';">' + item.t + '</a>';
+      var ckKey = 'mccoe_chk_' + (_twId || 'guest') + '_w' + wk + '_i' + idx;
+      var done = localStorage.getItem(ckKey) === '1';
+      var chk = done ? 'checked' : '';
+      var doneStyle = done ? 'text-decoration:line-through;opacity:0.45;' : '';
+      var row = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">' +
+        '<input type="checkbox" ' + chk + ' data-ck="' + ckKey + '" onchange="twCheckChange(this)" style="flex-shrink:0;width:15px;height:15px;cursor:pointer;accent-color:#e63946;">' +
+        '<a href="' + href + '" ' + tgt + ' ' + oc + ' style="flex:1;display:block;padding:7px 11px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.85);text-decoration:none;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);transition:background .15s,border-color .15s;' + doneStyle + '" onmouseover="this.style.background=\'rgba(255,255,255,0.11)\';this.style.borderColor=\'rgba(255,255,255,0.22)\';" onmouseout="this.style.background=\'rgba(255,255,255,0.05)\';this.style.borderColor=\'rgba(255,255,255,0.07)\';">' + item.t + '</a>' +
+        '</div>';
+      idx++;
+      return row;
     }).join('');
     return '<div style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px 16px;">' +
       '<div style="font-family:\'Orbitron\',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;color:' + g.color + ';margin-bottom:10px;">' + g.icon + ' ' + g.label + '</div>' +
       items + '</div>';
   }).join('');
   document.getElementById('tw-groups').innerHTML = html;
+}
+function twCheckChange(el) {
+  localStorage.setItem(el.dataset.ck, el.checked ? '1' : '0');
+  var a = el.parentElement.querySelector('a');
+  if (a) { a.style.textDecoration = el.checked ? 'line-through' : 'none'; a.style.opacity = el.checked ? '0.45' : '1'; }
 }
 
 window.addEventListener('DOMContentLoaded', function() {
