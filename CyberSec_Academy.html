@@ -448,7 +448,7 @@ function addScore(pts, type) {
   score += pts;
   if (type === 'quiz')  _quizPts  += pts;
   if (type === 'soc')   _socPts   += pts;
-  if (type === 'phish') _phishPts += pts;
+  if (type === 'phish') _phishPts = Math.min(100, _phishPts + pts);
   if (type === 'flash') _flashPts += pts;
   document.getElementById('pts').textContent = score;
   updateRank();
