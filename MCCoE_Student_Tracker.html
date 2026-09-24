@@ -8051,12 +8051,26 @@ function exportWeeklyReport() {
     _fbDb.ref('mccoe_submissions').once('value'),
     _fbDb.ref('mccoe_acronyms').once('value'),
     _fbDb.ref('mccoe_academy').once('value'),
-    _fbDb.ref('mccoe_progress').once('value')
-  ]).then(([subSnap, acroSnap, acadSnap, progSnap]) => {
+    _fbDb.ref('mccoe_progress').once('value'),
+    _fbDb.ref('mccoe_registry').once('value')
+  ]).then(([subSnap, acroSnap, acadSnap, progSnap, regSnap]) => {
     const allSubs  = subSnap.val()  || {};
     const allAcro  = acroSnap.val() || {};
     const allAcad  = acadSnap.val() || {};
     const allProg  = progSnap.val() || {};
+    const allReg   = regSnap.val()  || {};
+
+    // Add any registry students missing from the local students array
+    const knownTempIds = new Set(students.map(s => s.portalTempId).filter(Boolean));
+    const knownNames   = new Set(students.map(s => (s.name || '').toLowerCase()));
+    Object.values(allReg).forEach(entry => {
+      if (!entry || !entry.name) return;
+      if (!knownTempIds.has(entry.tempId) && !knownNames.has(entry.name.toLowerCase())) {
+        const days = weekDates.map(d => '—');
+        attendRows.push({ name: entry.name, id: entry.assignedId || '—', days, rate: 0, _regOnly: true, portalTempId: entry.tempId });
+      }
+    });
+    attendRows.sort((a, b) => a.name.localeCompare(b.name));
 
     // Submissions from this week's date range
     const thisWeekSubs = [];
@@ -8128,6 +8142,31 @@ function exportWeeklyReport() {
       const academy = acadEntry ? (acadEntry.totalScore || 0) + ' pts' : null;
 
       completionMap[s.name] = { quiz, lab, acronym, project, academy };
+    });
+
+    // Also build completionMap for registry-only students (not in local students array)
+    attendRows.filter(r => r._regOnly && r.portalTempId).forEach(r => {
+      const stuProg = (allProg[r.portalTempId] || {});
+      const prog = stuProg.progress || {};
+      const wProg = prog[weekNum] || prog[String(weekNum)] || {};
+      const qScore = wProg.quizScore;
+      const qTotal = wProg.quizTotal || 10;
+      const quiz = (qScore !== null && qScore !== undefined && qScore !== '')
+        ? Math.round(qScore / qTotal * 100) + '%  (' + qScore + '/' + qTotal + ')' : null;
+      const labsDone = (wProg.labsChecked || []).length;
+      const lab = labsDone > 0 ? labsDone + ' labs done' : null;
+      const acroEntry = (allAcro[r.portalTempId] || {})['week' + weekNum];
+      const acronym = acroEntry && acroEntry.pct !== undefined ? acroEntry.pct + '%  (' + (acroEntry.score||0) + '/' + (acroEntry.total||0) + ')' : null;
+      const stuSubs = allSubs[r.portalTempId] || {};
+      const projSub = stuSubs['week' + weekNum];
+      let project = null;
+      if (projSub && projSub.submittedAt) {
+        const m = PROJECT_META[weekNum] || {};
+        project = projSub.grade ? projSub.grade.score + '/' + (m.max || '?') + ' pts' : 'Submitted — pending grade';
+      }
+      const acadEntry = allAcad[r.portalTempId];
+      const academy = acadEntry ? (acadEntry.totalScore || 0) + ' pts' : null;
+      completionMap[r.name] = { quiz, lab, acronym, project, academy };
     });
 
     buildWeeklyModal(weekNum, weekLabel, weekDates, DAY_LABELS, attendRows, cohortAvg, thisWeekSubs, completionMap, allSubs, projNum, statusColor, statusLabel);
