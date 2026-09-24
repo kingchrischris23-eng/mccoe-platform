@@ -7959,6 +7959,58 @@ function tkExportCSV() {
 // ════════════════════════════════════════════
 //  WEEKLY EXPORT REPORT
 // ════════════════════════════════════════════
+const EXPORT_WEEK_TASKS = {
+  1:{title:'Cybersecurity Foundations',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:['📖 Study Week 1 Content','📝 Take Week 1 Quiz','🔤 Acronym Drill','🔬 Complete Lab Activity']},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00c853',items:['📚 Curriculum Module 1: Cybersecurity Foundations','🎮 Quiz: Cyber Foundations','🔒 Password Checker','🎣 Phishing Spotter']},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#7c3aed',items:['📄 Project 1: Target Breach — Deep Dive (50 pts)']}
+  ]},
+  2:{title:'Network Fundamentals',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:['📖 Study Week 2 Content','📝 Take Week 2 Quiz','🔤 Acronym Drill','🔬 Complete Lab Activity']},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00c853',items:['📚 Curriculum Module 2: Network Fundamentals','🎮 Quiz: Network Security','🖥️ SOC Simulator']},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#7c3aed',items:['📄 Project 2: Target Breach — Frameworks & Writing (100 pts)']}
+  ]},
+  3:{title:'Threat Landscape',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:['📖 Study Week 3 Content','📝 Take Week 3 Quiz','🔤 Acronym Drill','🔬 Complete Lab Activity']},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00c853',items:['📚 Curriculum Module 3: Threat Landscape','🎮 Quiz: Threat Landscape','🃏 Flashcard Drill']},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#7c3aed',items:['📄 Project 3: Colonial Pipeline — Deep Dive (50 pts)','🗺️ MITRE ATT&CK Mapping Tool — Wednesday Activity','📰 Source Doc: CISA Advisory AA21-131A','🏛️ Source Doc: CEO Senate Testimony — June 8 2021','🔍 Source Doc: CISA — What We Learned Two Years Later']}
+  ]},
+  4:{title:'Core Classes',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:['📖 Study Week 4 Content','📝 Take Week 4 Quiz','🔤 Acronym Drill','🔬 Complete Lab Activity']},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00c853',items:['📚 Curriculum Module 5: Kali Linux Basics','🎮 Quiz: OS & Linux','🎮 Quiz: Access Control']},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#7c3aed',items:['📄 Project 4: Colonial Pipeline — Frameworks & Writing (100 pts)','🗺️ MITRE ATT&CK Reference Tool','📰 Source Doc: CISA Advisory AA21-131A','🏛️ Source Doc: CEO Senate Testimony — June 8 2021','🔍 Source Doc: CISA — What We Learned Two Years Later']},
+    {icon:'🔓',label:'Pillar 4 — Ethical Hacking Lab',color:'#00c853',items:['🕵️ Phase 1: Reconnaissance','🔍 Phase 2: Scanning & Enumeration']}
+  ]},
+  5:{title:'Kali Linux Fundamentals',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:['📖 Study Week 5 Content','📝 Take Week 5 Quiz','🔤 Acronym Drill','🔬 Complete Lab Activity']},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00c853',items:['📚 Curriculum Module 6: Network Reconnaissance','🎮 Quiz: Kali & Pentesting']},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#7c3aed',items:['📄 Project 5: SolarWinds — Deep Dive (50 pts)','🏛️ NIST CSF 2.0 Tool — SolarWinds Analysis','📰 Source Doc: CISA Advisory AA20-352A','🏛️ Source Doc: SolarWinds CEO Senate Testimony — Feb 23 2021','🔍 Source Doc: CISA Emergency Directive 21-01']},
+    {icon:'🔓',label:'Pillar 4 — Ethical Hacking Lab',color:'#00c853',items:['💥 Phase 3: Exploitation','👁️ Phase 4: Post-Exploitation','📊 Phase 5: Reporting & Capstone']}
+  ]},
+  6:{title:'Human Factors',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:['📖 Study Week 6 Content','📝 Take Week 6 Quiz','🔤 Acronym Drill','🔬 Complete Lab Activity']},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00c853',items:['📚 Curriculum Module 4: Human Factors','🎮 Quiz: Social Engineering','🎣 Phishing Spotter Challenge']},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#7c3aed',items:['📄 Project 6: SolarWinds — Frameworks & Writing (100 pts)','🏛️ NIST CSF 2.0 Tool — Reference for Project 6','📰 Source Doc: CISA Advisory AA20-352A']}
+  ]},
+  7:{title:'Defensive Security & Tools',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:['📖 Study Week 7 Content','📝 Take Week 7 Quiz','🔤 Acronym Drill','🔬 Complete Lab Activity']},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00c853',items:['📚 Curriculum Module 7: Secure Development','🎮 Quiz: Defensive Security','🖥️ SOC Simulator']},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#7c3aed',items:['📄 Project 7: Equifax — Deep Dive (50 pts)']},
+    {icon:'🛡️',label:'Pillar 5 — Blue Team Lab',color:'#00bcd4',items:['📋 Phase 1: Log Analysis','🔍 Phase 2: Threat Detection','📦 Phase 3: Packet Analysis']}
+  ]},
+  8:{title:'Incident Response Basics',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:['📖 Study Week 8 Content','📝 Take Week 8 Quiz','🔤 Acronym Drill','🔬 Complete Lab Activity']},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00c853',items:['📚 Curriculum Module 8: Penetration Testing Methodology','🎮 Quiz: Incident Response','🎮 Quiz: Security Operations','🖥️ SOC Simulator']},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#7c3aed',items:['📄 Project 8: Equifax — Frameworks & Writing (100 pts)']},
+    {icon:'🛡️',label:'Pillar 5 — Blue Team Lab',color:'#00bcd4',items:['🚨 Phase 4: Incident Response','📝 Phase 5: Defensive Report']}
+  ]},
+  9:{title:'Cybersecurity Careers & Capstone',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:['📖 Study Week 9 Content','📝 Take Week 9 Quiz','🔤 Acronym Drill','🔬 Complete Lab Activity']},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00c853',items:['📚 Review All 8 Curriculum Modules','🎮 Quiz: Careers & Certs','🎮 Quiz: Cloud Security','🃏 Complete All Flashcard Decks']},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#7c3aed',items:['📄 Project 8: Equifax — Frameworks & Writing (100 pts)']},
+    {icon:'🚩',label:'CTF — Capture The Flag',color:'#f59e0b',items:['🚩 Complete All 4 CTF Scenarios (12 Flags)']}
+  ]}
+};
 function exportWeeklyReport() {
   const EXCLUDED = ['Joey Harbour', 'Chris King', 'Carlos Resto'];
   const COHORT_START = new Date('2026-08-31T00:00:00');
@@ -8135,7 +8187,21 @@ function buildWeeklyModal(weekNum, weekLabel, weekDates, DAY_LABELS, attendRows,
           </table>
         </div>
 
-        <p style="font-size:.72rem;color:#9ca3af;text-align:right;margin:0;">Generated ${new Date().toLocaleString('en-US',{month:'long',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})} · MCCoE Admin Tracker</p>
+        <!-- Week Checklist -->
+        <h3 style="font-size:.8rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#ee2207;margin:0 0 12px;">Week ${weekNum} Checklist</h3>
+        ${(() => {
+          const wt = EXPORT_WEEK_TASKS[weekNum];
+          if (!wt) return '<p style="color:#9ca3af;font-style:italic;">No checklist data for this week.</p>';
+          return wt.groups.map(g => `
+            <div style="margin-bottom:14px;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden;">
+              <div style="background:#f3f4f6;padding:9px 14px;font-size:.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:${g.color};">${g.icon} ${g.label}</div>
+              <ul style="margin:0;padding:10px 14px 10px 28px;list-style:none;">
+                ${g.items.map(item => `<li style="padding:4px 0;font-size:.85rem;color:#374151;border-bottom:1px solid #f3f4f6;display:flex;align-items:baseline;gap:8px;"><span style="color:#d1d5db;font-size:.6rem;">&#9632;</span>${item}</li>`).join('')}
+              </ul>
+            </div>`).join('');
+        })()}
+
+        <p style="font-size:.72rem;color:#9ca3af;text-align:right;margin:16px 0 0;">Generated ${new Date().toLocaleString('en-US',{month:'long',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit'})} · MCCoE Admin Tracker</p>
       </div>
     </div>
   </div>`;
