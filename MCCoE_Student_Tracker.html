@@ -8083,40 +8083,51 @@ function exportWeeklyReport() {
     });
     thisWeekSubs.sort((a,b) => a.student.localeCompare(b.student));
 
+    // Merge fresh progress into cache so we have latest data
+    Object.assign(_progressCache, allProg);
+
     // Per-student completion data for matrix
     const completionMap = {};
     students.forEach(s => {
       if (!s.portalTempId) return;
-      const prog = (allProg[s.portalTempId] || {}).progress || {};
-      const wProg = prog[weekNum] || {};
+      const stuProg = _progressCache[s.portalTempId] || {};
+      const prog    = stuProg.progress || {};
+
+      // prog is either an array (0=null,1=w1,...) or object {"1":w1,...}
+      // Use String key to be safe with both
+      const wProg = prog[weekNum] || prog[String(weekNum)] || {};
 
       // Quiz
-      const quiz = wProg.quizScore != null && wProg.quizTotal
-        ? Math.round(wProg.quizScore / wProg.quizTotal * 100) + '%  (' + wProg.quizScore + '/' + wProg.quizTotal + ')'
+      const qScore = wProg.quizScore;
+      const qTotal = wProg.quizTotal || 10;
+      const quiz = (qScore !== null && qScore !== undefined && qScore !== '')
+        ? Math.round(qScore / qTotal * 100) + '%  (' + qScore + '/' + qTotal + ')'
         : null;
 
-      // Acronym drill - keyed by tempId or name slug
-      const acroKey = s.portalTempId || s.name.replace(/\s+/g,'_').toLowerCase();
-      const acroEntry = (allAcro[acroKey] || {})['week' + weekNum];
-      const acronym = acroEntry ? acroEntry.pct + '%' : null;
+      // Lab activity — count of labs checked this week
+      const labsDone = (wProg.labsChecked || []).length;
+      const lab = labsDone > 0 ? labsDone + ' labs done' : null;
+
+      // Acronym drill - keyed by tempId
+      const acroEntry = (allAcro[s.portalTempId] || {})['week' + weekNum];
+      const acronym = acroEntry && acroEntry.pct !== undefined ? acroEntry.pct + '%  (' + (acroEntry.score||0) + '/' + (acroEntry.total||0) + ')' : null;
 
       // Project submission for this week
       const stuSubs = allSubs[s.portalTempId] || {};
-      const projKey = 'week' + weekNum;
-      const projSub = stuSubs[projKey];
+      const projSub = stuSubs['week' + weekNum];
       let project = null;
       if (projSub && projSub.submittedAt) {
         const meta = PROJECT_META[weekNum] || {};
         project = projSub.grade
           ? projSub.grade.score + '/' + (meta.max || '?') + ' pts'
-          : 'Submitted';
+          : 'Submitted — pending grade';
       }
 
-      // Academy - total score / session count
+      // Academy - total score
       const acadEntry = allAcad[s.portalTempId];
       const academy = acadEntry ? (acadEntry.totalScore || 0) + ' pts' : null;
 
-      completionMap[s.name] = { quiz, acronym, project, academy };
+      completionMap[s.name] = { quiz, lab, acronym, project, academy };
     });
 
     buildWeeklyModal(weekNum, weekLabel, weekDates, DAY_LABELS, attendRows, cohortAvg, thisWeekSubs, completionMap, allSubs, projNum, statusColor, statusLabel);
@@ -8237,14 +8248,15 @@ function buildWeeklyModal(weekNum, weekLabel, weekDates, DAY_LABELS, attendRows,
           const rows = attendRows.map(r => {
             const c = completionMap[r.name] || {};
             const cell = (val, none) => val
-              ? `<td style="padding:8px 10px;text-align:center;font-size:.82rem;font-weight:700;color:#00875a;">${val}</td>`
+              ? `<td style="padding:8px 10px;text-align:center;font-size:.8rem;font-weight:700;color:#00875a;">${val}</td>`
               : `<td style="padding:8px 10px;text-align:center;font-size:.78rem;color:#d1d5db;">${none||'—'}</td>`;
             return `<tr style="border-bottom:1px solid #e5e7eb;">
               <td style="padding:8px 12px;font-weight:600;font-size:.88rem;">${r.name}</td>
               ${cell(c.quiz, 'Not taken')}
+              ${cell(c.lab, '—')}
               ${cell(c.acronym, 'Not done')}
               ${cell(c.project, 'Not submitted')}
-              ${cell(c.academy, 'No activity')}
+              ${cell(c.academy, '—')}
             </tr>`;
           }).join('');
           return `<div style="overflow-x:auto;margin-bottom:28px;">
@@ -8252,10 +8264,11 @@ function buildWeeklyModal(weekNum, weekLabel, weekDates, DAY_LABELS, attendRows,
               <thead>
                 <tr style="background:#f3f4f6;">
                   <th style="text-align:left;padding:10px 12px;font-size:.72rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Student</th>
-                  <th style="text-align:center;padding:10px;font-size:.72rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Week ${weekNum} Quiz</th>
+                  <th style="text-align:center;padding:10px;font-size:.72rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Wk ${weekNum} Quiz</th>
+                  <th style="text-align:center;padding:10px;font-size:.72rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Labs</th>
                   <th style="text-align:center;padding:10px;font-size:.72rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Acronym Drill</th>
                   <th style="text-align:center;padding:10px;font-size:.72rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Project ${weekNum <= 8 ? weekNum : 8}</th>
-                  <th style="text-align:center;padding:10px;font-size:.72rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Academy Score</th>
+                  <th style="text-align:center;padding:10px;font-size:.72rem;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Academy</th>
                 </tr>
               </thead>
               <tbody>${rows}</tbody>
