@@ -3597,14 +3597,16 @@ function renderDashboard() {
   students = students.filter(s => s && s.id);
   const newStudents = syncRegistry();
   if (newStudents) { renderStudents(); }
-  // KPIs
-  const total     = students.length || 1;
-  const avgAtt    = Math.round(students.reduce((a,s)=>a+attendRate(s),0)/total);
-  const scoredStudents = students.filter(s => avgScore(s) > 0);
+  // KPIs — only count active cohort members (cohortActive !== false)
+  const activeStudents = students.filter(s => s.cohortActive !== false);
+  const inactiveCount = students.length - activeStudents.length;
+  const total     = activeStudents.length || 1;
+  const avgAtt    = Math.round(activeStudents.reduce((a,s)=>a+attendRate(s),0)/total);
+  const scoredStudents = activeStudents.filter(s => avgScore(s) > 0);
   const avgSc     = scoredStudents.length ? Math.round(scoredStudents.reduce((a,s)=>a+avgScore(s),0)/scoredStudents.length) : 0;
-  const totalHrs  = students.reduce((a,s)=>a+(s.hours||0),0);
-  const certsPassed = students.reduce((a,s)=>a+Object.values(s.certs||{}).filter(v=>v==='passed').length,0);
-  const withSurveys = students.filter(s=>(s.surveys||[]).length);
+  const totalHrs  = activeStudents.reduce((a,s)=>a+(s.hours||0),0);
+  const certsPassed = activeStudents.reduce((a,s)=>a+Object.values(s.certs||{}).filter(v=>v==='passed').length,0);
+  const withSurveys = activeStudents.filter(s=>(s.surveys||[]).length);
   const surveySat = withSurveys.reduce((a,s)=>a+parseFloat(surveyAvg(s)),0) / (withSurveys.length||1);
 
   const today = new Date().toISOString().split('T')[0];
@@ -3627,7 +3629,7 @@ function renderDashboard() {
   }
 
   document.getElementById('kpiGrid').innerHTML = `
-    <div class="kpi-card red" onclick="showKpiChart('total')" style="cursor:pointer;" title="Click for chart"><div class="kpi-icon">👥</div><div class="kpi-label">Total Apprentices</div><div class="kpi-value">${total}</div><div class="kpi-sub">Active cohort · <span style="color:rgba(0,245,255,.5);font-size:.65rem;">📊 View chart</span></div></div>
+    <div class="kpi-card red" onclick="showKpiChart('total')" style="cursor:pointer;" title="Click for chart"><div class="kpi-icon">👥</div><div class="kpi-label">Total Apprentices</div><div class="kpi-value">${total}</div><div class="kpi-sub">Active cohort${inactiveCount > 0 ? ` · <span style="color:rgba(255,45,94,.6);font-size:.65rem;">${inactiveCount} inactive</span>` : ''} · <span style="color:rgba(0,245,255,.5);font-size:.65rem;">📊 View chart</span></div></div>
     <div class="kpi-card green" onclick="showKpiChart('attendance')" style="cursor:pointer;" title="Click for chart"><div class="kpi-icon">📅</div><div class="kpi-label">Avg Attendance</div><div class="kpi-value">${avgAtt}%</div><div class="kpi-sub">This month · <span style="color:rgba(0,245,255,.5);font-size:.65rem;">📊 View chart</span></div></div>
     <div class="kpi-card blue" onclick="showKpiChart('performance')" style="cursor:pointer;" title="Click for chart"><div class="kpi-icon">⭐</div><div class="kpi-label">Avg Performance</div><div class="kpi-value">${avgSc}</div><div class="kpi-sub">Out of 100 · <span style="color:rgba(0,245,255,.5);font-size:.65rem;">📊 View chart</span></div></div>
     <div class="kpi-card yellow" onclick="showKpiChart('hours')" style="cursor:pointer;" title="Click for chart"><div class="kpi-icon">⏱</div><div class="kpi-label">Total Hours Logged</div><div class="kpi-value">${totalHrs.toLocaleString()}</div><div class="kpi-sub">Across all students · <span style="color:rgba(0,245,255,.5);font-size:.65rem;">📊 View chart</span></div></div>
@@ -4215,11 +4217,16 @@ function _buildKpiData(type) {
 
 // ════════════════════════════════════════════
 function renderStudents() {
-  document.getElementById('studentsTable').innerHTML = students.map(s=>`
-    <tr onclick="openDetail('${s.id}')">
+  document.getElementById('studentsTable').innerHTML = students.map(s=>{
+    const inactive = s.cohortActive === false;
+    return `
+    <tr onclick="openDetail('${s.id}')" style="${inactive ? 'opacity:0.45;' : ''}">
       <td><div style="display:flex;align-items:center;gap:10px;">
-        <div class="avatar" style="width:34px;height:34px;font-size:.8rem;flex-shrink:0;">${initials(s.name)}</div>
-        <div style="font-weight:600;color:var(--white);">${s.name}</div>
+        <div class="avatar" style="width:34px;height:34px;font-size:.8rem;flex-shrink:0;${inactive ? 'filter:grayscale(1);' : ''}">${initials(s.name)}</div>
+        <div>
+          <div style="font-weight:600;color:var(--white);${inactive ? 'text-decoration:line-through;color:var(--muted);' : ''}">${s.name}</div>
+          ${inactive ? '<div style="font-size:.65rem;color:var(--red);font-weight:600;letter-spacing:.5px;">INACTIVE</div>' : ''}
+        </div>
       </div></td>
       <td>${s.studentId
         ? `<span style="font-weight:700;color:var(--green);font-size:.85rem;">${s.studentId}</span>`
@@ -4234,9 +4241,11 @@ function renderStudents() {
       <td style="color:var(--muted);font-size:.82rem;">${s.employer||'—'}</td>
       <td onclick="event.stopPropagation()">
         <button class="btn btn-outline btn-sm" onclick="openEditStudent('${s.id}')">Edit</button>
+        <button class="btn btn-sm" style="background:${inactive?'rgba(0,245,255,0.08)':'var(--red-glow)'};color:${inactive?'var(--cyan)':'var(--red)'};border:1px solid ${inactive?'var(--cyan)':'var(--red)'};margin-left:4px;" onclick="toggleCohortActive('${s.id}')">${inactive?'Reactivate':'Deactivate'}</button>
         <button class="btn btn-sm" style="background:var(--red-glow);color:var(--red);border:1px solid var(--red);margin-left:4px;" onclick="deleteStudent('${s.id}')">Delete</button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 // ════════════════════════════════════════════
@@ -4257,7 +4266,11 @@ function openDetail(id) {
         <div class="avatar">${initials(s.name)}</div>
         <div class="profile-name">${s.name}</div>
         <div class="profile-meta">${s.cohort} | Started ${s.startDate}</div>
-        <span class="status-badge status-${s.placement}" style="margin-bottom:14px;display:inline-block;">${{active:'Active',ojt:'In OJT',placed:'Placed'}[s.placement]}</span>
+        <span class="status-badge status-${s.placement}" style="margin-bottom:8px;display:inline-block;">${{active:'Active',ojt:'In OJT',placed:'Placed'}[s.placement]}</span>
+        ${s.cohortActive === false ? '<div style="font-size:.7rem;color:var(--red);font-weight:700;letter-spacing:1px;margin-bottom:4px;">⛔ EXCLUDED FROM COHORT AVERAGES</div>' : ''}
+        <div style="margin-bottom:14px;">
+          <button onclick="toggleCohortActive('${s.id}')" style="background:${s.cohortActive===false?'rgba(0,245,255,0.08)':'rgba(255,45,94,0.08)'};color:${s.cohortActive===false?'var(--cyan)':'var(--red)'};border:1px solid ${s.cohortActive===false?'var(--cyan)':'var(--red)'};border-radius:6px;padding:5px 14px;font-size:.75rem;cursor:pointer;font-weight:600;">${s.cohortActive===false?'Reactivate — Include in Averages':'Deactivate — Exclude from Averages'}</button>
+        </div>
         <div class="profile-stats">
           <div class="profile-stat"><div class="profile-stat-label">Phase</div><div class="profile-stat-value">${s.phase} / 4</div></div>
           <div class="profile-stat"><div class="profile-stat-label">Hours</div><div class="profile-stat-value">${s.hours}</div></div>
@@ -4984,6 +4997,16 @@ function deleteStudent(id) {
       _fbDb.ref('mccoe_xp/' + s.portalTempId).remove();
     }
   }
+}
+
+function toggleCohortActive(id) {
+  const s = students.find(x => x.id === id);
+  if (!s) return;
+  s.cohortActive = s.cohortActive === false ? true : false;
+  saveData();
+  renderDashboard();
+  renderStudents();
+  if (document.getElementById('detailModal').style.display !== 'none') openDetail(id);
 }
 
 // ════════════════════════════════════════════
