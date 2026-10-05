@@ -2388,13 +2388,15 @@ function saveState() {
     : 'mccoe_student_state';
   localStorage.setItem(key, JSON.stringify(state));
   if (_fbDb && state.student.tempId) {
-    _fbDb.ref('mccoe_progress/' + state.student.tempId).set({
-      student:    state.student,
-      progress:   state.progress,
-      softSkills: state.softSkills || {},
-      game:       state.game || {},
+    // Use update() with per-week paths so devices never overwrite each other's weeks
+    const updates = {
+      student:     state.student,
+      softSkills:  state.softSkills || {},
+      game:        state.game       || {},
       lastUpdated: new Date().toISOString()
-    });
+    };
+    Object.keys(state.progress).forEach(wk => { updates['progress/' + wk] = state.progress[wk]; });
+    _fbDb.ref('mccoe_progress/' + state.student.tempId).update(updates);
   }
 }
 function getWeekProgress(num) {
