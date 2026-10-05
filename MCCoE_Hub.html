@@ -1011,6 +1011,18 @@ function hubLoginSuccess(name, id, doLog) {
 
   document.getElementById('hub-login-overlay').style.display = 'none';
   renderThisWeekPanel(name, id);
+  loadChecklistFromFirebase(id);
+}
+
+function loadChecklistFromFirebase(studentId) {
+  if (!_hubDb || !studentId) return;
+  _hubDb.ref('mccoe_checklists/' + studentId).once('value', function(snap) {
+    var data = snap.val() || {};
+    _twChecksCache = data;
+    Object.keys(data).forEach(function(k) { localStorage.setItem(k, data[k]); });
+    var sel = document.getElementById('tw-week-select');
+    if (sel) _renderWeekTasks(parseInt(sel.value));
+  });
 }
 
 function hubLogout() {
@@ -1149,7 +1161,7 @@ var WEEK_TASKS = {
   ]}
 };
 
-var _twName = '', _twId = '';
+var _twName = '', _twId = '', _twChecksCache = {};
 function renderThisWeekPanel(hubName, hubId) {
   _twName = hubName; _twId = hubId;
   var panel = document.getElementById('this-week-panel');
@@ -1190,7 +1202,7 @@ function _renderWeekTasks(wk) {
       else if (item.p === 'tool') { var sep = item.url.indexOf('?') >= 0 ? '&' : '?'; href = item.url + sep + 'name=' + encodeURIComponent(_twName) + '&id=' + encodeURIComponent(_twId); tgt = 'target="_blank"'; }
       else if (item.p === 'ext')  { href = item.url; tgt = 'target="_blank"'; }
       var ckKey = 'mccoe_chk_' + (_twId || 'guest') + '_w' + wk + '_i' + idx;
-      var done = localStorage.getItem(ckKey) === '1';
+      var done = (_twChecksCache[ckKey] === '1') || (localStorage.getItem(ckKey) === '1');
       var chk = done ? 'checked' : '';
       var doneStyle = done ? 'text-decoration:line-through;opacity:0.45;' : '';
       var row = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">' +
@@ -1207,7 +1219,11 @@ function _renderWeekTasks(wk) {
   document.getElementById('tw-groups').innerHTML = html;
 }
 function twCheckChange(el) {
-  localStorage.setItem(el.dataset.ck, el.checked ? '1' : '0');
+  var key = el.dataset.ck;
+  var val = el.checked ? '1' : '0';
+  localStorage.setItem(key, val);
+  _twChecksCache[key] = val;
+  if (_hubDb && _twId) _hubDb.ref('mccoe_checklists/' + _twId + '/' + key).set(val);
   var a = el.parentElement.querySelector('a');
   if (a) { a.style.textDecoration = el.checked ? 'line-through' : 'none'; a.style.opacity = el.checked ? '0.45' : '1'; }
 }
