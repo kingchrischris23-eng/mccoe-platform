@@ -1568,6 +1568,30 @@ function openProjectSubmit(n) {
 
   document.getElementById('proj-submit-modal').style.display = 'flex';
 
+  // Pull Firebase draft and populate fields if it's newer than localStorage
+  var _fbHubId = localStorage.getItem('hub_id');
+  if (_hubDb && _fbHubId) {
+    _hubDb.ref('mccoe_drafts/' + _fbHubId + '/proj' + n).once('value', function(snap) {
+      var fbDraft = snap.val();
+      if (!fbDraft || !fbDraft.answers) return;
+      var localTs = draft && draft.savedAt ? new Date(draft.savedAt).getTime() : 0;
+      var fbTs = fbDraft.savedAt ? new Date(fbDraft.savedAt).getTime() : 0;
+      if (fbTs > localTs) {
+        proj.fields.forEach(function(f) {
+          var el = document.getElementById('hp-' + n + '-' + f.id);
+          if (el && fbDraft.answers[f.id] !== undefined) el.value = fbDraft.answers[f.id];
+        });
+        localStorage.setItem('mccoe_proj_draft_' + n, JSON.stringify(fbDraft));
+        var statusEl = document.getElementById('proj-draft-status');
+        if (statusEl) {
+          var t = new Date(fbDraft.savedAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+          statusEl.textContent = '☁ Draft synced from cloud — last saved ' + t;
+          statusEl.style.color = 'rgba(0,200,83,0.75)';
+        }
+      }
+    });
+  }
+
   if (_autosaveTimer) clearInterval(_autosaveTimer);
   _autosaveTimer = setInterval(saveDraftHub, 2 * 60 * 1000);
 }
@@ -1580,7 +1604,10 @@ function saveDraftHub() {
     var el = document.getElementById('hp-' + _currentProjectNum + '-' + f.id);
     if (el) answers[f.id] = el.value;
   });
-  localStorage.setItem('mccoe_proj_draft_' + _currentProjectNum, JSON.stringify({ answers: answers, savedAt: new Date().toISOString() }));
+  var draftData = { answers: answers, savedAt: new Date().toISOString() };
+  localStorage.setItem('mccoe_proj_draft_' + _currentProjectNum, JSON.stringify(draftData));
+  var hubId = localStorage.getItem('hub_id');
+  if (_hubDb && hubId) _hubDb.ref('mccoe_drafts/' + hubId + '/proj' + _currentProjectNum).set(draftData);
   var statusEl = document.getElementById('proj-draft-status');
   if (statusEl) {
     var t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
@@ -1624,6 +1651,7 @@ function submitProjectHub() {
   _hubDb.ref('mccoe_submissions/' + hubId + '/week' + projNum).set(entry, function(err) {
     if (err) { alert('Error submitting: ' + err.message); return; }
     localStorage.removeItem('mccoe_proj_draft_' + projNum);
+    if (_hubDb && hubId) _hubDb.ref('mccoe_drafts/' + hubId + '/proj' + projNum).remove();
     _projectStatuses[projNum] = entry;
     updateSubmitButtons();
     closeProjectModal();
