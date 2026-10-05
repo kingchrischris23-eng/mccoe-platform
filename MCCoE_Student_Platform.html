@@ -2904,16 +2904,23 @@ function enterApp() {
   initLibraryFromFirebase();
   updateStreak();
   setTimeout(() => { loadJobReadiness(); loadDueDates(); loadAcronymScores(); }, 400);
-  // Push local progress to Firebase immediately so it is never lost
-  if (_fbDb && state.student.tempId && Object.keys(state.progress).length > 0) {
-    saveState();
-  }
-  // Sync progress from Firebase — merge remote weeks with local weeks
+  // Sync from Firebase — Firebase wins for submitted weeks; local only wins for newer in-progress work
   if (_fbDb && state.student.tempId) {
     _fbDb.ref('mccoe_progress/' + state.student.tempId).once('value', snap => {
       const fb = snap.val();
       const wasOnWeek = currentWeek;
-      state.progress = Object.assign({}, state.progress, (fb && fb.progress) || {});
+      const fbProgress = (fb && fb.progress) || {};
+      const merged = Object.assign({}, state.progress);
+      Object.keys(fbProgress).forEach(wk => {
+        const fbWk = fbProgress[wk];
+        const localWk = merged[wk];
+        if (!fbWk) return;
+        if (!localWk || (fbWk.submitted && !localWk.submitted) ||
+            ((fbWk.quizScore || 0) > (localWk.quizScore || 0))) {
+          merged[wk] = fbWk;
+        }
+      });
+      state.progress = merged;
       if (fb && fb.softSkills) state.softSkills = Object.assign({}, state.softSkills, fb.softSkills);
       if (fb && fb.game && fb.game.xp > (state.game.xp || 0)) state.game = fb.game;
       saveState();
