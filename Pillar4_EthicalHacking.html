@@ -608,6 +608,27 @@ footer strong{color:var(--green)}
       </div>
     </div>
 
+    <div class="sec-card">
+      <div class="sec-title">Exercise 2b — Web Enumeration</div>
+      <div class="exercise-box">
+        <div class="exercise-label">🎯 Objective: Discover hidden directories, files, and entry points on a web target</div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option A — TryHackMe</div>
+        <div class="step"><span class="step-num">01</span><span>Complete the <a href="https://tryhackme.com/room/contentdiscovery" target="_blank" style="color:var(--green);"><strong>"Content Discovery"</strong></a> room — covers manual, automated, and OSINT-based discovery of hidden web content</span></div>
+        <div class="step"><span class="step-num">02</span><span>Complete the <a href="https://tryhackme.com/room/webfundamentals" target="_blank" style="color:var(--green);"><strong>"Web Fundamentals"</strong></a> room to understand HTTP requests, response codes, and how web applications are structured</span></div>
+        <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option B — HackTheBox Starting Point</div>
+        <div class="step"><span class="step-num">03</span><span>Complete <a href="https://app.hackthebox.com/starting-point" target="_blank" style="color:var(--green);"><strong>"Ignition"</strong></a> (Tier 1) — find a hidden admin login page and gain access using a default credential</span></div>
+        <div class="step"><span class="step-num">04</span><span>Complete <a href="https://app.hackthebox.com/starting-point" target="_blank" style="color:var(--green);"><strong>"Bike"</strong></a> (Tier 1) — Server-Side Template Injection on a Node.js app; introduces web vulnerability concepts beyond basic scanning</span></div>
+      </div>
+      <div class="deliv-box">
+        <div class="deliv-label">📋 DELIVERABLE — WEB ENUMERATION FINDINGS</div>
+        <div class="deliv-item">List of hidden directories or files discovered — path and HTTP status code for each</div>
+        <div class="deliv-item">Admin or login pages found — URL and what technology is running it</div>
+        <div class="deliv-item">Any default credentials that worked — username, password, and what access they granted</div>
+        <div class="deliv-item">Risk Assessment — one sentence on why exposed admin panels are dangerous in production</div>
+      </div>
+    </div>
+
     <div class="submit-wrap">
       <div class="submit-wrap-label">📎 SUBMIT YOUR DELIVERABLE LINK — REQUIRED BEFORE MARKING COMPLETE</div>
       <div class="submit-row">
@@ -696,6 +717,39 @@ footer strong{color:var(--green)}
         <div class="sample-item"><strong>Exploit Used:</strong> SSH brute-force via Hydra against port 22. Username discovered from SMB enumeration (enum4linux). CVE: N/A — weak credential, not a software vulnerability.</div>
         <div class="sample-item"><strong>Access Gained:</strong> Standard user shell as "jan". Ran "whoami" — output: jan. Ran "id" — output: uid=1000(jan) gid=1000(jan) groups=1000(jan).</div>
         <div class="sample-item"><strong>Impact Analysis:</strong> A real attacker with this access level could read all files owned by the jan account, attempt privilege escalation to root, enumerate running services, and establish persistence via a cron job or SSH key. The weak password (123456) on an internet-facing SSH port would be discovered by an automated scanner within minutes of deployment.</div>
+      </div>
+    </div>
+
+    <div class="sec-card">
+      <div class="sec-title">Exercise 3b — Web Application Attacks</div>
+      <div class="warn-box">
+        <div class="warn-label">⚠ AUTHORIZED PLATFORMS ONLY</div>
+        <div class="warn-text">PortSwigger Web Academy and TryHackMe provide fully isolated, legal targets. Never attempt these techniques on any real website — SQL injection and XSS against unauthorized targets is a federal crime.</div>
+      </div>
+      <div class="exercise-box" style="margin-top:14px">
+        <div class="exercise-label">🎯 Objective: Exploit SQL injection and XSS vulnerabilities on authorized practice targets</div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option A — PortSwigger Web Security Academy (Free)</div>
+        <div class="step"><span class="step-num">01</span><span>Create a free account at <a href="https://portswigger.net/web-security" target="_blank" style="color:var(--green);"><strong>portswigger.net/web-security</strong></a></span></div>
+        <div class="step"><span class="step-num">02</span><span>Complete <a href="https://portswigger.net/web-security/sql-injection" target="_blank" style="color:var(--green);"><strong>SQL Injection — Lab 1</strong></a>: retrieve hidden data by injecting into a search query — no tools needed, just your browser</span></div>
+        <div class="step"><span class="step-num">03</span><span>Complete <a href="https://portswigger.net/web-security/cross-site-scripting" target="_blank" style="color:var(--green);"><strong>Reflected XSS — Lab 1</strong></a>: inject a script tag into a search parameter and confirm it executes in the browser</span></div>
+        <div style="border-top:1px solid rgba(0,255,65,0.15);margin:14px 0;"></div>
+        <div class="sec-body" style="margin-bottom:14px;font-size:13px;color:var(--muted)">Option B — TryHackMe</div>
+        <div class="step"><span class="step-num">04</span><span>Complete the <a href="https://tryhackme.com/room/sqlinjectionlm" target="_blank" style="color:var(--green);"><strong>"SQL Injection"</strong></a> room — covers in-band, blind, and time-based injection with hands-on live targets</span></div>
+        <div class="step"><span class="step-num">05</span><span>Complete the <a href="https://tryhackme.com/room/xss" target="_blank" style="color:var(--green);"><strong>"Cross-site Scripting"</strong></a> room — reflected, stored, and DOM-based XSS in a live browser environment</span></div>
+      </div>
+      <div class="deliv-box">
+        <div class="deliv-label">📋 DELIVERABLE — WEB ATTACK REPORT</div>
+        <div class="deliv-item">SQL Injection: the exact payload you used, what data came back, and why the query broke</div>
+        <div class="deliv-item">XSS: the script you injected, where it executed, and what a real attacker could steal with it</div>
+        <div class="deliv-item">Business Impact: one paragraph — what real data or accounts could be compromised using these two techniques?</div>
+        <div class="deliv-item">Remediation: how a developer fixes each — parameterized queries for SQLi, output encoding for XSS</div>
+      </div>
+      <div class="sample-box">
+        <div class="sample-label">📝 SAMPLE — SQL INJECTION FINDING</div>
+        <div class="sample-item"><strong>Target:</strong> PortSwigger Lab — "SQL injection vulnerability in WHERE clause allowing retrieval of hidden data"</div>
+        <div class="sample-item"><strong>Payload:</strong> ' OR 1=1-- injected into the category parameter. The query became: SELECT * FROM products WHERE category='Gifts' OR 1=1--' AND released=1</div>
+        <div class="sample-item"><strong>Result:</strong> All products returned including unreleased items. 1=1 is always true, and -- commented out the released=1 filter entirely.</div>
+        <div class="sample-item"><strong>Remediation:</strong> Use parameterized queries. Replace string concatenation with: SELECT * FROM products WHERE category=? AND released=1 — user input is passed as a bound parameter and can never alter the query structure.</div>
       </div>
     </div>
 
@@ -927,6 +981,24 @@ footer strong{color:var(--green)}
           <div class="room-phases">Phases: 2, 3, 4</div>
           <div class="room-note">Experience the exact MS17-010 exploit used in the WannaCry ransomware attack.</div>
         </div>
+        <div class="room-card">
+          <div class="room-name">Pickle Rick</div>
+          <span class="room-diff diff-beginner">BEGINNER</span>
+          <div class="room-phases">Phases: 1, 2, 3</div>
+          <div class="room-note">Web enumeration + command injection. Short, fun, and teaches directory busting. Great for practicing Exercise 2b skills.</div>
+        </div>
+        <div class="room-card">
+          <div class="room-name">OWASP Juice Shop</div>
+          <span class="room-diff diff-intermediate">INTERMEDIATE</span>
+          <div class="room-phases">Phases: 2, 3, 5</div>
+          <div class="room-note">Real Node.js web app with 100+ vulnerabilities. SQL injection, XSS, broken auth — closest thing to attacking a real web application.</div>
+        </div>
+        <div class="room-card">
+          <div class="room-name">Anthem</div>
+          <span class="room-diff diff-beginner">BEGINNER</span>
+          <div class="room-phases">Phases: 1, 2, 3</div>
+          <div class="room-note">Windows-based. OSINT recon reveals credentials, then RDP access. Great for practicing the full Phase 1 → Phase 3 flow on a Windows target.</div>
+        </div>
       </div>
     </div>
 
@@ -963,6 +1035,18 @@ footer strong{color:var(--green)}
           <span class="room-diff diff-beginner">BEGINNER</span>
           <div class="room-phases">Phases: 2, 3, 4, 5</div>
           <div class="room-note">Samba 3.0.20 exploit (CVE-2007-2447). Instant root via Metasploit. Great for practicing post-exploitation documentation.</div>
+        </div>
+        <div class="room-card" style="cursor:pointer" onclick="window.open('https://app.hackthebox.com/starting-point','_blank')">
+          <div class="room-name"><a href="https://app.hackthebox.com/starting-point" target="_blank" style="color:#fff;text-decoration:none;">Three ↗</a></div>
+          <span class="room-diff diff-beginner">STARTING POINT</span>
+          <div class="room-phases">Phases: 1, 2, 3</div>
+          <div class="room-note">Tier 1 — AWS S3 bucket misconfiguration leads to a web shell upload. Real-world cloud attack vector used in actual breaches.</div>
+        </div>
+        <div class="room-card" style="cursor:pointer" onclick="window.open('https://app.hackthebox.com/starting-point','_blank')">
+          <div class="room-name"><a href="https://app.hackthebox.com/starting-point" target="_blank" style="color:#fff;text-decoration:none;">Crocodile ↗</a></div>
+          <span class="room-diff diff-beginner">STARTING POINT</span>
+          <div class="room-phases">Phases: 2, 3</div>
+          <div class="room-note">Tier 1 — FTP anonymous login leaks credentials; those same credentials unlock a web admin panel. Teaches credential reuse attacks.</div>
         </div>
       </div>
     </div>
