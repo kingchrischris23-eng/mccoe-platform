@@ -2913,12 +2913,8 @@ function enterApp() {
       const merged = Object.assign({}, state.progress);
       Object.keys(fbProgress).forEach(wk => {
         const fbWk = fbProgress[wk];
-        const localWk = merged[wk];
         if (!fbWk) return;
-        if (!localWk || (fbWk.submitted && !localWk.submitted) ||
-            ((fbWk.quizScore || 0) > (localWk.quizScore || 0))) {
-          merged[wk] = fbWk;
-        }
+        merged[wk] = fbWk;
       });
       state.progress = merged;
       if (fb && fb.softSkills) state.softSkills = Object.assign({}, state.softSkills, fb.softSkills);
