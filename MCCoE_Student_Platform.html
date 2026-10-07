@@ -3268,8 +3268,8 @@ function renderWeek(num) {
     <div class="tab-panel" id="tab-acronym">${renderAcronymTab(w.num)}</div>
   `;
 
-  // Load instructor grade if week is submitted
-  if (p.submitted) loadInstructorGrade(num);
+  // Always check for instructor grade — shows even if submitted flag not set locally
+  loadInstructorGrade(num);
 
   // Restore graded quiz state if student navigates back to this week
   if (p.quizScore !== null) {
@@ -3333,13 +3333,11 @@ function renderSubmitTab(w, p) {
       ${p.submitted ? `
         <div class="submitted-banner" style="display:block">
           ✅ Week ${w.num} submitted! Your instructor has received your work.
-        </div>
-        <div id="instructor-grade-${w.num}">
-          <div style="font-size:13px;color:#999;margin-top:12px;">Loading your grade...</div>
         </div>` : `
         <button class="btn-submit-week" onclick="submitWeek(${w.num})">
           📤 Submit Week ${w.num}
         </button>`}
+      <div id="instructor-grade-${w.num}"></div>
     </div>`;
 }
 
