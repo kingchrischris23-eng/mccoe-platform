@@ -258,6 +258,7 @@ body { font-family: 'Rajdhani', 'Segoe UI', sans-serif; font-size: 15px; font-we
   box-shadow: 0 4px 20px rgba(78,204,163,.5);
   pointer-events: none;
 }
+@keyframes spin { to { transform: rotate(360deg); } }
 @keyframes xpPopIn {
   0%   { opacity: 0; transform: translateY(0) scale(.8); }
   20%  { opacity: 1; transform: translateY(-30px) scale(1.1); }
@@ -2435,6 +2436,7 @@ const FIREBASE_CONFIG = {
 let _fbDb = null;
 let _registryCache = JSON.parse(localStorage.getItem('mccoe_student_registry') || '[]');
 let _hubSSODone = false;
+let _ssoTargetWeek = null;
 
 // ── Hours auto-tracking ──────────────────────────────────────────────────────
 let _hoursTrackingId  = null;
@@ -2566,9 +2568,9 @@ window._dismissIdleWarning = _dismissIdleWarning;
             const _raw = localStorage.getItem(_savedKey);
             if (_raw) { try { const _s = JSON.parse(_raw); if (_s.student && _s.progress) state = _s; } catch(e){} }
             state.student = { name: _match.name, cohort: _match.cohort || '', tempId: _hubId, assignedId: _match.assignedId || null };
-            enterApp();
             const _wkParam = parseInt(_p.get('week'));
-            if (_wkParam >= 1 && _wkParam <= 9) setTimeout(() => renderWeek(_wkParam), 150);
+            if (_wkParam >= 1 && _wkParam <= 9) _ssoTargetWeek = _wkParam;
+            enterApp();
             startHoursTracking(_hubId);
             _resetIdleTimer();
             const _now = new Date(); const _ts = _now.toISOString();
@@ -2900,13 +2902,22 @@ function enterApp() {
   document.getElementById('hdr-cohort').textContent = state.student.cohort;
   buildNav();
   updateOverallProgress();
-  renderStudentDashboard();
   initLibraryFromFirebase();
   updateStreak();
   setTimeout(() => { loadJobReadiness(); loadDueDates(); loadAcronymScores(); }, 400);
-  // Sync from Firebase — Firebase wins for submitted weeks; local only wins for newer in-progress work
+
   if (_fbDb && state.student.tempId) {
+    // Show loading spinner while Firebase syncs — prevents blank screen on new devices
+    document.getElementById('main-content').innerHTML = `
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:320px;gap:16px;">
+        <div style="width:44px;height:44px;border:4px solid #e0e0e0;border-top-color:var(--red);border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+        <div style="font-size:15px;color:#666;font-weight:500;">Loading your progress...</div>
+        <div style="font-size:12px;color:#aaa;">Syncing from cloud</div>
+      </div>`;
+    // Safety fallback — render from local state after 6 seconds if Firebase is slow
+    const _syncTimeout = setTimeout(() => { buildNav(); updateOverallProgress(); renderStudentDashboard(); }, 6000);
     _fbDb.ref('mccoe_progress/' + state.student.tempId).once('value', snap => {
+      clearTimeout(_syncTimeout);
       const fb = snap.val();
       const wasOnWeek = currentWeek;
       const fbProgress = (fb && fb.progress) || {};
@@ -2922,9 +2933,13 @@ function enterApp() {
       saveState();
       buildNav();
       updateOverallProgress();
-      if (wasOnWeek) renderWeek(wasOnWeek);
+      const _target = _ssoTargetWeek || wasOnWeek;
+      _ssoTargetWeek = null;
+      if (_target) renderWeek(_target);
       else renderStudentDashboard();
     });
+  } else {
+    renderStudentDashboard();
   }
 }
 
@@ -3253,6 +3268,9 @@ function renderWeek(num) {
     <div class="tab-panel" id="tab-acronym">${renderAcronymTab(w.num)}</div>
   `;
 
+  // Load instructor grade if week is submitted
+  if (p.submitted) loadInstructorGrade(num);
+
   // Restore graded quiz state if student navigates back to this week
   if (p.quizScore !== null) {
     const bar = document.getElementById('quiz-result-bar');
@@ -3315,6 +3333,9 @@ function renderSubmitTab(w, p) {
       ${p.submitted ? `
         <div class="submitted-banner" style="display:block">
           ✅ Week ${w.num} submitted! Your instructor has received your work.
+        </div>
+        <div id="instructor-grade-${w.num}">
+          <div style="font-size:13px;color:#999;margin-top:12px;">Loading your grade...</div>
         </div>` : `
         <button class="btn-submit-week" onclick="submitWeek(${w.num})">
           📤 Submit Week ${w.num}
@@ -3436,6 +3457,42 @@ function loadAcronymScores() {
       if (!isNaN(weekNum)) state.acronymScores[weekNum] = data[k];
     });
     saveState();
+  });
+}
+
+function loadInstructorGrade(weekNum) {
+  if (!_fbDb || !state.student.tempId) return;
+  _fbDb.ref('mccoe_submissions/' + state.student.tempId + '/week' + weekNum + '/grade').once('value', snap => {
+    const grade = snap.val();
+    const el = document.getElementById('instructor-grade-' + weekNum);
+    if (!el) return;
+    if (!grade) {
+      el.innerHTML = '<div style="font-size:13px;color:#999;margin-top:12px;">No grade posted yet. Check back after your instructor reviews your submission.</div>';
+      return;
+    }
+    const pct = Math.round(grade.score / grade.maxScore * 100);
+    const col = pct >= 80 ? 'var(--green)' : pct >= 60 ? '#f59e0b' : 'var(--red)';
+    const letter = pct >= 90 ? 'A' : pct >= 80 ? 'B' : pct >= 70 ? 'C' : pct >= 60 ? 'D' : 'F';
+    el.innerHTML = `
+      <div style="margin-top:16px;background:rgba(0,166,81,.07);border:2px solid rgba(0,166,81,.35);border-radius:12px;padding:18px 20px;">
+        <div style="font-size:12px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">Instructor Grade</div>
+        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+          <div style="text-align:center;">
+            <div style="font-size:36px;font-weight:900;color:${col};">${grade.score}<span style="font-size:18px;color:#999;">/${grade.maxScore}</span></div>
+            <div style="font-size:12px;color:#999;">Points</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:36px;font-weight:900;color:${col};">${pct}%</div>
+            <div style="font-size:12px;color:#999;">Score</div>
+          </div>
+          <div style="text-align:center;">
+            <div style="font-size:36px;font-weight:900;color:${col};">${letter}</div>
+            <div style="font-size:12px;color:#999;">Grade</div>
+          </div>
+        </div>
+        ${grade.feedback ? `<div style="margin-top:14px;padding:12px 14px;background:rgba(255,255,255,.07);border-radius:8px;font-size:13px;line-height:1.6;color:#ccc;"><strong style="color:#fff;">Instructor Feedback:</strong><br>${grade.feedback}</div>` : ''}
+        <div style="font-size:11px;color:#666;margin-top:8px;">Graded by ${grade.gradedBy || 'Instructor'} · ${grade.gradedAt ? new Date(grade.gradedAt).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : ''}</div>
+      </div>`;
   });
 }
 
