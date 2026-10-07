@@ -1481,6 +1481,18 @@ function openProjectSubmit(n) {
     return;
   }
   _currentProjectNum = n;
+  // Always fetch fresh from Firebase so instructor grades show immediately
+  if (_hubDb && hubId) {
+    _hubDb.ref('mccoe_submissions/' + hubId + '/week' + n).once('value', function(snap) {
+      if (snap.val()) _projectStatuses[n] = snap.val();
+      _renderProjectModal(n, hubName, hubId);
+    });
+  } else {
+    _renderProjectModal(n, hubName, hubId);
+  }
+}
+
+function _renderProjectModal(n, hubName, hubId) {
   var proj = HUB_PROJECTS[n];
   var saved = _projectStatuses[n] || {};
   var submitted = !!saved.submittedAt;
