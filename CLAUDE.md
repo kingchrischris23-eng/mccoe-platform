@@ -1,11 +1,11 @@
-# CLAUDE.md — MCCoE Platform Briefing
-> Read this first. This file brings you fully up to speed on the MCCoE Cybersecurity Apprenticeship Platform.
+# CLAUDE.md — CK Platform Briefing
+> Read this first. This file brings you fully up to speed on the CK Cybersecurity Apprenticeship Platform.
 
 ---
 
 ## WHO YOU ARE WORKING WITH
 
-**Chris King** — Director, Missouri Cybersecurity Center of Excellence (MCCoE)
+**Chris King** — Director, Missouri Cybersecurity Center of Excellence (employer; separate from the platform's own "CK" brand, see below)
 - Email: cking@mccoe.org
 - Role: Runs a 9-week cybersecurity apprenticeship cohort for students
 - Also pursuing GRC certifications: Security+ ✅ → CRISC (target Dec 2026) → CISA → CISM → CISSP
@@ -27,7 +27,7 @@ The cohort runs 9 weeks, Mon–Thu, covering cybersecurity fundamentals through 
 
 ## PLATFORM ARCHITECTURE — 5 PILLARS + HUB
 
-### MCCoE_Hub.html — Landing Page
+### CK_Hub.html — Landing Page
 The entry point. Students log in here with name + password. Hub SSO passes `?name=...&id=...` as URL params to all pillar pages so students stay identified across the platform.
 
 - 5-pillar grid layout
@@ -35,9 +35,9 @@ The entry point. Students log in here with name + password. Hub SSO passes `?nam
 - Hub SSO: `hubLoginSuccess()` stores name/id in localStorage, passes via URL params
 - Admin login: separate path, goes to tracker
 
-### MCCoE_Student_Platform.html — Pillar 1
-- Student registration (invite code: MCCoE2026) → admin approval required
-- Student IDs auto-assigned: MCCoE-001, MCCoE-002, etc.
+### CK_Student_Platform.html — Pillar 1
+- Student registration (invite code: CK2026) → admin approval required
+- Student IDs auto-assigned: CK-001, CK-002, etc.
 - 9-week quiz system (SY0-701 scenario-based, 90 questions)
 - XP system: 6 levels, 15 badges, streak tracking, leaderboard
 - SY0-701 Acronym Drill: 292 acronyms across all 9 weeks
@@ -54,7 +54,7 @@ The entry point. Students log in here with name + password. Hub SSO passes `?nam
 - Scores saved to Firebase mccoe_academy
 - Deep-link: ?cur=N jumps directly to module N (0=Foundations, 1=Network, 2=Threat, 3=Human Factors, 4=Kali Basics, 5=Nmap/Recon, 6=Secure Dev, 7=Pentest)
 
-### MCCoE_Curriculum.html / Project Docs — Pillar 3
+### CK_Curriculum.html / Project Docs — Pillar 3
 - 8 projects across 4 incidents: Target (1-2), Colonial Pipeline (3-4), SolarWinds (5-6), Equifax (7-8)
 - Part 1 = Deep Dive (50 pts), Part 2 = Frameworks & Writing (100 pts) = 600 pts total
 - PDF project docs hosted on GitHub Pages
@@ -75,7 +75,7 @@ The entry point. Students log in here with name + password. Hub SSO passes `?nam
 - Certificate generation, Live Scoreboard
 - Job Readiness Score
 
-### MCCoE_Student_Tracker.html — Admin Only
+### CK_Student_Tracker.html — Admin Only
 Password: (ask Chris — stored in tracker HTML)
 Admin users: jharbour, cking, cdaniels
 
@@ -98,8 +98,8 @@ Admin users: jharbour, cking, cdaniels
 - Linked from Hub Week 3 + Week 4 checklists
 
 ### Other HTML files
-- MCCoE_CTF.html — CTF challenges
-- MCCoE_Scoreboard.html — Live leaderboard
+- CK_CTF.html — CTF challenges
+- CK_Scoreboard.html — Live leaderboard
 - OSI_CIA_Phases_Framework.html — Interactive diagram (OSI, CIA Triad, 5 Pentest Phases)
 
 ---
@@ -186,7 +186,7 @@ try {
 ```
 
 **Student temp ID (registry key):** generated at registration, stored as `tempId` in localStorage
-**Assigned MCCoE ID:** MCCoE-001 format, stored in mccoe_registry/{tempId}/assignedId
+**Assigned CK ID:** CK-001 format, stored in mccoe_registry/{tempId}/assignedId
 
 **Survey dual format detection:**
 - Daily Survey: has `c.rating` field → labeled "📋 Daily Survey — DATE" (green)

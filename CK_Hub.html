@@ -1,0 +1,1681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<title>CK — Cybersecurity Training Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --red:   #EE2207;
+  --dark:  #c0392b;
+  --navy:  #050510;
+  --navy2: #0d0d1f;
+  --cyan:  #00f5ff;
+  --text:  #e8e8e8;
+  --muted: rgba(255,255,255,0.45);
+  --glow-red:  0 0 10px #EE2207, 0 0 30px rgba(238,34,7,0.4);
+  --glow-cyan: 0 0 10px #00f5ff, 0 0 30px rgba(0,245,255,0.3);
+  --card-bg: rgba(13,13,31,0.92);
+  --border:  rgba(238,34,7,0.3);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Rajdhani', 'Segoe UI', sans-serif;
+  font-weight: 500;
+  background: var(--navy);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── Animated grid background ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(238,34,7,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(238,34,7,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Scan-line overlay ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ════════════════ HEADER ════════════════ */
+header {
+  position: relative;
+  z-index: 10;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, rgba(5,5,16,0.98) 0%, rgba(5,5,16,0.85) 100%);
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.logo-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo-icon {
+  width: 40px; height: 40px;
+  border: 2px solid var(--red);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  box-shadow: var(--glow-red);
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 14px;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 2px;
+  line-height: 1.2;
+}
+
+.logo-sub {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  color: rgba(0,245,255,0.55);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.header-badge {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  color: rgba(238,34,7,0.7);
+  letter-spacing: 2px;
+  border: 1px solid rgba(238,34,7,0.3);
+  padding: 4px 10px;
+  border-radius: 4px;
+}
+
+/* ════════════════ HERO ════════════════ */
+.hero {
+  position: relative;
+  z-index: 5;
+  text-align: center;
+  padding: 70px 2rem 40px;
+}
+
+.hero-eyebrow {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  opacity: 0.8;
+}
+
+.hero-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(28px, 5vw, 52px);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+.hero-title span.red  { color: var(--red); text-shadow: var(--glow-red); }
+.hero-title span.white { color: #fff; }
+
+.hero-sub {
+  font-size: 16px;
+  color: var(--muted);
+  max-width: 540px;
+  margin: 0 auto 20px;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+}
+
+.hero-divider {
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--red), transparent);
+  margin: 0 auto 50px;
+  box-shadow: var(--glow-red);
+}
+
+/* ════════════════ 2x2 GRID LAYOUT ════════════════ */
+.triangle-wrapper {
+  position: relative;
+  z-index: 5;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 2rem 80px;
+}
+
+.pillar-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  position: relative;
+  z-index: 5;
+}
+
+/* Keep these for backward compat but unused */
+.pillar-top { display: flex; justify-content: center; margin-bottom: 40px; position: relative; z-index: 5; }
+.pillar-bottom { display: flex; justify-content: space-between; gap: 24px; position: relative; z-index: 5; }
+
+/* ── Pillar Card ── */
+.pillar-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 36px 28px 32px;
+  width: 100%;
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  text-decoration: none;
+  display: block;
+  backdrop-filter: blur(8px);
+}
+
+.pillar-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--red);
+  box-shadow: var(--glow-red), 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.pillar-card.p2:hover { border-color: var(--cyan); box-shadow: var(--glow-cyan), 0 20px 60px rgba(0,0,0,0.5); }
+.pillar-card.p3:hover { border-color: #a78bfa; box-shadow: 0 0 10px #a78bfa, 0 0 30px rgba(167,139,250,0.3), 0 20px 60px rgba(0,0,0,0.5); }
+.pillar-card.p4:hover { border-color: #00ff41; box-shadow: 0 0 10px #00ff41, 0 0 30px rgba(0,255,65,0.3), 0 20px 60px rgba(0,0,0,0.5); }
+
+/* Corner accent */
+.pillar-card::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: -1px;
+  width: 24px; height: 24px;
+  border-top: 2px solid var(--red);
+  border-left: 2px solid var(--red);
+  border-radius: 12px 0 0 0;
+  transition: width 0.3s, height 0.3s;
+}
+.pillar-card.p2::before { border-color: var(--cyan); }
+.pillar-card.p3::before { border-color: #a78bfa; }
+.pillar-card.p4::before { border-color: #00ff41; }
+
+.pillar-card:hover::before { width: 40px; height: 40px; }
+
+/* Bottom right corner */
+.pillar-card::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; right: -1px;
+  width: 24px; height: 24px;
+  border-bottom: 2px solid var(--red);
+  border-right: 2px solid var(--red);
+  border-radius: 0 0 12px 0;
+  transition: width 0.3s, height 0.3s;
+}
+.pillar-card.p2::after { border-color: var(--cyan); }
+.pillar-card.p3::after { border-color: #a78bfa; }
+.pillar-card.p4::after { border-color: #00ff41; }
+.pillar-card:hover::after { width: 40px; height: 40px; }
+
+/* Pillar number badge */
+.pillar-num {
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--red);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pillar-num.c2 { color: var(--cyan); }
+.pillar-num.c3 { color: #a78bfa; }
+.pillar-num.c4 { color: #00ff41; }
+
+.pillar-num::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, currentColor, transparent);
+  opacity: 0.4;
+}
+
+/* Icon */
+.pillar-icon {
+  font-size: 42px;
+  margin-bottom: 14px;
+  line-height: 1;
+  display: block;
+}
+
+/* Card text */
+.pillar-name {
+  font-family: 'Orbitron', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 1.5px;
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+.pillar-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.65;
+  margin-bottom: 24px;
+}
+
+.pillar-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+.tag {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  border: 1px solid;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+.tag.r  { border-color: rgba(238,34,7,0.5);    color: #ff6b6b; background: rgba(238,34,7,0.08); }
+.tag.c  { border-color: rgba(0,245,255,0.4);   color: var(--cyan); background: rgba(0,245,255,0.06); }
+.tag.p  { border-color: rgba(167,139,250,0.4); color: #a78bfa; background: rgba(167,139,250,0.06); }
+.tag.g4 { border-color: rgba(0,255,65,0.4);    color: #00ff41; background: rgba(0,255,65,0.06); }
+
+/* Launch button */
+.launch-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 0;
+  border-radius: 6px;
+  font-family: 'Orbitron', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: linear-gradient(135deg, rgba(238,34,7,0.2), rgba(238,34,7,0.05));
+  color: var(--red);
+  border: 1px solid rgba(238,34,7,0.4);
+  text-decoration: none;
+}
+.launch-btn:hover {
+  background: linear-gradient(135deg, rgba(238,34,7,0.35), rgba(238,34,7,0.15));
+  box-shadow: var(--glow-red);
+}
+.launch-btn.b2 {
+  background: linear-gradient(135deg, rgba(0,245,255,0.15), rgba(0,245,255,0.03));
+  color: var(--cyan);
+  border-color: rgba(0,245,255,0.35);
+}
+.launch-btn.b2:hover { background: linear-gradient(135deg, rgba(0,245,255,0.28), rgba(0,245,255,0.1)); box-shadow: var(--glow-cyan); }
+.launch-btn.b3 {
+  background: linear-gradient(135deg, rgba(167,139,250,0.15), rgba(167,139,250,0.03));
+  color: #a78bfa;
+  border-color: rgba(167,139,250,0.35);
+}
+.launch-btn.b3:hover { background: linear-gradient(135deg, rgba(167,139,250,0.28), rgba(167,139,250,0.1)); box-shadow: 0 0 10px #a78bfa, 0 0 30px rgba(167,139,250,0.3); }
+.launch-btn.b4 {
+  background: linear-gradient(135deg, rgba(0,255,65,0.15), rgba(0,255,65,0.03));
+  color: #00ff41;
+  border-color: rgba(0,255,65,0.35);
+}
+.launch-btn.b4:hover { background: linear-gradient(135deg, rgba(0,255,65,0.28), rgba(0,255,65,0.1)); box-shadow: 0 0 10px #00ff41, 0 0 30px rgba(0,255,65,0.3); }
+
+/* ── Triangle SVG connectors ── */
+.connector-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  overflow: visible;
+}
+
+/* ════════════════ STATS BAR ════════════════ */
+.stats-bar {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  background: rgba(13,13,31,0.7);
+  margin: 0 0 0;
+}
+
+.stat-item {
+  padding: 18px 40px;
+  text-align: center;
+  border-right: 1px solid var(--border);
+}
+.stat-item:last-child { border-right: none; }
+
+.stat-num {
+  font-family: 'Orbitron', monospace;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--red);
+  text-shadow: var(--glow-red);
+  display: block;
+  line-height: 1;
+}
+
+.stat-lbl {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-top: 4px;
+  display: block;
+}
+
+/* ════════════════ FOOTER ════════════════ */
+footer {
+  position: relative;
+  z-index: 5;
+  text-align: center;
+  padding: 28px 2rem;
+  border-top: 1px solid var(--border);
+  background: rgba(5,5,16,0.9);
+}
+
+footer p {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+footer strong {
+  color: var(--red);
+}
+
+/* ════════════════ PULSE ANIMATION ════════════════ */
+@keyframes pulse-red {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.pulse-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: var(--glow-red);
+  animation: pulse-red 2s ease-in-out infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+/* ════════════════ RESPONSIVE ════════════════ */
+@media (max-width: 700px) {
+  .pillar-grid   { grid-template-columns: 1fr; }
+  .pillar-card   { width: 100%; }
+  .stat-item     { padding: 14px 20px; }
+  .stat-num      { font-size: 18px; }
+}
+</style>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body>
+
+<!-- ══════════ HEADER ══════════ -->
+<header>
+  <div class="logo-block">
+    <div class="logo-icon">🛡️</div>
+    <div>
+      <div class="logo-text">CK</div>
+      <div class="logo-sub">CK</div>
+    </div>
+  </div>
+  <div style="display:flex; align-items:center; gap:16px;">
+    <div class="header-badge">▶ APPRENTICESHIP HUB v1.0</div>
+    <span id="hub-student-badge" style="display:none; font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:2px; color:#fff; background:rgba(238,34,7,0.2); padding:8px 18px; border-radius:5px; border:1px solid rgba(238,34,7,0.5); white-space:nowrap;">👤 STUDENT</span>
+    <button onclick="hubLogout()" id="hub-logout-btn" style="display:none; font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:rgba(255,255,255,0.4); background:none; border:1px solid rgba(255,255,255,0.1); padding:6px 12px; border-radius:4px; cursor:pointer;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,0.4)'">SIGN OUT</button>
+    <a href="CK_Student_Tracker.html" target="_blank" style="font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:2px; color:#fff; background:rgba(0,245,255,0.15); padding:8px 18px; border-radius:5px; text-decoration:none; border:1px solid rgba(0,245,255,0.5); box-shadow:0 0 14px rgba(0,245,255,0.25); transition:all .2s; white-space:nowrap;" onmouseover="this.style.boxShadow='0 0 24px rgba(0,245,255,0.6)'; this.style.transform='scale(1.04)'" onmouseout="this.style.boxShadow='0 0 14px rgba(0,245,255,0.25)'; this.style.transform='scale(1)'">🔒 ADMIN LOGIN</a>
+  </div>
+</header>
+
+<!-- ══════════ STATS BAR ══════════ -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <span class="stat-num">4</span>
+    <span class="stat-lbl">Pillars</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">8</span>
+    <span class="stat-lbl">Projects</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">5</span>
+    <span class="stat-lbl">Pentest Phases</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">750</span>
+    <span class="stat-lbl">Total Points</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num">9</span>
+    <span class="stat-lbl">Weeks</span>
+  </div>
+</div>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero">
+  <div class="hero-eyebrow"><span class="pulse-dot"></span>System Online — All Modules Active</div>
+  <h1 class="hero-title">
+    <span class="red">CK</span><br/>
+    <span class="white">Cybersecurity Training</span>
+  </h1>
+  <p class="hero-sub">
+    Multiple learning modules. One mission. Real-world cybersecurity training built for the next generation of defenders.
+  </p>
+  <div class="hero-divider"></div>
+</section>
+
+<!-- ══════════ THIS WEEK PANEL ══════════ -->
+<div id="this-week-panel" style="display:none;max-width:1100px;margin:0 auto 48px;padding:0 24px;">
+  <div style="border:1px solid rgba(238,34,7,0.35);border-radius:16px;padding:28px 32px;background:rgba(238,34,7,0.04);backdrop-filter:blur(10px);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px;">
+      <div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:3px;color:#ee2207;margin-bottom:7px;">📅 THIS WEEK'S CHECKLIST</div>
+        <div id="tw-week-title" style="font-size:1.25rem;font-weight:800;color:#fff;letter-spacing:.3px;"></div>
+      </div>
+      <select id="tw-week-select" onchange="switchWeekChecklist(parseInt(this.value))"
+        style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1px;color:#fff;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.18);padding:7px 14px;border-radius:8px;cursor:pointer;outline:none;"></select>
+    </div>
+    <div id="tw-groups" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:12px;"></div>
+  </div>
+</div>
+
+<!-- ══════════ 2x2 PILLAR GRID ══════════ -->
+<div class="triangle-wrapper" id="triangleWrapper">
+  <div class="pillar-grid">
+
+    <!-- Pillar 1 — Student Platform -->
+    <a class="pillar-card p1" id="card-p1" href="https://kingchrischris23-eng.github.io/mccoe-platform/CK_Student_Platform.html" target="_blank">
+      <div class="pillar-num">PILLAR 01 — CORE PLATFORM</div>
+      <span class="pillar-icon">🎓</span>
+      <div class="pillar-name">Student Learning Platform</div>
+      <p class="pillar-desc">
+        The central hub for student progress. Login, complete weekly modules, earn XP, unlock badges, and climb the leaderboard. Tracks everything — quizzes, streaks, Security+ readiness.
+      </p>
+      <div class="pillar-tags">
+        <span class="tag r">Login &amp; Profiles</span>
+        <span class="tag r">9 Weeks</span>
+        <span class="tag r">XP &amp; Badges</span>
+        <span class="tag r">Leaderboard</span>
+        <span class="tag r">Security+ Quizzes</span>
+      </div>
+      <div class="launch-btn">▶ &nbsp; Launch Platform</div>
+    </a>
+
+    <!-- Pillar 2 — CyberSec Academy -->
+    <a class="pillar-card p2" id="card-p2" href="CyberSec_Academy.html" target="_blank">
+      <div class="pillar-num c2">PILLAR 02 — INTERACTIVE TRAINING</div>
+      <span class="pillar-icon">🎮</span>
+      <div class="pillar-name">CyberSec Academy</div>
+      <p class="pillar-desc">
+        Hands-on cybersecurity simulations. A 150-question knowledge quiz across 15 categories, live SOC incident simulator, password strength analyzer, and phishing email spotter — all in one tool.
+      </p>
+      <div class="pillar-tags">
+        <span class="tag c">150-Q Quiz</span>
+        <span class="tag c">SOC Simulator</span>
+        <span class="tag c">Password Checker</span>
+        <span class="tag c">Phishing Spotter</span>
+      </div>
+      <div class="launch-btn b2">▶ &nbsp; Launch Academy</div>
+    </a>
+
+    <!-- Pillar 3 — Curriculum Docs -->
+    <a class="pillar-card p3" id="card-p3" href="#curriculum" onclick="openCurriculum(event)">
+      <div class="pillar-num c3">PILLAR 03 — CURRICULUM</div>
+      <span class="pillar-icon">📁</span>
+      <div class="pillar-name">Incident Case Studies</div>
+      <p class="pillar-desc">
+        Eight deep-dive projects across four real-world breaches — Target, Colonial Pipeline, SolarWinds, and Equifax. Part 1 dissects the attack. Part 2 builds your defensive response and executive summary.
+      </p>
+      <div class="pillar-tags">
+        <span class="tag p">8 Projects</span>
+        <span class="tag p">4 Incidents</span>
+        <span class="tag p">NIST CSF</span>
+        <span class="tag p">MITRE ATT&amp;CK</span>
+        <span class="tag p">Exec Summary</span>
+      </div>
+      <div class="launch-btn b3">▶ &nbsp; View Curriculum</div>
+    </a>
+
+    <!-- Pillar 4 — Ethical Hacking Lab -->
+    <a class="pillar-card p4" id="card-p4" href="Pillar4_EthicalHacking.html" target="_blank">
+      <div class="pillar-num c4">PILLAR 04 — ETHICAL HACKING LAB</div>
+      <span class="pillar-icon">🔓</span>
+      <div class="pillar-name">Ethical Hacking Lab</div>
+      <p class="pillar-desc">
+        Experience all 5 phases of a real penetration test — Recon, Scanning, Exploitation, Persistence, and Reporting. Authorized platforms, real tools, professional pentest report as your capstone deliverable.
+      </p>
+      <div class="pillar-tags">
+        <span class="tag g4">5 Phases</span>
+        <span class="tag g4">5 Exercises</span>
+        <span class="tag g4">TryHackMe</span>
+        <span class="tag g4">Kali Linux</span>
+        <span class="tag g4">Capstone</span>
+      </div>
+      <div class="launch-btn b4">▶ &nbsp; Enter the Lab</div>
+    </a>
+
+  </div>
+
+  <!-- ROW 2 — Blue Team + CTF + Portfolio -->
+  <div class="pillar-grid" style="margin-top:24px;grid-template-columns:repeat(3,1fr)">
+
+    <!-- Pillar 5 — Blue Team -->
+    <a class="pillar-card" id="card-p5" href="Pillar5_BlueTeam.html" target="_blank" style="border-color:rgba(0,245,255,0.25)">
+      <div class="pillar-num" style="color:rgba(0,245,255,0.7)">PILLAR 05 — BLUE TEAM LAB</div>
+      <span class="pillar-icon">🛡</span>
+      <div class="pillar-name">Blue Team Defense Lab</div>
+      <p class="pillar-desc">
+        Analyze SIEM logs, identify IOCs, read packet captures in Wireshark, run an NIST incident response playbook, and write a defensive report. The defensive side of cybersecurity.
+      </p>
+      <div class="pillar-tags">
+        <span class="tag" style="background:rgba(0,245,255,0.08);border-color:rgba(0,245,255,0.25);color:#00f5ff">Log Analysis</span>
+        <span class="tag" style="background:rgba(0,245,255,0.08);border-color:rgba(0,245,255,0.25);color:#00f5ff">Wireshark</span>
+        <span class="tag" style="background:rgba(0,245,255,0.08);border-color:rgba(0,245,255,0.25);color:#00f5ff">IOC Hunting</span>
+        <span class="tag" style="background:rgba(0,245,255,0.08);border-color:rgba(0,245,255,0.25);color:#00f5ff">NIST IR</span>
+      </div>
+      <div class="launch-btn" style="border-color:rgba(0,245,255,0.4);color:#00f5ff">▶ &nbsp; Enter Blue Team Lab</div>
+    </a>
+
+    <!-- CTF Challenges -->
+    <a class="pillar-card" id="card-ctf" href="CK_CTF.html" target="_blank" style="border-color:rgba(255,215,0,0.25)">
+      <div class="pillar-num" style="color:rgba(255,215,0,0.7)">COMPETITION — CTF</div>
+      <span class="pillar-icon">🚩</span>
+      <div class="pillar-name">Capture The Flag</div>
+      <p class="pillar-desc">
+        12 real-world cybersecurity puzzles based on the 4 incident scenarios. Decode Base64, crack hashes, analyze SQL injections, and find hidden flags. Competitive scoring, leaderboard tracking.
+      </p>
+      <div class="pillar-tags">
+        <span class="tag" style="background:rgba(255,215,0,0.08);border-color:rgba(255,215,0,0.25);color:#ffd700">12 Challenges</span>
+        <span class="tag" style="background:rgba(255,215,0,0.08);border-color:rgba(255,215,0,0.25);color:#ffd700">600 pts</span>
+        <span class="tag" style="background:rgba(255,215,0,0.08);border-color:rgba(255,215,0,0.25);color:#ffd700">4 Scenarios</span>
+        <span class="tag" style="background:rgba(255,215,0,0.08);border-color:rgba(255,215,0,0.25);color:#ffd700">Leaderboard</span>
+      </div>
+      <div class="launch-btn" style="border-color:rgba(255,215,0,0.4);color:#ffd700">🚩 &nbsp; Start CTF</div>
+    </a>
+
+    <!-- Portfolio Builder -->
+    <a class="pillar-card" id="card-portfolio" href="CK_Student_Platform.html#portfolio" target="_blank" style="border-color:rgba(167,139,250,0.25)">
+      <div class="pillar-num" style="color:rgba(167,139,250,0.7)">CAREER TOOL — PORTFOLIO</div>
+      <span class="pillar-icon">📁</span>
+      <div class="pillar-name">Student Portfolio Builder</div>
+      <p class="pillar-desc">
+        Every quiz score, pentest report, blue team submission, and CTF flag you earn is compiled into a printable professional portfolio. Show employers real work product, not just a certificate.
+      </p>
+      <div class="pillar-tags">
+        <span class="tag" style="background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.25);color:#a78bfa">Auto-Generated</span>
+        <span class="tag" style="background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.25);color:#a78bfa">Printable PDF</span>
+        <span class="tag" style="background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.25);color:#a78bfa">All Pillars</span>
+      </div>
+      <div class="launch-btn" style="border-color:rgba(167,139,250,0.4);color:#a78bfa">📁 &nbsp; Build Portfolio</div>
+    </a>
+
+  </div>
+</div><!-- /triangle-wrapper -->
+
+<!-- ══════════ CURRICULUM MODAL ══════════ -->
+<div id="curriculumModal" style="display:none; position:fixed; inset:0; z-index:1000; background:rgba(5,5,16,0.92); backdrop-filter:blur(8px); overflow-y:auto;">
+  <div style="max-width:700px; margin:60px auto; padding:0 20px 60px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px;">
+      <div style="font-family:'Orbitron',monospace; font-size:14px; font-weight:700; color:#a78bfa; letter-spacing:2px;">PILLAR 03 — CURRICULUM DOCUMENTS</div>
+      <button onclick="closeCurriculum()" style="background:none; border:1px solid rgba(238,34,7,0.4); color:var(--red); font-family:'Orbitron',monospace; font-size:10px; padding:8px 16px; cursor:pointer; border-radius:4px; letter-spacing:2px;">✕ CLOSE</button>
+    </div>
+
+    <!-- Incident blocks -->
+    <div id="incidentList">
+
+      <div class="inc-block" style="border:1px solid rgba(167,139,250,0.25); border-radius:10px; padding:22px; margin-bottom:16px; background:rgba(13,13,31,0.8);">
+        <div style="font-family:'Orbitron',monospace; font-size:12px; color:#a78bfa; letter-spacing:2px; margin-bottom:8px;">PROJECT 1–2 &nbsp;|&nbsp; TARGET DATA BREACH (2013)</div>
+        <div style="font-size:13px; color:var(--muted); margin-bottom:16px; line-height:1.6;">110M customer records compromised via third-party HVAC vendor. CIA Triad, Kill Chain, MITRE ATT&amp;CK, NIST CSF, Executive Summary.</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="Project1_Target_Data_Breach_2013_Part1_Deep_Dive.pdf?v=1" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; text-decoration:none; background:rgba(167,139,250,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(167,139,250,0.2)'" onmouseout="this.style.background='rgba(167,139,250,0.08)'">▶ Project 1 — Deep Dive</a>
+          <a href="Project2_Target_Data_Breach_2013_Part2_Executive_Summary.pdf?v=1" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; text-decoration:none; background:rgba(167,139,250,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(167,139,250,0.2)'" onmouseout="this.style.background='rgba(167,139,250,0.08)'">▶ Project 2 — Exec Summary</a>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; padding-top:10px; border-top:1px solid rgba(167,139,250,0.12);">
+          <button id="proj-submit-btn-1" onclick="openProjectSubmit(1)" style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; background:rgba(167,139,250,0.08); cursor:pointer; transition:all .2s;">📝 Submit Project 1</button>
+          <button id="proj-submit-btn-2" onclick="openProjectSubmit(2)" style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; background:rgba(167,139,250,0.08); cursor:pointer; transition:all .2s;">📝 Submit Project 2</button>
+        </div>
+      </div>
+
+      <div class="inc-block" style="border:1px solid rgba(167,139,250,0.25); border-radius:10px; padding:22px; margin-bottom:16px; background:rgba(13,13,31,0.8);">
+        <div style="font-family:'Orbitron',monospace; font-size:12px; color:#a78bfa; letter-spacing:2px; margin-bottom:8px;">PROJECT 3–4 &nbsp;|&nbsp; COLONIAL PIPELINE (2021)</div>
+        <div style="font-size:13px; color:var(--muted); margin-bottom:16px; line-height:1.6;">Ransomware shut down fuel supply to 17 states. Single compromised password with no MFA. OT/IT convergence failure analysis.</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="Project3_Colonial_Pipeline_Ransomware_2021_Part1_Deep_Dive.pdf?v=1" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; text-decoration:none; background:rgba(167,139,250,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(167,139,250,0.2)'" onmouseout="this.style.background='rgba(167,139,250,0.08)'">▶ Project 3 — Deep Dive</a>
+          <a href="Project4_Colonial_Pipeline_Ransomware_2021_Part2_Executive_Summary.pdf?v=1" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; text-decoration:none; background:rgba(167,139,250,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(167,139,250,0.2)'" onmouseout="this.style.background='rgba(167,139,250,0.08)'">▶ Project 4 — Exec Summary</a>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; padding-top:10px; border-top:1px solid rgba(167,139,250,0.12);">
+          <button id="proj-submit-btn-3" onclick="openProjectSubmit(3)" style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; background:rgba(167,139,250,0.08); cursor:pointer; transition:all .2s;">📝 Submit Project 3</button>
+          <button id="proj-submit-btn-4" onclick="openProjectSubmit(4)" style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; background:rgba(167,139,250,0.08); cursor:pointer; transition:all .2s;">📝 Submit Project 4</button>
+        </div>
+      </div>
+
+      <div class="inc-block" style="border:1px solid rgba(167,139,250,0.25); border-radius:10px; padding:22px; margin-bottom:16px; background:rgba(13,13,31,0.8);">
+        <div style="font-family:'Orbitron',monospace; font-size:12px; color:#a78bfa; letter-spacing:2px; margin-bottom:8px;">PROJECT 5–6 &nbsp;|&nbsp; SOLARWINDS (2020)</div>
+        <div style="font-size:13px; color:var(--muted); margin-bottom:16px; line-height:1.6;">Nation-state supply chain attack. Malicious code in legitimate software updates delivered to 18,000 organizations including US federal agencies.</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="Project5_SolarWinds_Supply_Chain_Attack_2020_Part1_Deep_Dive.pdf?v=1" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; text-decoration:none; background:rgba(167,139,250,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(167,139,250,0.2)'" onmouseout="this.style.background='rgba(167,139,250,0.08)'">▶ Project 5 — Deep Dive</a>
+          <a href="Project6_SolarWinds_Supply_Chain_Attack_2020_Part2_Executive_Summary.pdf?v=1" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; text-decoration:none; background:rgba(167,139,250,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(167,139,250,0.2)'" onmouseout="this.style.background='rgba(167,139,250,0.08)'">▶ Project 6 — Exec Summary</a>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; padding-top:10px; border-top:1px solid rgba(167,139,250,0.12);">
+          <button id="proj-submit-btn-5" onclick="openProjectSubmit(5)" style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; background:rgba(167,139,250,0.08); cursor:pointer; transition:all .2s;">📝 Submit Project 5</button>
+          <button id="proj-submit-btn-6" onclick="openProjectSubmit(6)" style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; background:rgba(167,139,250,0.08); cursor:pointer; transition:all .2s;">📝 Submit Project 6</button>
+        </div>
+      </div>
+
+      <div class="inc-block" style="border:1px solid rgba(167,139,250,0.25); border-radius:10px; padding:22px; margin-bottom:16px; background:rgba(13,13,31,0.8);">
+        <div style="font-family:'Orbitron',monospace; font-size:12px; color:#a78bfa; letter-spacing:2px; margin-bottom:8px;">PROJECT 7–8 &nbsp;|&nbsp; EQUIFAX DATA BREACH (2017)</div>
+        <div style="font-size:13px; color:var(--muted); margin-bottom:16px; line-height:1.6;">147M SSNs stolen via an unpatched Apache Struts vulnerability (CVSS 10.0). Patch was available 69 days before exploitation began.</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="Project7_Equifax_Data_Breach_2017_Part1_Deep_Dive.pdf?v=1" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; text-decoration:none; background:rgba(167,139,250,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(167,139,250,0.2)'" onmouseout="this.style.background='rgba(167,139,250,0.08)'">▶ Project 7 — Deep Dive</a>
+          <a href="Project8_Equifax_Data_Breach_2017_Part2_Executive_Summary.pdf?v=1" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; text-decoration:none; background:rgba(167,139,250,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(167,139,250,0.2)'" onmouseout="this.style.background='rgba(167,139,250,0.08)'">▶ Project 8 — Exec Summary</a>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; padding-top:10px; border-top:1px solid rgba(167,139,250,0.12);">
+          <button id="proj-submit-btn-7" onclick="openProjectSubmit(7)" style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; background:rgba(167,139,250,0.08); cursor:pointer; transition:all .2s;">📝 Submit Project 7</button>
+          <button id="proj-submit-btn-8" onclick="openProjectSubmit(8)" style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(167,139,250,0.5); border-radius:4px; color:#a78bfa; background:rgba(167,139,250,0.08); cursor:pointer; transition:all .2s;">📝 Submit Project 8</button>
+        </div>
+      </div>
+
+      <!-- Course docs -->
+      <div style="border:1px solid rgba(238,34,7,0.25); border-radius:10px; padding:22px; background:rgba(13,13,31,0.8);">
+        <div style="font-family:'Orbitron',monospace; font-size:12px; color:var(--red); letter-spacing:2px; margin-bottom:12px;">COURSE DOCUMENTS</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="CK_Course_Syllabus_8Week.docx" download style="font-family:'Share Tech Mono',monospace; font-size:10px; padding:7px 14px; border:1px solid rgba(238,34,7,0.5); border-radius:4px; color:#ff6b6b; text-decoration:none; background:rgba(238,34,7,0.08); transition:all .2s;" onmouseover="this.style.background='rgba(238,34,7,0.2)'" onmouseout="this.style.background='rgba(238,34,7,0.08)'">▶ Course Syllabus</a>
+        </div>
+        <div style="margin-top:10px; font-family:'Share Tech Mono',monospace; font-size:9px; color:rgba(255,255,255,0.3); letter-spacing:1px;">Additional instructor documents available in the Admin Tracker (Pillar 1)</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ PROJECT SUBMIT MODAL ══════════ -->
+<div id="proj-submit-modal" style="display:none;position:fixed;inset:0;z-index:1100;background:rgba(5,5,16,0.96);backdrop-filter:blur(10px);align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 20px;">
+  <div style="max-width:640px;width:100%;background:#0d0d1f;border:1px solid rgba(167,139,250,0.4);border-radius:14px;padding:30px;position:relative;box-shadow:0 0 60px rgba(167,139,250,0.15);">
+    <button onclick="closeProjectModal()" style="position:absolute;top:16px;right:16px;background:none;border:1px solid rgba(238,34,7,0.4);color:rgba(238,34,7,0.8);font-size:.9rem;padding:6px 12px;border-radius:4px;cursor:pointer;font-family:'Orbitron',monospace;font-size:9px;letter-spacing:2px;">✕ CLOSE</button>
+    <div id="proj-modal-content"></div>
+  </div>
+</div>
+
+<!-- ══════════ HUB LOGIN OVERLAY ══════════ -->
+<div id="hub-login-overlay" style="position:fixed;inset:0;z-index:600;background:rgba(5,5,16,0.98);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(10px);">
+  <div style="background:#0d0d1f;border:1px solid rgba(238,34,7,0.45);border-radius:16px;padding:50px 42px;max-width:440px;width:90%;text-align:center;box-shadow:0 0 80px rgba(238,34,7,0.15),0 0 140px rgba(0,0,0,0.9),inset 0 1px 0 rgba(255,255,255,0.04);">
+    <div style="width:64px;height:64px;border:2px solid var(--red);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:30px;box-shadow:var(--glow-red);margin:0 auto 22px;">🛡️</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:rgba(0,245,255,0.55);letter-spacing:3px;text-transform:uppercase;margin-bottom:8px;">CK</div>
+    <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:900;color:#fff;letter-spacing:4px;margin-bottom:4px;">CK</div>
+    <div style="font-family:'Orbitron',monospace;font-size:11px;font-weight:700;color:var(--red);letter-spacing:2px;text-shadow:var(--glow-red);margin-bottom:24px;">TRAINING HUB ACCESS</div>
+
+    <!-- Tab switcher -->
+    <div style="display:flex;gap:0;margin-bottom:24px;border:1px solid rgba(238,34,7,0.35);border-radius:6px;overflow:hidden;">
+      <button id="hub-tab-signin" onclick="hubShowTab('signin')" style="flex:1;padding:10px;border:none;background:rgba(238,34,7,0.25);color:#fff;font-family:'Orbitron',monospace;font-size:9px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;">SIGN IN</button>
+      <button id="hub-tab-register" onclick="hubShowTab('register')" style="flex:1;padding:10px;border:none;border-left:1px solid rgba(238,34,7,0.35);background:transparent;color:rgba(255,255,255,0.4);font-family:'Orbitron',monospace;font-size:9px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;">REGISTER</button>
+    </div>
+
+    <!-- SIGN IN FORM -->
+    <div id="hub-form-signin">
+      <div style="margin-bottom:14px;text-align:left;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">STUDENT NAME</div>
+        <input id="hub-login-name" type="text" placeholder="Enter your full name..." autocomplete="name" spellcheck="false"
+          style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:13px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:500;outline:none;transition:border-color .2s;"
+          onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
+          onkeydown="if(event.key==='Enter')document.getElementById('hub-login-pass').focus()">
+      </div>
+      <div style="margin-bottom:14px;text-align:left;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">PASSWORD</div>
+        <input id="hub-login-pass" type="password" placeholder="Enter your password..." autocomplete="current-password"
+          style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:13px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:500;outline:none;transition:border-color .2s;"
+          onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
+          onkeydown="if(event.key==='Enter')doHubLogin()">
+      </div>
+      <div id="hub-login-msg" style="min-height:22px;font-size:11px;margin-bottom:14px;font-family:'Share Tech Mono',monospace;letter-spacing:1px;"></div>
+      <button id="hub-login-btn" onclick="doHubLogin()" style="width:100%;background:linear-gradient(135deg,rgba(238,34,7,0.28),rgba(238,34,7,0.10));border:1px solid rgba(238,34,7,0.55);color:#fff;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:3px;padding:15px;border-radius:6px;cursor:pointer;transition:all .2s;box-shadow:0 0 22px rgba(238,34,7,0.2);" onmouseover="this.style.background='linear-gradient(135deg,rgba(238,34,7,0.5),rgba(238,34,7,0.25))';this.style.boxShadow='0 0 35px rgba(238,34,7,0.5)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(238,34,7,0.28),rgba(238,34,7,0.10))';this.style.boxShadow='0 0 22px rgba(238,34,7,0.2)'">
+        ▶ &nbsp; SIGN IN
+      </button>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="hub-form-register" style="display:none;">
+      <div style="margin-bottom:12px;text-align:left;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">FULL NAME</div>
+        <input id="hub-reg-name" type="text" placeholder="First and last name..." autocomplete="name" spellcheck="false"
+          style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:12px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:500;outline:none;transition:border-color .2s;"
+          onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
+          onkeydown="if(event.key==='Enter')document.getElementById('hub-reg-cohort').focus()">
+      </div>
+      <div style="margin-bottom:12px;text-align:left;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">COHORT</div>
+        <select id="hub-reg-cohort" style="width:100%;background:#0d0d1f;border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:12px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:500;outline:none;">
+          <option value="CK 2026 — Cohort 1">CK 2026 — Cohort 1</option>
+          <option value="CK 2026 — Cohort 2">CK 2026 — Cohort 2</option>
+          <option value="CK 2027 — Cohort 1">CK 2027 — Cohort 1</option>
+        </select>
+      </div>
+      <div style="margin-bottom:12px;text-align:left;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">CREATE PASSWORD</div>
+        <input id="hub-reg-pass" type="password" placeholder="Choose a password..." autocomplete="new-password"
+          style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:12px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:500;outline:none;transition:border-color .2s;"
+          onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
+          onkeydown="if(event.key==='Enter')document.getElementById('hub-reg-confirm').focus()">
+      </div>
+      <div style="margin-bottom:12px;text-align:left;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">CONFIRM PASSWORD</div>
+        <input id="hub-reg-confirm" type="password" placeholder="Re-enter password..." autocomplete="new-password"
+          style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:12px 16px;color:#fff;font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:500;outline:none;transition:border-color .2s;"
+          onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
+          onkeydown="if(event.key==='Enter')document.getElementById('hub-reg-code').focus()">
+      </div>
+      <div style="margin-bottom:12px;text-align:left;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(0,245,255,0.55);letter-spacing:2px;margin-bottom:8px;">INVITE CODE</div>
+        <input id="hub-reg-code" type="text" placeholder="Enter code provided by your instructor..." autocomplete="off" spellcheck="false"
+          style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(238,34,7,0.35);border-radius:6px;padding:12px 16px;color:#fff;font-family:'Share Tech Mono',monospace;font-size:14px;font-weight:500;outline:none;transition:border-color .2s;letter-spacing:2px;"
+          onfocus="this.style.borderColor='rgba(238,34,7,0.8)'" onblur="this.style.borderColor='rgba(238,34,7,0.35)'"
+          onkeydown="if(event.key==='Enter')doHubRegister()">
+      </div>
+      <div id="hub-reg-msg" style="min-height:22px;font-size:11px;margin-bottom:14px;font-family:'Share Tech Mono',monospace;letter-spacing:1px;"></div>
+      <button id="hub-reg-btn" onclick="doHubRegister()" style="width:100%;background:linear-gradient(135deg,rgba(238,34,7,0.28),rgba(238,34,7,0.10));border:1px solid rgba(238,34,7,0.55);color:#fff;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:3px;padding:15px;border-radius:6px;cursor:pointer;transition:all .2s;box-shadow:0 0 22px rgba(238,34,7,0.2);" onmouseover="this.style.background='linear-gradient(135deg,rgba(238,34,7,0.5),rgba(238,34,7,0.25))';this.style.boxShadow='0 0 35px rgba(238,34,7,0.5)'" onmouseout="this.style.background='linear-gradient(135deg,rgba(238,34,7,0.28),rgba(238,34,7,0.10))';this.style.boxShadow='0 0 22px rgba(238,34,7,0.2)'">
+        ✚ &nbsp; CREATE ACCOUNT
+      </button>
+    </div>
+
+    <!-- Admin + footer -->
+    <div style="margin-top:20px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:rgba(255,255,255,0.2);letter-spacing:1px;">CK Training Program v2.0</div>
+      <a href="CK_Student_Tracker.html" target="_blank" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;color:rgba(0,245,255,0.45);text-decoration:none;border:1px solid rgba(0,245,255,0.2);padding:5px 10px;border-radius:4px;transition:all .2s;" onmouseover="this.style.color='#00f5ff';this.style.borderColor='rgba(0,245,255,0.6)'" onmouseout="this.style.color='rgba(0,245,255,0.45)';this.style.borderColor='rgba(0,245,255,0.2)'">🔒 ADMIN</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer>
+  <p>CK &nbsp;|&nbsp; <strong>CK Training Program</strong> &nbsp;|&nbsp; Mr. King &nbsp;·&nbsp; cking@mccoe.org</p>
+</footer>
+
+<script>
+// ── Firebase Init ──
+firebase.initializeApp({
+  apiKey:"AIzaSyBpK8uLCD0_m83a1xFiOQVaS1PKWSGcEc8",
+  authDomain:"mccoe-platform-a9710.firebaseapp.com",
+  databaseURL:"https://mccoe-platform-a9710-default-rtdb.firebaseio.com",
+  projectId:"mccoe-platform-a9710",
+  storageBucket:"mccoe-platform-a9710.firebasestorage.app",
+  messagingSenderId:"435411134511",
+  appId:"1:435411134511:web:face8dfcc670df20f1beda"
+});
+const _hubDb = firebase.database();
+
+// ── Password check (matches Student Platform hashing) ──
+function _hubHashSync(str) {
+  try { return 'b64:' + btoa(unescape(encodeURIComponent(str || ''))); } catch(e) { return 'p:' + str; }
+}
+function _hubCheckPassword(entered, stored) {
+  if (!stored || !entered) return false;
+  if (entered === stored) return true;
+  if (_hubHashSync(entered) === stored) return true;
+  return false;
+}
+
+// ── Tab switcher ──
+function hubShowTab(tab) {
+  var isSignin = tab === 'signin';
+  document.getElementById('hub-form-signin').style.display   = isSignin ? '' : 'none';
+  document.getElementById('hub-form-register').style.display = isSignin ? 'none' : '';
+  document.getElementById('hub-tab-signin').style.background   = isSignin ? 'rgba(238,34,7,0.25)' : 'transparent';
+  document.getElementById('hub-tab-signin').style.color        = isSignin ? '#fff' : 'rgba(255,255,255,0.4)';
+  document.getElementById('hub-tab-register').style.background = isSignin ? 'transparent' : 'rgba(238,34,7,0.25)';
+  document.getElementById('hub-tab-register').style.color      = isSignin ? 'rgba(255,255,255,0.4)' : '#fff';
+  hubMsg('', '');
+  document.getElementById('hub-reg-msg').textContent = '';
+}
+
+// ── Hub Login ──
+function doHubLogin() {
+  const name = (document.getElementById('hub-login-name').value || '').trim();
+  const pass = (document.getElementById('hub-login-pass').value || '').trim();
+  if (!name) { hubMsg('Please enter your full name.', '#ff6b6b'); document.getElementById('hub-login-name').focus(); return; }
+  if (!pass) { hubMsg('Please enter your password.', '#ff6b6b'); document.getElementById('hub-login-pass').focus(); return; }
+  hubMsg('Connecting to CK network...', '#00f5ff');
+  document.getElementById('hub-login-btn').disabled = true;
+  _hubDb.ref('mccoe_registry').once('value', function(snap) {
+    document.getElementById('hub-login-btn').disabled = false;
+    if (!snap.exists()) { hubMsg('Connection error. Try again.', '#ff6b6b'); return; }
+    var found = null;
+    snap.forEach(function(child) {
+      var d = child.val();
+      if (d && d.name && d.name.toLowerCase() === name.toLowerCase()) {
+        found = { key: child.key, name: d.name, password: d.password, status: d.status || 'approved' };
+      }
+    });
+    if (!found) {
+      hubMsg('Name not found — check spelling or ask your coach.', '#ff6b6b');
+      return;
+    }
+    if (!_hubCheckPassword(pass, found.password)) {
+      hubMsg('Incorrect password. Try again or ask your coach to reset it.', '#ff6b6b');
+      document.getElementById('hub-login-pass').value = '';
+      document.getElementById('hub-login-pass').focus();
+      return;
+    }
+    if (found.status === 'pending') {
+      hubMsg('Your account is pending instructor approval. Please wait for your instructor to approve your account before signing in.', '#ffd700');
+      return;
+    }
+    hubLoginSuccess(found.name, found.key, true);
+  });
+}
+
+// ── Hub Register ──
+function doHubRegister() {
+  var name    = (document.getElementById('hub-reg-name').value || '').trim();
+  var cohort  = document.getElementById('hub-reg-cohort').value;
+  var pass    = document.getElementById('hub-reg-pass').value;
+  var confirm = document.getElementById('hub-reg-confirm').value;
+  var msgEl   = document.getElementById('hub-reg-msg');
+
+  function regMsg(text, color) { msgEl.textContent = text; msgEl.style.color = color || '#e8e8e8'; }
+
+  var code    = (document.getElementById('hub-reg-code').value || '').trim();
+  var VALID_CODES = ['CK2026', 'MCCOE2026'];
+
+  if (!name)    { regMsg('Please enter your full name.', '#ff6b6b'); return; }
+  if (name.split(' ').filter(Boolean).length < 2) { regMsg('Please enter your first AND last name.', '#ff6b6b'); return; }
+  if (!pass)    { regMsg('Please create a password.', '#ff6b6b'); return; }
+  if (pass.length < 4) { regMsg('Password must be at least 4 characters.', '#ff6b6b'); return; }
+  if (pass !== confirm) { regMsg('Passwords do not match.', '#ff6b6b'); return; }
+  if (!code || !VALID_CODES.includes(code)) {
+    regMsg('Invalid invite code. Ask your instructor for the correct code.', '#ff6b6b');
+    document.getElementById('hub-reg-code').focus();
+    return;
+  }
+
+  regMsg('Submitting registration request...', '#00f5ff');
+  document.getElementById('hub-reg-btn').disabled = true;
+
+  // Check for duplicates and calculate next student ID
+  _hubDb.ref('mccoe_registry').once('value', function(snap) {
+    var duplicate = false;
+    var maxNum = 0;
+    if (snap.exists()) {
+      snap.forEach(function(child) {
+        var d = child.val();
+        if (!d) return;
+        if (d.name && d.name.toLowerCase() === name.toLowerCase()) duplicate = true;
+        var n = parseInt((d.assignedId || '').replace('CK-', ''));
+        if (!isNaN(n) && n > maxNum) maxNum = n;
+      });
+    }
+    if (duplicate) {
+      document.getElementById('hub-reg-btn').disabled = false;
+      regMsg('An account with that name already exists — try signing in.', '#ff6b6b');
+      return;
+    }
+    var tempId     = 'PENDING_' + Date.now();
+    var hash       = _hubHashSync(pass);
+    var assignedId = 'CK-' + String(maxNum + 1).padStart(3, '0');
+    var entry      = { tempId: tempId, name: name, cohort: cohort, password: hash, registeredAt: new Date().toISOString(), addedToRoster: false, assignedId: assignedId, status: 'pending' };
+    _hubDb.ref('mccoe_registry/' + tempId).set(entry, function(err) {
+      document.getElementById('hub-reg-btn').disabled = false;
+      if (err) { regMsg('Error saving account. Please try again.', '#ff6b6b'); return; }
+      regMsg('Registration submitted! Your instructor will review and approve your account. Come back to Sign In once approved.', '#00ff41');
+    });
+  });
+}
+
+function hubMsg(text, color) {
+  var el = document.getElementById('hub-login-msg');
+  if (!el) return;
+  el.textContent = text;
+  el.style.color = color || '#e8e8e8';
+}
+
+function hubLoginSuccess(name, id, doLog) {
+  localStorage.setItem('hub_name', name);
+  localStorage.setItem('hub_id', id);
+
+  var p = '?name=' + encodeURIComponent(name) + '&id=' + encodeURIComponent(id);
+  var c1 = document.getElementById('card-p1');
+  var c2 = document.getElementById('card-p2');
+  var c4 = document.getElementById('card-p4');
+  var c5 = document.getElementById('card-p5');
+  var cc = document.getElementById('card-ctf');
+  var cp = document.getElementById('card-portfolio');
+  if (c1) c1.href = 'CK_Student_Platform.html' + p;
+  if (c2) c2.href = 'CyberSec_Academy.html' + p;
+  if (c4) c4.href = 'Pillar4_EthicalHacking.html' + p;
+  if (c5) c5.href = 'Pillar5_BlueTeam.html' + p;
+  if (cc) cc.href = 'CK_CTF.html' + p;
+  if (cp) cp.href = 'CK_Student_Platform.html' + p + '#portfolio';
+
+  var badge = document.getElementById('hub-student-badge');
+  var logoutBtn = document.getElementById('hub-logout-btn');
+  if (badge) { badge.textContent = '👤 ' + name.split(' ')[0].toUpperCase(); badge.style.display = 'inline-block'; }
+  if (logoutBtn) logoutBtn.style.display = 'inline-block';
+
+  if (doLog) {
+    var ts = new Date().toISOString();
+    _hubDb.ref('mccoe_logins/' + id + '/lastLogin').set(ts);
+    _hubDb.ref('mccoe_logins/' + id + '/loginCount').transaction(function(c) { return (c || 0) + 1; });
+    _hubDb.ref('mccoe_logins/' + id + '/history').push({ ts: ts, date: ts.split('T')[0], source: 'Hub' });
+  }
+
+  document.getElementById('hub-login-overlay').style.display = 'none';
+  renderThisWeekPanel(name, id);
+  loadChecklistFromFirebase(id);
+}
+
+function loadChecklistFromFirebase(studentId) {
+  if (!_hubDb || !studentId) return;
+  _hubDb.ref('mccoe_checklists/' + studentId).once('value', function(snap) {
+    var data = snap.val() || {};
+    _twChecksCache = data;
+    Object.keys(data).forEach(function(k) { localStorage.setItem(k, data[k]); });
+    var sel = document.getElementById('tw-week-select');
+    if (sel) _renderWeekTasks(parseInt(sel.value));
+  });
+}
+
+function hubLogout() {
+  localStorage.removeItem('hub_name');
+  localStorage.removeItem('hub_id');
+  document.getElementById('hub-login-overlay').style.display = 'flex';
+  document.getElementById('hub-student-badge').style.display = 'none';
+  document.getElementById('hub-logout-btn').style.display = 'none';
+  document.getElementById('hub-login-name').value = '';
+  document.getElementById('hub-login-pass').value = '';
+  hubShowTab('signin');
+  hubMsg('', '');
+}
+
+// ── Restore session on load ──
+// ── This Week Checklist ──
+var PROGRAM_START = new Date('2026-08-31');
+function getCurrentWeek() {
+  var days = Math.floor((new Date() - PROGRAM_START) / (1000*60*60*24));
+  return Math.min(9, Math.max(1, Math.floor(days/7) + 1));
+}
+var WEEK_TASKS = {
+  1:{title:'Cybersecurity Foundations',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 1 Content',p:'p1',w:1},{t:'📝 Take Week 1 Quiz',p:'p1',w:1},
+      {t:'🔤 Acronym Drill',p:'p1',w:1},{t:'🔬 Complete Lab Activity',p:'p1',w:1}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'📚 Curriculum Module 1: Cybersecurity Foundations',p:'p2-cur',cur:0},
+      {t:'🎮 Quiz: Cyber Foundations',p:'p2'},{t:'🔒 Password Checker',p:'p2'},{t:'🎣 Phishing Spotter',p:'p2'}]},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
+      {t:'📄 Project 1: Target Breach — Deep Dive (50 pts)',p:'p3',proj:1}]}
+  ]},
+  2:{title:'Network Fundamentals',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 2 Content',p:'p1',w:2},{t:'📝 Take Week 2 Quiz',p:'p1',w:2},
+      {t:'🔤 Acronym Drill',p:'p1',w:2},{t:'🔬 Complete Lab Activity',p:'p1',w:2}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'📚 Curriculum Module 2: Network Fundamentals',p:'p2-cur',cur:1},
+      {t:'🎮 Quiz: Network Security',p:'p2'},{t:'🖥️ SOC Simulator',p:'p2'}]},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
+      {t:'📄 Project 2: Target Breach — Frameworks & Writing (100 pts)',p:'p3',proj:2}]}
+  ]},
+  3:{title:'Threat Landscape',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 3 Content',p:'p1',w:3},{t:'📝 Take Week 3 Quiz',p:'p1',w:3},
+      {t:'🔤 Acronym Drill',p:'p1',w:3},{t:'🔬 Complete Lab Activity',p:'p1',w:3}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'📚 Curriculum Module 3: Threat Landscape',p:'p2-cur',cur:2},
+      {t:'🎮 Quiz: Threat Landscape',p:'p2'},{t:'🃏 Flashcard Drill',p:'p2'}]},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
+      {t:'📄 Project 3: Colonial Pipeline — Deep Dive (50 pts)',p:'p3',proj:3},
+      {t:'🗺️ MITRE ATT&CK Mapping Tool — Wednesday Activity',p:'tool',url:'MITRE_Attack_Map.html?panel=techniques'},
+      {t:'📰 Source Doc: CISA Advisory AA21-131A (Official PDF)',p:'ext',url:'https://www.cisa.gov/sites/default/files/publications/AA21-131A_Darkside_Ransomware.pdf'},
+      {t:'🏛️ Source Doc: CEO Senate Testimony — June 8 2021 (Official PDF)',p:'ext',url:'https://www.hsgac.senate.gov/wp-content/uploads/imo/media/doc/Testimony-Blount-2021-06-08.pdf'},
+      {t:'🔍 Source Doc: CISA — What We Learned Two Years Later',p:'ext',url:'https://www.cisa.gov/news-events/news/attack-colonial-pipeline-what-weve-learned-what-weve-done-over-past-two-years'}]}
+  ]},
+  4:{title:'Core Classes',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 4 Content',p:'p1',w:4},{t:'📝 Take Week 4 Quiz',p:'p1',w:4},
+      {t:'🔤 Acronym Drill',p:'p1',w:4},{t:'🔬 Complete Lab Activity',p:'p1',w:4}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'📚 Curriculum Module 5: Kali Linux Basics',p:'p2-cur',cur:4},
+      {t:'🎮 Quiz: OS & Linux',p:'p2'},{t:'🎮 Quiz: Access Control',p:'p2'}]},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
+      {t:'📄 Project 4: Colonial Pipeline — Frameworks & Writing (100 pts)',p:'p3',proj:4},
+      {t:'🗺️ MITRE ATT&CK Reference Tool (Technique Breakdown)',p:'tool',url:'MITRE_Attack_Map.html?panel=techniques'},
+      {t:'📰 Source Doc: CISA Advisory AA21-131A (Official PDF)',p:'ext',url:'https://www.cisa.gov/sites/default/files/publications/AA21-131A_Darkside_Ransomware.pdf'},
+      {t:'🏛️ Source Doc: CEO Senate Testimony — June 8 2021 (Official PDF)',p:'ext',url:'https://www.hsgac.senate.gov/wp-content/uploads/imo/media/doc/Testimony-Blount-2021-06-08.pdf'},
+      {t:'🔍 Source Doc: CISA — What We Learned Two Years Later',p:'ext',url:'https://www.cisa.gov/news-events/news/attack-colonial-pipeline-what-weve-learned-what-weve-done-over-past-two-years'}]},
+    {icon:'🔓',label:'Pillar 4 — Ethical Hacking Lab',color:'#00ff41',items:[
+      {t:'🕵️ Phase 1: Reconnaissance',p:'p4'},{t:'🔍 Phase 2: Scanning & Enumeration',p:'p4'}]}
+  ]},
+  5:{title:'Kali Linux Fundamentals',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 5 Content',p:'p1',w:5},{t:'📝 Take Week 5 Quiz',p:'p1',w:5},
+      {t:'🔤 Acronym Drill',p:'p1',w:5},{t:'🔬 Complete Lab Activity',p:'p1',w:5}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'📚 Curriculum Module 6: Network Reconnaissance',p:'p2-cur',cur:5},
+      {t:'🎮 Quiz: Kali & Pentesting',p:'p2'}]},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
+      {t:'📄 Project 5: SolarWinds — Deep Dive (50 pts)',p:'p3',proj:5},
+      {t:'🏛️ NIST CSF 2.0 Tool — SolarWinds Analysis',p:'tool',url:'NIST_CSF_Map.html'},
+      {t:'📰 Source Doc: CISA Advisory AA20-352A (Official)',p:'ext',url:'https://www.cisa.gov/news-events/cybersecurity-advisories/aa20-352a'},
+      {t:'🏛️ Source Doc: SolarWinds CEO Senate Testimony — Feb 23 2021',p:'ext',url:'https://www.intelligence.senate.gov/hearings/open-hearing-review-foreign-cyber-threats-united-states-0'},
+      {t:'🔍 Source Doc: CISA Emergency Directive 21-01',p:'ext',url:'https://www.cisa.gov/emergency-directive-21-01'}]},
+    {icon:'🔓',label:'Pillar 4 — Ethical Hacking Lab',color:'#00ff41',items:[
+      {t:'💥 Phase 3: Exploitation',p:'p4'},{t:'👁️ Phase 4: Post-Exploitation',p:'p4'},{t:'📊 Phase 5: Reporting & Capstone',p:'p4'}]}
+  ]},
+  6:{title:'Human Factors',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 6 Content',p:'p1',w:6},{t:'📝 Take Week 6 Quiz',p:'p1',w:6},
+      {t:'🔤 Acronym Drill',p:'p1',w:6},{t:'🔬 Complete Lab Activity',p:'p1',w:6}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'📚 Curriculum Module 4: Human Factors',p:'p2-cur',cur:3},
+      {t:'🎮 Quiz: Social Engineering',p:'p2'},{t:'🎣 Phishing Spotter Challenge',p:'p2'}]},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
+      {t:'📄 Project 6: SolarWinds — Frameworks & Writing (100 pts)',p:'p3',proj:6},
+      {t:'🏛️ NIST CSF 2.0 Tool — Reference for Project 6',p:'tool',url:'NIST_CSF_Map.html'},
+      {t:'📰 Source Doc: CISA Advisory AA20-352A (Reference)',p:'ext',url:'https://www.cisa.gov/news-events/cybersecurity-advisories/aa20-352a'}]}
+  ]},
+  7:{title:'Defensive Security & Tools',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 7 Content',p:'p1',w:7},{t:'📝 Take Week 7 Quiz',p:'p1',w:7},
+      {t:'🔤 Acronym Drill',p:'p1',w:7},{t:'🔬 Complete Lab Activity',p:'p1',w:7}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'📚 Curriculum Module 7: Secure Development',p:'p2-cur',cur:6},
+      {t:'🎮 Quiz: Defensive Security',p:'p2'},{t:'🖥️ SOC Simulator',p:'p2'}]},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
+      {t:'📄 Project 7: Equifax — Deep Dive (50 pts)',p:'p3',proj:7}]},
+    {icon:'🛡️',label:'Pillar 5 — Blue Team Lab',color:'#00f5ff',items:[
+      {t:'📋 Phase 1: Log Analysis',p:'p5'},{t:'🔍 Phase 2: Threat Detection',p:'p5'},{t:'📦 Phase 3: Packet Analysis',p:'p5'}]}
+  ]},
+  8:{title:'Incident Response Basics',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 8 Content',p:'p1',w:8},{t:'📝 Take Week 8 Quiz',p:'p1',w:8},
+      {t:'🔤 Acronym Drill',p:'p1',w:8},{t:'🔬 Complete Lab Activity',p:'p1',w:8}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'📚 Curriculum Module 8: Penetration Testing Methodology',p:'p2-cur',cur:7},
+      {t:'🎮 Quiz: Incident Response',p:'p2'},{t:'🎮 Quiz: Security Operations',p:'p2'},{t:'🖥️ SOC Simulator',p:'p2'}]},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
+      {t:'📄 Project 8: Equifax — Frameworks & Writing (100 pts)',p:'p3',proj:8}]},
+    {icon:'🛡️',label:'Pillar 5 — Blue Team Lab',color:'#00f5ff',items:[
+      {t:'🚨 Phase 4: Incident Response',p:'p5'},{t:'📝 Phase 5: Defensive Report',p:'p5'}]}
+  ]},
+  9:{title:'Cybersecurity Careers & Capstone',groups:[
+    {icon:'🎓',label:'Pillar 1 — Student Platform',color:'#ee2207',items:[
+      {t:'📖 Study Week 9 Content',p:'p1',w:9},{t:'📝 Take Week 9 Quiz',p:'p1',w:9},
+      {t:'🔤 Acronym Drill',p:'p1',w:9},{t:'🔬 Complete Lab Activity',p:'p1',w:9}]},
+    {icon:'💻',label:'Pillar 2 — CyberSec Academy',color:'#00e676',items:[
+      {t:'📚 Review All 8 Curriculum Modules',p:'p2'},
+      {t:'🎮 Quiz: Careers & Certs',p:'p2'},{t:'🎮 Quiz: Cloud Security',p:'p2'},{t:'🃏 Complete All Flashcard Decks',p:'p2'}]},
+    {icon:'📋',label:'Pillar 3 — Curriculum Project',color:'#a78bfa',items:[
+      {t:'📄 Project 8: Equifax — Frameworks & Writing (100 pts)',p:'p3',proj:8}]},
+    {icon:'🚩',label:'CTF — Capture The Flag',color:'#ffd700',items:[
+      {t:'🚩 Complete All 4 CTF Scenarios (12 Flags)',p:'ctf'}]}
+  ]}
+};
+
+var _twName = '', _twId = '', _twChecksCache = {};
+function renderThisWeekPanel(hubName, hubId) {
+  _twName = hubName; _twId = hubId;
+  var panel = document.getElementById('this-week-panel');
+  if (!panel) return;
+  var wk = getCurrentWeek();
+  var sel = document.getElementById('tw-week-select');
+  if (sel) {
+    var titles = ['Cybersecurity Foundations','Network Fundamentals','Threat Landscape','Core Classes','Kali Linux Fundamentals','Human Factors','Defensive Security & Tools','Incident Response Basics','Careers & Capstone'];
+    sel.innerHTML = titles.map(function(t, i) {
+      var n = i + 1;
+      var label = 'Week ' + n + ' — ' + t + (n === wk ? '  ◄ Current Week' : '');
+      return '<option value="' + n + '"' + (n === wk ? ' selected' : '') + ' style="color:#111;background:#f0f0f0;">' + label + '</option>';
+    }).join('');
+  }
+  _renderWeekTasks(wk);
+  panel.style.display = 'block';
+}
+function switchWeekChecklist(wk) {
+  document.getElementById('tw-week-title').textContent = 'Week ' + wk + ': ' + (WEEK_TASKS[wk] ? WEEK_TASKS[wk].title : '');
+  _renderWeekTasks(wk);
+}
+function _renderWeekTasks(wk) {
+  var data = WEEK_TASKS[wk];
+  if (!data) return;
+  var p = '?name=' + encodeURIComponent(_twName) + '&id=' + encodeURIComponent(_twId);
+  document.getElementById('tw-week-title').textContent = 'Week ' + wk + ': ' + data.title;
+  var idx = 0;
+  var html = data.groups.map(function(g) {
+    var items = g.items.map(function(item) {
+      var href = '#', tgt = '', oc = '';
+      if (item.p === 'p1')  { href = 'CK_Student_Platform.html' + p + '&week=' + item.w; tgt = 'target="_blank"'; }
+      else if (item.p === 'p2-cur') { href = 'CyberSec_Academy.html' + p + '&cur=' + item.cur; tgt = 'target="_blank"'; }
+      else if (item.p === 'p2') { href = 'CyberSec_Academy.html' + p; tgt = 'target="_blank"'; }
+      else if (item.p === 'p3') { oc = 'onclick="openProjectSubmit(' + item.proj + ');return false;"'; }
+      else if (item.p === 'p4') { href = 'Pillar4_EthicalHacking.html' + p; tgt = 'target="_blank"'; }
+      else if (item.p === 'p5') { href = 'Pillar5_BlueTeam.html' + p; tgt = 'target="_blank"'; }
+      else if (item.p === 'ctf') { href = 'CK_CTF.html' + p; tgt = 'target="_blank"'; }
+      else if (item.p === 'tool') { var sep = item.url.indexOf('?') >= 0 ? '&' : '?'; href = item.url + sep + 'name=' + encodeURIComponent(_twName) + '&id=' + encodeURIComponent(_twId); tgt = 'target="_blank"'; }
+      else if (item.p === 'ext')  { href = item.url; tgt = 'target="_blank"'; }
+      var ckKey = 'mccoe_chk_' + (_twId || 'guest') + '_w' + wk + '_i' + idx;
+      var done = (_twChecksCache[ckKey] === '1') || (localStorage.getItem(ckKey) === '1');
+      var chk = done ? 'checked' : '';
+      var doneStyle = done ? 'text-decoration:line-through;opacity:0.45;' : '';
+      var row = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">' +
+        '<input type="checkbox" ' + chk + ' data-ck="' + ckKey + '" onchange="twCheckChange(this)" style="flex-shrink:0;width:15px;height:15px;cursor:pointer;accent-color:#e63946;">' +
+        '<a href="' + href + '" ' + tgt + ' ' + oc + ' style="flex:1;display:block;padding:7px 11px;border-radius:6px;font-size:12px;color:rgba(255,255,255,0.85);text-decoration:none;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);transition:background .15s,border-color .15s;' + doneStyle + '" onmouseover="this.style.background=\'rgba(255,255,255,0.11)\';this.style.borderColor=\'rgba(255,255,255,0.22)\';" onmouseout="this.style.background=\'rgba(255,255,255,0.05)\';this.style.borderColor=\'rgba(255,255,255,0.07)\';">' + item.t + '</a>' +
+        '</div>';
+      idx++;
+      return row;
+    }).join('');
+    return '<div style="background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:14px 16px;">' +
+      '<div style="font-family:\'Orbitron\',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;color:' + g.color + ';margin-bottom:10px;">' + g.icon + ' ' + g.label + '</div>' +
+      items + '</div>';
+  }).join('');
+  document.getElementById('tw-groups').innerHTML = html;
+}
+function twCheckChange(el) {
+  var key = el.dataset.ck;
+  var val = el.checked ? '1' : '0';
+  localStorage.setItem(key, val);
+  _twChecksCache[key] = val;
+  if (_hubDb && _twId) _hubDb.ref('mccoe_checklists/' + _twId + '/' + key).set(val);
+  var a = el.parentElement.querySelector('a');
+  if (a) { a.style.textDecoration = el.checked ? 'line-through' : 'none'; a.style.opacity = el.checked ? '0.45' : '1'; }
+}
+
+window.addEventListener('DOMContentLoaded', function() {
+  var sp   = new URLSearchParams(window.location.search);
+  var name = sp.get('name') || localStorage.getItem('hub_name');
+  var id   = sp.get('id')   || localStorage.getItem('hub_id');
+  if (name && id) {
+    var today = new Date().toISOString().split('T')[0];
+    var lastDate = localStorage.getItem('hub_last_login_date');
+    var doLog = (lastDate !== today);
+    if (doLog) localStorage.setItem('hub_last_login_date', today);
+    hubLoginSuccess(name, id, doLog);
+    if (sp.get('name')) window.history.replaceState({}, '', window.location.pathname);
+  }
+  // else: overlay stays visible for login
+});
+
+// ── Curriculum Modal ──
+function openCurriculum(e) {
+  e.preventDefault();
+  document.getElementById('curriculumModal').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+  loadAllProjectStatuses();
+}
+function closeCurriculum() {
+  document.getElementById('curriculumModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+document.getElementById('curriculumModal').addEventListener('click', function(e) {
+  if (e.target === this) closeCurriculum();
+});
+
+// ── Project Submission System ──
+const HUB_PROJECTS = {
+  1:{incident:'Target Data Breach (2013)',type:'Part 1 — Deep Dive',max:50,fields:[
+    {id:'q1',label:'Describe what happened. Who was attacked, how did attackers get in, and what was stolen?',ta:true},
+    {id:'q2',label:'How were each CIA Triad pillars (Confidentiality, Integrity, Availability) impacted?',ta:true},
+    {id:'q3',label:'At which Cyber Kill Chain phase did attackers first gain a foothold?',ta:false},
+    {id:'q4',label:'What MITRE ATT&CK technique(s) were used? (e.g. T1566 – Phishing)',ta:false},
+    {id:'q5',label:'List any CVEs involved, or write "None publicly identified."',ta:false},
+    {id:'q6',label:'What ONE security control could have prevented this breach? Explain why.',ta:true}
+  ]},
+  2:{incident:'Target Data Breach (2013)',type:'Part 2 — Frameworks & Writing',max:100,fields:[
+    {id:'q1',label:'Which NIST CSF functions (Identify, Protect, Detect, Respond, Recover) failed at Target? Explain each.',ta:true},
+    {id:'q2',label:'What penetration testing technique would have uncovered this vulnerability before the breach?',ta:true},
+    {id:'q3',label:'Write a 3–5 sentence Executive Summary for a non-technical board of directors.',ta:true},
+    {id:'q4',label:'List 3 specific, actionable remediation recommendations.',ta:true},
+    {id:'q5',label:'What compliance framework(s) were violated (e.g., PCI-DSS, HIPAA, SOX)? How?',ta:true}
+  ]},
+  3:{incident:'Colonial Pipeline Attack (2021)',type:'Part 1 — Deep Dive',max:50,fields:[
+    {id:'q1',label:'Describe what happened. Who was attacked, how, and what was the real-world impact?',ta:true},
+    {id:'q2',label:'How were each CIA Triad pillars impacted by this attack?',ta:true},
+    {id:'q3',label:'At which Kill Chain phase did attackers first gain access?',ta:false},
+    {id:'q4',label:'What MITRE ATT&CK technique(s) were used?',ta:false},
+    {id:'q5',label:'What known vulnerability or credential issue was exploited?',ta:false},
+    {id:'q6',label:'What ONE security control could have prevented or limited this attack?',ta:true}
+  ]},
+  4:{incident:'Colonial Pipeline Attack (2021)',type:'Part 2 — Frameworks & Writing',max:100,fields:[
+    {id:'q1',label:'Which NIST CSF functions failed at Colonial Pipeline? Explain each failure specifically.',ta:true},
+    {id:'q2',label:'What pentesting technique would have revealed this vulnerability?',ta:true},
+    {id:'q3',label:'Write a 3–5 sentence Executive Summary for a non-technical audience.',ta:true},
+    {id:'q4',label:'List 3 specific remediation recommendations for Colonial Pipeline.',ta:true},
+    {id:'q5',label:'What compliance/regulatory framework violations occurred? (e.g., TSA Pipeline Security, NERC CIP)',ta:true}
+  ]},
+  5:{incident:'SolarWinds Supply Chain Attack (2020)',type:'Part 1 — Deep Dive',max:50,fields:[
+    {id:'q1',label:'Describe what happened. How was the supply chain compromised and what was the scope?',ta:true},
+    {id:'q2',label:'How were each CIA Triad pillars impacted?',ta:true},
+    {id:'q3',label:'At which Kill Chain phase did attackers insert the SUNBURST backdoor?',ta:false},
+    {id:'q4',label:'What MITRE ATT&CK technique(s) were used? (Hint: T1195 – Supply Chain Compromise)',ta:false},
+    {id:'q5',label:'List the CVE(s) associated with this breach.',ta:false},
+    {id:'q6',label:'What ONE control could have detected or prevented the supply chain compromise?',ta:true}
+  ]},
+  6:{incident:'SolarWinds Supply Chain Attack (2020)',type:'Part 2 — Frameworks & Writing',max:100,fields:[
+    {id:'q1',label:'Which NIST CSF functions failed? Provide specific evidence from the SolarWinds case.',ta:true},
+    {id:'q2',label:'What pentesting technique could simulate a supply chain attack on your organization?',ta:true},
+    {id:'q3',label:'Write a 3–5 sentence Executive Summary for a federal agency CIO.',ta:true},
+    {id:'q4',label:'List 3 specific remediation recommendations to prevent supply chain attacks.',ta:true},
+    {id:'q5',label:'What compliance frameworks were implicated? (e.g., FedRAMP, FISMA, CMMC)',ta:true}
+  ]},
+  7:{incident:'Equifax Data Breach (2017)',type:'Part 1 — Deep Dive',max:50,fields:[
+    {id:'q1',label:'Describe what happened. What data was stolen, how many affected, and how did it occur?',ta:true},
+    {id:'q2',label:'How were each CIA Triad pillars impacted?',ta:true},
+    {id:'q3',label:'At which Kill Chain phase did attackers first exploit Equifax\'s systems?',ta:false},
+    {id:'q4',label:'What MITRE ATT&CK technique(s) were used?',ta:false},
+    {id:'q5',label:'What CVE was at the center of this breach? Describe the vulnerability briefly.',ta:false},
+    {id:'q6',label:'What ONE control would have prevented this breach?',ta:true}
+  ]},
+  8:{incident:'Equifax Data Breach (2017)',type:'Part 2 — Frameworks & Writing',max:100,fields:[
+    {id:'q1',label:'Which NIST CSF functions failed at Equifax? Back each up with specific evidence.',ta:true},
+    {id:'q2',label:'What pentesting technique would have found the Apache Struts vulnerability first?',ta:true},
+    {id:'q3',label:'Write a 3–5 sentence Executive Summary suitable for Congressional testimony.',ta:true},
+    {id:'q4',label:'List 3 specific remediation recommendations Equifax should have had in place.',ta:true},
+    {id:'q5',label:'What consumer protection/data privacy laws were violated? (e.g., FCRA, GDPR, breach notification laws)',ta:true}
+  ]}
+};
+
+const HUB_RUBRIC = {
+  1: [
+    { pts:8,  label:'Incident Overview',   guide:'Name the victim, how attackers got in, what was stolen, and when.',
+      checks:['Named the victim organization (Target)','Identified the entry point (HVAC vendor / third-party contractor)','Stated what was stolen (40M credit/debit card numbers)','Mentioned the timeframe (Nov–Dec 2013)'] },
+    { pts:8,  label:'CIA Triad Impact',    guide:'Address all three pillars specifically to this incident.',
+      checks:['Confidentiality — described what data was exposed','Integrity — addressed whether data or systems were altered','Availability — addressed whether systems were taken offline'] },
+    { pts:8,  label:'Kill Chain Phase',    guide:'Name the specific phase and briefly explain why it applies.',
+      checks:['Named a specific Cyber Kill Chain phase','Briefly explained why that phase applies to this attack'] },
+    { pts:8,  label:'MITRE ATT&CK',       guide:'Include at least one T-number, the name, and how it was used.',
+      checks:['Included at least one technique ID (T-number)','Named the technique','Explained how it was used in this attack'] },
+    { pts:6,  label:'CVEs',               guide:'List known CVEs or state "None publicly identified."',
+      checks:['Listed known CVEs or clearly stated "None publicly identified"'] },
+    { pts:8,  label:'Preventive Control', guide:'Name one specific control and explain why it would have prevented this breach.',
+      checks:['Named one specific security control','Explained exactly why it would have prevented this breach'] }
+  ],
+  2: [
+    { pts:20, label:'NIST CSF Failures',  guide:'Cover all five functions with a Target-specific failure for each.',
+      checks:['Identify — named a specific failure (e.g. no vendor risk management)','Protect — named a specific failure (e.g. no MFA, poor segmentation)','Detect — named a specific failure (e.g. ignored FireEye alerts)','Respond — named a specific failure (e.g. slow breach response)','Recover — named a specific failure (e.g. delayed customer notification)'] },
+    { pts:20, label:'Pentest Technique',  guide:'Name a specific technique and explain how it would have found the vulnerability.',
+      checks:['Named a specific technique (not just "a pentest")','Explained how it would have exposed the specific vulnerability before attackers'] },
+    { pts:20, label:'Executive Summary',  guide:'3–5 sentences, no jargon, written for a board of directors.',
+      checks:['Written in 3–5 sentences','Uses non-technical language (board of directors audience)','Covers what happened and the impact','Includes the root cause and a recommendation'] },
+    { pts:20, label:'Remediation',        guide:'Exactly 3 specific, actionable recommendations — not generic.',
+      checks:['Listed exactly 3 recommendations','Each recommendation is specific and actionable (not generic)','Each recommendation is briefly explained'] },
+    { pts:20, label:'Compliance Violations', guide:'Name the framework(s) and explain how the incident violated each.',
+      checks:['Named at least one specific compliance framework (e.g. PCI-DSS)','Explained how this incident violated that framework'] }
+  ],
+  3: [
+    { pts:8,  label:'Incident Overview',  guide:'Name the threat actor, how they got in, the real-world impact, and the ransom outcome.',
+      checks:['Named the threat actor (DarkSide ransomware group)','Explained how they got in (compromised VPN credentials, no MFA)','Described the real-world impact (fuel shortages, 6-day shutdown)','Mentioned the ransom amount ($4.4M) or outcome'] },
+    { pts:8,  label:'CIA Triad Impact',   guide:'Address all three pillars specifically to this attack.',
+      checks:['Confidentiality — data stolen (double extortion)','Integrity — billing/IT systems encrypted','Availability — pipeline shutdown and fuel supply disruption'] },
+    { pts:8,  label:'Kill Chain Phase',   guide:'Name the specific phase for initial access and explain why.',
+      checks:['Named a specific Kill Chain phase','Briefly explained why that phase applies'] },
+    { pts:8,  label:'MITRE ATT&CK',      guide:'T1133 and T1486 are the most relevant. Include ID, name, and how it applies.',
+      checks:['Included at least one technique ID (T-number)','Named the technique','Explained how it applies to this specific attack'] },
+    { pts:8,  label:'Vulnerability Exploited', guide:'Name the specific credential weakness and what was missing that allowed it.',
+      checks:['Named the specific credential weakness (reused/compromised VPN password)','Explained what was missing that allowed it (no MFA enabled on VPN)'] },
+    { pts:8,  label:'Preventive Control', guide:'Name one control and explain how it would have stopped this specific attack.',
+      checks:['Named one specific control (e.g. MFA on VPN, IT/OT segmentation)','Explained how it would have stopped or significantly limited this attack'] }
+  ],
+  4: [
+    { pts:20, label:'NIST CSF Failures',  guide:'All five functions with Colonial Pipeline-specific evidence.',
+      checks:['Identify — specific failure (e.g. no asset inventory/vulnerability management)','Protect — specific failure (e.g. no MFA on VPN, no IT/OT segmentation)','Detect — specific failure (e.g. credential compromise not detected before attack)','Respond — specific failure (e.g. no incident response plan)','Recover — specific failure (e.g. no tested OT backup/recovery procedures)'] },
+    { pts:20, label:'Pentest Technique',  guide:'Name a specific technique targeting credential/VPN security.',
+      checks:['Named a specific technique targeting credential or remote access security','Explained how it would have revealed the VPN vulnerability before attackers'] },
+    { pts:20, label:'Executive Summary',  guide:'3–5 sentences for a Congressional/non-technical audience.',
+      checks:['Written in 3–5 sentences','Appropriate for Congressional/non-technical audience','Covers the attack method and national impact','Addresses why it happened and what should change'] },
+    { pts:20, label:'Remediation',        guide:'3 specific recommendations that directly address failures in this incident.',
+      checks:['Listed exactly 3 recommendations','Each directly addresses a failure from Colonial Pipeline','Each is specific and actionable'] },
+    { pts:20, label:'Compliance Violations', guide:'Name relevant pipeline/infrastructure regulations and explain the gaps.',
+      checks:['Named TSA Pipeline Security Directives or equivalent regulation','Explained how this incident exposed compliance gaps'] }
+  ],
+  5: [
+    { pts:8,  label:'Incident Overview',  guide:'Name the threat actor, how the supply chain was compromised, scale, and detection timeline.',
+      checks:['Named the threat actor (Russian SVR / Cozy Bear APT)','Explained how the supply chain was compromised (trojanized software update)','Stated the scale (18,000+ organizations, government agencies)','Mentioned how long it went undetected (9+ months)'] },
+    { pts:8,  label:'CIA Triad Impact',   guide:'Address all three pillars specifically to this attack.',
+      checks:['Confidentiality — government/classified data accessed','Integrity — trusted software update was trojanized','Availability — agencies forced to disconnect Orion systems'] },
+    { pts:8,  label:'Kill Chain Phase',   guide:'Identify where the backdoor was inserted and why this phase matters for supply chain attacks.',
+      checks:['Named the Kill Chain phase where the backdoor was inserted','Explained why this phase is significant for supply chain attacks'] },
+    { pts:8,  label:'MITRE ATT&CK',      guide:'T1195.002 (Supply Chain Compromise) is the primary technique.',
+      checks:['Included T1195.002 or T1195 (Supply Chain Compromise)','Named the technique','Explained how it was executed in this attack'] },
+    { pts:8,  label:'CVEs',              guide:'List CVE-2020-10148 or explain the attack was primarily technique-based.',
+      checks:['Listed CVE-2020-10148 or explained the attack was primarily technique-based','Briefly described the vulnerability'] },
+    { pts:8,  label:'Preventive Control', guide:'Name a control specific to supply chain attacks and explain why it helps.',
+      checks:['Named a control specific to supply chain attacks (not just "better antivirus")','Explained how it addresses the specific threat vector used'] }
+  ],
+  6: [
+    { pts:20, label:'NIST CSF Failures',  guide:'All five functions with SolarWinds-specific evidence — focus on 9-month evasion.',
+      checks:['Identify — supply chain risk management failure','Protect — code integrity/verification failure','Detect — explained why 9+ months of evasion was possible','Respond — no supply chain compromise playbook existed','Recover — scale of coordinated federal remediation required'] },
+    { pts:20, label:'Pentest Technique',  guide:'Name a technique that simulates supply chain compromise and explain what it tests.',
+      checks:['Named a technique that simulates supply chain compromise','Explained how it tests whether a trojanized update would be caught'] },
+    { pts:20, label:'Executive Summary',  guide:'3–5 sentences for a federal CIO — cover scale, trust exploitation, and remediation.',
+      checks:['Written in 3–5 sentences','Addresses a federal CIO\'s concerns specifically','Covers scale (18K+ orgs) and how the trust model was exploited','Includes top remediation priorities'] },
+    { pts:20, label:'Remediation',        guide:'3 specific recommendations targeting supply chain risk.',
+      checks:['Listed exactly 3 recommendations targeting supply chain risk','Each is specific (e.g. SBOM, code signing, zero-trust — not generic)','Each recommendation is briefly explained'] },
+    { pts:20, label:'Compliance Frameworks', guide:'Name at least two federal frameworks and explain how this attack exposed gaps.',
+      checks:['Named at least two relevant federal frameworks (FedRAMP, FISMA, CMMC, EO 14028)','Explained how this attack exposed gaps in each framework named'] }
+  ],
+  7: [
+    { pts:8,  label:'Incident Overview',  guide:'People affected, data stolen, CVE exploited, patch timing failure, how long undetected.',
+      checks:['Stated the number of people affected (147 million)','Named the specific CVE exploited (CVE-2017-5638)','Explained the patch timing failure (patch available 2 months prior)','Stated what data was stolen (SSNs, PII)','Mentioned the breach went undetected for 78 days'] },
+    { pts:8,  label:'CIA Triad Impact',   guide:'All three pillars specific to the Equifax breach.',
+      checks:['Confidentiality — 147M records including SSNs stolen','Integrity — potential data modification during 78-day dwell time','Availability — services disrupted, website taken offline'] },
+    { pts:8,  label:'Kill Chain Phase',   guide:'Name the phase for web application exploitation and explain why.',
+      checks:['Named the Exploitation phase','Explained what made the web application vulnerable (unpatched CVE)'] },
+    { pts:8,  label:'MITRE ATT&CK',      guide:'T1190 (Exploit Public-Facing Application) is the primary technique.',
+      checks:['Included T1190 (Exploit Public-Facing Application)','Named the technique','Explained how it applies to this specific breach'] },
+    { pts:8,  label:'CVE',               guide:'Name CVE-2017-5638, describe it as RCE in Apache Struts, and mention patch timing.',
+      checks:['Named CVE-2017-5638 specifically','Described it as a remote code execution flaw in Apache Struts','Mentioned patch timing (released March 2017, breach began May 2017)'] },
+    { pts:8,  label:'Preventive Control', guide:'Address the actual failure (unpatched CVE) with a specific control.',
+      checks:['Named the specific control that addresses the actual failure','Explained how it would have prevented or caught the attack'] }
+  ],
+  8: [
+    { pts:20, label:'NIST CSF Failures',  guide:'All five functions — the expired TLS cert disabling traffic inspection is a critical Detect failure.',
+      checks:['Identify — patch management failure (CVE known 2 months)','Protect — no WAF; expired TLS certificate disabled traffic inspection for 19 months','Detect — 78-day dwell time; explained why traffic inspection failed','Respond — delayed internal response after discovery','Recover — no tested breach notification or data recovery plan'] },
+    { pts:20, label:'Pentest Technique',  guide:'Name web application testing targeting known CVEs and explain how it finds CVE-2017-5638.',
+      checks:['Named web application penetration testing targeting known CVEs','Explained how it would have found CVE-2017-5638 before attackers'] },
+    { pts:20, label:'Executive Summary',  guide:'3–5 sentences at Congressional testimony level — cover magnitude, root cause, duration, and governance.',
+      checks:['Written in 3–5 sentences','Appropriate for Congressional testimony','Covers magnitude (147M Americans) and root cause','Addresses 78-day detection failure and organizational governance failure'] },
+    { pts:20, label:'Remediation',        guide:'3 specific recommendations addressing actual Equifax failures.',
+      checks:['Listed exactly 3 specific recommendations','Addresses actual failures: patch SLAs, WAF, certificate management, or data minimization','Each recommendation is briefly explained'] },
+    { pts:20, label:'Legal Violations',   guide:'Name FCRA, GDPR, and state breach notification laws — explain how each applies.',
+      checks:['Named FCRA (Equifax handles consumer credit data)','Named GDPR (European customers affected)','Named state breach notification laws or FTC Act Section 5','Explained how each applies to Equifax specifically'] }
+  ]
+};
+
+var _currentProjectNum = null;
+var _projectStatuses = {};
+var _autosaveTimer = null;
+
+function loadAllProjectStatuses() {
+  var id = localStorage.getItem('hub_id');
+  if (!id || !_hubDb) return;
+  _hubDb.ref('mccoe_submissions/' + id).once('value', function(snap) {
+    var data = snap.val() || {};
+    _projectStatuses = {};
+    Object.keys(data).forEach(function(k) {
+      var n = parseInt(k.replace('week',''));
+      if (!isNaN(n)) _projectStatuses[n] = data[k];
+    });
+    updateSubmitButtons();
+  });
+}
+
+function updateSubmitButtons() {
+  [1,2,3,4,5,6,7,8].forEach(function(n) {
+    var btn = document.getElementById('proj-submit-btn-' + n);
+    if (!btn) return;
+    var s = _projectStatuses[n];
+    if (s && s.grade) {
+      btn.textContent = '✅ Graded: ' + s.grade.score + '/' + HUB_PROJECTS[n].max + ' pts';
+      btn.style.borderColor = 'rgba(0,166,81,0.6)';
+      btn.style.color = '#00c853';
+      btn.style.background = 'rgba(0,166,81,0.1)';
+    } else if (s && s.submittedAt) {
+      btn.textContent = '✅ Submitted — View';
+      btn.style.borderColor = 'rgba(0,166,81,0.5)';
+      btn.style.color = '#00c853';
+      btn.style.background = 'rgba(0,166,81,0.08)';
+    } else {
+      btn.textContent = '📝 Submit Project ' + n;
+      btn.style.borderColor = 'rgba(167,139,250,0.5)';
+      btn.style.color = '#a78bfa';
+      btn.style.background = 'rgba(167,139,250,0.08)';
+    }
+  });
+}
+
+function openProjectSubmit(n) {
+  var hubName = localStorage.getItem('hub_name');
+  var hubId   = localStorage.getItem('hub_id');
+  if (!hubName || !hubId) {
+    alert('Please sign in first to submit your project answers.');
+    closeCurriculum();
+    document.getElementById('hub-login-overlay').style.display = 'flex';
+    return;
+  }
+  _currentProjectNum = n;
+  // Always fetch fresh from Firebase so instructor grades show immediately
+  if (_hubDb && hubId) {
+    _hubDb.ref('mccoe_submissions/' + hubId + '/week' + n).once('value', function(snap) {
+      if (snap.val()) _projectStatuses[n] = snap.val();
+      _renderProjectModal(n, hubName, hubId);
+    });
+  } else {
+    _renderProjectModal(n, hubName, hubId);
+  }
+}
+
+function _renderProjectModal(n, hubName, hubId) {
+  var proj = HUB_PROJECTS[n];
+  var saved = _projectStatuses[n] || {};
+  var submitted = !!saved.submittedAt;
+  var grade = saved.grade;
+  var draft = JSON.parse(localStorage.getItem('mccoe_proj_draft_' + n) || 'null');
+
+  var fieldsHTML = proj.fields.map(function(f, fIdx) {
+    var val = (saved.answers && saved.answers[f.id]) ? saved.answers[f.id] : (draft && draft.answers && draft.answers[f.id] ? draft.answers[f.id] : '');
+    var escaped = val.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    var inp = f.ta
+      ? '<textarea id="hp-' + n + '-' + f.id + '" rows="3" style="width:100%;padding:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(167,139,250,0.3);border-radius:6px;color:#fff;font-family:\'Rajdhani\',sans-serif;font-size:14px;resize:vertical;outline:none;box-sizing:border-box;" placeholder="Type your answer...">' + val + '</textarea>'
+      : '<input type="text" id="hp-' + n + '-' + f.id + '" value="' + escaped + '" style="width:100%;padding:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(167,139,250,0.3);border-radius:6px;color:#fff;font-family:\'Rajdhani\',sans-serif;font-size:14px;outline:none;box-sizing:border-box;" placeholder="Type your answer...">';
+    var rubricItem = HUB_RUBRIC[n] && HUB_RUBRIC[n][fIdx];
+    var checklistHTML = '';
+    if (rubricItem && rubricItem.checks && rubricItem.checks.length) {
+      checklistHTML = '<div style="margin-top:8px;padding:8px 10px;background:rgba(167,139,250,0.04);border-radius:6px;border:1px solid rgba(167,139,250,0.12);">' +
+        '<div style="font-size:10px;color:rgba(167,139,250,0.55);font-weight:700;margin-bottom:6px;letter-spacing:.5px;">CHECKLIST — tick off each point as you write</div>' +
+        rubricItem.checks.map(function(c, ci) {
+          var cid = 'chk-' + n + '-' + f.id + '-' + ci;
+          return '<label style="display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;cursor:pointer;">' +
+            '<input type="checkbox" id="' + cid + '" style="margin-top:2px;accent-color:#a78bfa;flex-shrink:0;width:13px;height:13px;">' +
+            '<span style="font-size:11px;color:rgba(255,255,255,0.55);line-height:1.5;">' + c + '</span>' +
+          '</label>';
+        }).join('') +
+      '</div>';
+    }
+    return '<div style="margin-bottom:20px;"><div style="font-size:11px;color:rgba(167,139,250,0.9);font-weight:700;margin-bottom:7px;line-height:1.5;letter-spacing:.3px;">' + f.label + '</div>' + inp + checklistHTML + '</div>';
+  }).join('');
+
+  var gradeHTML = '';
+  if (grade) {
+    var pct = Math.round(grade.score / proj.max * 100);
+    gradeHTML = '<div style="background:rgba(0,166,81,0.1);border:1px solid rgba(0,166,81,0.4);border-radius:8px;padding:14px;margin-top:16px;">' +
+      '<div style="font-weight:700;color:#00c853;margin-bottom:6px;font-size:13px;">✅ Graded by Instructor</div>' +
+      '<div style="font-size:13px;color:#fff;">Score: <strong>' + grade.score + ' / ' + proj.max + '</strong> (' + pct + '%)</div>' +
+      (grade.feedback ? '<div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:8px;line-height:1.5;"><strong style="color:#a78bfa;">Instructor Feedback:</strong><br>' + grade.feedback + '</div>' : '') +
+      '</div>';
+  }
+
+  var draftInfo = '';
+  if (draft && draft.savedAt) {
+    var draftTime = new Date(draft.savedAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    draftInfo = '<div style="font-size:11px;color:rgba(167,139,250,0.6);font-family:\'Share Tech Mono\',monospace;margin-bottom:10px;">📋 Draft restored — last saved ' + draftTime + '</div>';
+  }
+
+  var submitBtn =
+    (submitted ? '<div style="margin-bottom:10px;font-size:11px;color:rgba(255,165,0,0.8);font-family:\'Share Tech Mono\',monospace;">⚠ Resubmitting will replace your previous answers and reset your grade.</div>' : '') +
+    draftInfo +
+    '<div id="proj-draft-status" style="font-size:11px;color:rgba(167,139,250,0.55);font-family:\'Share Tech Mono\',monospace;margin-bottom:8px;min-height:16px;"></div>' +
+    '<div style="display:flex;gap:10px;margin-top:4px;">' +
+      '<button onclick="saveDraftHub()" style="flex:1;padding:11px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.35);color:#a78bfa;font-family:\'Orbitron\',monospace;font-size:10px;font-weight:700;letter-spacing:1.5px;border-radius:6px;cursor:pointer;transition:all .2s;" onmouseover="this.style.background=\'rgba(167,139,250,0.18)\'" onmouseout="this.style.background=\'rgba(167,139,250,0.08)\'">' +
+      '💾 &nbsp; SAVE DRAFT</button>' +
+      '<button onclick="submitProjectHub()" style="flex:2;padding:11px;background:' + (submitted ? 'linear-gradient(135deg,rgba(245,166,35,0.3),rgba(245,166,35,0.15));border:1px solid rgba(245,166,35,0.6)' : 'linear-gradient(135deg,rgba(167,139,250,0.3),rgba(167,139,250,0.15));border:1px solid rgba(167,139,250,0.6)') + ';color:#fff;font-family:\'Orbitron\',monospace;font-size:11px;font-weight:700;letter-spacing:2px;border-radius:6px;cursor:pointer;transition:all .2s;">' +
+      (submitted ? '🔄 &nbsp; RESUBMIT PROJECT ' + n : '&#9654; &nbsp; SUBMIT PROJECT ' + n) + '</button>' +
+    '</div>';
+
+  var rubricRows = (HUB_RUBRIC[n] || []).map(function(r) {
+    return '<div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid rgba(167,139,250,0.1);">' +
+      '<div style="min-width:34px;text-align:center;font-family:\'Orbitron\',monospace;font-size:10px;font-weight:700;color:#a78bfa;padding-top:2px;">' + r.pts + 'pt</div>' +
+      '<div><div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.85);margin-bottom:2px;">' + r.label + '</div>' +
+      '<div style="font-size:11px;color:rgba(255,255,255,0.5);line-height:1.5;">' + r.guide + '</div></div>' +
+    '</div>';
+  }).join('');
+
+  var rubricPanel = rubricRows ? (
+    '<div style="margin-bottom:20px;border:1px solid rgba(167,139,250,0.25);border-radius:8px;overflow:hidden;">' +
+      '<button onclick="(function(){var p=document.getElementById(\'rub-panel-' + n + '\');var a=document.getElementById(\'rub-arrow-' + n + '\');var open=p.style.display===\'block\';p.style.display=open?\'none\':\'block\';a.textContent=open?\'▼\':\'▲\';})()" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:rgba(167,139,250,0.08);border:none;cursor:pointer;color:#a78bfa;font-family:\'Orbitron\',monospace;font-size:10px;font-weight:700;letter-spacing:1.5px;">' +
+        '<span>📋 &nbsp; GRADING RUBRIC — WHAT YOU WILL BE SCORED ON</span>' +
+        '<span id="rub-arrow-' + n + '">▼</span>' +
+      '</button>' +
+      '<div id="rub-panel-' + n + '" style="display:none;padding:12px 14px;">' + rubricRows + '</div>' +
+    '</div>'
+  ) : '';
+
+  document.getElementById('proj-modal-content').innerHTML =
+    '<div style="margin-bottom:20px;">' +
+      '<div style="font-family:\'Orbitron\',monospace;font-size:10px;color:#a78bfa;letter-spacing:2px;margin-bottom:6px;">PROJECT ' + n + ' &nbsp;|&nbsp; ' + proj.incident.toUpperCase() + '</div>' +
+      '<div style="font-size:12px;color:rgba(255,255,255,0.5);font-family:\'Share Tech Mono\',monospace;letter-spacing:1px;">' + proj.type + ' &bull; Max ' + proj.max + ' pts</div>' +
+      (submitted ? '<div style="margin-top:8px;font-size:11px;color:rgba(0,200,83,0.8);font-family:\'Share Tech Mono\',monospace;">Submitted ' + new Date(saved.submittedAt).toLocaleString() + ' — answers locked</div>' : '') +
+    '</div>' +
+    rubricPanel +
+    fieldsHTML +
+    submitBtn +
+    gradeHTML;
+
+  document.getElementById('proj-submit-modal').style.display = 'flex';
+
+  // Pull Firebase draft and populate fields if it's newer than localStorage
+  var _fbHubId = localStorage.getItem('hub_id');
+  if (_hubDb && _fbHubId) {
+    _hubDb.ref('mccoe_drafts/' + _fbHubId + '/proj' + n).once('value', function(snap) {
+      var fbDraft = snap.val();
+      if (!fbDraft || !fbDraft.answers) return;
+      var localTs = draft && draft.savedAt ? new Date(draft.savedAt).getTime() : 0;
+      var fbTs = fbDraft.savedAt ? new Date(fbDraft.savedAt).getTime() : 0;
+      if (fbTs > localTs) {
+        proj.fields.forEach(function(f) {
+          var el = document.getElementById('hp-' + n + '-' + f.id);
+          if (el && fbDraft.answers[f.id] !== undefined) el.value = fbDraft.answers[f.id];
+        });
+        localStorage.setItem('mccoe_proj_draft_' + n, JSON.stringify(fbDraft));
+        var statusEl = document.getElementById('proj-draft-status');
+        if (statusEl) {
+          var t = new Date(fbDraft.savedAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+          statusEl.textContent = '☁ Draft synced from cloud — last saved ' + t;
+          statusEl.style.color = 'rgba(0,200,83,0.75)';
+        }
+      }
+    });
+  }
+
+  if (_autosaveTimer) clearInterval(_autosaveTimer);
+  _autosaveTimer = setInterval(saveDraftHub, 2 * 60 * 1000);
+}
+
+function saveDraftHub() {
+  if (!_currentProjectNum) return;
+  var proj = HUB_PROJECTS[_currentProjectNum];
+  var answers = {};
+  proj.fields.forEach(function(f) {
+    var el = document.getElementById('hp-' + _currentProjectNum + '-' + f.id);
+    if (el) answers[f.id] = el.value;
+  });
+  var draftData = { answers: answers, savedAt: new Date().toISOString() };
+  localStorage.setItem('mccoe_proj_draft_' + _currentProjectNum, JSON.stringify(draftData));
+  var hubId = localStorage.getItem('hub_id');
+  if (_hubDb && hubId) _hubDb.ref('mccoe_drafts/' + hubId + '/proj' + _currentProjectNum).set(draftData);
+  var statusEl = document.getElementById('proj-draft-status');
+  if (statusEl) {
+    var t = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    statusEl.textContent = '✓ Draft saved at ' + t;
+    statusEl.style.color = 'rgba(0,200,83,0.75)';
+    setTimeout(function() { if (statusEl) statusEl.style.color = 'rgba(167,139,250,0.55)'; }, 3000);
+  }
+}
+
+function submitProjectHub() {
+  var proj = HUB_PROJECTS[_currentProjectNum];
+  var hubName = localStorage.getItem('hub_name');
+  var hubId   = localStorage.getItem('hub_id');
+  if (!hubId) { alert('Session expired. Please sign in again.'); return; }
+  var answers = {};
+  var hasContent = false;
+  proj.fields.forEach(function(f) {
+    var el = document.getElementById('hp-' + _currentProjectNum + '-' + f.id);
+    var val = el ? el.value.trim() : '';
+    if (val.length > 0) hasContent = true;
+    answers[f.id] = val;
+  });
+  if (!hasContent) { alert('Please answer at least one question before submitting.'); return; }
+  var alreadySubmitted = !!(_projectStatuses[_currentProjectNum] && _projectStatuses[_currentProjectNum].submittedAt);
+  var confirmMsg = alreadySubmitted
+    ? 'Resubmit Project ' + _currentProjectNum + '?\n\nThis will replace your previous answers and reset your grade. Your instructor will need to re-grade.'
+    : 'Submit Project ' + _currentProjectNum + '?\n\nYour answers will be sent to your instructor for grading.';
+  if (!confirm(confirmMsg)) return;
+  var entry = {
+    answers: answers,
+    weekNum: _currentProjectNum,
+    studentName: hubName,
+    studentId: hubId,
+    tempId: hubId,
+    incident: proj.incident,
+    projectType: proj.type,
+    maxScore: proj.max,
+    submittedAt: new Date().toISOString()
+  };
+  var projNum = _currentProjectNum;
+  _hubDb.ref('mccoe_submissions/' + hubId + '/week' + projNum).set(entry, function(err) {
+    if (err) { alert('Error submitting: ' + err.message); return; }
+    localStorage.removeItem('mccoe_proj_draft_' + projNum);
+    if (_hubDb && hubId) _hubDb.ref('mccoe_drafts/' + hubId + '/proj' + projNum).remove();
+    _projectStatuses[projNum] = entry;
+    updateSubmitButtons();
+    closeProjectModal();
+    alert('✅ Project ' + projNum + ' submitted! Your instructor will review and grade it.');
+  });
+}
+
+function closeProjectModal() {
+  document.getElementById('proj-submit-modal').style.display = 'none';
+  _currentProjectNum = null;
+  if (_autosaveTimer) { clearInterval(_autosaveTimer); _autosaveTimer = null; }
+}
+</script>
+</body>
+</html>
